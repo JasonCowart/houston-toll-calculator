@@ -121,15 +121,37 @@ require([
     return m;
   }
 
-  function withAvoidTolls(mode, axles) {
-    var names = axles > 2 ? ["Avoid Toll Roads for Trucks", "Avoid Toll Roads"] : ["Avoid Toll Roads"];
-    return names.map(function (n) {
-      var m = mode.clone();
-      var r = (m.restrictionAttributeNames || []).slice();
-      if (r.indexOf(n) === -1) r.push(n);
-      m.restrictionAttributeNames = r;
-      return m;
+  // Travel-mode variants that set "Restriction Usage" on the toll restrictions.
+  // Toll route: PREFER_HIGH ("very likely the route will include those roads").
+  // Toll-free route: PROHIBITED (the default "avoid" is only a soft preference).
+  // Restriction names differ for trucks, and "Avoid Express Lanes" (Katy, SH 288)
+  // may not exist on every mode, so variants run from most to least specific.
+  function tollVariants(mode, axles, usage) {
+    var tollNames = axles > 2 ? ["Avoid Toll Roads for Trucks", "Avoid Toll Roads"] : ["Avoid Toll Roads"];
+    var values = usage === "prefer" ? ["PREFER_HIGH", 0.2] : ["PROHIBITED", -1];
+    var out = [];
+    tollNames.forEach(function (t) {
+      [[t, "Avoid Express Lanes"], [t]].forEach(function (names) {
+        values.forEach(function (v) { out.push(withUsage(mode, names, v)); });
+      });
     });
+    return out;
+  }
+
+  function withUsage(mode, names, value) {
+    var m = mode.clone();
+    var r = (m.restrictionAttributeNames || []).slice();
+    var apv = (m.attributeParameterValues || []).filter(function (p) {
+      return !(names.indexOf(p.attributeName) !== -1 && p.parameterName === "Restriction Usage");
+    });
+    names.forEach(function (n) {
+      if (r.indexOf(n) === -1) r.push(n);
+      apv.push({ attributeName: n, parameterName: "Restriction Usage", value: value });
+    });
+    m.restrictionAttributeNames = r;
+    m.attributeParameterValues = apv;
+    m.__note = names.join(" + ") + " = " + value;
+    return m;
   }
 
   // Returns the route graphic; with directions, also attaches route.steps
@@ -142,10 +164,12 @@ require([
       returnRoutes: true,
       returnDirections: !!withDirections,
       directionsOutputType: "complete",
+      startTime: new Date(), // traffic for leaving now (live traffic within 4 hours)
     });
     return route.solve(ROUTE_URL, params).then(function (res) {
       var rr = res.routeResults[0];
       var g = rr.route;
+      g.modeNote = mode.__note || mode.name;
       var feats = rr.directions && rr.directions.features;
       if (withDirections && feats && feats.length) {
         g.steps = feats.map(function (f) {
@@ -159,11 +183,11 @@ require([
   }
 
   // Try each travel mode in turn (some restriction names may not exist for every mode).
-  function solveFirst(modes) {
+  function solveFirst(modes, withDirections) {
     var i = 0;
     function next(err) {
       if (i >= modes.length) return Promise.reject(err);
-      return solve(modes[i++]).catch(next);
+      return solve(modes[i++], withDirections).catch(next);
     }
     return next();
   }
@@ -244,7 +268,7 @@ require([
     var box = document.getElementById("debug") || document.createElement("div");
     box.id = "debug";
     box.className = "debug";
-    box.innerHTML = "<h3>Debug</h3><p>Ramp zones: " + (rampZones ? rampZones.length : "none (no directions geometry)") + "</p>" +
+    box.innerHTML = "<h3>Debug</h3><p>Toll route: " + esc(tollRoute.modeNote || "") + "<br>Toll-free route: " + esc((window.__freeNote || "")) + "</p><p>Ramp zones: " + (rampZones ? rampZones.length : "none (no directions geometry)") + "</p>" +
       "<table class='breakdown'><thead><tr><th>ID</th><th>Toll point within 60 m</th><th>Kind</th><th class='num'>Offset</th><th class='num'>Zone</th><th>Counted</th></tr></thead><tbody>" +
       html + "</tbody></table><details><summary>Maneuvers (" + (tollRoute.steps || []).length + ")</summary><ol>" + steps + "</ol></details>";
     document.getElementById("results").after(box);
@@ -257,10 +281,11 @@ require([
     $("free-meta").textContent = fmtMeta(f);
 
     var verdict = "";
-    if (!priced.items.length) verdict = "The fastest route doesn't use any toll roads.";
+    if (!priced.items.length) verdict = "No toll road helps on this trip, so both routes are toll-free.";
     else if (t.minutes != null && f.minutes != null) {
       var saved = Math.round(f.minutes - t.minutes);
       verdict = saved > 0 ? "Paying " + fmtMoney(priced.total) + " in tolls saves about " + saved + " min."
+        : saved < 0 ? "The toll route is about " + (-saved) + " min slower right now. Skip the tolls."
         : "The toll-free route is about as fast. You can skip the tolls.";
     }
     $("verdict").textContent = verdict;
@@ -291,7 +316,7 @@ require([
 
     loadTravelModes().then(function (modes) {
       var mode = pickMode(modes, axles);
-      return Promise.all([solve(mode, true), solveFirst(withAvoidTolls(mode, axles))]);
+      return Promise.all([solveFirst(tollVariants(mode, axles, "prefer"), true), solveFirst(tollVariants(mode, axles, "prohibit"))]);
     }).then(function (routes) {
       var tollRoute = routes[0], freeRoute = routes[1];
       var path = [].concat.apply([], tollRoute.geometry.paths);
@@ -299,6 +324,7 @@ require([
       var rampZones = hasSteps ? window.TollCalc.rampZonesFromSteps(tollRoute.steps) : null;
       var raw = window.TollCalc.findCrossings(path, tollPoints, { rampZones: rampZones });
       var freePath = [].concat.apply([], freeRoute.geometry.paths);
+      window.__freeNote = freeRoute.modeNote;
       var split = window.TollCalc.dropSharedWithFree(raw, freePath);
       var crossings = split.kept;
       if (DEBUG) showDebug(tollRoute, path, rampZones, crossings, split.dropped);

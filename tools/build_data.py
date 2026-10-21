@@ -8,7 +8,9 @@ Rate check (Oct 20, 2026) results applied here:
 - Katy Managed Lanes and SH 288 Express Lanes are priced by time of day -> status "timed".
 - MCTRA (SH 249 Tollway, Tomball Tollway north) and TxDOT SH 249 Tollway Extension points
   were checked against their 2026 schedules on Oct 21, 2026 -> "verified".
-- Everything else (other TxDOT, FBCTRA, BCTRA) -> "unverified".
+- Grand Parkway (TxDOT and FBCTRA), Fort Bend Parkway and the Westpark Tollway Extension
+  were checked against their 2026 schedules on Oct 21, 2026 -> "verified".
+- Everything else (SH 130, SH 45, Loop 1 near Austin; BCTRA) -> "unverified".
 """
 import json, sys
 
@@ -20,6 +22,19 @@ TIMED = {
     311: "brays-nb", 312: "brays-sb", 308: "holly-nb", 307: "holly-sb", 302: "almeda-nb", 303: "almeda-sb",
     299: "bw8wb-to-288", 301: "bw8eb-to-288", 300: "288nb-to-bw8", 304: "288sb-to-bw8",
     310: "610-to-288nb", 306: "288nb-to-610", 309: "288sb-to-610", 305: "610-to-288sb",
+}
+# The layer swaps these two Grand Parkway gantry names. Coordinates and rates match TxDOT's
+# "Riley Fuzzel ML (east of I-45)" at 281/282 and "Hardy ML (east of Hardy Toll Rd.)" at 279/280.
+NAME_FIX = {
+    279: "Hardy ML Gantry (east of Hardy Toll Rd)", 280: "Hardy ML Gantry (east of Hardy Toll Rd)",
+    281: "Riley Fuzzel ML Gantry (east of I-45)", 282: "Riley Fuzzel ML Gantry (east of I-45)",
+}
+# Whole roads checked against the owner's published 2026 schedule (Oct 21, 2026)
+CHECKED_ROADS = {
+    ("Grand Parkway", "TxDOT"): "TxDOT SH 99 rates (eff. Jan 1, 2026)",
+    ("Grand Parkway", "FBCTRA"): "FBCTRA 2026 rates (eff. Jan 1, 2026)",
+    ("Fort Bend Parkway", "FBCTRA"): "FBCTRA 2026 rates (eff. Jan 1, 2026)",
+    ("Westpark Tollway Extension", "FBCTRA"): "FBCTRA 2026 rates (eff. Jan 1, 2026)",
 }
 # Non-HCTRA points checked against the owner's published schedule (Oct 21, 2026)
 CHECKED = {
@@ -44,7 +59,8 @@ for x in json.load(open(src)):
     owner = (x["RoadwayOwner"] or "").replace(" ", "")
     road = x["Toll_Road"]
     oid = x["OBJECTID"]
-    status = "timed" if oid in TIMED else ("verified" if owner == "HCTRA" or oid in CHECKED else "unverified")
+    checked = CHECKED.get(oid) or CHECKED_ROADS.get((road, owner))
+    status = "timed" if oid in TIMED else ("verified" if owner == "HCTRA" or checked else "unverified")
     notag = [r(x["NoTAG"])] + [r(x["AxleRate%dNoTAG" % i]) for i in range(3, 9)]
     notes = []
     if x["OBJECTID"] in AXLE3_NOTAG_FIX:
@@ -53,7 +69,7 @@ for x in json.load(open(src)):
     ez2 = r(x["EZ_Rate"])
     pts.append({
         "id": x["OBJECTID"],
-        "name": x["Name"],
+        "name": NAME_FIX.get(x["OBJECTID"], x["Name"]),
         "road": road,
         "owner": owner,
         "kind": kind(x["Type"]),
@@ -66,7 +82,7 @@ for x in json.load(open(src)):
         "notag": notag,
         "status": status,
         **({"schedule": TIMED[oid]} if oid in TIMED else {}),
-        **({"checked": CHECKED[oid]} if oid in CHECKED else {}),
+        **({"checked": checked} if checked else {}),
         **({"note": "; ".join(notes)} if notes else {}),
     })
 pts.sort(key=lambda p: p["id"])

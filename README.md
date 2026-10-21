@@ -23,7 +23,9 @@ Keep pay-as-you-go **off** in Esri. The free tier then pauses at its limit inste
 - Katy Managed Lanes and SH 288 Express Lanes are priced by time of day (`status: "timed"`), at the estimated time the car reaches each gantry:
   - Katy: HCTRA's rate chart effective Sept 7, 2013 (still current). 3+ axles $7.00 per plaza; no tag +25%; carpools and motorcycles free weekdays 5–11 am and 2–8 pm.
   - SH 288: TxDOT's half-hour tables (effective Sept 1, 2026) in `data/sh288-rates.json`, refreshed by the **Update SH 288 rates** workflow (`tools/fetch_sh288.py`). Trucks × (axles − 1), max 5; no tag × 1.5 plus fees.
-- Montgomery County (Hardin Store, Decker Prairie) and TxDOT SH 249 Tollway Extension rates were checked against their 2026 schedules on Oct 21, 2026.
+- Montgomery County (Hardin Store, Decker Prairie), TxDOT SH 249 Tollway Extension, TxDOT Grand Parkway (94 points) and Fort Bend County (Grand Parkway Segment D, Fort Bend Parkway, Westpark Tollway Extension; 35 points) were checked against their 2026 schedules on Oct 21, 2026. All match.
+- The layer swaps two Grand Parkway gantry names (Riley Fuzzel and Hardy); `tools/build_data.py` fixes the names. Their rates were already right for their locations.
+- Still unverified: SH 130, SH 45 and Loop 1 (Austin area) and Brazoria County Expressway.
 - 17 HCTRA points had a 3-axle no-TAG rate of $1.30 in the layer. It's corrected to $3.00 here (see `tools/build_data.py`).
 
 ## Files

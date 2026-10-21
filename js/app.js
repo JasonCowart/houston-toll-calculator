@@ -21,6 +21,7 @@ require([
 
   var key = (window.TOLL_CONFIG && window.TOLL_CONFIG.arcgisApiKey || "").trim();
   var DEBUG = /[?&]debug=1\b/.test(location.search);
+  var HOV_TEST = /[?&]hov=1\b/.test(location.search);
   var $ = function (id) { return document.getElementById(id); };
   var stops = { from: null, to: null };
   var tollPoints = [];
@@ -145,8 +146,11 @@ require([
     var tollNames = axles > 2 ? ["Avoid Toll Roads for Trucks", "Avoid Toll Roads"] : ["Avoid Toll Roads"];
     var values = usage === "prefer" ? ["PREFER_HIGH", 0.2] : ["PROHIBITED", -1];
     var out = [];
+    // Experiment (?hov=1): the Katy Managed Lanes may be coded as carpool lanes in Esri's data,
+    // which "Driving Time" prohibits. Let the toll route use them to find out.
+    var extra = usage === "prefer" && HOV_TEST ? ["Avoid Carpool Roads"] : [];
     tollNames.forEach(function (t) {
-      [[t, "Avoid Express Lanes"], [t]].forEach(function (names) {
+      [[t, "Avoid Express Lanes"].concat(extra), [t].concat(extra)].forEach(function (names) {
         values.forEach(function (v) { out.push(withUsage(mode, names, v)); });
       });
     });
@@ -283,7 +287,10 @@ require([
     var box = document.getElementById("debug") || document.createElement("div");
     box.id = "debug";
     box.className = "debug";
-    box.innerHTML = "<h3>Debug</h3><p>Toll route: " + esc(tollRoute.modeNote || "") + "<br>Toll-free route: " + esc((window.__freeNote || "")) + "</p><p>Ramp zones: " + (rampZones ? rampZones.length : "none (no directions geometry)") + "</p>" +
+    var bm = window.__baseMode || {};
+    var base = "<p>Base mode \"" + esc(bm.name || "") + "\" restrictions: " + esc((bm.restrictionAttributeNames || []).join(", ")) +
+      "<br>Parameters: " + esc((bm.attributeParameterValues || []).map(function (a) { return a.attributeName + " = " + a.value; }).join("; ")) + "</p>";
+    box.innerHTML = "<h3>Debug</h3>" + base + "<p>Toll route: " + esc(tollRoute.modeNote || "") + "<br>Toll-free route: " + esc((window.__freeNote || "")) + "</p><p>Ramp zones: " + (rampZones ? rampZones.length : "none (no directions geometry)") + "</p>" +
       "<table class='breakdown'><thead><tr><th>ID</th><th>Toll point within 60 m</th><th>Kind</th><th class='num'>Offset</th><th class='num'>Zone</th><th>Counted</th></tr></thead><tbody>" +
       html + "</tbody></table><details><summary>Maneuvers (" + (tollRoute.steps || []).length + ")</summary><ol>" + steps + "</ol></details>";
     document.getElementById("results").after(box);
@@ -334,6 +341,7 @@ require([
 
     loadTravelModes().then(function (modes) {
       var mode = pickMode(modes, axles);
+      window.__baseMode = mode;
       return Promise.all([solveFirst(tollVariants(mode, axles, "prefer"), true), solveFirst(tollVariants(mode, axles, "prohibit"))]);
     }).then(function (routes) {
       var tollRoute = routes[0], freeRoute = routes[1];

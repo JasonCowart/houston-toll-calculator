@@ -1,0 +1,64 @@
+:root {
+  --bg: #ffffff;
+  --panel: #f7f7f5;
+  --text: #1c1c1c;
+  --muted: #5f5f5a;
+  --line: #dcdcd6;
+  --accent: #0b5cad;
+  --toll: #0b5cad;
+  --free: #6b6b66;
+  --warn-bg: #fff4dc;
+  --warn-line: #e3b54a;
+  --info-bg: #eaf2fb;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+
+.app { display: flex; height: 100%; }
+.panel { width: 380px; flex: none; overflow-y: auto; padding: 18px 18px 24px; background: var(--panel);
+  border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+.map { flex: 1; min-height: 300px; }
+
+h1 { font-size: 20px; margin: 0; }
+.sub { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+
+.field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.field.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+select { width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; font: inherit; font-size: 14px; }
+.search .esri-search { width: 100%; }
+
+.go { padding: 11px; border: 0; border-radius: 6px; background: var(--accent); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+.go:disabled { background: #9db6cf; cursor: default; }
+.status { color: var(--muted); font-size: 14px; min-height: 1em; }
+.status.error { color: #a12a1f; }
+
+.notice { padding: 10px 12px; border-radius: 6px; font-size: 14px; }
+.notice.warn { background: var(--warn-bg); border: 1px solid var(--warn-line); }
+.notice.info { background: var(--info-bg); }
+
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.card-label { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.swatch { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.swatch.toll { background: var(--toll); }
+.swatch.free { background: var(--free); }
+.price { font-size: 26px; font-weight: 700; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+.meta { color: var(--muted); font-size: 13px; }
+.verdict { margin: 4px 0 0; font-weight: 600; }
+#flags .notice { margin-top: 8px; }
+
+details summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+.breakdown { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 13px; }
+.breakdown th, .breakdown td { text-align: left; padding: 5px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.breakdown .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tag-unverified { color: var(--muted); font-size: 12px; }
+
+.fine { margin-top: auto; color: var(--muted); font-size: 12px; }
+
+@media (max-width: 760px) {
+  .app { flex-direction: column; height: auto; min-height: 100%; }
+  .panel { width: 100%; border-right: 0; border-bottom: 1px solid var(--line); padding: 14px 16px 20px; overflow: visible; }
+  .map { flex: none; height: 60vh; }
+  .fine { order: 99; }
+}

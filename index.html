@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Houston Toll Calculator</title>
+  <meta name="description" content="Estimate Houston-area tolls for your trip by vehicle and payment type, and compare with a toll-free route.">
+  <link rel="stylesheet" href="https://js.arcgis.com/4.32/esri/themes/light/main.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="panel">
+      <header>
+        <h1>Houston Toll Calculator</h1>
+        <p class="sub">Toll route vs. toll-free route, priced for your vehicle.</p>
+      </header>
+
+      <div id="key-warning" class="notice warn" hidden>
+        No ArcGIS API key yet. Add yours to <code>config.js</code> to turn on the map, address search and routing.
+      </div>
+
+      <section class="field">
+        <label>From</label>
+        <div id="search-from" class="search"></div>
+      </section>
+      <section class="field">
+        <label>To</label>
+        <div id="search-to" class="search"></div>
+      </section>
+
+      <section class="field row">
+        <div>
+          <label for="axles">Vehicle</label>
+          <select id="axles">
+            <option value="2">2 axles (car, SUV)</option>
+            <option value="3">3 axles</option>
+            <option value="4">4 axles</option>
+            <option value="5">5 axles (18-wheeler)</option>
+            <option value="6">6 axles</option>
+            <option value="7">7 axles</option>
+            <option value="8">8 or more axles</option>
+          </select>
+        </div>
+        <div>
+          <label for="payment">Payment</label>
+          <select id="payment">
+            <option value="eztag">EZ TAG</option>
+            <option value="tag">Other toll tag (TxTag, TollTag)</option>
+            <option value="notag">No tag (pay by mail)</option>
+          </select>
+        </div>
+      </section>
+
+      <button id="go" class="go" disabled>Compare routes</button>
+      <div id="status" class="status" aria-live="polite"></div>
+
+      <div id="results" hidden>
+        <div class="cards">
+          <div class="card toll">
+            <div class="card-label"><span class="swatch toll"></span>Toll route</div>
+            <div class="price" id="toll-price"></div>
+            <div class="meta" id="toll-meta"></div>
+          </div>
+          <div class="card free">
+            <div class="card-label"><span class="swatch free"></span>Toll-free route</div>
+            <div class="price">$0.00</div>
+            <div class="meta" id="free-meta"></div>
+          </div>
+        </div>
+        <p id="verdict" class="verdict"></p>
+        <div id="flags"></div>
+        <details id="breakdown-wrap">
+          <summary>Toll breakdown</summary>
+          <table class="breakdown">
+            <thead><tr><th>Toll point</th><th>Road</th><th class="num">Toll</th></tr></thead>
+            <tbody id="breakdown"></tbody>
+          </table>
+        </details>
+      </div>
+
+      <footer class="fine">
+        Estimates only. HCTRA rates checked against hctra.org on Oct 20, 2026; other agencies' rates are unverified.
+        Katy Managed Lanes and SH 288 Express Lanes use time-of-day pricing and aren't included yet.
+      </footer>
+    </aside>
+    <main id="map" class="map"></main>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    if (!(window.TOLL_CONFIG && (window.TOLL_CONFIG.arcgisApiKey || "").trim())) {
+      document.getElementById("key-warning").hidden = false;
+    }
+  </script>
+  <script src="js/tolls.js"></script>
+  <script src="https://js.arcgis.com/4.32/"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

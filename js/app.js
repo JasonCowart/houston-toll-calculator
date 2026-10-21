@@ -100,6 +100,50 @@ require([
 
   // Departure time: blank = now. The datetime-local value is read as the device's local time.
   var departure = new Date();
+  var lastTrip = null;
+
+  // Debug: save the exact trip Esri returned, so it can be replayed as a test
+  // (tools/test_trips.js). Coordinates are rounded to about 10 cm to keep the file small.
+  function round6(p) { return [Math.round(p[0] * 1e6) / 1e6, Math.round(p[1] * 1e6) / 1e6]; }
+  function lonLat(g) { return g ? round6([g.longitude != null ? g.longitude : g.x, g.latitude != null ? g.latitude : g.y]) : null; }
+  function tripFile() {
+    var t = lastTrip.trip, ts = routeStats(lastTrip.tollRoute), fs = routeStats(lastTrip.freeRoute);
+    var label = function (w) { var s = searchesTerm(w); return s || null; };
+    var data = {
+      version: 1,
+      saved: new Date().toISOString(),
+      page: location.href,
+      input: { from: lonLat(stops.from), to: lonLat(stops.to), fromLabel: label("from"), toLabel: label("to"),
+        axles: t.axles, payment: t.payment, carpool: t.carpool, departure: t.departure },
+      toll: { minutes: ts.minutes, miles: ts.miles, mode: lastTrip.tollRoute.modeNote || null, path: t.tollPath.map(round6),
+        steps: (t.steps || []).map(function (s) { return { maneuverType: s.maneuverType, text: s.text, path: s.path ? s.path.map(round6) : null }; }) },
+      free: { minutes: fs.minutes, miles: fs.miles, mode: lastTrip.freeRoute.modeNote || null, path: t.freePath.map(round6) },
+      result: { total: lastTrip.priced.total, items: lastTrip.priced.items.map(function (it) { return { id: it.point.id, name: it.point.name, rate: it.rate }; }) },
+      expected: null,
+    };
+    return data;
+  }
+  function searchesTerm(w) { try { return searches[w] ? searches[w].searchTerm : null; } catch (e) { return null; } }
+  function saveTrip() {
+    if (!lastTrip) return;
+    var data = tripFile();
+    var stamp = data.saved.replace(/[-:]/g, "").slice(0, 13);
+    var name = "trip-" + stamp + "-" + data.result.total.toFixed(2).replace(".", "_") + ".json";
+    var text = JSON.stringify(data);
+    var file;
+    try { file = new File([text], name, { type: "application/json" }); } catch (e) { file = null; }
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: "Toll trip for testing" }).catch(function () { download(text, name); });
+    } else download(text, name);
+  }
+  function download(text, name) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
   function readDeparture() {
     var v = $("leave").value;
     var d = v ? new Date(v) : new Date();
@@ -290,10 +334,11 @@ require([
     var bm = window.__baseMode || {};
     var base = "<p>Base mode \"" + esc(bm.name || "") + "\" restrictions: " + esc((bm.restrictionAttributeNames || []).join(", ")) +
       "<br>Parameters: " + esc((bm.attributeParameterValues || []).map(function (a) { return a.attributeName + " = " + a.value; }).join("; ")) + "</p>";
-    box.innerHTML = "<h3>Debug</h3>" + base + "<p>Toll route: " + esc(tollRoute.modeNote || "") + "<br>Toll-free route: " + esc((window.__freeNote || "")) + "</p><p>Ramp zones: " + (rampZones ? rampZones.length : "none (no directions geometry)") + "</p>" +
+    box.innerHTML = "<h3>Debug</h3><p><button type='button' id='save-trip' class='go small'>Save trip for testing</button></p>" + base + "<p>Toll route: " + esc(tollRoute.modeNote || "") + "<br>Toll-free route: " + esc((window.__freeNote || "")) + "</p><p>Ramp zones: " + (rampZones ? rampZones.length : "none (no directions geometry)") + "</p>" +
       "<table class='breakdown'><thead><tr><th>ID</th><th>Toll point within 60 m</th><th>Kind</th><th class='num'>Offset</th><th class='num'>Zone</th><th>Counted</th></tr></thead><tbody>" +
       html + "</tbody></table><details><summary>Maneuvers (" + (tollRoute.steps || []).length + ")</summary><ol>" + steps + "</ol></details>";
     document.getElementById("results").after(box);
+    document.getElementById("save-trip").addEventListener("click", saveTrip);
   }
 
   function showResults(tollRoute, freeRoute, priced) {
@@ -349,23 +394,17 @@ require([
     }).then(function (routes) {
       var tollRoute = routes[0], freeRoute = routes[1];
       var path = [].concat.apply([], tollRoute.geometry.paths);
-      var hasSteps = tollRoute.steps && tollRoute.steps.some(function (s) { return s.path; });
-      var rampZones = hasSteps ? window.TollCalc.rampZonesFromSteps(tollRoute.steps) : null;
-      var raw = window.TollCalc.findCrossings(path, tollPoints, { rampZones: rampZones });
       var freePath = [].concat.apply([], freeRoute.geometry.paths);
       window.__freeNote = freeRoute.modeNote;
-      var split = window.TollCalc.dropSharedWithFree(raw, freePath);
-      var crossings = split.kept;
-      // Add managed-lane plazas the route runs alongside (lane choice on the same freeway).
-      var have = {};
-      crossings.forEach(function (c) { have[c.point.id] = true; });
-      window.TollCalc.managedLaneCrossings(path, tollPoints).forEach(function (c) { if (!have[c.point.id]) crossings.push(c); });
-      crossings.sort(function (a, b) { return a.along - b.along; });
-      if (DEBUG) showDebug(tollRoute, path, rampZones, crossings, split.dropped);
-      var priced = window.TollCalc.price(crossings, axles, payment, {
-        departure: departure, routeMeters: window.TollCalc.pathMeters(path),
-        routeMinutes: routeStats(tollRoute).minutes, carpool: $("carpool").checked,
-      });
+      var trip = {
+        tollPath: path, freePath: freePath, steps: tollRoute.steps || null,
+        departure: departure.toISOString(), routeMinutes: routeStats(tollRoute).minutes,
+        axles: axles, payment: payment, carpool: $("carpool").checked,
+      };
+      var result = window.TollCalc.analyzeTrip(trip, tollPoints);
+      var priced = result.priced;
+      lastTrip = { trip: trip, tollRoute: tollRoute, freeRoute: freeRoute, priced: priced };
+      if (DEBUG) showDebug(tollRoute, path, result.rampZones, result.crossings, result.dropped);
       drawRoute(freeRoute, "free");
       drawRoute(tollRoute, "toll");
       drawCrossings(priced.items);

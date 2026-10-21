@@ -73,3 +73,4 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; }
 .debug { font-size: 12px; border-top: 1px dashed var(--line); padding-top: 8px; }
 .debug h3 { font-size: 14px; margin: 0 0 4px; }
 .debug ol { padding-left: 18px; margin: 4px 0; }
+.go.small { padding: 8px 12px; font-size: 14px; }

@@ -30,6 +30,9 @@ jobs:
       - name: Run toll tests
         run: node tools/test_tolls.js
 
+      - name: Replay saved real trips
+        run: node tools/test_trips.js
+
       - name: Insert API key into config.js
         env:
           ARCGIS_API_KEY: ${{ secrets.ARCGIS_API_KEY }}

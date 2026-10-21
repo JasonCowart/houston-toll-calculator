@@ -348,7 +348,33 @@
     };
   }
 
-  var api = { findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  /**
+   * The whole toll calculation for one trip: the one function both the site and the
+   * saved-trip tests run, so a replayed trip goes through exactly the same steps.
+   * @param {object} trip {tollPath, freePath, steps, departure (Date|ISO), routeMinutes, axles, payment, carpool}
+   * @param {Array<object>} points toll points
+   * @returns {{crossings, dropped, rampZones, priced}}
+   */
+  function analyzeTrip(trip, points) {
+    var path = trip.tollPath;
+    var hasSteps = trip.steps && trip.steps.some(function (s) { return s.path && s.path.length > 1; });
+    var rampZones = hasSteps ? rampZonesFromSteps(trip.steps) : null;
+    var raw = findCrossings(path, points, { rampZones: rampZones });
+    var split = trip.freePath && trip.freePath.length > 1 ? dropSharedWithFree(raw, trip.freePath) : { kept: raw, dropped: [] };
+    var crossings = split.kept.slice();
+    // Managed-lane plazas the route runs alongside (a lane choice on the same freeway).
+    var have = {};
+    crossings.forEach(function (c) { have[c.point.id] = true; });
+    managedLaneCrossings(path, points).forEach(function (c) { if (!have[c.point.id]) crossings.push(c); });
+    crossings.sort(function (a, b) { return a.along - b.along; });
+    var priced = price(crossings, trip.axles, trip.payment, {
+      departure: trip.departure ? new Date(trip.departure) : new Date(),
+      routeMeters: pathMeters(path), routeMinutes: trip.routeMinutes, carpool: !!trip.carpool,
+    });
+    return { crossings: crossings, dropped: split.dropped, rampZones: rampZones, priced: priced };
+  }
+
+  var api = { analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

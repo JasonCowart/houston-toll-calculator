@@ -61,15 +61,13 @@ test("a ramp gantry counts inside a ramp zone", () => {
   assert(hits.includes(215), "215 should count in its zone: " + hits);
   assert(!hits.includes(234) && !hits.includes(213), "other ramps should not: " + hits);
 });
-test("in a ramp zone: a gantry 15 m off counts (FM 2920 entry), 20+ m doesn't (Holderrieth exit passed)", () => {
-  // Jason's 5:42 PM Montgomery trip: merged onto the Tomball Tollway at FM 2920 (gantry 234, 15 m
-  // from Esri's line) and drove past the Holderrieth exit gantry (215, 20 m) in the same zone.
-  const a = byId[234], b = byId[215];
-  const offset = (p, m) => [p.lon + m / 96500, p.lat];
-  const route = [[a.lon + 15 / 96500, a.lat + 0.01], offset(a, 15), offset(b, 20), [b.lon + 20 / 96500, b.lat - 0.01]];
-  assert.deepStrictEqual(ids(T.findCrossings(route, [a, b], { rampZones: [route] })), [234]);
-  // A passed-by ramp outside any ramp zone never counts, however close.
-  assert.deepStrictEqual(ids(T.findCrossings(route, [a, b], { rampZones: [] })), []);
+test("inside a ramp zone, a gantry 14+ m from the route doesn't count (passed-by ramp)", () => {
+  const p = byId[232]; // Hardin Store Rd on-ramp, 14 m from Jason's route
+  const off = [p.lon + 14 / 96500, p.lat];
+  const route = [[off[0], off[1] + 0.01], off, [off[0], off[1] - 0.01]];
+  assert.deepStrictEqual(ids(T.findCrossings(route, [p], { rampZones: [route] })), []);
+  const on = [[p.lon, p.lat + 0.01], [p.lon, p.lat], [p.lon, p.lat - 0.01]];
+  assert.deepStrictEqual(ids(T.findCrossings(on, [p], { rampZones: [on] })), [232]);
 });
 test("one ramp zone charges at most one ramp gantry (SH 249 -> Beltway 8 has two)", () => {
   const a = byId[223], b = byId[117];

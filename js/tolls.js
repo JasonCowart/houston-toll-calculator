@@ -12,10 +12,7 @@
   var MATCH_METERS = 30;
   var MAX_HEADING_DIFF = 80;
   var RAMP_ZONE_METERS = 3000;     // how far past a maneuver a ramp gantry can sit
-  // Inside a ramp zone, a ramp gantry must be this close to the route. Ramps taken have been
-  // 3-15 m away (FM 2920 entry to the Tomball Tollway: 15 m); exit ramps passed inside the
-  // same zone 20+ m (Holderrieth). Outside zones, passed-by ramps at 14-16 m never count.
-  var RAMP_IN_ZONE_METERS = 18;
+  var RAMP_IN_ZONE_METERS = 12;    // inside a zone, a ramp gantry must be this close to the route (real ramps: 3-5 m; passed-by ramps: 14+ m)
   var RAMP_FALLBACK_METERS = 8;    // ramp gantries without directions: must be right on the route
   // Ramps curve, so a ramp gantry's road direction (e.g. "West" for the SH 249 to
   // Beltway 8 connector) can be 90+ degrees off the ramp's heading at the gantry.

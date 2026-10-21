@@ -105,6 +105,31 @@ test("ramp zones: straight-ahead steps are skipped and zones are trimmed", () =>
   assert(Math.abs(km - 1.5) < 0.05, "zone should be 1.5 km, got " + km.toFixed(2));
 });
 
+// Katy Freeway (Jason, Oct 21, 2026): the toll route and toll-free route were the same
+// free main lanes, 15-19 m from the managed-lane canopies. Nothing should be charged.
+test("toll-free route passing as close drops the point (Katy main lanes vs managed lanes)", () => {
+  const p = byId[174]; // Eldridge eastbound canopy
+  const lane = [[p.lon - 0.01, p.lat + 18 / 111000], [p.lon + 0.01, p.lat + 18 / 111000]]; // 18 m north, heading east
+  const hits = T.findCrossings(lane, [p], {});
+  assert.deepStrictEqual(ids(hits), [174]);
+  const r = T.dropSharedWithFree(hits, lane);
+  assert.deepStrictEqual(ids(r.kept), []);
+  assert.deepStrictEqual(ids(r.dropped), [174]);
+});
+test("a ramp the toll route takes survives when the free route runs 25 m away", () => {
+  const p = byId[215];
+  const tollRoute = [[p.lon, p.lat + 0.01], [p.lon, p.lat], [p.lon, p.lat - 0.01]];
+  const hits = T.findCrossings(tollRoute, [p], { rampZones: [tollRoute] });
+  const frontage = tollRoute.map(([x, y]) => [x + 25 / 96500, y]);
+  assert.deepStrictEqual(ids(T.dropSharedWithFree(hits, frontage).kept), [215]);
+});
+test("routes that split up keep every toll", () => {
+  const p = byId[163];
+  const hits = T.findCrossings([[p.lon, p.lat - 0.01], [p.lon, p.lat + 0.01]], [p]);
+  const far = [[p.lon + 0.05, p.lat - 0.01], [p.lon + 0.05, p.lat + 0.01]];
+  assert.deepStrictEqual(ids(T.dropSharedWithFree(hits, far).kept), [163]);
+});
+
 // Pricing
 test("2-axle EZ TAG / TAG / no tag at a main plaza", () => {
   const c = [{ point: byId[163] }];

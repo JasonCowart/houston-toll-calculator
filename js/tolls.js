@@ -17,6 +17,7 @@
   // Ramps curve, so a ramp gantry's road direction (e.g. "West" for the SH 249 to
   // Beltway 8 connector) can be 90+ degrees off the ramp's heading at the gantry.
   var RAMP_MAX_HEADING_DIFF = 135;
+  var SHARED_SLACK_METERS = 3;      // toll-free route "as close" = within this of the toll route's offset
   var DIR_BEARING = { N: 0, E: 90, S: 180, W: 270 };
   var R = 6371008.8;
 
@@ -147,6 +148,28 @@
     return zones;
   }
 
+  /**
+   * Drop crossings the toll-free route passes just as closely. The toll-free
+   * route never pays a toll, so a point it passes as close as the toll route
+   * does must be on a parallel free road: Katy Managed Lanes canopies sit
+   * 15-19 m from the free I-10 main lanes. A ramp the toll route really takes
+   * (gantry 3-5 m away) survives, since the free route passes it farther off.
+   * @returns {{kept: Array, dropped: Array}}
+   */
+  function dropSharedWithFree(crossings, freeLonLatPath, opts) {
+    opts = opts || {};
+    var slack = opts.slackMeters == null ? SHARED_SLACK_METERS : opts.slackMeters;
+    var kept = [], dropped = [];
+    crossings.forEach(function (c) {
+      var probe = Object.assign({}, c.point, { kind: "main" });
+      var turn = c.point.kind === "main" ? MAX_HEADING_DIFF : RAMP_MAX_HEADING_DIFF;
+      var f = findCrossings(freeLonLatPath, [probe], { matchMeters: MATCH_METERS, maxHeadingDiff: turn })[0];
+      if (f && f.offset <= c.offset + slack) dropped.push(Object.assign({}, c, { freeOffset: f.offset }));
+      else kept.push(c);
+    });
+    return { kept: kept, dropped: dropped };
+  }
+
   /** Distance (m) from a toll point to the nearest ramp zone, ignoring direction. For the debug view. */
   function zoneDistance(pt, zones) {
     if (!zones || !zones.length) return null;
@@ -210,7 +233,7 @@
     };
   }
 
-  var api = { findCrossings: findCrossings, rampZonesFromSteps: rampZonesFromSteps, zoneDistance: zoneDistance, rateFor: rateFor, price: price, MATCH_METERS: MATCH_METERS };
+  var api = { findCrossings: findCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, zoneDistance: zoneDistance, rateFor: rateFor, price: price, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

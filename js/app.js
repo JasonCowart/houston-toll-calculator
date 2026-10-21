@@ -216,9 +216,10 @@ require([
 
   // ?debug=1: list each toll point near the route, whether it counted and why,
   // plus the route's maneuvers. For tuning the matching on real trips.
-  function showDebug(tollRoute, path, rampZones, crossings) {
+  function showDebug(tollRoute, path, rampZones, crossings, dropped) {
     var counted = {};
     crossings.forEach(function (c) { counted[c.point.id] = c; });
+    (dropped || []).forEach(function (c) { counted[c.point.id] = { rule: null, freeOffset: c.freeOffset }; });
     // Every toll point within 60 m of the route, ignoring direction and kind.
     var rows = [];
     tollPoints.forEach(function (p) {
@@ -235,7 +236,7 @@ require([
     var html = rows.map(function (r) {
       var c = counted[r.p.id];
       return "<tr><td>" + r.p.id + "</td><td>" + esc(r.p.name) + "</td><td>" + r.p.kind + " " + (r.p.dir || "") +
-        "</td><td class='num'>" + r.off.toFixed(0) + " m</td><td class='num'>" + zoneCell(r.p) + "</td><td>" + (c ? "yes, " + c.rule : "no") + "</td></tr>";
+        "</td><td class='num'>" + r.off.toFixed(0) + " m</td><td class='num'>" + zoneCell(r.p) + "</td><td>" + (!c ? "no" : c.rule ? "yes, " + c.rule : "no, free route " + c.freeOffset.toFixed(0) + " m") + "</td></tr>";
     }).join("");
     var steps = (tollRoute.steps || []).map(function (s) {
       return "<li>" + esc(s.maneuverType || "?") + ": " + esc(s.text || "") + (s.path ? "" : " (no geometry)") + "</li>";
@@ -296,8 +297,11 @@ require([
       var path = [].concat.apply([], tollRoute.geometry.paths);
       var hasSteps = tollRoute.steps && tollRoute.steps.some(function (s) { return s.path; });
       var rampZones = hasSteps ? window.TollCalc.rampZonesFromSteps(tollRoute.steps) : null;
-      var crossings = window.TollCalc.findCrossings(path, tollPoints, { rampZones: rampZones });
-      if (DEBUG) showDebug(tollRoute, path, rampZones, crossings);
+      var raw = window.TollCalc.findCrossings(path, tollPoints, { rampZones: rampZones });
+      var freePath = [].concat.apply([], freeRoute.geometry.paths);
+      var split = window.TollCalc.dropSharedWithFree(raw, freePath);
+      var crossings = split.kept;
+      if (DEBUG) showDebug(tollRoute, path, rampZones, crossings, split.dropped);
       var priced = window.TollCalc.price(crossings, axles, payment);
       drawRoute(freeRoute, "free");
       drawRoute(tollRoute, "toll");

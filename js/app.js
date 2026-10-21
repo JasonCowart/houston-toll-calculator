@@ -145,9 +145,12 @@ require([
     var tollNames = axles > 2 ? ["Avoid Toll Roads for Trucks", "Avoid Toll Roads"] : ["Avoid Toll Roads"];
     var values = usage === "prefer" ? ["PREFER_HIGH", 0.2] : ["PROHIBITED", -1];
     var out = [];
-    var extra = [];
+    // Toll route: prefer toll roads only. Esri has no drivable Katy/SH 288 managed lanes
+    // (they're added as "alongside" tolls), and preferring express lanes made the route
+    // weave on and off I-10. Toll-free route: prohibit toll roads and express lanes.
     tollNames.forEach(function (t) {
-      [[t, "Avoid Express Lanes"].concat(extra), [t].concat(extra)].forEach(function (names) {
+      var sets = usage === "prefer" ? [[t]] : [[t, "Avoid Express Lanes"], [t]];
+      sets.forEach(function (names) {
         values.forEach(function (v) { out.push(withUsage(mode, names, v)); });
       });
     });

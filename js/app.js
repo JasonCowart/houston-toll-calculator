@@ -183,10 +183,15 @@ require([
       if (hit) rows.push({ p: p, off: hit.offset, along: hit.along });
     });
     rows.sort(function (a, b) { return a.along - b.along; });
+    function zoneCell(p) {
+      if (p.kind === "main") return "";
+      var z = window.TollCalc.zoneDistance(p, rampZones);
+      return z == null ? "n/a" : z > 999 ? "far" : z.toFixed(0) + " m";
+    }
     var html = rows.map(function (r) {
       var c = counted[r.p.id];
       return "<tr><td>" + r.p.id + "</td><td>" + esc(r.p.name) + "</td><td>" + r.p.kind + " " + (r.p.dir || "") +
-        "</td><td class='num'>" + r.off.toFixed(0) + " m</td><td>" + (c ? "yes, " + c.rule : "no") + "</td></tr>";
+        "</td><td class='num'>" + r.off.toFixed(0) + " m</td><td class='num'>" + zoneCell(r.p) + "</td><td>" + (c ? "yes, " + c.rule : "no") + "</td></tr>";
     }).join("");
     var steps = (tollRoute.steps || []).map(function (s) {
       return "<li>" + esc(s.maneuverType || "?") + ": " + esc(s.text || "") + (s.path ? "" : " (no geometry)") + "</li>";
@@ -195,7 +200,7 @@ require([
     box.id = "debug";
     box.className = "debug";
     box.innerHTML = "<h3>Debug</h3><p>Ramp zones: " + (rampZones ? rampZones.length : "none (no directions geometry)") + "</p>" +
-      "<table class='breakdown'><thead><tr><th>ID</th><th>Toll point within 60 m</th><th>Kind</th><th class='num'>Offset</th><th>Counted</th></tr></thead><tbody>" +
+      "<table class='breakdown'><thead><tr><th>ID</th><th>Toll point within 60 m</th><th>Kind</th><th class='num'>Offset</th><th class='num'>Zone</th><th>Counted</th></tr></thead><tbody>" +
       html + "</tbody></table><details><summary>Maneuvers (" + (tollRoute.steps || []).length + ")</summary><ol>" + steps + "</ol></details>";
     document.getElementById("results").after(box);
   }

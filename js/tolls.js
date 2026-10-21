@@ -11,7 +11,8 @@
 
   var MATCH_METERS = 30;
   var MAX_HEADING_DIFF = 80;
-  var RAMP_ZONE_METERS = 1500;     // how far past a maneuver a ramp gantry can sit
+  var RAMP_ZONE_METERS = 3000;     // how far past a maneuver a ramp gantry can sit
+  var RAMP_IN_ZONE_METERS = 12;    // inside a zone, a ramp gantry must be this close to the route (real ramps: 3-5 m; passed-by ramps: 14+ m)
   var RAMP_FALLBACK_METERS = 8;    // ramp gantries without directions: must be right on the route
   // Ramps curve, so a ramp gantry's road direction (e.g. "West" for the SH 249 to
   // Beltway 8 connector) can be 90+ degrees off the ramp's heading at the gantry.
@@ -115,7 +116,7 @@
         return;
       }
       zones.forEach(function (zone, zi) {
-        var m = matchOnPath(zone, xy, pt, maxDist, turn);
+        var m = matchOnPath(zone, xy, pt, opts.rampInZoneMeters || RAMP_IN_ZONE_METERS, turn);
         if (!m) return;
         var cur = bestPerZone[zi];
         if (!cur || m.dist < cur.offset) bestPerZone[zi] = { point: pt, along: onRoute.along, offset: m.dist, rule: "ramp" };
@@ -144,6 +145,17 @@
       zones.push(trimPath(s.path, zoneMeters));
     });
     return zones;
+  }
+
+  /** Distance (m) from a toll point to the nearest ramp zone, ignoring direction. For the debug view. */
+  function zoneDistance(pt, zones) {
+    if (!zones || !zones.length) return null;
+    var proj = projector(pt.lat), xy = proj(pt.lon, pt.lat), best = Infinity;
+    zones.forEach(function (z) {
+      if (!z || z.length < 2) return;
+      best = Math.min(best, nearestOnPath(z.map(function (p) { return proj(p[0], p[1]); }), xy[0], xy[1]).dist);
+    });
+    return best;
   }
 
   // First `meters` of a lon/lat path.
@@ -198,7 +210,7 @@
     };
   }
 
-  var api = { findCrossings: findCrossings, rampZonesFromSteps: rampZonesFromSteps, rateFor: rateFor, price: price, MATCH_METERS: MATCH_METERS };
+  var api = { findCrossings: findCrossings, rampZonesFromSteps: rampZonesFromSteps, zoneDistance: zoneDistance, rateFor: rateFor, price: price, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

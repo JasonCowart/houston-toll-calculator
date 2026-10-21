@@ -61,6 +61,14 @@ test("a ramp gantry counts inside a ramp zone", () => {
   assert(hits.includes(215), "215 should count in its zone: " + hits);
   assert(!hits.includes(234) && !hits.includes(213), "other ramps should not: " + hits);
 });
+test("inside a ramp zone, a gantry 14+ m from the route doesn't count (passed-by ramp)", () => {
+  const p = byId[232]; // Hardin Store Rd on-ramp, 14 m from Jason's route
+  const off = [p.lon + 14 / 96500, p.lat];
+  const route = [[off[0], off[1] + 0.01], off, [off[0], off[1] - 0.01]];
+  assert.deepStrictEqual(ids(T.findCrossings(route, [p], { rampZones: [route] })), []);
+  const on = [[p.lon, p.lat + 0.01], [p.lon, p.lat], [p.lon, p.lat - 0.01]];
+  assert.deepStrictEqual(ids(T.findCrossings(on, [p], { rampZones: [on] })), [232]);
+});
 test("one ramp zone charges at most one ramp gantry (SH 249 -> Beltway 8 has two)", () => {
   const a = byId[223], b = byId[117];
   const route = [[a.lon - 0.01, a.lat], [a.lon, a.lat], [b.lon, b.lat], [b.lon + 0.01, b.lat]];
@@ -91,7 +99,7 @@ test("ramp zones: straight-ahead steps are skipped and zones are trimmed", () =>
     { maneuverType: "esriDMTStraight", path: long },
     { maneuverType: "esriDMTRampRight", path: long },
   ], 1500);
-  assert.strictEqual(zones.length, 1);
+  assert.strictEqual(zones.length, 1); // explicit 1500 m for the trim check
   const end = zones[0][zones[0].length - 1];
   const km = (29.9 - end[1]) * 111.2;
   assert(Math.abs(km - 1.5) < 0.05, "zone should be 1.5 km, got " + km.toFixed(2));

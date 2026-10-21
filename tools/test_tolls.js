@@ -149,6 +149,42 @@ test("managed-lane tolls price by time and count as lane options", () => {
   assert.strictEqual(r.laneOptions, 1);
 });
 
+// Road rule (Jason, Oct 21, 2026, 5:42 PM): on the Hufsmith route the toll route turns onto
+// SH 249 and merges onto the Tomball Tollway through a free ramp, passing the FM 2920 *exit*
+// gantry (234) 15 m away. An exit gantry needs the route to have been on its toll road.
+test("road rule: merging onto the Tomball Tollway doesn't charge the FM 2920 exit gantry beside it", () => {
+  const a = byId[234];
+  const near = [a.lon + 15 / 96500, a.lat];
+  const before = [[near[0], near[1] + 0.02], [near[0], near[1] + 0.01]];
+  const merge = [[near[0], near[1] + 0.01], near, [near[0], near[1] - 0.01]];
+  const steps = [
+    { maneuverType: "esriDMTTurnLeft", text: "At the traffic light, turn left on State Highway 249 (TX-249)", path: before },
+    { maneuverType: "esriDMTRampLeft", text: "Keep left to merge onto Tomball Pkwy (Tomball Tollway S)", path: merge },
+  ];
+  const zones = T.rampZoneInfoFromSteps(steps);
+  assert.deepStrictEqual(ids(T.findCrossings(before.concat(merge), [a], { rampZones: zones })), []);
+});
+test("road rule: an entry gantry counts when the step gets onto its road, even 15 m off Esri's line", () => {
+  const p = byId[232]; // Hardin Store Rd southbound entrance, Tomball Tollway (MCTRA)
+  const near = [p.lon + 15 / 96500, p.lat];
+  const merge = [[near[0], near[1] + 0.01], near, [near[0], near[1] - 0.01]];
+  const steps = [
+    { maneuverType: "esriDMTTurnLeft", text: "Turn left on State Highway 249 (TX-249)", path: [[near[0], near[1] + 0.02], merge[0]] },
+    { maneuverType: "esriDMTRampLeft", text: "Bear left to merge onto Tomball Pkwy (Tomball Tollway S)", path: merge },
+  ];
+  const hits = T.findCrossings(merge, [p], { rampZones: T.rampZoneInfoFromSteps(steps) });
+  assert.deepStrictEqual(ids(hits), [232]);
+  assert(/entering Tomball Tollway/.test(hits[0].rule));
+});
+test("road rule: 'take the exit on the right' isn't read as a road name", () => {
+  const z = T.rampZoneInfoFromSteps([
+    { maneuverType: "esriDMTForkRight", text: "Keep right at the fork to merge onto Sam Houston Tollway N", path: [[0, 0], [0, 1]] },
+    { maneuverType: "esriDMTRampRight", text: "Take the exit on the right to TX-249 N", path: [[0, 1], [0, 2]] },
+    { maneuverType: "esriDMTForkLeft", text: "Keep left at the fork toward TX-249 N / EZTAG", path: [[0, 2], [0, 3]] },
+  ]);
+  assert(T.mentionsRoad(z[2].prev, "Sam Houston"), "look-back should reach the Sam Houston step: " + z[2].prev);
+});
+
 // Pricing
 test("2-axle EZ TAG / TAG / no tag at a main plaza", () => {
   const c = [{ point: byId[163] }];

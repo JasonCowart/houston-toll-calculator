@@ -13,6 +13,30 @@
   var MAX_HEADING_DIFF = 80;
   var RAMP_ZONE_METERS = 3000;     // how far past a maneuver a ramp gantry can sit
   var RAMP_IN_ZONE_METERS = 12;    // inside a zone, a ramp gantry must be this close to the route (real ramps: 3-5 m; passed-by ramps: 14+ m)
+  var RAMP_TEXT_METERS = 30;       // ramp gantry on the right road for the maneuver: loose distance check only
+  // Names Esri's turn-by-turn directions use for each toll road in the layer (lowercase substrings).
+  var ROAD_ALIASES = {
+    "Sam Houston": ["sam houston", "beltway 8", "tx-8", "bw 8", "bw-8"],
+    "Dr. Richard A. Tapia Bridge": ["sam houston", "beltway 8", "tx-8", "tapia", "ship channel"],
+    "Hardy Toll Rd": ["hardy toll", "hardy tollway"],
+    "Airport Connector": ["airport connector", "hardy toll", "hardy airport"],
+    "Westpark Tollway": ["westpark"],
+    "Westpark Tollway Extension": ["westpark"],
+    "Tomball Tollway": ["tomball"],
+    "SH 249 Tollway": ["249 tollway", "tollway 249", "aggie", "tomball"],
+    "SH 249 Tollway Extension": ["aggie", "249 tollway", "tollway 249", "tx-249", "sh 249"],
+    "Fort Bend Parkway": ["fort bend"],
+    "Fort Bend Parkway Extension": ["fort bend"],
+    "Grand Parkway": ["grand pkwy", "grand parkway", "tx-99", "sh 99", "sh-99"],
+    "SH 288 Express Lanes": ["288"],
+    "Brazoria County Expressway": ["288", "brazoria"],
+    "Katy Managed Lanes": ["katy managed", "managed lanes"],
+  };
+  function mentionsRoad(text, road) {
+    var a = ROAD_ALIASES[road];
+    if (!a || !text) return false;
+    return a.some(function (n) { return text.indexOf(n) !== -1; });
+  }
   var RAMP_FALLBACK_METERS = 8;    // ramp gantries without directions: must be right on the route
   // Ramps curve, so a ramp gantry's road direction (e.g. "West" for the SH 249 to
   // Beltway 8 connector) can be 90+ degrees off the ramp's heading at the gantry.
@@ -97,7 +121,10 @@
     var proj = projector((minLat + maxLat) / 2);
     var toXY = function (p) { return proj(p[0], p[1]); };
     var path = lonLatPath.map(toXY);
-    var zones = opts.rampZones ? opts.rampZones.filter(function (z) { return z && z.length > 1; }).map(function (z) { return z.map(toXY); }) : null;
+    // Zones are plain paths (distance rule) or {path, enter, prev} from rampZoneInfoFromSteps (road rule).
+    var zoneInfo = opts.rampZones ? opts.rampZones.map(function (z) { return Array.isArray(z) ? { path: z } : z; })
+      .filter(function (z) { return z && z.path && z.path.length > 1; }) : null;
+    var zones = zoneInfo ? zoneInfo.map(function (z) { return z.path.map(toXY); }) : null;
     var pad = 0.002; // about 200 m, a cheap bounding-box filter
 
     var hits = [];
@@ -118,10 +145,19 @@
         return;
       }
       zones.forEach(function (zone, zi) {
-        var m = matchOnPath(zone, xy, pt, opts.rampInZoneMeters || RAMP_IN_ZONE_METERS, turn);
+        var info = zoneInfo[zi], limit = opts.rampInZoneMeters || RAMP_IN_ZONE_METERS, rule = "ramp";
+        if (info.enter != null && ROAD_ALIASES[pt.road]) {
+          // Road rule: an entry gantry needs a step getting onto its toll road; an exit gantry
+          // needs the route to have been on its toll road just before this step.
+          if (pt.kind === "on" && mentionsRoad(info.enter, pt.road)) rule = "ramp, entering " + pt.road;
+          else if (pt.kind === "off" && mentionsRoad(info.prev, pt.road)) rule = "ramp, leaving " + pt.road;
+          else return;
+          limit = RAMP_TEXT_METERS;
+        }
+        var m = matchOnPath(zone, xy, pt, limit, turn);
         if (!m) return;
         var cur = bestPerZone[zi];
-        if (!cur || m.dist < cur.offset) bestPerZone[zi] = { point: pt, along: onRoute.along, offset: m.dist, rule: "ramp" };
+        if (!cur || m.dist < cur.offset) bestPerZone[zi] = { point: pt, along: onRoute.along, offset: m.dist, rule: rule };
       });
     });
 
@@ -147,6 +183,30 @@
       zones.push(trimPath(s.path, zoneMeters));
     });
     return zones;
+  }
+
+  /**
+   * Ramp zones with the road context the road rule needs: what the step gets onto
+   * ("enter": its own text) and the road the route was on before it ("prev": earlier
+   * step texts back to the last one that names a road with "onto"/"on", not counting
+   * "on the right/left"). The exit gantry can sit a step later than "take the exit":
+   * at SH 249 it's past the "keep left toward TX-249 N / EZTAG" fork.
+   */
+  function rampZoneInfoFromSteps(steps, zoneMeters) {
+    zoneMeters = zoneMeters || RAMP_ZONE_METERS;
+    var skip = { esriDMTStraight: 1, esriDMTDepart: 1, esriDMTStop: 1 };
+    var out = [];
+    (steps || []).forEach(function (s, i) {
+      if (!s || !s.path || s.path.length < 2 || skip[s.maneuverType]) return;
+      var prev = [];
+      for (var j = i - 1; j >= 0 && prev.length < 4; j--) {
+        var t = (steps[j].text || "").toLowerCase();
+        prev.push(t);
+        if (/\bonto\b| on (?!the (right|left)\b)/.test(" " + t + " ")) break; // "on the right" isn't a road
+      }
+      out.push({ path: trimPath(s.path, zoneMeters), enter: (s.text || "").toLowerCase(), prev: prev.join(" | ") });
+    });
+    return out;
   }
 
   /**
@@ -199,6 +259,7 @@
     if (!zones || !zones.length) return null;
     var proj = projector(pt.lat), xy = proj(pt.lon, pt.lat), best = Infinity;
     zones.forEach(function (z) {
+      if (z && !Array.isArray(z)) z = z.path;
       if (!z || z.length < 2) return;
       best = Math.min(best, nearestOnPath(z.map(function (p) { return proj(p[0], p[1]); }), xy[0], xy[1]).dist);
     });
@@ -355,7 +416,7 @@
   function analyzeTrip(trip, points) {
     var path = trip.tollPath;
     var hasSteps = trip.steps && trip.steps.some(function (s) { return s.path && s.path.length > 1; });
-    var rampZones = hasSteps ? rampZonesFromSteps(trip.steps) : null;
+    var rampZones = hasSteps ? rampZoneInfoFromSteps(trip.steps) : null;
     var raw = findCrossings(path, points, { rampZones: rampZones });
     var split = trip.freePath && trip.freePath.length > 1 ? dropSharedWithFree(raw, trip.freePath) : { kept: raw, dropped: [] };
     var crossings = split.kept.slice();
@@ -371,7 +432,7 @@
     return { crossings: crossings, dropped: split.dropped, rampZones: rampZones, priced: priced };
   }
 
-  var api = { analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

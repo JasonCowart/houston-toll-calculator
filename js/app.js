@@ -21,7 +21,6 @@ require([
 
   var key = (window.TOLL_CONFIG && window.TOLL_CONFIG.arcgisApiKey || "").trim();
   var DEBUG = /[?&]debug=1\b/.test(location.search);
-  var HOV_TEST = /[?&]hov=1\b/.test(location.search);
   var $ = function (id) { return document.getElementById(id); };
   var stops = { from: null, to: null };
   var tollPoints = [];
@@ -146,9 +145,7 @@ require([
     var tollNames = axles > 2 ? ["Avoid Toll Roads for Trucks", "Avoid Toll Roads"] : ["Avoid Toll Roads"];
     var values = usage === "prefer" ? ["PREFER_HIGH", 0.2] : ["PROHIBITED", -1];
     var out = [];
-    // Experiment (?hov=1): the Katy Managed Lanes may be coded as carpool lanes in Esri's data,
-    // which "Driving Time" prohibits. Let the toll route use them to find out.
-    var extra = usage === "prefer" && HOV_TEST ? ["Avoid Carpool Roads"] : [];
+    var extra = [];
     tollNames.forEach(function (t) {
       [[t, "Avoid Express Lanes"].concat(extra), [t].concat(extra)].forEach(function (names) {
         values.forEach(function (v) { out.push(withUsage(mode, names, v)); });
@@ -261,8 +258,8 @@ require([
   // plus the route's maneuvers. For tuning the matching on real trips.
   function showDebug(tollRoute, path, rampZones, crossings, dropped) {
     var counted = {};
-    crossings.forEach(function (c) { counted[c.point.id] = c; });
     (dropped || []).forEach(function (c) { counted[c.point.id] = { rule: null, freeOffset: c.freeOffset }; });
+    crossings.forEach(function (c) { counted[c.point.id] = c; });
     // Every toll point within 60 m of the route, ignoring direction and kind.
     var rows = [];
     tollPoints.forEach(function (p) {
@@ -304,6 +301,8 @@ require([
 
     var verdict = "";
     if (!priced.items.length) verdict = "No toll road helps on this trip, so both routes are toll-free.";
+    else if (priced.laneOptions && priced.laneOptions === priced.items.length)
+      verdict = "The toll route uses the managed lanes on the same freeway for " + fmtMoney(priced.total) + ". Time saved isn't estimated: the lanes are usually faster at rush hour.";
     else if (t.minutes != null && f.minutes != null) {
       var saved = Math.round(f.minutes - t.minutes);
       verdict = saved > 0 ? "Paying " + fmtMoney(priced.total) + " in tolls saves about " + saved + " min."
@@ -314,6 +313,7 @@ require([
 
     var flags = [];
     if (priced.pending.length) flags.push("Some time-of-day tolls (Katy Managed Lanes or SH 288 Express Lanes) couldn't be priced, so the total is low.");
+    if (priced.laneOptions) flags.push("Your route runs alongside the Katy Managed Lanes or SH 288 Express Lanes. The toll route includes their tolls for that stretch; the toll-free route stays in the regular lanes.");
     if (priced.timed) flags.push("Katy Managed Lanes and SH 288 Express Lanes charge by time of day. These are priced for when you'd reach each gantry, leaving " + (($("leave").value ? "at " : "now, ") + fmtClock(departure)) + ".");
     if (priced.missing.length) flags.push(priced.missing.length + " toll point(s) on this route have no rate for this vehicle in the data, so the total is low.");
     if (priced.unverified) flags.push(priced.unverified + " toll point(s) on this route haven't been checked against their agency's published rates yet.");
@@ -353,6 +353,11 @@ require([
       window.__freeNote = freeRoute.modeNote;
       var split = window.TollCalc.dropSharedWithFree(raw, freePath);
       var crossings = split.kept;
+      // Add managed-lane plazas the route runs alongside (lane choice on the same freeway).
+      var have = {};
+      crossings.forEach(function (c) { have[c.point.id] = true; });
+      window.TollCalc.managedLaneCrossings(path, tollPoints).forEach(function (c) { if (!have[c.point.id]) crossings.push(c); });
+      crossings.sort(function (a, b) { return a.along - b.along; });
       if (DEBUG) showDebug(tollRoute, path, rampZones, crossings, split.dropped);
       var priced = window.TollCalc.price(crossings, axles, payment, {
         departure: departure, routeMeters: window.TollCalc.pathMeters(path),

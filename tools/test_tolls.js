@@ -130,6 +130,25 @@ test("routes that split up keep every toll", () => {
   assert.deepStrictEqual(ids(T.dropSharedWithFree(hits, far).kept), [163]);
 });
 
+// Katy corridor (Jason, Oct 21, 2026): Esri has no drivable line for the managed lanes; the
+// route runs on the main lanes 15-45 m from the canopies. The toll route should include them.
+test("managed lanes alongside an eastbound I-10 route are included, westbound ones are not", () => {
+  const e1 = byId[174], e2 = byId[178], e3 = byId[176];
+  const off = (p, m) => [p.lon, p.lat + m / 111000];
+  const route = [[e1.lon - 0.01, e1.lat + 40 / 111000], off(e1, 40), off(e2, 18), off(e3, 15), [e3.lon + 0.01, e3.lat + 15 / 111000]];
+  const hits = T.managedLaneCrossings(route, pts);
+  assert.deepStrictEqual(ids(hits), [174, 178, 176]);
+  assert(hits.every((h) => h.laneOption));
+  const westbound = route.slice().reverse();
+  assert.deepStrictEqual(ids(T.managedLaneCrossings(westbound, pts)).filter((id) => [174, 178, 176].includes(id)), []);
+});
+test("managed-lane tolls price by time and count as lane options", () => {
+  const c = T.managedLaneCrossings([[byId[174].lon - 0.01, byId[174].lat], [byId[174].lon + 0.01, byId[174].lat]], [byId[174]]);
+  const r = T.price(c, 2, "eztag", { departure: new Date("2026-10-21T13:00:00Z") }); // Wed 8:00 AM
+  assert.strictEqual(r.total, 2.6);
+  assert.strictEqual(r.laneOptions, 1);
+});
+
 // Pricing
 test("2-axle EZ TAG / TAG / no tag at a main plaza", () => {
   const c = [{ point: byId[163] }];

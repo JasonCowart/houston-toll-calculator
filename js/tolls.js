@@ -17,7 +17,8 @@
   // Ramps curve, so a ramp gantry's road direction (e.g. "West" for the SH 249 to
   // Beltway 8 connector) can be 90+ degrees off the ramp's heading at the gantry.
   var RAMP_MAX_HEADING_DIFF = 135;
-  var SHARED_SLACK_METERS = 3;      // toll-free route "as close" = within this of the toll route's offset
+  var SHARED_SLACK_METERS = 3;
+  var MANAGED_LANE_METERS = 60;    // Katy canopies sit 15-45 m from Esri's I-10 main-lane line      // toll-free route "as close" = within this of the toll route's offset
   var DIR_BEARING = { N: 0, E: 90, S: 180, W: 270 };
   var R = 6371008.8;
 
@@ -170,6 +171,18 @@
     return { kept: kept, dropped: dropped };
   }
 
+  /**
+   * Managed-lane plazas (Katy, SH 288 mainline) alongside a route. Esri's map has no
+   * separate drivable line for these lanes, so a route on the freeway runs 15-45 m
+   * beside the canopies. Taking the lanes is a lane choice on the same freeway, so
+   * the toll route includes these plazas when it runs alongside them, same direction.
+   */
+  function managedLaneCrossings(lonLatPath, points, opts) {
+    var lanes = points.filter(function (p) { return p.status === "timed" && p.kind === "main"; });
+    return findCrossings(lonLatPath, lanes, { matchMeters: (opts && opts.meters) || MANAGED_LANE_METERS })
+      .map(function (c) { return Object.assign(c, { rule: "managed lanes alongside", laneOption: true }); });
+  }
+
   /** Length of a lon/lat path in meters. */
   function pathMeters(lonLatPath) {
     if (!lonLatPath || lonLatPath.length < 2) return 0;
@@ -303,7 +316,7 @@
    */
   function price(crossings, axles, payment, ctx) {
     ctx = ctx || {};
-    var total = 0, items = [], missing = [], pending = [], unverified = 0, timed = 0;
+    var total = 0, items = [], missing = [], pending = [], unverified = 0, timed = 0, laneOptions = 0;
     var dep = ctx.departure || new Date();
     crossings.forEach(function (c) {
       var pt = c.point;
@@ -318,7 +331,8 @@
       if (rate === null || rate === undefined) { missing.push(pt); items.push({ point: pt, rate: null }); return; }
       if (pt.status === "unverified") unverified++;
       total += rate;
-      items.push({ point: pt, rate: rate, when: pt.status === "timed" ? when : null, note: note });
+      items.push({ point: pt, rate: rate, when: pt.status === "timed" ? when : null, note: note, laneOption: !!c.laneOption });
+      if (c.laneOption) laneOptions++;
     });
     return {
       total: Math.round(total * 100) / 100,
@@ -327,10 +341,11 @@
       pending: pending,
       unverified: unverified,
       timed: timed,
+      laneOptions: laneOptions,
     };
   }
 
-  var api = { findCrossings: findCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

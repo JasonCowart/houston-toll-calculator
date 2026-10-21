@@ -62,3 +62,6 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; }
   .map { flex: none; height: 60vh; }
   .fine { order: 99; }
 }
+.debug { font-size: 12px; border-top: 1px dashed var(--line); padding-top: 8px; }
+.debug h3 { font-size: 14px; margin: 0 0 4px; }
+.debug ol { padding-left: 18px; margin: 4px 0; }

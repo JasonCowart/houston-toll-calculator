@@ -18,6 +18,7 @@ require([
   var COLORS = { toll: [11, 92, 173], free: [107, 107, 102] };
 
   var key = (window.TOLL_CONFIG && window.TOLL_CONFIG.arcgisApiKey || "").trim();
+  var DEBUG = /[?&]debug=1\b/.test(location.search);
   var $ = function (id) { return document.getElementById(id); };
   var stops = { from: null, to: null };
   var tollPoints = [];
@@ -87,15 +88,30 @@ require([
     });
   }
 
-  function solve(mode) {
+  // Returns the route graphic; with directions, also attaches route.steps
+  // ([{maneuverType, text, path}]) for finding where the route takes ramps.
+  function solve(mode, withDirections) {
     var params = new RouteParameters({
       stops: new FeatureSet({ features: [new Graphic({ geometry: stops.from }), new Graphic({ geometry: stops.to })] }),
       travelMode: mode,
       outSpatialReference: { wkid: 4326 },
       returnRoutes: true,
-      returnDirections: false,
+      returnDirections: !!withDirections,
+      directionsOutputType: "complete",
     });
-    return route.solve(ROUTE_URL, params).then(function (res) { return res.routeResults[0].route; });
+    return route.solve(ROUTE_URL, params).then(function (res) {
+      var rr = res.routeResults[0];
+      var g = rr.route;
+      var feats = rr.directions && rr.directions.features;
+      if (withDirections && feats && feats.length) {
+        g.steps = feats.map(function (f) {
+          var a = f.attributes || {};
+          var paths = f.geometry && f.geometry.paths;
+          return { maneuverType: a.maneuverType, text: a.text, path: paths ? [].concat.apply([], paths) : null };
+        });
+      }
+      return g;
+    });
   }
 
   // Try each travel mode in turn (some restriction names may not exist for every mode).
@@ -154,6 +170,36 @@ require([
     });
   }
 
+  // ?debug=1: list each toll point near the route, whether it counted and why,
+  // plus the route's maneuvers. For tuning the matching on real trips.
+  function showDebug(tollRoute, path, rampZones, crossings) {
+    var counted = {};
+    crossings.forEach(function (c) { counted[c.point.id] = c; });
+    // Every toll point within 60 m of the route, ignoring direction and kind.
+    var rows = [];
+    tollPoints.forEach(function (p) {
+      var probe = Object.assign({}, p, { kind: "main", dir: null });
+      var hit = window.TollCalc.findCrossings(path, [probe], { matchMeters: 60 })[0];
+      if (hit) rows.push({ p: p, off: hit.offset, along: hit.along });
+    });
+    rows.sort(function (a, b) { return a.along - b.along; });
+    var html = rows.map(function (r) {
+      var c = counted[r.p.id];
+      return "<tr><td>" + r.p.id + "</td><td>" + esc(r.p.name) + "</td><td>" + r.p.kind + " " + (r.p.dir || "") +
+        "</td><td class='num'>" + r.off.toFixed(0) + " m</td><td>" + (c ? "yes, " + c.rule : "no") + "</td></tr>";
+    }).join("");
+    var steps = (tollRoute.steps || []).map(function (s) {
+      return "<li>" + esc(s.maneuverType || "?") + ": " + esc(s.text || "") + (s.path ? "" : " (no geometry)") + "</li>";
+    }).join("");
+    var box = document.getElementById("debug") || document.createElement("div");
+    box.id = "debug";
+    box.className = "debug";
+    box.innerHTML = "<h3>Debug</h3><p>Ramp zones: " + (rampZones ? rampZones.length : "none (no directions geometry)") + "</p>" +
+      "<table class='breakdown'><thead><tr><th>ID</th><th>Toll point within 60 m</th><th>Kind</th><th class='num'>Offset</th><th>Counted</th></tr></thead><tbody>" +
+      html + "</tbody></table><details><summary>Maneuvers (" + (tollRoute.steps || []).length + ")</summary><ol>" + steps + "</ol></details>";
+    document.getElementById("results").after(box);
+  }
+
   function showResults(tollRoute, freeRoute, priced) {
     var t = routeStats(tollRoute), f = routeStats(freeRoute);
     $("toll-price").textContent = fmtMoney(priced.total) + (priced.pending.length || priced.missing.length ? "+" : "");
@@ -195,11 +241,14 @@ require([
 
     loadTravelModes().then(function (modes) {
       var mode = pickMode(modes, axles);
-      return Promise.all([solve(mode), solveFirst(withAvoidTolls(mode, axles))]);
+      return Promise.all([solve(mode, true), solveFirst(withAvoidTolls(mode, axles))]);
     }).then(function (routes) {
       var tollRoute = routes[0], freeRoute = routes[1];
       var path = [].concat.apply([], tollRoute.geometry.paths);
-      var crossings = window.TollCalc.findCrossings(path, tollPoints);
+      var hasSteps = tollRoute.steps && tollRoute.steps.some(function (s) { return s.path; });
+      var rampZones = hasSteps ? window.TollCalc.rampZonesFromSteps(tollRoute.steps) : null;
+      var crossings = window.TollCalc.findCrossings(path, tollPoints, { rampZones: rampZones });
+      if (DEBUG) showDebug(tollRoute, path, rampZones, crossings);
       var priced = window.TollCalc.price(crossings, axles, payment);
       drawRoute(freeRoute, "free");
       drawRoute(tollRoute, "toll");

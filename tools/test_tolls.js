@@ -39,6 +39,53 @@ test("crossings come back in travel order", () => {
   assert.deepStrictEqual(hits, [163, 158]);
 });
 
+// Ramp rule (Jason's Montgomery -> Beltway 8 trip, Oct 21, 2026): driving straight down
+// the Tomball Tollway passes ramp gantries at FM 2920, Holderrieth and Boudreaux.
+// Only the mainline gantry should count.
+const southThrough = (list) => {
+  const s = list.map((id) => byId[id]).sort((a, b) => b.lat - a.lat);
+  const first = s[0], last = s[s.length - 1];
+  return [[first.lon, first.lat + 0.01], ...s.map((p) => [p.lon, p.lat]), [last.lon, last.lat - 0.01]];
+};
+test("straight through the Tomball Tollway: mainline only, no ramp tolls", () => {
+  const route = southThrough([234, 215, 213, 211]);
+  const hits = ids(T.findCrossings(route, pts, { rampZones: [] }));
+  assert(hits.includes(211), "mainline 211 missing: " + hits);
+  [234, 215, 213].forEach((id) => assert(!hits.includes(id), "ramp " + id + " should not count: " + hits));
+});
+test("a ramp gantry counts inside a ramp zone", () => {
+  const route = southThrough([234, 215, 213, 211]);
+  const p = byId[215];
+  const zone = [[p.lon, p.lat + 0.003], [p.lon, p.lat - 0.003]];
+  const hits = ids(T.findCrossings(route, pts, { rampZones: [zone] }));
+  assert(hits.includes(215), "215 should count in its zone: " + hits);
+  assert(!hits.includes(234) && !hits.includes(213), "other ramps should not: " + hits);
+});
+test("one ramp zone charges at most one ramp gantry (SH 249 -> Beltway 8 has two)", () => {
+  const a = byId[223], b = byId[117];
+  const route = [[a.lon - 0.01, a.lat], [a.lon, a.lat], [b.lon, b.lat], [b.lon + 0.01, b.lat]];
+  const zone = [[a.lon - 0.005, a.lat], [a.lon, a.lat], [b.lon, b.lat]];
+  const hits = T.findCrossings(route, [a, b], { rampZones: [zone], maxHeadingDiff: 180 });
+  assert.strictEqual(hits.length, 1, "expected one, got " + ids(hits));
+});
+test("without directions, ramp gantries need to be right on the route", () => {
+  const p = byId[215];
+  const off = { lon: p.lon + 0.0003, lat: p.lat }; // about 29 m east
+  assert.deepStrictEqual(ids(T.findCrossings([[off.lon, off.lat + 0.01], [off.lon, off.lat - 0.01]], [p])), []);
+  assert.deepStrictEqual(ids(T.findCrossings([[p.lon, p.lat + 0.01], [p.lon, p.lat - 0.01]], [p])), [215]);
+});
+test("ramp zones: straight-ahead steps are skipped and zones are trimmed", () => {
+  const long = [[-95.5, 29.9], [-95.5, 29.8]]; // about 11 km south
+  const zones = T.rampZonesFromSteps([
+    { maneuverType: "esriDMTStraight", path: long },
+    { maneuverType: "esriDMTRampRight", path: long },
+  ], 1500);
+  assert.strictEqual(zones.length, 1);
+  const end = zones[0][zones[0].length - 1];
+  const km = (29.9 - end[1]) * 111.2;
+  assert(Math.abs(km - 1.5) < 0.05, "zone should be 1.5 km, got " + km.toFixed(2));
+});
+
 // Pricing
 test("2-axle EZ TAG / TAG / no tag at a main plaza", () => {
   const c = [{ point: byId[163] }];

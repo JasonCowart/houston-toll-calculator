@@ -1,0 +1,49 @@
+# Publishes the site to GitHub Pages on every push to main.
+# The ArcGIS API key comes from the repository secret ARCGIS_API_KEY
+# (Settings > Secrets and variables > Actions) and is written into
+# config.js only in the published copy, never in the code.
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run toll tests
+        run: node tools/test_tolls.js
+
+      - name: Insert API key into config.js
+        env:
+          ARCGIS_API_KEY: ${{ secrets.ARCGIS_API_KEY }}
+        run: |
+          if [ -z "$ARCGIS_API_KEY" ]; then
+            echo "::warning::ARCGIS_API_KEY secret is not set; the site will show the missing-key notice."
+          fi
+          KEY="$ARCGIS_API_KEY" node -e 'require("fs").writeFileSync("config.js", "window.TOLL_CONFIG = " + JSON.stringify({ arcgisApiKey: process.env.KEY.trim() }) + ";\n")'
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

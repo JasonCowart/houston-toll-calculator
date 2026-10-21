@@ -6,9 +6,12 @@ It's a static site (no server), hosted on GitHub Pages. Maps, address search and
 
 ## Setup
 
-1. Turn on GitHub Pages: **Settings → Pages → Deploy from a branch → `main` / root**. The site will be at `https://jasoncowart.github.io/houston-toll-calculator/`.
-2. In your ArcGIS Location Platform portal, open the API key credential and restrict its **referrer** to that address.
-3. Then paste the key into `config.js` (`arcgisApiKey: "..."`) and commit.
+1. In your ArcGIS Location Platform portal, restrict the API key's **referrer** to `https://jasoncowart.github.io/`, then regenerate the key.
+2. Add the key as a secret: **Settings → Secrets and variables → Actions → New repository secret**. Name it `ARCGIS_API_KEY` and paste the key as the value.
+3. Turn on GitHub Pages: **Settings → Pages → Source: GitHub Actions**.
+4. Run the **Deploy site** workflow (**Actions → Deploy site → Run workflow**). It also runs on every push to `main`. The site is at `https://jasoncowart.github.io/houston-toll-calculator/`.
+
+The key never goes in the code. The workflow writes it into `config.js` only in the published copy.
 
 Keep pay-as-you-go **off** in Esri. The free tier then pauses at its limit instead of billing.
 
@@ -25,7 +28,8 @@ Keep pay-as-you-go **off** in Esri. The free tier then pauses at its limit inste
 | File | What it does |
 | --- | --- |
 | `index.html`, `css/style.css` | Page and layout |
-| `config.js` | Your ArcGIS API key |
+| `config.js` | ArcGIS API key (blank in the code; filled in when the site is published) |
+| `.github/workflows/deploy.yml` | Tests, inserts the key, publishes to GitHub Pages |
 | `js/app.js` | Map, address search, routing, results |
 | `js/tolls.js` | Toll matching and pricing (no map code) |
 | `data/toll-points.json` | Toll points and rates |

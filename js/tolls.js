@@ -13,6 +13,9 @@
   var MAX_HEADING_DIFF = 80;
   var RAMP_ZONE_METERS = 1500;     // how far past a maneuver a ramp gantry can sit
   var RAMP_FALLBACK_METERS = 8;    // ramp gantries without directions: must be right on the route
+  // Ramps curve, so a ramp gantry's road direction (e.g. "West" for the SH 249 to
+  // Beltway 8 connector) can be 90+ degrees off the ramp's heading at the gantry.
+  var RAMP_MAX_HEADING_DIFF = 135;
   var DIR_BEARING = { N: 0, E: 90, S: 180, W: 270 };
   var R = 6371008.8;
 
@@ -100,7 +103,8 @@
     points.forEach(function (pt) {
       if (pt.lon < minLon - pad || pt.lon > maxLon + pad || pt.lat < minLat - pad || pt.lat > maxLat + pad) return;
       var xy = proj(pt.lon, pt.lat);
-      var onRoute = matchOnPath(path, xy, pt, maxDist, maxTurn);
+      var turn = pt.kind === "main" ? maxTurn : Math.max(maxTurn, opts.rampMaxHeadingDiff || RAMP_MAX_HEADING_DIFF);
+      var onRoute = matchOnPath(path, xy, pt, maxDist, turn);
       if (!onRoute) return;
       if (pt.kind === "main") {
         hits.push({ point: pt, along: onRoute.along, offset: onRoute.dist, rule: "mainline" });
@@ -111,7 +115,7 @@
         return;
       }
       zones.forEach(function (zone, zi) {
-        var m = matchOnPath(zone, xy, pt, maxDist, maxTurn);
+        var m = matchOnPath(zone, xy, pt, maxDist, turn);
         if (!m) return;
         var cur = bestPerZone[zi];
         if (!cur || m.dist < cur.offset) bestPerZone[zi] = { point: pt, along: onRoute.along, offset: m.dist, rule: "ramp" };

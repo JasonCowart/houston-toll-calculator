@@ -68,6 +68,17 @@ test("one ramp zone charges at most one ramp gantry (SH 249 -> Beltway 8 has two
   const hits = T.findCrossings(route, [a, b], { rampZones: [zone], maxHeadingDiff: 180 });
   assert.strictEqual(hits.length, 1, "expected one, got " + ids(hits));
 });
+test("curving connector ramp still counts (SH 249 -> Beltway 8, gantry tagged West, ramp heading south)", () => {
+  const p = byId[223];
+  const route = [[p.lon, p.lat + 0.005], [p.lon, p.lat], [p.lon - 0.005, p.lat - 0.002]]; // heading south at the gantry
+  const zone = route.slice(0, 2);
+  const hits = ids(T.findCrossings(route, [p, byId[117]], { rampZones: [zone] }));
+  assert.deepStrictEqual(hits, [223]);
+});
+test("mainline plazas keep the strict direction check", () => {
+  const p = byId[163]; // northbound Central Plaza
+  assert.deepStrictEqual(ids(T.findCrossings([[p.lon + 0.005, p.lat], [p.lon - 0.005, p.lat]], [p])), []); // heading west
+});
 test("without directions, ramp gantries need to be right on the route", () => {
   const p = byId[215];
   const off = { lon: p.lon + 0.0003, lat: p.lat }; // about 29 m east

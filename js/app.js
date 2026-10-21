@@ -10,10 +10,12 @@ require([
   "esri/rest/support/RouteParameters",
   "esri/rest/support/FeatureSet",
   "esri/rest/networkService",
-], function (esriConfig, Map, MapView, Search, GraphicsLayer, Graphic, route, RouteParameters, FeatureSet, networkService) {
+  "esri/rest/locator",
+], function (esriConfig, Map, MapView, Search, GraphicsLayer, Graphic, route, RouteParameters, FeatureSet, networkService, locator) {
   "use strict";
 
   var ROUTE_URL = "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
+  var GEOCODE_URL = "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer";
   var HOUSTON = [-95.37, 29.76];
   var COLORS = { toll: [11, 92, 173], free: [107, 107, 102] };
 
@@ -41,9 +43,51 @@ require([
       updateButton();
     });
     s.on("search-clear", function () { stops[which] = null; drawStops(); updateButton(); });
+    searches[which] = s;
     return s;
   }
+  var searches = {};
   if (key) { makeSearch("search-from", "from"); makeSearch("search-to", "to"); }
+
+  // Dropping pins: tap "Pick on map" next to a box, then tap the map. If a box is
+  // empty, tapping the map fills it (From first). The box shows the nearest address.
+  var picking = null;
+  function setPicking(which) {
+    picking = picking === which ? null : which;
+    ["from", "to"].forEach(function (w) {
+      var b = $("pick-" + w);
+      b.classList.toggle("active", picking === w);
+      b.textContent = picking === w ? "Tap the map…" : "Pick on map";
+    });
+    if (picking) {
+      setStatus("Tap the map to set the " + (picking === "from" ? "start." : "destination."));
+      if (window.innerWidth <= 760) $("map").scrollIntoView({ behavior: "smooth", block: "center" });
+    } else setStatus("");
+  }
+  ["from", "to"].forEach(function (w) {
+    var b = $("pick-" + w);
+    if (!key) { b.disabled = true; return; }
+    b.addEventListener("click", function () { setPicking(w); });
+  });
+
+  function placeStop(which, mapPoint) {
+    stops[which] = mapPoint;
+    drawStops();
+    updateButton();
+    var label = mapPoint.latitude.toFixed(5) + ", " + mapPoint.longitude.toFixed(5);
+    if (searches[which]) searches[which].searchTerm = "Dropped pin (" + label + ")";
+    locator.locationToAddress(GEOCODE_URL, { location: mapPoint }).then(function (c) {
+      if (stops[which] === mapPoint && c && c.address && searches[which]) searches[which].searchTerm = c.address;
+    }).catch(function () { /* keep the coordinates */ });
+  }
+
+  view.on("click", function (e) {
+    if (!key) return;
+    var target = picking || (!stops.from ? "from" : !stops.to ? "to" : null);
+    if (!target) return;
+    placeStop(target, e.mapPoint);
+    if (picking) setPicking(null);
+  });
 
   fetch("data/toll-points.json")
     .then(function (r) { return r.json(); })

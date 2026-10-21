@@ -24,6 +24,10 @@ h1 { font-size: 20px; margin: 0; }
 .sub { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
 
 .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.label-row { display: flex; justify-content: space-between; align-items: baseline; }
+.pick { border: 0; background: none; color: var(--accent); font: inherit; font-size: 13px; font-weight: 600; padding: 2px 0; cursor: pointer; }
+.pick.active { color: #a34a00; }
+.pick:disabled { color: var(--muted); cursor: default; }
 .field.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 select { width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; font: inherit; font-size: 14px; }
 .search .esri-search { width: 100%; }

@@ -146,19 +146,56 @@ test("Ship Channel (Tapia) Bridge charges trucks more", () => {
 test("3-axle no-TAG fix applied at W. Lake Houston", () => {
   assert.strictEqual(T.price([{ point: byId[193] }], 3, "notag").total, 3);
 });
-test("Katy plazas are flagged pending, not priced", () => {
-  const r = T.price([{ point: byId[174] }], 2, "eztag");
-  assert.strictEqual(r.total, 0);
-  assert.strictEqual(r.pending.length, 1);
+// Time-of-day pricing. Times are Houston clock times (CDT = UTC-5 in October; CST = UTC-6 in Nov-Mar).
+T.setSchedules({ sh288: require(path.join(__dirname, "..", "data", "sh288-rates.json")) });
+const at = (iso) => new Date(iso);
+const timed = (id, axles, pay, iso, opts) => T.timedRate(byId[id], axles, pay, at(iso), opts);
+test("Katy: Eldridge eastbound, Wed 7:30 AM peak = $3.20; Wirt/Wilcrest = $1.90", () => {
+  assert.strictEqual(timed(174, 2, "eztag", "2026-10-21T12:30:00Z").rate, 3.2);
+  assert.strictEqual(timed(176, 2, "eztag", "2026-10-21T12:30:00Z").rate, 1.9);
+});
+test("Katy: westbound Wilcrest Fri 5 PM = $1.90; Saturday = $0.30; Eldridge off-peak = $0.40", () => {
+  assert.strictEqual(timed(179, 2, "eztag", "2026-10-23T22:00:00Z").rate, 1.9);
+  assert.strictEqual(timed(179, 2, "eztag", "2026-10-24T22:00:00Z").rate, 0.3);
+  assert.strictEqual(timed(175, 2, "eztag", "2026-10-21T15:00:00Z").rate, 0.4);
+});
+test("Katy: trucks $7.00 any time; no tag +25%; carpool free only in HOV hours", () => {
+  assert.strictEqual(timed(174, 5, "eztag", "2026-10-24T03:00:00Z").rate, 7);
+  assert.strictEqual(timed(174, 2, "notag", "2026-10-21T12:30:00Z").rate, 4);
+  assert.strictEqual(timed(174, 2, "eztag", "2026-10-21T12:30:00Z", { carpool: true }).rate, 0);
+  assert.strictEqual(timed(174, 2, "eztag", "2026-10-22T02:00:00Z", { carpool: true }).rate, 0.4); // 9 PM
+});
+test("SH 288: Holly Hall NB Mon 7:00 AM = $8.76; 5 axles x4; no tag x1.5", () => {
+  assert.strictEqual(timed(308, 2, "eztag", "2026-10-19T12:00:00Z").rate, 8.76);
+  assert.strictEqual(timed(308, 5, "eztag", "2026-10-19T12:00:00Z").rate, 35.04);
+  assert.strictEqual(timed(308, 2, "notag", "2026-10-19T12:00:00Z").rate, 13.14);
+});
+test("SH 288: half-hour slots, weekends and holidays (Thanksgiving 2026 = Nov 26)", () => {
+  assert.strictEqual(timed(311, 2, "eztag", "2026-10-19T12:29:00Z").rate, 3.26); // 7:29 AM Mon
+  assert.strictEqual(timed(311, 2, "eztag", "2026-10-24T12:00:00Z").rate, 1.05); // 7:00 AM Sat
+  assert.strictEqual(timed(311, 2, "eztag", "2026-11-26T13:00:00Z").rate, 1.46); // 7:00 AM CST Thanksgiving
+  assert.strictEqual(timed(299, 2, "eztag", "2026-10-21T08:00:00Z").rate, 3.02); // BW 8 connector, flat
+});
+test("time-of-day tolls are priced when the car reaches the gantry, not at departure", () => {
+  // Leave Mon 6:45 AM on a 30-minute route; Brays NB sits halfway, so it's passed at 7:00 AM.
+  const c = [{ point: byId[311], along: 5000 }];
+  const r = T.price(c, 2, "eztag", { departure: at("2026-10-19T11:45:00Z"), routeMeters: 10000, routeMinutes: 30 });
+  assert.strictEqual(r.total, 3.26);
+  assert.strictEqual(r.timed, 1);
 });
 test("non-HCTRA points count as unverified", () => {
   const p = pts.find((x) => x.status === "unverified" && x.ez2 != null);
   assert.strictEqual(T.price([{ point: p }], 2, "eztag").unverified, 1);
 });
-test("data sanity: every non-pending point has a 2-axle rate and coordinates in Texas", () => {
+test("data sanity: every point has a 2-axle rate (or a time-of-day schedule) and coordinates in Texas", () => {
   pts.forEach((p) => {
     assert(p.lon > -99 && p.lon < -93 && p.lat > 28 && p.lat < 32, "bad coords " + p.id);
-    if (p.status !== "pending") assert(p.ez2 > 0 && p.notag[0] > 0, "missing 2-axle rate " + p.id);
+    if (p.status === "timed") {
+      for (const ax of [2, 5]) for (const pay of ["eztag", "notag"]) {
+        const r = T.timedRate(p, ax, pay, new Date("2026-10-21T13:00:00Z"));
+        assert(r && r.rate > 0, "no time-of-day rate for " + p.id + " " + p.schedule);
+      }
+    } else assert(p.ez2 > 0 && p.notag[0] > 0, "missing 2-axle rate " + p.id);
   });
 });
 

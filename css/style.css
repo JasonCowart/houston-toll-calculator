@@ -29,6 +29,10 @@ h1 { font-size: 20px; margin: 0; }
 .pick.active { color: #a34a00; }
 .pick:disabled { color: var(--muted); cursor: default; }
 .field.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+input[type="datetime-local"] { width: 100%; padding: 7px 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; font: inherit; font-size: 14px; min-height: 38px; }
+.hint { color: var(--muted); font-size: 12px; margin-top: 3px; }
+.check label { font-weight: 600; font-size: 13px; display: flex; gap: 6px; align-items: flex-start; margin-top: 22px; }
+.check input { margin-top: 2px; }
 select { width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; font: inherit; font-size: 14px; }
 .search .esri-search { width: 100%; }
 

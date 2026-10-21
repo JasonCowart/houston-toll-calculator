@@ -20,7 +20,10 @@ Keep pay-as-you-go **off** in Esri. The free tier then pauses at its limit inste
 - `data/toll-points.json` holds 386 toll points from HCTRA's toll location layer, with rates for 2–8 axles: EZ TAG, other tag, and no tag (pay by mail).
 - A toll point counts when the route passes within 30 m of it while heading in that point's direction of travel (`js/tolls.js`).
 - HCTRA rates were checked against hctra.org on Oct 20, 2026 (`status: "verified"`). Other agencies' rates are `"unverified"`.
-- Katy Managed Lanes and SH 288 Express Lanes use time-of-day pricing (`"pending"`). They're flagged, not priced.
+- Katy Managed Lanes and SH 288 Express Lanes are priced by time of day (`status: "timed"`), at the estimated time the car reaches each gantry:
+  - Katy: HCTRA's rate chart effective Sept 7, 2013 (still current). 3+ axles $7.00 per plaza; no tag +25%; carpools and motorcycles free weekdays 5–11 am and 2–8 pm.
+  - SH 288: TxDOT's half-hour tables (effective Sept 1, 2026) in `data/sh288-rates.json`, refreshed by the **Update SH 288 rates** workflow (`tools/fetch_sh288.py`). Trucks × (axles − 1), max 5; no tag × 1.5 plus fees.
+- Montgomery County (Hardin Store, Decker Prairie) and TxDOT SH 249 Tollway Extension rates were checked against their 2026 schedules on Oct 21, 2026.
 - 17 HCTRA points had a 3-axle no-TAG rate of $1.30 in the layer. It's corrected to $3.00 here (see `tools/build_data.py`).
 
 ## Files
@@ -33,5 +36,7 @@ Keep pay-as-you-go **off** in Esri. The free tier then pauses at its limit inste
 | `js/app.js` | Map, address search, routing, results |
 | `js/tolls.js` | Toll matching and pricing (no map code) |
 | `data/toll-points.json` | Toll points and rates |
+| `data/sh288-rates.json` | SH 288 time-of-day tables (from TxDOT) |
+| `tools/fetch_sh288.py` | Downloads the SH 288 tables (run by the Update SH 288 rates workflow) |
 | `tools/build_data.py` | Rebuilds the data file from the layer export |
 | `tools/test_tolls.js` | Tests: `node tools/test_tolls.js` |

@@ -170,6 +170,17 @@
     return { kept: kept, dropped: dropped };
   }
 
+  /** Length of a lon/lat path in meters. */
+  function pathMeters(lonLatPath) {
+    if (!lonLatPath || lonLatPath.length < 2) return 0;
+    var proj = projector(lonLatPath[0][1]), m = 0;
+    for (var i = 1; i < lonLatPath.length; i++) {
+      var a = proj(lonLatPath[i - 1][0], lonLatPath[i - 1][1]), b = proj(lonLatPath[i][0], lonLatPath[i][1]);
+      m += Math.hypot(b[0] - a[0], b[1] - a[1]);
+    }
+    return m;
+  }
+
   /** Distance (m) from a toll point to the nearest ramp zone, ignoring direction. For the debug view. */
   function zoneDistance(pt, zones) {
     if (!zones || !zones.length) return null;
@@ -199,6 +210,78 @@
     return out;
   }
 
+  // ---- Time-of-day pricing (Katy Managed Lanes, SH 288 Express Lanes) ----
+
+  var schedules = { sh288: null };
+  function setSchedules(s) { if (s && s.sh288) schedules.sh288 = s.sh288; }
+
+  // Katy Managed Lanes, HCTRA rate chart effective Sept 7, 2013 (unchanged as of Oct 2026).
+  // Weekday peak windows by direction; [startHour, endHour, Eldridge, Wilcrest/Wirt].
+  var KATY = {
+    eb: [[6, 7, 2.10, 1.20], [7, 8, 3.20, 1.90], [8, 9, 2.60, 1.70], [9, 10, 1.50, 1.00]],
+    wb: [[15, 16, 2.10, 1.20], [16, 18, 3.20, 1.90], [18, 19, 2.10, 1.20]],
+    offPeak: [0.40, 0.30],
+    truck: 7.00,          // 3+ axles or towing, all times, each plaza
+    noTagFactor: 1.25,    // violation / non-tag = posted + 25%
+    hov: [[5, 11], [14, 20]], // carpool 2+ and motorcycles free, Mon-Fri
+  };
+
+  // Clock time in Houston, whatever the viewer's device time zone.
+  function houstonParts(date) {
+    var f = new Intl.DateTimeFormat("en-US", { timeZone: "America/Chicago", year: "numeric", month: "numeric", day: "numeric",
+      hour: "numeric", minute: "numeric", hour12: false, weekday: "short" });
+    var o = {};
+    f.formatToParts(date).forEach(function (p) { o[p.type] = p.value; });
+    var dow = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 }[o.weekday];
+    return { y: +o.year, m: +o.month, d: +o.day, hour: (+o.hour) % 24, minute: +o.minute, dow: dow };
+  }
+
+  // National holidays in Texas Government Code 662.003(a), used by SH 288's "Holidays" column.
+  function isTexasNationalHoliday(y, m, d) {
+    function nth(month, weekday, n) { // weekday 0 = Sunday
+      var first = new Date(Date.UTC(y, month - 1, 1)).getUTCDay();
+      return 1 + ((weekday - first + 7) % 7) + 7 * (n - 1);
+    }
+    function last(month, weekday) {
+      var days = new Date(Date.UTC(y, month, 0)).getUTCDate();
+      var lastDow = new Date(Date.UTC(y, month - 1, days)).getUTCDay();
+      return days - ((lastDow - weekday + 7) % 7);
+    }
+    var list = [[1, 1], [1, nth(1, 1, 3)], [2, nth(2, 1, 3)], [5, last(5, 1)], [7, 4], [9, nth(9, 1, 1)],
+      [11, 11], [11, nth(11, 4, 4)], [12, 25]];
+    return list.some(function (h) { return h[0] === m && h[1] === d; });
+  }
+
+  function round2(v) { return Math.round(v * 100) / 100; }
+
+  /**
+   * Rate at a time-of-day toll point, or null if it can't be priced.
+   * @param {Date} when when the vehicle passes the gantry
+   * @returns {{rate: number, note: string}|null}
+   */
+  function timedRate(pt, axles, payment, when, opts) {
+    opts = opts || {};
+    var t = houstonParts(when || new Date());
+    var key = pt.schedule || "";
+    if (key.indexOf("katy-") === 0) {
+      var weekday = t.dow <= 4, h = t.hour + t.minute / 60;
+      if (axles > 2) return { rate: round2(KATY.truck * (payment === "notag" ? KATY.noTagFactor : 1)), note: "3+ axles" };
+      if (opts.carpool && weekday && KATY.hov.some(function (w) { return h >= w[0] && h < w[1]; })) return { rate: 0, note: "carpool, HOV hours" };
+      var col = key.indexOf("eldridge") > 0 ? 0 : 1;
+      var dir = /-eb$/.test(key) ? "eb" : "wb";
+      var posted = KATY.offPeak[col], peak = false;
+      if (weekday) KATY[dir].forEach(function (w) { if (h >= w[0] && h < w[1]) { posted = w[2 + col]; peak = true; } });
+      return { rate: round2(posted * (payment === "notag" ? KATY.noTagFactor : 1)), note: peak ? "weekday peak" : "off-peak" };
+    }
+    var grid = schedules.sh288 && schedules.sh288.gantries[key];
+    if (!grid) return null;
+    var slot = Math.min(47, t.hour * 2 + (t.minute >= 30 ? 1 : 0));
+    var holiday = isTexasNationalHoliday(t.y, t.m, t.d);
+    var base = grid[slot][holiday ? 7 : t.dow];
+    var factor = Math.min(5, axles - 1); // TxDOT class factor: 2 axles = 1 ... 6+ axles = 5
+    return { rate: round2(base * factor * (payment === "notag" ? 1.5 : 1)), note: holiday ? "holiday rate" : "time-of-day" };
+  }
+
   /**
    * Rate for one toll point.
    * @param {object} pt toll point
@@ -206,23 +289,36 @@
    * @param {"eztag"|"tag"|"notag"} payment
    * @returns {number|null} null when the layer has no rate for this case
    */
-  function rateFor(pt, axles, payment) {
+  function rateFor(pt, axles, payment, when, opts) {
+    if (pt.status === "timed") { var r = timedRate(pt, axles, payment, when, opts); return r ? r.rate : null; }
     if (payment === "notag") return pt.notag[axles - 2];
     if (axles === 2) return payment === "eztag" ? pt.ez2 : pt.tag2;
     return pt.tag[axles - 3];
   }
 
-  /** Price a list of crossings. */
-  function price(crossings, axles, payment) {
-    var total = 0, items = [], missing = [], pending = [], unverified = 0;
+  /**
+   * Price a list of crossings.
+   * @param {object} [ctx] {departure: Date, routeMeters, routeMinutes, carpool}. Time-of-day
+   *   tolls are priced at the estimated time the vehicle reaches each gantry.
+   */
+  function price(crossings, axles, payment, ctx) {
+    ctx = ctx || {};
+    var total = 0, items = [], missing = [], pending = [], unverified = 0, timed = 0;
+    var dep = ctx.departure || new Date();
     crossings.forEach(function (c) {
       var pt = c.point;
-      if (pt.status === "pending") { pending.push(pt); items.push({ point: pt, rate: null }); return; }
-      var rate = rateFor(pt, axles, payment);
+      var when = dep;
+      if (ctx.routeMeters && ctx.routeMinutes && c.along != null) when = new Date(dep.getTime() + (c.along / ctx.routeMeters) * ctx.routeMinutes * 60000);
+      var rate, note;
+      if (pt.status === "timed") {
+        var r = timedRate(pt, axles, payment, when, ctx);
+        if (r) { rate = r.rate; note = r.note; timed++; }
+        else { pending.push(pt); items.push({ point: pt, rate: null }); return; }
+      } else rate = rateFor(pt, axles, payment);
       if (rate === null || rate === undefined) { missing.push(pt); items.push({ point: pt, rate: null }); return; }
       if (pt.status === "unverified") unverified++;
       total += rate;
-      items.push({ point: pt, rate: rate });
+      items.push({ point: pt, rate: rate, when: pt.status === "timed" ? when : null, note: note });
     });
     return {
       total: Math.round(total * 100) / 100,
@@ -230,10 +326,11 @@
       missing: missing,
       pending: pending,
       unverified: unverified,
+      timed: timed,
     };
   }
 
-  var api = { findCrossings: findCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, zoneDistance: zoneDistance, rateFor: rateFor, price: price, MATCH_METERS: MATCH_METERS };
+  var api = { findCrossings: findCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

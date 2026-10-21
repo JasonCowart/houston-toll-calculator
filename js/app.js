@@ -93,6 +93,21 @@ require([
     .then(function (r) { return r.json(); })
     .then(function (d) { tollPoints = d.points; updateButton(); })
     .catch(function () { setStatus("Couldn't load the toll data.", true); });
+  fetch("data/sh288-rates.json")
+    .then(function (r) { return r.json(); })
+    .then(function (d) { window.TollCalc.setSchedules({ sh288: d }); })
+    .catch(function () { /* SH 288 tolls will show as not included */ });
+
+  // Departure time: blank = now. The datetime-local value is read as the device's local time.
+  var departure = new Date();
+  function readDeparture() {
+    var v = $("leave").value;
+    var d = v ? new Date(v) : new Date();
+    return isNaN(d) ? new Date() : d;
+  }
+  function fmtClock(d) {
+    return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/Chicago" });
+  }
 
   function updateButton() { $("go").disabled = !(key && stops.from && stops.to && tollPoints.length); }
   function setStatus(msg, isError) { $("status").textContent = msg || ""; $("status").className = "status" + (isError ? " error" : ""); }
@@ -164,7 +179,7 @@ require([
       returnRoutes: true,
       returnDirections: !!withDirections,
       directionsOutputType: "complete",
-      startTime: new Date(), // traffic for leaving now (live traffic within 4 hours)
+      startTime: departure, // traffic for the departure time (live traffic within 4 hours of now)
     });
     return route.solve(ROUTE_URL, params).then(function (res) {
       var rr = res.routeResults[0];
@@ -291,14 +306,16 @@ require([
     $("verdict").textContent = verdict;
 
     var flags = [];
-    if (priced.pending.length) flags.push("This route uses Katy Managed Lanes or SH 288 Express Lanes, which price by time of day. Those tolls aren't included yet.");
+    if (priced.pending.length) flags.push("Some time-of-day tolls (Katy Managed Lanes or SH 288 Express Lanes) couldn't be priced, so the total is low.");
+    if (priced.timed) flags.push("Katy Managed Lanes and SH 288 Express Lanes charge by time of day. These are priced for when you'd reach each gantry, leaving " + (($("leave").value ? "at " : "now, ") + fmtClock(departure)) + ".");
     if (priced.missing.length) flags.push(priced.missing.length + " toll point(s) on this route have no rate for this vehicle in the data, so the total is low.");
-    if (priced.unverified) flags.push(priced.unverified + " toll point(s) belong to agencies other than HCTRA. Their rates haven't been checked yet.");
+    if (priced.unverified) flags.push(priced.unverified + " toll point(s) on this route haven't been checked against their agency's published rates yet.");
     $("flags").innerHTML = flags.map(function (m) { return '<div class="notice info">' + esc(m) + "</div>"; }).join("");
 
     $("breakdown").innerHTML = priced.items.map(function (it) {
       var p = it.point;
-      return "<tr><td>" + esc(p.name) + (p.status === "unverified" ? ' <span class="tag-unverified">(unverified)</span>' : "") +
+      var when = it.when ? ' <span class="tag-unverified">(' + fmtClock(it.when) + (it.note ? ", " + esc(it.note) : "") + ")</span>" : "";
+      return "<tr><td>" + esc(p.name) + (p.status === "unverified" ? ' <span class="tag-unverified">(unverified)</span>' : "") + when +
         "</td><td>" + esc(p.road) + '</td><td class="num">' + (it.rate == null ? "n/a" : fmtMoney(it.rate)) + "</td></tr>";
     }).join("") || '<tr><td colspan="3">No toll points crossed.</td></tr>';
     $("breakdown-wrap").hidden = !priced.items.length;
@@ -308,6 +325,7 @@ require([
   $("go").addEventListener("click", function () {
     var axles = parseInt($("axles").value, 10);
     var payment = $("payment").value;
+    departure = readDeparture();
     $("go").disabled = true;
     $("results").hidden = true;
     setStatus("Finding routes…");
@@ -328,7 +346,10 @@ require([
       var split = window.TollCalc.dropSharedWithFree(raw, freePath);
       var crossings = split.kept;
       if (DEBUG) showDebug(tollRoute, path, rampZones, crossings, split.dropped);
-      var priced = window.TollCalc.price(crossings, axles, payment);
+      var priced = window.TollCalc.price(crossings, axles, payment, {
+        departure: departure, routeMeters: window.TollCalc.pathMeters(path),
+        routeMinutes: routeStats(tollRoute).minutes, carpool: $("carpool").checked,
+      });
       drawRoute(freeRoute, "free");
       drawRoute(tollRoute, "toll");
       drawCrossings(priced.items);

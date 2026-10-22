@@ -5,13 +5,14 @@ require([
   "esri/views/MapView",
   "esri/widgets/Search",
   "esri/layers/GraphicsLayer",
+  "esri/layers/FeatureLayer",
   "esri/Graphic",
   "esri/rest/route",
   "esri/rest/support/RouteParameters",
   "esri/rest/support/FeatureSet",
   "esri/rest/networkService",
   "esri/rest/locator",
-], function (esriConfig, Map, MapView, Search, GraphicsLayer, Graphic, route, RouteParameters, FeatureSet, networkService, locator) {
+], function (esriConfig, Map, MapView, Search, GraphicsLayer, FeatureLayer, Graphic, route, RouteParameters, FeatureSet, networkService, locator) {
   "use strict";
 
   var ROUTE_URL = "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
@@ -30,7 +31,8 @@ require([
   else $("key-warning").hidden = false;
 
   var routesLayer = new GraphicsLayer();
-  var markersLayer = new GraphicsLayer();
+  var markersLayer = new GraphicsLayer(); // start and end pins, drawn on top
+  var tollLayer = null;                   // toll points on the route, with labels
   var map = new Map({ basemap: key ? "arcgis/navigation" : "osm", layers: [routesLayer, markersLayer] });
   var view = new MapView({ container: "map", map: map, center: HOUSTON, zoom: 9 });
 
@@ -165,8 +167,10 @@ require([
     markersLayer.removeAll();
     ["from", "to"].forEach(function (w) {
       if (!stops[w]) return;
-      markersLayer.add(new Graphic({ geometry: stops[w], symbol: { type: "simple-marker", size: 11,
-        color: w === "from" ? [255, 255, 255] : [30, 30, 30], outline: { color: [30, 30, 30], width: 2 } } }));
+      // Start: light green fill, dark green ring. End: light red fill, dark red ring.
+      var c = w === "from" ? { fill: [134, 214, 148], ring: [26, 122, 52] } : { fill: [244, 143, 143], ring: [168, 22, 28] };
+      markersLayer.add(new Graphic({ geometry: stops[w], symbol: { type: "simple-marker", size: 15,
+        color: c.fill, outline: { color: c.ring, width: 3 } } }));
     });
   }
 
@@ -294,16 +298,53 @@ require([
       width: kind === "toll" ? 5 : 4, style: kind === "toll" ? "solid" : "short-dash" } }));
   }
 
+  // Short map label for a toll point: "Peek Rd $0.84". Drops words that repeat on every gantry.
+  function shortName(n) {
+    var s = n.replace(/\s*\((formerly [^)]*)\)/i, "")
+      .replace(/\b(ML|Mainline|Mainlane)?\s*(Gantry|Plaza|Canopy|Tolling Zone)\b/gi, "")
+      .replace(/\s+(Mainlane|Mainline)\b/gi, "")
+      .replace(/\s*(Tolled\s+)?(Entrance|Exit)\s+Ramp\b/gi, " ramp")
+      .replace(/Katy Managed Lanes/i, "Katy ML").replace(/\((East|West|North|South)bound\)/i, function (m, d) { return d[0] + "B"; })
+      .replace(/\s{2,}/g, " ").trim() || n;
+    return s.length > 30 ? s.slice(0, 28).trim() + "…" : s;
+  }
+
+  // Toll points as a client-side feature layer, so the map can label each one and
+  // hide labels that would overlap (they come back as you zoom in).
   function drawCrossings(items) {
-    items.forEach(function (it) {
+    if (tollLayer) { map.remove(tollLayer); tollLayer = null; }
+    if (!items.length) return;
+    var source = items.map(function (it, i) {
       var p = it.point;
-      markersLayer.add(new Graphic({
+      return new Graphic({
         geometry: { type: "point", longitude: p.lon, latitude: p.lat },
-        symbol: { type: "simple-marker", size: 8, color: it.rate == null ? COLORS.missing : COLORS.toll, outline: { color: [255, 255, 255], width: 1.5 } },
-        attributes: { name: p.name, road: p.road },
-        popupTemplate: { title: "{name}", content: esc(p.road) + (it.rate == null ? " · rate not included" : " · " + fmtMoney(it.rate)) },
-      }));
+        attributes: { oid: i + 1, name: p.name, road: p.road, priced: it.rate == null ? 0 : 1,
+          label: shortName(p.name) + " " + (it.rate == null ? "n/a" : fmtMoney(it.rate)),
+          detail: esc(p.road) + (it.rate == null ? " · rate not included" : " · " + fmtMoney(it.rate)) },
+      });
     });
+    var marker = function (color) { return { type: "simple-marker", size: 9, color: color, outline: { color: [255, 255, 255], width: 1.5 } }; };
+    tollLayer = new FeatureLayer({
+      source: source,
+      objectIdField: "oid",
+      geometryType: "point",
+      spatialReference: { wkid: 4326 },
+      fields: [
+        { name: "oid", type: "oid" }, { name: "name", type: "string" }, { name: "road", type: "string" },
+        { name: "priced", type: "integer" }, { name: "label", type: "string" }, { name: "detail", type: "string" },
+      ],
+      renderer: { type: "unique-value", field: "priced", defaultSymbol: marker(COLORS.toll),
+        uniqueValueInfos: [{ value: 0, symbol: marker(COLORS.missing) }] },
+      labelingInfo: [{
+        labelExpressionInfo: { expression: "$feature.label" },
+        labelPlacement: "center-right",
+        deconflictionStrategy: "static",
+        symbol: { type: "text", color: [47, 26, 80], haloColor: [255, 255, 255], haloSize: 1.5,
+          font: { size: 11, weight: "bold" } },
+      }],
+      popupTemplate: { title: "{name}", content: "{detail}" },
+    });
+    map.add(tollLayer, 1); // above the routes, below the start and end pins
   }
 
   // ?debug=1: list each toll point near the route, whether it counted and why,

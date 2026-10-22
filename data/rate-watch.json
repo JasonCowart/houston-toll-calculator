@@ -22,6 +22,35 @@
   },
   "fbctra": {
    "checked": "2026-10-22",
+   "emptyClues": {
+    "apiHints": [],
+    "bytes": 1462361,
+    "links": [
+     "/toll-roads/",
+     "https://www.fbctra.com/about/statewide-interoperability-and-electronic-toll-tags/",
+     "https://www.fbctra.com/toll-roads/",
+     "https://www.fbctra.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1"
+    ],
+    "scripts": [
+     "https://cdn.gtranslate.net/widgets/latest/dropdown.js?ver=7.0.1",
+     "https://www.fbctra.com/wp-content/plugins/cf7-conditional-fields/js/scripts.js?ver=2.7.13",
+     "https://www.fbctra.com/wp-content/plugins/contact-form-7/includes/js/index.js?ver=6.1.7",
+     "https://www.fbctra.com/wp-content/plugins/contact-form-7/includes/swv/js/index.js?ver=6.1.7",
+     "https://www.fbctra.com/wp-content/plugins/contact-form-7/modules/recaptcha/index.js?ver=6.1.7",
+     "https://www.fbctra.com/wp-content/plugins/fusion-builder/assets/js/min/general/awb-background-slider.js?ver=7.1.3",
+     "https://www.fbctra.com/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-animations.js?ver=3.16.3",
+     "https://www.fbctra.com/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-column-legacy.js?ver=7.1.3",
+     "https://www.fbctra.com/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-column.js?ver=3.16.3",
+     "https://www.fbctra.com/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-container.js?ver=3.16.3",
+     "https://www.fbctra.com/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-flip-boxes.js?ver=3.16.3",
+     "https://www.fbctra.com/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-title.js?ver=7.1.3",
+     "https://www.fbctra.com/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-video.js?ver=3.16.3",
+     "https://www.fbctra.com/wp-content/plugins/fusion-builder/assets/js/min/library/ScrollTrigger.js?ver=3.16.3",
+     "https://www.fbctra.com/wp-content/plugins/fusion-builder/assets/js/min/library/SplitType.js?ver=3.16.3"
+    ],
+    "text": "Fort Bend County Toll Road Authority Skip to content HOME VIOLATIONS VETERANS TOLL ROADS NEWS SAFETY TRAFFIC COMPLAINTS VISITORS PROJECTS ABOUT CONTACT BOARD MEETINGS FORT BEND COUNTY COMMISSIONERS COURT LANDOWNER\u2019S BILL OF RIGHTS STATEWIDE INTEROPERABILITY & ELECTRONIC TOLL TAGS PERMITS MAKE PAYMENT NOW IF YOU SUSPECT YOU ARE BEING CHARGED INCORRECTLY FOR YOUR TOLLS, PLEASE CLICK HERE. Loading... LANE CLOSURES & DETOURS See What's Happening on the Road READ MORE SUSPECT YOU ARE BEING CHARGED INCORRECTLY FOR YOUR TOLLS? PLEASE CLICK HERE TOLL VIOLATION? Need to Make a Payment? MAKE PAYMENT NOW",
+    "title": "Fort Bend County Toll Road Authority"
+   },
    "failures": 0,
    "fingerprint": {
     "links": []
@@ -31,6 +60,19 @@
   },
   "hctra": {
    "checked": "2026-10-22",
+   "emptyClues": {
+    "apiHints": [
+     "/api/sessions/EnvironmentConfig/GetConfigSource"
+    ],
+    "bytes": 5076,
+    "links": [],
+    "scripts": [
+     "/api/sessions/EnvironmentConfig/GetConfigSource",
+     "https://www.google.com/recaptcha/enterprise.js?onload=hctraReCaptchaOnloadCallback&render=explicit"
+    ],
+    "text": "HCTRA \u2014 Harris County Toll Road Authority",
+    "title": "HCTRA &mdash; Harris County Toll Road Authority"
+   },
    "failures": 0,
    "fingerprint": {
     "amounts": [],

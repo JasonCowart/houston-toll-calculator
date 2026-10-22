@@ -1028,6 +1028,14 @@ require([
   // Price a routed trip and show it. Used after routing, and again when only the payment
   // type or carpool changes: those don't change the route, so the same route is repriced
   // without asking Esri again (a new request can come back as a different route).
+  // After a compare, bring the "Save X min for $Y" headline to the top of the panel
+  // (or the page on phones) so the results below it are in view.
+  function scrollToHeadline() {
+    var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    requestAnimationFrame(function () {
+      $("headline").scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+    });
+  }
   function priceTrip(trip, tollRoute, freeRoute) {
     var result = window.TollCalc.analyzeTrip(trip, tollPoints);
     var priced = result.priced;
@@ -1130,6 +1138,7 @@ require([
       priceTrip(trip, tollRoute, freeRoute);
       drawTollTraffic(tollRoute, lastTrip.priced, window.TollCalc.pathMeters(path));
       setStatus("");
+      scrollToHeadline();
     }).catch(function (err) {
       console.error(err);
       setStatus("Couldn't get routes: " + (err && err.message ? err.message : "unknown error"), true);

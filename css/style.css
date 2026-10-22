@@ -116,6 +116,8 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .breakdown .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .tag-unverified { color: var(--ink-soft); font-size: 12px; }
 
+#headline { scroll-margin-top: 12px; }
+
 .fine { margin-top: auto; color: var(--ink-soft); font-size: 12px; }
 
 @media (max-width: 760px) {

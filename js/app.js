@@ -333,20 +333,23 @@ require([
     $("save-vehicle").disabled = !paymentChoice();
     syncVehicleSelect();
   }
-  // The box shows the saved vehicle that matches the current settings (axles, tag and
-  // carpool), or "My vehicles..." when none does, e.g. after changing the axles.
+  // The box shows the vehicle you picked or just saved, for as long as the settings still
+  // match it. Change the axles, tag or carpool and it goes back to "My vehicles..."; changing
+  // back doesn't bring it back on its own, you pick it again.
+  var activeVehicle = -1;
   function syncVehicleSelect() {
     if (!vehicles) return;
+    var v = vehicles[activeVehicle];
     var axles = parseInt($("axles").value, 10), pay = paymentChoice(), car = $("carpool").checked;
-    var i = -1;
-    vehicles.some(function (v, k) { if (v.axles === axles && v.payment === pay && !!v.carpool === car) { i = k; return true; } return false; });
-    $("vehicles").value = i >= 0 ? "v" + i : "";
+    if (!v || v.axles !== axles || v.payment !== pay || !!v.carpool !== car) activeVehicle = -1;
+    $("vehicles").value = activeVehicle >= 0 ? "v" + activeVehicle : "";
   }
   $("vehicles").addEventListener("change", function () {
     var v = this.value;
     if (v === "manage") { syncVehicleSelect(); renderVehicleDialog(); var d = $("vehicles-dialog"); if (d.showModal) d.showModal(); else d.setAttribute("open", ""); return; }
     var p = vehicles[+v.slice(1)];
-    if (!p) return;
+    if (!p) { syncVehicleSelect(); return; }
+    activeVehicle = +v.slice(1);
     $("axles").value = String(p.axles);
     var r = $("pay-" + p.payment); if (r) r.checked = true;
     $("carpool").checked = !!p.carpool;
@@ -363,6 +366,7 @@ require([
     var v = { name: name.trim(), axles: axles, payment: payment, carpool: carpool };
     vehicles = [v].concat(vehicles.filter(function (x) { return x.name.toLowerCase() !== v.name.toLowerCase(); }));
     saveList("vehicles", vehicles);
+    activeVehicle = 0;
     fillVehicles();
     setStatus("Saved \u201c" + v.name + "\u201d (" + vehicleSummary(v) + ") to My vehicles on this device.");
   });
@@ -374,7 +378,9 @@ require([
   $("vehicle-list").addEventListener("click", function (e) {
     var b = e.target.closest("button[data-i]");
     if (!b) return;
-    vehicles.splice(+b.getAttribute("data-i"), 1);
+    var gone = +b.getAttribute("data-i");
+    vehicles.splice(gone, 1);
+    activeVehicle = activeVehicle === gone ? -1 : activeVehicle > gone ? activeVehicle - 1 : activeVehicle;
     saveList("vehicles", vehicles);
     fillVehicles();
     renderVehicleDialog();

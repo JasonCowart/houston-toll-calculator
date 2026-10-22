@@ -337,6 +337,25 @@ test("spots evening-rush hops off the Sam Houston Tollway: Little York to Gulf B
   assert(/Sam Houston Pkwy/.test(hops[1].via) && hops[1].miles < 1, "Gessner frontage weave: " + hops[1].via);
 });
 
+test("routing points that keep a traffic route on the tollway sit on the tollway's own line", () => {
+  const fs = require("fs"), path = require("path"), dir = path.join(__dirname, "..", "tests", "trips");
+  const load = (f) => JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+  const calm = load("2026-10-22-1031-bw8-sb-stays-on-tollway.json");            // stays on: stands in for the no-traffic route
+  const hopper = load("2026-10-22-0924-bw8-sb-frontage-clay-rd-reentry.json");   // left at Clay Rd, back on further south
+  const hops = T.findTollwayHops(hopper.toll.steps);
+  const a = T.tollwayAnchors(calm.toll.steps, hopper.toll.steps, hops);
+  assert(a.length >= 1 && a.every((x) => x.road === "Sam Houston"), "anchors on the Sam Houston Tollway: " + JSON.stringify(a));
+  const onCalm = calm.toll.path.some((p) => p[0] === a[0].lonlat[0] && p[1] === a[0].lonlat[1]);
+  assert(onCalm, "anchor is a vertex of the calm route's tollway line");
+  // Within the stretch the traffic route skipped: between where it left and got back on.
+  const lat = a[0].lonlat[1], left = hopper.toll.steps[hops[0].fromStep - 1].path.slice(-1)[0][1], back = hopper.toll.steps[hops[0].toStep].path[0][1];
+  assert(lat < left && lat > back, "anchor between exit (" + left + ") and re-entry (" + back + "): " + lat);
+  assert(T.tollwayAnchors(calm.toll.steps, hopper.toll.steps, []).length === 0, "no hops, no anchors");
+  // The calm route must run the same way: a northbound route gives no points for a southbound hop.
+  const nb = load("2026-10-22-1751-bw8-nb-little-york-hop.json");
+  assert(T.tollwayAnchors(nb.toll.steps, hopper.toll.steps, hops).length === 0, "opposite direction gives no anchors");
+});
+
 test("spots a toll route that skips a mainline plaza on the frontage road", () => {
   const points = require(require("path").join(__dirname, "..", "data", "toll-points.json")).points;
   const t = JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "tests", "trips", "2026-10-22-0853-bw8-sb-frontage-around-central-plaza.json"), "utf8"));

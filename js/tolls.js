@@ -571,6 +571,68 @@
     return hops;
   }
 
+  // Points to route through so a traffic route stays on the tollway where it hopped off.
+  // calmSteps: the same trip solved without traffic (it stays on the tollway). For each hop,
+  // returns vertices of the calm route's own tollway line between where the traffic route
+  // left and where it got back on, so a waypoint there sits exactly on Esri's main lanes and
+  // can't snap to the frontage road beside them. [] if the calm route doesn't cover the hop.
+  var ANCHOR_SPACING_METERS = 1500, ANCHOR_END_METERS = 150, ANCHOR_MATCH_METERS = 300;
+  function tollwayAnchors(calmSteps, trafficSteps, hops) {
+    var out = [];
+    if (!calmSteps || !trafficSteps || !hops || !hops.length) return out;
+    var first = null;
+    calmSteps.some(function (s) { if (s.path && s.path.length) { first = s.path[0]; return true; } return false; });
+    if (!first) return out;
+    var proj = projector(first[1]);
+    // the calm route as one line, each vertex tagged with its step and distance into that step
+    var line = [], verts = [];
+    calmSteps.forEach(function (s, si) {
+      if (!s.path || s.path.length < 2) return;
+      var stepLen = 0, prev = null;
+      var xy = s.path.map(function (p) { return proj(p[0], p[1]); });
+      xy.forEach(function (q) { if (prev) stepLen += Math.hypot(q[0] - prev[0], q[1] - prev[1]); prev = q; });
+      var into = 0; prev = null;
+      xy.forEach(function (q, k) {
+        if (prev) into += Math.hypot(q[0] - prev[0], q[1] - prev[1]);
+        prev = q;
+        line.push(q);
+        verts.push({ step: si, lonlat: s.path[k], fromStart: into, toEnd: stepLen - into });
+      });
+    });
+    var along = [0];
+    for (var i = 1; i < line.length; i++) along.push(along[i - 1] + Math.hypot(line[i][0] - line[i - 1][0], line[i][1] - line[i - 1][1]));
+    hops.forEach(function (h) {
+      var before = trafficSteps[h.fromStep - 1], back = trafficSteps[h.toStep];
+      if (!before || !before.path || !back || !back.path) return;
+      var e = before.path[before.path.length - 1], j = back.path[0];
+      var ne = nearestOnPath(line, proj(e[0], e[1])[0], proj(e[0], e[1])[1]);
+      var nj = nearestOnPath(line, proj(j[0], j[1])[0], proj(j[0], j[1])[1]);
+      if (ne.dist > ANCHOR_MATCH_METERS || nj.dist > ANCHOR_MATCH_METERS || nj.along <= ne.along) return;
+      var span = nj.along - ne.along, margin = Math.min(300, span * 0.25);
+      var picks = verts.map(function (v, k) { return { v: v, at: along[k] }; }).filter(function (c) {
+        var st = calmSteps[c.v.step];
+        var r = stepRoad(st.text);
+        return c.at > ne.along + margin && c.at < nj.along - margin && r && sameRoad(r, h.road) &&
+          c.v.fromStart >= ANCHOR_END_METERS && c.v.toEnd >= ANCHOR_END_METERS;
+      });
+      if (!picks.length) return;
+      // one near the middle, then every ANCHOR_SPACING_METERS each way
+      var mid = (ne.along + nj.along) / 2, n = Math.max(1, Math.round(span / ANCHOR_SPACING_METERS));
+      var targets = [];
+      for (var t = 0; t < n; t++) targets.push(ne.along + span * (t + 0.5) / n);
+      if (!targets.length) targets = [mid];
+      var used = {};
+      targets.forEach(function (target) {
+        var best = null;
+        picks.forEach(function (c) { if (!best || Math.abs(c.at - target) < Math.abs(best.at - target)) best = c; });
+        var key = best.v.lonlat.join(",");
+        if (!used[key]) { used[key] = true; out.push({ lonlat: best.v.lonlat, road: h.road, at: best.at }); }
+      });
+    });
+    out.sort(function (a, b) { return a.at - b.at; });
+    return out.map(function (a) { return { lonlat: a.lonlat, road: a.road }; });
+  }
+
   // The stretch of a route that runs beside managed lanes, as a fraction of the route, from
   // the first to the last managed-lane toll point it passes (priced items with laneOption).
   function laneRanges(items, routeMeters) {
@@ -580,7 +642,7 @@
     return [[Math.max(0, Math.min.apply(null, a) - 0.01), Math.min(1, Math.max.apply(null, a) + 0.01)]];
   }
 
-  var api = { findTollwayHops: findTollwayHops, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

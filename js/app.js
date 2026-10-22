@@ -278,7 +278,7 @@ require([
       toll: { minutes: ts.minutes, miles: ts.miles, mode: lastTrip.tollRoute.modeNote || null, path: t.tollPath.map(round6),
         steps: (t.steps || []).map(function (s) { return { maneuverType: s.maneuverType, text: s.text, time: s.time, length: s.length, path: s.path ? s.path.map(round6) : null }; }),
         trafficProbe: lastTrip.tollRoute.trafficProbe || null,
-        stayedOn: lastTrip.tollRoute.stayedOn || null, stillHops: lastTrip.tollRoute.stillHops || null, originalMinutes: lastTrip.tollRoute.originalMinutes || null },
+        stayedOn: lastTrip.tollRoute.stayedOn || null, stillHops: lastTrip.tollRoute.stillHops || null, anchors: lastTrip.tollRoute.anchors || null, originalMinutes: lastTrip.tollRoute.originalMinutes || null },
       free: { minutes: fs.minutes, miles: fs.miles, mode: lastTrip.freeRoute.modeNote || null, path: t.freePath.map(round6),
         steps: (lastTrip.freeRoute.steps || []).map(function (s) { return { maneuverType: s.maneuverType, text: s.text, time: s.time, length: s.length, path: s.path ? s.path.map(round6) : null }; }) },
       result: { total: lastTrip.priced.total, items: lastTrip.priced.items.map(function (it) { return { id: it.point.id, name: it.point.name, rate: it.rate }; }) },
@@ -505,10 +505,15 @@ require([
   // ([{maneuverType, text, path}]) for finding where the route takes ramps.
   // probe (debug view only): also ask for the edges the route traverses with free-flow and
   // traffic times, to see whether the free Esri tier gives per-stretch traffic for coloring.
-  function solve(mode, withDirections, probe, via, barriers) {
-    var stopList = [stops.from].concat(via || [], [stops.to]);
+  // via: [lon, lat] waypoints the route must pass through (LocationType 1: no arrive/depart).
+  // more.noTraffic: solve for free-flow driving instead of the departure time's traffic.
+  function solve(mode, withDirections, probe, via, barriers, more) {
+    more = more || {};
+    var stopGraphics = [new Graphic({ geometry: stops.from })].concat((via || []).map(function (v) {
+      return new Graphic({ geometry: new Point({ longitude: v[0], latitude: v[1] }), attributes: { LocationType: 1, CurbApproach: 0 } });
+    }), [new Graphic({ geometry: stops.to })]);
     var opts = {
-      stops: new FeatureSet({ features: stopList.map(function (g) { return new Graphic({ geometry: g }); }) }),
+      stops: new FeatureSet({ features: stopGraphics }),
       travelMode: mode,
       outSpatialReference: { wkid: 4326 },
       returnRoutes: true,
@@ -516,6 +521,7 @@ require([
       directionsOutputType: "complete",
       startTime: departure, // traffic for the departure time (live traffic within 4 hours of now)
     };
+    if (more.noTraffic) delete opts.startTime;
     if (barriers && barriers.length) {
       opts.pointBarriers = new FeatureSet({ features: barriers.map(function (b) {
         return new Graphic({ geometry: new Point({ longitude: b[0], latitude: b[1] }), attributes: { BarrierType: 0 } }); // 0 = restriction: can't pass
@@ -554,7 +560,7 @@ require([
     }, function (err) {
       if (!probe) throw err;
       // The probe options were refused: solve normally and note why.
-      return solve(mode, withDirections, false, via, barriers).then(function (g) { g.trafficProbe = { error: String(err && err.message || err) }; return g; });
+      return solve(mode, withDirections, false, via, barriers, more).then(function (g) { g.trafficProbe = { error: String(err && err.message || err) }; return g; });
     });
   }
 
@@ -1010,7 +1016,7 @@ require([
       flags.push("Esri's toll route still gets off the " + stillRoads(still) + " and back on (via " + stillVia(still) +
         "), even after re-routing. Most drivers stay on the tollway, so the real trip may run a little differently.");
     else if (lastTrip && lastTrip.tollRoute.stayedOn && lastTrip.tollRoute.stayedOn.length)
-      flags.push("Esri's fastest toll route got off the " + lastTrip.tollRoute.stayedOn.map(function (r) { return r === "Sam Houston" ? "Sam Houston Tollway" : r; }).join(" and ") + " onto the frontage road and back on again" +
+      flags.push("Esri's fastest toll route got off the " + lastTrip.tollRoute.stayedOn.map(function (r) { return r === "Sam Houston" ? "Sam Houston Tollway" : r; }).join(" and ") + " onto the frontage road or side streets and back on again" +
         " (to dodge traffic or a toll). Most drivers stay on unless there's a crash or closure, so the toll route here stays on the tollway.");
     if (priced.assumed) flags.push(priced.assumed + " Fort Bend County toll point(s) on this route publish rates only up to 6 axles, so they're priced at the 6-axle rate.");
     if (priced.unverified) flags.push(priced.unverified + " toll point(s) on this route haven't been checked against their agency's published rates yet.");
@@ -1100,26 +1106,55 @@ require([
       return /sam houston pkwy|frontage|frtg/i.test(road) ? "the " + road + " frontage road" : road;
     }).filter(function (r, i, a) { return a.indexOf(r) === i; }).join("; ");
   }
-  function stayOnTollway(tollRoute, axles, barriers, roads, round) {
-    barriers = barriers || []; roads = roads || []; round = round || 0;
+  // Keep the toll route on the tollway when Esri's traffic route hops off and back on.
+  // First: route through points on the tollway's own line, taken from the same trip solved
+  // without traffic (which stays on). Then, if a hop is left, block side streets for a few rounds.
+  function stayOnTollway(tollRoute, axles) {
+    var hops = window.TollCalc.findTollwayHops(tollRoute.steps);
+    if (!hops.length || !tollRoute.mode) return Promise.resolve(tollRoute);
+    setStatus("Keeping the toll route on the tollway\u2026");
+    var roads = [];
+    hops.forEach(function (h) { if (roads.indexOf(h.road) === -1) roads.push(h.road); });
+    var original = routeStats(tollRoute).minutes;
+    return solve(tollRoute.mode, true, false, null, null, { noTraffic: true }).then(function (calm) {
+      var anchors = window.TollCalc.tollwayAnchors(calm.steps, tollRoute.steps, hops);
+      if (!anchors.length) return blockSideStreets(tollRoute, [], roads, 0, null);
+      var via = anchors.map(function (a) { return a.lonlat; });
+      return solve(tollRoute.mode, true, DEBUG, via).then(function (g) {
+        g.originalMinutes = original;
+        g.anchors = via;
+        return blockSideStreets(g, [], roads, 0, via);
+      }, function (e) {
+        console.warn("route through tollway points failed", e);
+        return blockSideStreets(tollRoute, [], roads, 0, null);
+      });
+    }, function (e) {
+      console.warn("no-traffic route failed", e);
+      return blockSideStreets(tollRoute, [], roads, 0, null);
+    }).then(function (g) {
+      g.stayedOn = roads;
+      if (g.originalMinutes == null) g.originalMinutes = original;
+      return g;
+    });
+  }
+  function blockSideStreets(tollRoute, barriers, roads, round, via) {
     var hops = window.TollCalc.findTollwayHops(tollRoute.steps);
     // Each re-route can turn up a new side street, so allow a few rounds.
-    if (!hops.length || !tollRoute.mode || round >= STAY_ON_ROUNDS) {
-      if (round > 0) { tollRoute.stayedOn = roads; }
+    if (!hops.length || round >= STAY_ON_ROUNDS) {
       if (hops.length) tollRoute.stillHops = hops.map(function (h) { return { road: h.road, via: h.via }; });
       return Promise.resolve(tollRoute);
     }
-    setStatus("Keeping the toll route on the tollway\u2026");
     hops.forEach(function (h) { barriers.push(h.barrier); if (roads.indexOf(h.road) === -1) roads.push(h.road); });
-    return solve(tollRoute.mode, true, DEBUG, null, barriers.slice()).then(function (g) {
-      g.originalMinutes = tollRoute.originalMinutes || routeStats(tollRoute).minutes;
-      return stayOnTollway(g, axles, barriers, roads, round + 1);
+    return solve(tollRoute.mode, true, DEBUG, via, barriers.slice()).then(function (g) {
+      g.originalMinutes = tollRoute.originalMinutes;
+      g.anchors = tollRoute.anchors;
+      return blockSideStreets(g, barriers, roads, round + 1, via);
     }).catch(function (e) {
       console.warn("stay-on-tollway route failed", e);
-      if (round > 0) tollRoute.stayedOn = roads;
       return tollRoute;
     });
   }
+
 
   $("go").addEventListener("click", function () {
     var axles = parseInt($("axles").value, 10);

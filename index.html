@@ -133,6 +133,16 @@
   </div>
  </div>
 
+  <dialog id="places-dialog" class="places-dialog" aria-labelledby="places-dialog-title">
+    <h2 id="places-dialog-title">Edit my places</h2>
+    <p class="hint">Saved and recent places are kept in this browser only.</p>
+    <h3>My places</h3>
+    <ul id="saved-list" class="saved-list"></ul>
+    <h3>Recent</h3>
+    <div class="recent-row"><span id="recent-count"></span><button type="button" id="clear-recent" class="btn-outline small">Clear recent</button></div>
+    <div class="dialog-actions"><button type="button" id="places-done" class="go">Done</button></div>
+  </dialog>
+
   <script src="config.js"></script>
   <script>
     if (!(window.TOLL_CONFIG && (window.TOLL_CONFIG.arcgisApiKey || "").trim())) {

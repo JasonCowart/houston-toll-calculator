@@ -180,3 +180,19 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .btn-outline span { font-size: 14px; line-height: 1; }
 .btn-outline:hover { background: var(--purple); color: var(--white); }
 .btn-outline:active { background: var(--purple-hover); border-color: var(--purple-hover); color: var(--white); }
+
+/* Edit my places */
+.places-dialog { border: 0; border-radius: 10px; padding: 16px 18px; width: min(380px, calc(100% - 32px)); color: var(--ink); font-family: var(--brand);
+  box-shadow: 0 8px 30px rgba(28, 27, 29, 0.3); border-top: 4px solid var(--purple); }
+.places-dialog::backdrop { background: rgba(28, 27, 29, 0.45); }
+.places-dialog h2 { font-size: 17px; margin: 0 0 2px; }
+.places-dialog h3 { font-size: 13px; color: var(--gray); margin: 14px 0 6px; }
+.saved-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border-soft); }
+.saved-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border-soft); font-size: 14px; }
+.saved-list li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.saved-list li.empty { color: var(--ink-soft); font-size: 13px; }
+.recent-row { display: flex; align-items: center; justify-content: space-between; font-size: 14px; }
+.btn-outline.small { padding: 5px 9px; font-size: 12px; flex: none; }
+.btn-outline:disabled { border-color: var(--border); color: var(--ink-faint); background: var(--white); cursor: default; }
+.dialog-actions { margin-top: 16px; display: flex; justify-content: flex-end; }
+.dialog-actions .go { padding: 9px 22px; }

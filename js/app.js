@@ -112,10 +112,41 @@ require([
       group("My places", saved, "s");
       group("Recent", recent, "r");
       group("Common places", COMMON.map(function (c) { return { label: c[0] }; }), "c");
+      if (saved.length || recent.length) html += '<optgroup label="Manage"><option value="manage">Edit my places and recent\u2026</option></optgroup>';
       sel.innerHTML = html;
       $("save-" + w).disabled = !stops[w];
     });
   }
+  // Edit my places: remove saved places one at a time, or clear the recent list.
+  function renderPlacesDialog() {
+    var list = $("saved-list");
+    list.innerHTML = saved.length ? saved.map(function (p, i) {
+      return '<li><span>' + esc(p.label) + '</span><button type="button" class="btn-outline small" data-i="' + i + '">Remove</button></li>';
+    }).join("") : '<li class="empty">No saved places. Use \u201cSave place\u201d under From or To to add one.</li>';
+    $("recent-count").textContent = recent.length ? recent.length + " recent place" + (recent.length === 1 ? "" : "s") : "No recent places";
+    $("clear-recent").disabled = !recent.length;
+  }
+  function openPlacesDialog() {
+    renderPlacesDialog();
+    var d = $("places-dialog");
+    if (d.showModal) d.showModal(); else d.setAttribute("open", "");
+  }
+  $("saved-list").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-i]");
+    if (!b) return;
+    saved.splice(+b.getAttribute("data-i"), 1);
+    saveList("saved", saved);
+    fillPlaces();
+    renderPlacesDialog();
+  });
+  $("clear-recent").addEventListener("click", function () {
+    recent = [];
+    saveList("recent", recent);
+    fillPlaces();
+    renderPlacesDialog();
+  });
+  $("places-done").addEventListener("click", function () { var d = $("places-dialog"); if (d.close) d.close(); else d.removeAttribute("open"); });
+
   function placeFromValue(v) {
     var i = +v.slice(1);
     if (v[0] === "s") return saved[i];
@@ -125,6 +156,7 @@ require([
   }
   ["from", "to"].forEach(function (w) {
     $("places-" + w).addEventListener("change", function () {
+      if (this.value === "manage") { this.value = ""; openPlacesDialog(); return; }
       var p = this.value && placeFromValue(this.value);
       this.value = "";
       if (!p) return;

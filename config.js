@@ -1,4 +1,4 @@
-// Settings for the Houston Toll Calculator.
+// Settings for the HCTRA Toll Calculator.
 //
 // Leave the key blank here. On GitHub, the "Deploy site" workflow fills it in
 // from the repository secret ARCGIS_API_KEY when it publishes the site

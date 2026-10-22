@@ -1,4 +1,4 @@
-/* Houston Toll Calculator: map, address search, routing and results. */
+/* HCTRA Toll Calculator: map, address search, routing and results. */
 require([
   "esri/config",
   "esri/Map",

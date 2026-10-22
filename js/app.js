@@ -528,7 +528,7 @@ require([
     if (!fromMap && row && row.classList.contains("selected")) { clearHighlight(); return; } // tap again to clear
     clearHighlight();
     if (row) row.classList.add("selected");
-    showCard(i);
+    if (fromMap) showCard(i); // the card opens only for a tap on the map, not from the breakdown
     var pt = new Point({ longitude: it.point.lon, latitude: it.point.lat });
     // One ring, fill and outline together: it fades in at the point, swells out and fades
     // to nothing, then starts again. It keeps pulsing until the selection is cleared.

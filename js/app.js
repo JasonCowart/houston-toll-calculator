@@ -34,7 +34,7 @@ require([
   var routesLayer = new GraphicsLayer();
   var markersLayer = new GraphicsLayer(); // start and end pins, drawn on top
   var tollLayer = null;                   // toll points on the route, with labels
-  var map = new Map({ basemap: key ? "arcgis/navigation" : "osm", layers: [routesLayer, markersLayer] });
+  var map = new Map({ basemap: key ? "arcgis/light-gray" : "osm", layers: [routesLayer, markersLayer] });
   var view = new MapView({ container: "map", map: map, center: HOUSTON, zoom: 9 });
 
   function makeSearch(container, which) {
@@ -252,8 +252,8 @@ require([
       if (!stops[w]) return;
       // Start: light green fill, dark green ring. End: light red fill, dark red ring.
       var c = w === "from" ? { fill: [134, 214, 148], ring: [26, 122, 52] } : { fill: [244, 143, 143], ring: [168, 22, 28] };
-      markersLayer.add(new Graphic({ geometry: stops[w], symbol: { type: "simple-marker", size: 15,
-        color: c.fill, outline: { color: c.ring, width: 3 } } }));
+      markersLayer.add(new Graphic({ geometry: stops[w], symbol: { type: "simple-marker", size: 11,
+        color: c.fill, outline: { color: c.ring, width: 2.25 } } }));
     });
   }
 

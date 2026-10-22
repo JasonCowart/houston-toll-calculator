@@ -752,8 +752,16 @@ require([
     var ts = $("tag-savings");
     ts.hidden = true;
     if (savings && savings.amount >= 0.01) {
-      ts.innerHTML = "With an <strong>EZ TAG</strong>, this trip would cost " + fmtMoney(savings.eztag) + " instead of " + fmtMoney(priced.total) +
-        ", saving <strong>" + fmtMoney(savings.amount) + "</strong>.";
+      // Side by side: what you pay (red) vs. with an EZ TAG (green), the savings, and a
+      // link to sign up. Labels carry the meaning too, not just the colors.
+      var yours = lastTrip && lastTrip.trip.payment === "tag" ? "Other tag" : "No tag";
+      ts.innerHTML =
+        '<div class="ts-grid">' +
+          '<div class="ts-col"><span>' + yours + '</span><strong class="ts-bad">' + fmtMoney(priced.total) + "</strong></div>" +
+          '<div class="ts-col"><span>With EZ TAG</span><strong class="ts-good">' + fmtMoney(savings.eztag) + "</strong></div>" +
+          '<div class="ts-pill">Save ' + fmtMoney(savings.amount) + "</div>" +
+        "</div>" +
+        '<a class="ts-link" href="https://www.hctra.org/NewAccount/PersonalAccount" target="_blank" rel="noopener">Get an EZ TAG \u2192</a>';
       ts.hidden = false;
     }
 

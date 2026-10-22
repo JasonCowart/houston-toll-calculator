@@ -87,8 +87,16 @@ input[type="datetime-local"] { -webkit-appearance: none; appearance: none; min-w
 .headline .small { font-size: 14px; margin: 4px 0 0; opacity: 0.92; }
 .headline.neutral { background: var(--purple-tint-strong); color: var(--ink); }
 .headline.neutral .small { opacity: 1; color: var(--ink-soft); }
-.tag-savings { margin: 0; padding: 10px 12px; border: 1px solid var(--purple); border-radius: 6px; font-size: 14px; }
-.tag-savings strong { color: var(--purple); }
+/* EZ TAG savings: your price (red) vs. with an EZ TAG (green) */
+.tag-savings { margin: 0; padding: 10px 12px; border: 1px solid var(--purple); border-radius: 8px; background: var(--white); }
+.ts-grid { display: grid; grid-template-columns: 1fr 1fr auto; align-items: center; gap: 10px; }
+.ts-col span { display: block; font-size: 12px; color: var(--ink-soft); }
+.ts-col strong { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.ts-bad { color: var(--error); }
+.ts-good { color: #1b7a36; }
+.ts-pill { background: #e6f4ea; color: #1b7a36; border-radius: 999px; padding: 6px 10px; font-weight: 700; font-size: 13px; white-space: nowrap; }
+.ts-link { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--purple); }
+.ts-link:hover { color: var(--purple-hover); }
 
 .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }

@@ -118,3 +118,5 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .debug h3 { font-size: 14px; margin: 0 0 4px; }
 .debug ol { padding-left: 18px; margin: 4px 0; }
 .go.small { padding: 8px 12px; font-size: 14px; }
+#results { display: flex; flex-direction: column; gap: 10px; }
+#results[hidden], [hidden] { display: none !important; }

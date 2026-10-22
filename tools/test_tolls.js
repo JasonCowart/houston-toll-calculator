@@ -327,6 +327,16 @@ test("no traffic colors where the route runs beside managed lanes", () => {
   assert(T.laneRanges([], 1000).length === 0, "no lanes, no range");
 });
 
+test("spots evening-rush hops off the Sam Houston Tollway: Little York to Gulf Bank, and the Gessner ramp weave", () => {
+  const t = JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "tests", "trips", "2026-10-22-1751-bw8-nb-little-york-hop.json"), "utf8"));
+  const hops = T.findTollwayHops(t.toll.steps);
+  assert(hops.length === 2 && hops.every((h) => h.road === "Sam Houston"), "two Sam Houston hops: " + JSON.stringify(hops.map((h) => h.via)));
+  assert(/Little York/.test(hops[0].via), "barrier on Little York: " + hops[0].via);
+  assert(hops[0].miles > 2.5 && hops[0].miles < 3.5, "about 3 miles off the tollway: " + hops[0].miles);
+  // The short weave through the Gessner exit ramp (pays the $1.08 ramp toll) and back on.
+  assert(/Sam Houston Pkwy/.test(hops[1].via) && hops[1].miles < 1, "Gessner frontage weave: " + hops[1].via);
+});
+
 test("spots a toll route that skips a mainline plaza on the frontage road", () => {
   const points = require(require("path").join(__dirname, "..", "data", "toll-points.json")).points;
   const t = JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "tests", "trips", "2026-10-22-0853-bw8-sb-frontage-around-central-plaza.json"), "utf8"));
@@ -349,7 +359,7 @@ test("finds toll routes that leave a tollway and get back on", () => {
   assert(hops.length === 2 && hops.every((h) => h.road === "Sam Houston"), "two Sam Houston frontage detours: " + JSON.stringify(hops.map((h) => h.via)));
   assert(hops[0].barrier[1] > 29.85 && hops[0].barrier[1] < 29.91, "first barrier on the frontage road by Central Plaza");
   // Connector ramps between toll roads (SH 249 to Sam Houston) and ordinary trips aren't hops.
-  for (const f of fs.readdirSync(dir).filter((f) => f.endsWith(".json") && !/frontage-/.test(f))) {
+  for (const f of fs.readdirSync(dir).filter((f) => f.endsWith(".json") && !/frontage-|-hop\.json$/.test(f))) {
     const t = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
     assert(T.findTollwayHops(t.toll.steps).length === 0, "no hop expected in " + f);
   }

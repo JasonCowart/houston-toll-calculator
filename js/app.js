@@ -278,7 +278,7 @@ require([
       toll: { minutes: ts.minutes, miles: ts.miles, mode: lastTrip.tollRoute.modeNote || null, path: t.tollPath.map(round6),
         steps: (t.steps || []).map(function (s) { return { maneuverType: s.maneuverType, text: s.text, time: s.time, length: s.length, path: s.path ? s.path.map(round6) : null }; }),
         trafficProbe: lastTrip.tollRoute.trafficProbe || null,
-        stayedOn: lastTrip.tollRoute.stayedOn || null, originalMinutes: lastTrip.tollRoute.originalMinutes || null },
+        stayedOn: lastTrip.tollRoute.stayedOn || null, stillHops: lastTrip.tollRoute.stillHops || null, originalMinutes: lastTrip.tollRoute.originalMinutes || null },
       free: { minutes: fs.minutes, miles: fs.miles, mode: lastTrip.freeRoute.modeNote || null, path: t.freePath.map(round6),
         steps: (lastTrip.freeRoute.steps || []).map(function (s) { return { maneuverType: s.maneuverType, text: s.text, time: s.time, length: s.length, path: s.path ? s.path.map(round6) : null }; }) },
       result: { total: lastTrip.priced.total, items: lastTrip.priced.items.map(function (it) { return { id: it.point.id, name: it.point.name, rate: it.rate }; }) },
@@ -1005,7 +1005,11 @@ require([
     if (priced.laneOptions) flags.push("Your route runs alongside the Katy Managed Lanes or SH 288 Express Lanes. The toll route includes their tolls for that stretch; the toll-free route stays in the regular lanes.");
     if (priced.timed) flags.push("Katy Managed Lanes and SH 288 Express Lanes charge by time of day. These are priced for when you'd reach each gantry, leaving " + (($("leave").value ? "at " : "now, ") + fmtClock(departure)) + ".");
     if (priced.missing.length) flags.push(priced.missing.length + " toll point(s) on this route have no rate for this vehicle in the data, so the total is low.");
-    if (lastTrip && lastTrip.tollRoute.stayedOn && lastTrip.tollRoute.stayedOn.length)
+    var still = lastTrip && lastTrip.tollRoute.stillHops;
+    if (still && still.length)
+      flags.push("Esri's toll route still gets off the " + stillRoads(still) + " and back on (via " + stillVia(still) +
+        "), even after re-routing. Most drivers stay on the tollway, so the real trip may run a little differently.");
+    else if (lastTrip && lastTrip.tollRoute.stayedOn && lastTrip.tollRoute.stayedOn.length)
       flags.push("Esri's fastest toll route got off the " + lastTrip.tollRoute.stayedOn.map(function (r) { return r === "Sam Houston" ? "Sam Houston Tollway" : r; }).join(" and ") + " onto the frontage road and back on again" +
         " (to dodge traffic or a toll). Most drivers stay on unless there's a crash or closure, so the toll route here stays on the tollway.");
     if (priced.assumed) flags.push(priced.assumed + " Fort Bend County toll point(s) on this route publish rates only up to 6 axles, so they're priced at the 6-axle rate.");
@@ -1084,11 +1088,25 @@ require([
   // Drivers stay on the tollway unless there's a crash or closure, which the app can't see,
   // so the toll route is asked for again with a barrier on each detour (TollCalc.findTollwayHops),
   // up to twice. If that fails, the original route is kept.
+  var STAY_ON_ROUNDS = 4;
+  function tollwayName(r) { return r === "Sam Houston" ? "Sam Houston Tollway" : r; }
+  function stillRoads(hops) {
+    return hops.map(function (h) { return tollwayName(h.road); }).filter(function (r, i, a) { return a.indexOf(r) === i; }).join(" and ");
+  }
+  function stillVia(hops) {
+    return hops.map(function (h) {
+      var m = /\b(?:on|onto|to)\s+(.+)$/i.exec(h.via || "");
+      var road = m ? m[1] : h.via;
+      return /sam houston pkwy|frontage|frtg/i.test(road) ? "the " + road + " frontage road" : road;
+    }).filter(function (r, i, a) { return a.indexOf(r) === i; }).join("; ");
+  }
   function stayOnTollway(tollRoute, axles, barriers, roads, round) {
     barriers = barriers || []; roads = roads || []; round = round || 0;
     var hops = window.TollCalc.findTollwayHops(tollRoute.steps);
-    if (!hops.length || !tollRoute.mode || round >= 2) {
+    // Each re-route can turn up a new side street, so allow a few rounds.
+    if (!hops.length || !tollRoute.mode || round >= STAY_ON_ROUNDS) {
       if (round > 0) { tollRoute.stayedOn = roads; }
+      if (hops.length) tollRoute.stillHops = hops.map(function (h) { return { road: h.road, via: h.via }; });
       return Promise.resolve(tollRoute);
     }
     setStatus("Keeping the toll route on the tollway\u2026");

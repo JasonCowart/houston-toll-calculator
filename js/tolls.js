@@ -550,7 +550,7 @@
         if (lastRoad && sameRoad(r, lastRoad) && offStart >= 0) {
           var off = steps.slice(offStart, i), miles = 0, otherHighway = false, best = null;
           // a real detour drives a road (frontage or street), not just a chain of ramps between toll roads
-          var drivesRoad = off.some(function (s) { return !/Ramp|Fork/.test(s.maneuverType || "") && s.length > 0.1; });
+          var drivesRoad = off.some(function (s) { return !/Ramp|Fork/.test(s.maneuverType || "") && s.length > 0.05; });
           off.forEach(function (s, k) {
             miles += s.length > 0 ? s.length : 0;
             var t = String(s.text || "").toLowerCase();

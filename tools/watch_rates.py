@@ -21,13 +21,16 @@ import urllib.request
 from datetime import datetime, timezone
 
 SOURCES = [
-    {"id": "hctra", "name": "HCTRA toll rates", "url": "https://www.hctra.org/TollRates", "kind": "page",
+    {"id": "hctra", "name": "HCTRA toll rates", "url": "https://www.hctra.org/TollRates", "kind": "page", "render": True,
      "covers": "Sam Houston, Hardy, Westpark, Tomball, Fort Bend Westpark plazas run by HCTRA, MCTRA SH 249"},
     {"id": "hctra-katy", "name": "HCTRA Katy Managed Lanes schedule (PDF)", "kind": "file",
      "url": "https://www.hctra.org/Content/hctra3rdPartyPages/katymanagedlanes/media/Katy_Toll_Sched.pdf",
      "covers": "Katy Managed Lanes time-of-day rates"},
-    {"id": "fbctra", "name": "Fort Bend County Toll Road Authority", "url": "https://www.fbctra.com/", "kind": "links",
-     "pattern": r"toll.?rate|rate.?adjust|rates?[-_ ]?20\d\d", "covers": "Fort Bend Parkway, Westpark ext., Grand Parkway (FBCTRA)"},
+    {"id": "fbctra", "name": "Fort Bend County Toll Road Authority news about rates", "kind": "posts",
+     "url": "https://www.fbctra.com/wp-json/wp/v2/posts?search=toll%20rate&per_page=20&_fields=id,date,link,title",
+     "covers": "Fort Bend Parkway, Westpark ext., Grand Parkway (FBCTRA)"},
+    {"id": "fbctra-roads", "name": "Fort Bend County Toll Road Authority toll roads page", "kind": "page",
+     "url": "https://www.fbctra.com/toll-roads/", "covers": "Fort Bend Parkway, Westpark ext., Grand Parkway (FBCTRA)"},
     {"id": "bctra", "name": "Brazoria County Toll Road Authority rates", "url": "https://www.bctra-tx.com/page/rates", "kind": "page",
      "covers": "SH 288 Brazoria County Expressway"},
     {"id": "txdot-sh99", "name": "TxDOT Grand Parkway (SH 99) rates", "kind": "page",
@@ -62,6 +65,19 @@ def fetch(url):
     raise last
 
 
+def render(url):
+    """Load the page in headless Chrome (on GitHub's runners) for pages built by scripts."""
+    import shutil
+    import subprocess
+    chrome = next((c for c in ("google-chrome", "chromium", "chromium-browser") if shutil.which(c)), None)
+    if not chrome:
+        raise RuntimeError("no Chrome to render the page")
+    out = subprocess.run([chrome, "--headless=new", "--disable-gpu", "--no-sandbox", f"--user-agent={UA}",
+                          "--virtual-time-budget=20000", "--dump-dom", url],
+                         capture_output=True, timeout=120, check=True)
+    return out.stdout
+
+
 def page_text(raw):
     s = raw.decode("utf-8", "replace")
     s = re.sub(r"(?is)<(script|style|noscript)\b.*?</\1>", " ", s)
@@ -74,6 +90,10 @@ def fingerprint(src, raw):
         return {"sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw)}
     s = raw.decode("utf-8", "replace")
     links = sorted({h.strip() for h in HREF.findall(s)})
+    if src["kind"] == "posts":
+        posts = json.loads(raw)
+        return {"links": sorted(f"{p['date'][:10]} {html.unescape(p['title']['rendered'])} {p['link']}"
+                                for p in posts if re.search(r"rate", p["title"]["rendered"], re.I))}
     if src["kind"] == "links":
         pat = re.compile(src["pattern"], re.I)
         return {"links": [h for h in links if pat.search(h)]}
@@ -119,7 +139,7 @@ def main(snap_path, report_path):
     for src in SOURCES:
         prev = snap["sources"].get(src["id"], {})
         try:
-            raw = fetch(src["url"])
+            raw = render(src["url"]) if src.get("render") else fetch(src["url"])
             fp = fingerprint(src, raw)
         except Exception as e:  # noqa: BLE001
             fails = prev.get("failures", 0) + 1

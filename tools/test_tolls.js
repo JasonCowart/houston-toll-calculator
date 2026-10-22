@@ -305,4 +305,19 @@ test("no traffic colors where the route runs beside managed lanes", () => {
   assert(T.laneRanges([], 1000).length === 0, "no lanes, no range");
 });
 
+test("spots a toll route that skips a mainline plaza on the frontage road", () => {
+  const points = require(require("path").join(__dirname, "..", "data", "toll-points.json")).points;
+  const t = JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "tests", "trips", "2026-10-22-0853-bw8-sb-frontage-around-central-plaza.json"), "utf8"));
+  const r = T.analyzeTrip({ tollPath: t.toll.path, freePath: t.free.path, steps: t.toll.steps, departure: t.input.departure,
+    routeMinutes: t.toll.minutes, axles: 2, payment: "eztag" }, points);
+  const b = T.bypassedPlazas(t.toll.path, points, r.crossings);
+  assert(b.length === 1 && b[0].point.id === 162, "Central Plaza southbound bypassed: " + b.map((x) => x.point.id));
+  // Trips that stay on the tollway report nothing.
+  for (const f of ["2026-10-21-1855-westpark-eastbound-to-sam-houston.json", "2026-10-21-1902-grand-parkway-tomball-to-new-caney.json", "2026-10-22-0510-sam-houston-to-montgomery-past-west-rd.json"]) {
+    const u = JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "tests", "trips", f), "utf8"));
+    const ru = T.analyzeTrip({ tollPath: u.toll.path, freePath: u.free.path, steps: u.toll.steps, departure: u.input.departure, routeMinutes: u.toll.minutes, axles: 2, payment: "eztag" }, points);
+    assert(T.bypassedPlazas(u.toll.path, points, ru.crossings).length === 0, "no bypass expected in " + f);
+  }
+});
+
 console.log(passed + " tests passed");

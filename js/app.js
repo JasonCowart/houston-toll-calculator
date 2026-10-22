@@ -488,9 +488,10 @@ require([
   // ([{maneuverType, text, path}]) for finding where the route takes ramps.
   // probe (debug view only): also ask for the edges the route traverses with free-flow and
   // traffic times, to see whether the free Esri tier gives per-stretch traffic for coloring.
-  function solve(mode, withDirections, probe) {
+  function solve(mode, withDirections, probe, via) {
+    var stopList = [stops.from].concat(via || [], [stops.to]);
     var opts = {
-      stops: new FeatureSet({ features: [new Graphic({ geometry: stops.from }), new Graphic({ geometry: stops.to })] }),
+      stops: new FeatureSet({ features: stopList.map(function (g) { return new Graphic({ geometry: g }); }) }),
       travelMode: mode,
       outSpatialReference: { wkid: 4326 },
       returnRoutes: true,
@@ -503,6 +504,7 @@ require([
       var rr = res.routeResults[0];
       var g = rr.route;
       g.modeNote = mode.__note || mode.name;
+      g.mode = mode;
       var feats = rr.directions && rr.directions.features;
       if (withDirections && feats && feats.length) {
         g.steps = feats.map(function (f) {
@@ -530,7 +532,7 @@ require([
     }, function (err) {
       if (!probe) throw err;
       // The probe options were refused: solve normally and note why.
-      return solve(mode, withDirections, false).then(function (g) { g.trafficProbe = { error: String(err && err.message || err) }; return g; });
+      return solve(mode, withDirections, false, via).then(function (g) { g.trafficProbe = { error: String(err && err.message || err) }; return g; });
     });
   }
 
@@ -981,6 +983,9 @@ require([
     if (priced.laneOptions) flags.push("Your route runs alongside the Katy Managed Lanes or SH 288 Express Lanes. The toll route includes their tolls for that stretch; the toll-free route stays in the regular lanes.");
     if (priced.timed) flags.push("Katy Managed Lanes and SH 288 Express Lanes charge by time of day. These are priced for when you'd reach each gantry, leaving " + (($("leave").value ? "at " : "now, ") + fmtClock(departure)) + ".");
     if (priced.missing.length) flags.push(priced.missing.length + " toll point(s) on this route have no rate for this vehicle in the data, so the total is low.");
+    if (lastTrip && lastTrip.tollRoute.stayedOn)
+      flags.push("Esri's fastest toll route left the tollway on the frontage road to skip " + lastTrip.tollRoute.stayedOn.join(" and ") +
+        ", then got back on. Most drivers stay on, so the toll route here stays on the tollway and pays it.");
     if (priced.assumed) flags.push(priced.assumed + " Fort Bend County toll point(s) on this route publish rates only up to 6 axles, so they're priced at the 6-axle rate.");
     if (priced.unverified) flags.push(priced.unverified + " toll point(s) on this route haven't been checked against their agency's published rates yet.");
     $("flags").innerHTML = flags.map(function (m) { return '<div class="notice info">' + esc(m) + "</div>"; }).join("");
@@ -1042,6 +1047,25 @@ require([
   $("carpool").addEventListener("change", repriceShown);
   $("axles").addEventListener("change", repriceShown);
 
+  // Esri's toll route sometimes steps off a tollway onto the frontage road to skip a mainline
+  // plaza, then gets back on a few miles later. Drivers stay on the tollway, so when that
+  // happens the toll route is asked for again with a stop on the main lanes at each skipped
+  // plaza. If that fails, the original route is kept.
+  function stayOnTollway(tollRoute, axles) {
+    var path = [].concat.apply([], tollRoute.geometry.paths);
+    var first = window.TollCalc.analyzeTrip({ tollPath: path, freePath: null, steps: tollRoute.steps || null,
+      departure: departure.toISOString(), routeMinutes: routeStats(tollRoute).minutes, axles: axles, payment: "eztag" }, tollPoints);
+    var skipped = window.TollCalc.bypassedPlazas(path, tollPoints, first.crossings).slice(0, 3);
+    if (!skipped.length || !tollRoute.mode) return Promise.resolve(tollRoute);
+    setStatus("Keeping the toll route on the tollway\u2026");
+    var via = skipped.map(function (h) { return new Point({ longitude: h.point.lon, latitude: h.point.lat }); });
+    return solve(tollRoute.mode, true, DEBUG, via).then(function (g) {
+      g.stayedOn = skipped.map(function (h) { return h.point.name; });
+      g.originalMinutes = routeStats(tollRoute).minutes;
+      return g;
+    }).catch(function (e) { console.warn("stay-on-tollway route failed", e); return tollRoute; });
+  }
+
   $("go").addEventListener("click", function () {
     var axles = parseInt($("axles").value, 10);
     var payment = paymentChoice();
@@ -1059,6 +1083,8 @@ require([
       var mode = pickMode(modes, axles);
       window.__baseMode = mode;
       return Promise.all([solveFirst(tollVariants(mode, axles, "prefer"), true), solveFirst(tollVariants(mode, axles, "prohibit"), true)]);
+    }).then(function (routes) {
+      return stayOnTollway(routes[0], axles).then(function (tollRoute) { return [tollRoute, routes[1]]; });
     }).then(function (routes) {
       var tollRoute = routes[0], freeRoute = routes[1];
       var path = [].concat.apply([], tollRoute.geometry.paths);

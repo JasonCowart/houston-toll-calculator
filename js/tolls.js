@@ -472,6 +472,25 @@
     return out;
   }
 
+  // Mainline plazas a toll route skips by stepping off onto a frontage road: a mainline
+  // toll point heading the same way, 30-150 m from the route (beside it, not on it), on a
+  // toll road the route pays on both before and after that point. Drivers stay on the
+  // tollway, so the app re-routes through these plazas.
+  var BYPASS_MAX_METERS = 150;
+  function bypassedPlazas(path, points, counted) {
+    var same = function (a, b) { return a === b || (/Sam Houston|Tapia/.test(a) && /Sam Houston|Tapia/.test(b)); };
+    var mains = points.filter(function (p) { return p.kind === "main" && p.status !== "timed" && !p.lane; });
+    var near = findCrossings(path, mains, { matchMeters: BYPASS_MAX_METERS });
+    var paid = {};
+    (counted || []).forEach(function (c) { paid[c.point.id] = true; });
+    return near.filter(function (h) {
+      if (paid[h.point.id] || h.offset <= MATCH_METERS) return false;
+      var before = (counted || []).some(function (c) { return c.along < h.along && same(c.point.road, h.point.road); });
+      var after = (counted || []).some(function (c) { return c.along > h.along && same(c.point.road, h.point.road); });
+      return before && after;
+    });
+  }
+
   // The stretch of a route that runs beside managed lanes, as a fraction of the route, from
   // the first to the last managed-lane toll point it passes (priced items with laneOption).
   function laneRanges(items, routeMeters) {
@@ -481,7 +500,7 @@
     return [[Math.max(0, Math.min.apply(null, a) - 0.01), Math.min(1, Math.max.apply(null, a) + 0.01)]];
   }
 
-  var api = { laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

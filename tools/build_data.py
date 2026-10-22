@@ -44,6 +44,7 @@ CHECKED = {
     232: "MCTRA 2026 rates (eff. Jan 1, 2026)", 233: "MCTRA 2026 rates (eff. Jan 1, 2026)",
     236: "MCTRA 2026 rates (eff. Jan 1, 2026)", 237: "MCTRA 2026 rates (eff. Jan 1, 2026)",
     **{i: "TxDOT SH 249 rates (eff. Jan 1, 2026)" for i in range(313, 321)},
+    **{i: "BCTRA 2026 rates (eff. Jan 1, 2026)" for i in range(238, 242)},
 }
 DIR = {"North": "N", "South": "S", "East": "E", "West": "W"}
 
@@ -74,6 +75,14 @@ for x in json.load(open(src)):
     assumed = []
     # FBCTRA publishes rates up to 6 axles only. 7+ axles are charged the top posted class
     # (6 axles), as on TxDOT's Grand Parkway: Jason's call, Oct 21, 2026; to confirm with FBCTRA.
+    # BCTRA publishes one non-tag rate (2 axles). Its toll policy (eff. July 23, 2026) says
+    # image (no-tag) trips pay the base rate x (axles - 1), which is the 3+ axle column, so
+    # the layer's empty 3-8 axle no-tag rates are filled from the tag rates.
+    if owner == "BCTRA":
+        for axles in range(3, 9):
+            if notag[axles - 2] is None and tag[axles - 3] is not None:
+                notag[axles - 2] = tag[axles - 3]
+        notes.append("3+ axle no-tag rates = tag rates, per BCTRA's toll policy")
     if owner == "FBCTRA":
         for axles in (7, 8):
             if tag[axles - 3] is None and tag[3] is not None:

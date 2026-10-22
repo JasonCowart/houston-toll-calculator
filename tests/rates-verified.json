@@ -3382,6 +3382,110 @@
     8.1
    ]
   },
+  "238": {
+   "name": "Brazoria County Expressway McHard Toll Gantry",
+   "road": "Brazoria County Expressway",
+   "owner": "BCTRA",
+   "lon": -95.386172,
+   "lat": 29.581113,
+   "ez2": 1.96,
+   "tag2": 1.96,
+   "tag": [
+    4.12,
+    6.18,
+    8.24,
+    10.3,
+    10.3,
+    10.3
+   ],
+   "notag": [
+    2.06,
+    4.12,
+    6.18,
+    8.24,
+    10.3,
+    10.3,
+    10.3
+   ]
+  },
+  "239": {
+   "name": "Brazoria County Expressway McHard Toll Gantry",
+   "road": "Brazoria County Expressway",
+   "owner": "BCTRA",
+   "lon": -95.386288,
+   "lat": 29.581112,
+   "ez2": 1.96,
+   "tag2": 1.96,
+   "tag": [
+    4.12,
+    6.18,
+    8.24,
+    10.3,
+    10.3,
+    10.3
+   ],
+   "notag": [
+    2.06,
+    4.12,
+    6.18,
+    8.24,
+    10.3,
+    10.3,
+    10.3
+   ]
+  },
+  "240": {
+   "name": "Brazoria County Expressway Croix Toll Gantry",
+   "road": "Brazoria County Expressway",
+   "owner": "BCTRA",
+   "lon": -95.386651,
+   "lat": 29.521425,
+   "ez2": 1.15,
+   "tag2": 1.15,
+   "tag": [
+    2.5,
+    3.75,
+    5,
+    6.25,
+    6.25,
+    6.25
+   ],
+   "notag": [
+    1.25,
+    2.5,
+    3.75,
+    5,
+    6.25,
+    6.25,
+    6.25
+   ]
+  },
+  "241": {
+   "name": "Brazoria County Expressway Croix Toll Gantry",
+   "road": "Brazoria County Expressway",
+   "owner": "BCTRA",
+   "lon": -95.38676,
+   "lat": 29.521425,
+   "ez2": 1.15,
+   "tag2": 1.15,
+   "tag": [
+    2.5,
+    3.75,
+    5,
+    6.25,
+    6.25,
+    6.25
+   ],
+   "notag": [
+    1.25,
+    2.5,
+    3.75,
+    5,
+    6.25,
+    6.25,
+    6.25
+   ]
+  },
   "242": {
    "name": "McHard ML Gantry",
    "road": "Fort Bend Parkway",

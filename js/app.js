@@ -6,6 +6,7 @@ require([
   "esri/widgets/Search",
   "esri/layers/GraphicsLayer",
   "esri/layers/FeatureLayer",
+  "esri/layers/GeoJSONLayer",
   "esri/Graphic",
   "esri/rest/route",
   "esri/rest/support/RouteParameters",
@@ -13,7 +14,7 @@ require([
   "esri/rest/networkService",
   "esri/rest/locator",
   "esri/geometry/Point",
-], function (esriConfig, Map, MapView, Search, GraphicsLayer, FeatureLayer, Graphic, route, RouteParameters, FeatureSet, networkService, locator, Point) {
+], function (esriConfig, Map, MapView, Search, GraphicsLayer, FeatureLayer, GeoJSONLayer, Graphic, route, RouteParameters, FeatureSet, networkService, locator, Point) {
   "use strict";
 
   var ROUTE_URL = "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
@@ -37,17 +38,18 @@ require([
   var tollLayer = null;                   // toll points on the route, with labels
   var highlightLayer = new GraphicsLayer(); // ring around the toll point picked in the breakdown
   var map = new Map({ basemap: key ? "arcgis/light-gray" : "osm", layers: [routesLayer, highlightLayer, markersLayer] });
-  // HCTRA's Regional Toll Roads layer (every Houston-area toll road, all agencies), drawn
-  // with HCTRA's own symbols underneath the routes. If HCTRA's server is unreachable the
-  // map simply goes without it.
-  var tollRoadsLayer = new FeatureLayer({
-    url: "https://gismaps.hctra.org/rd/rest/services/ExternalOnlineMap/HCTRASystemMap/MapServer/3",
+  // HCTRA's Regional Toll Roads layer (every Houston-area toll road, all agencies). The
+  // browser can't load it from HCTRA's server directly, so a copy is kept in
+  // data/toll-roads.geojson (tools/fetch_toll_roads.py, refreshed weekly on GitHub).
+  var tollRoadsLayer = new GeoJSONLayer({
+    url: "data/toll-roads.geojson",
     title: "Regional Toll Roads (HCTRA)",
-    opacity: 0.8,
+    copyright: "HCTRA",
     popupEnabled: false,
+    renderer: { type: "simple", symbol: { type: "simple-line", color: [102, 45, 145, 0.4], width: 4, cap: "round", join: "round" } },
   });
   map.add(tollRoadsLayer, 0);
-  tollRoadsLayer.load().catch(function (e) { console.warn("HCTRA toll roads layer unavailable", e); });
+  tollRoadsLayer.load().catch(function (e) { console.warn("Toll roads layer unavailable", e); });
 
   var view = new MapView({ container: "map", map: map, center: HOUSTON, zoom: 9 });
 

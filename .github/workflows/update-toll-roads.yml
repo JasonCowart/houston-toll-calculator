@@ -1,0 +1,37 @@
+# Copies HCTRA's Regional Toll Roads layer into data/toll-roads.geojson, commits it if it
+# changed, and redeploys the site. Runs when the fetch script changes, every Monday, or by
+# hand (Actions > Update toll roads).
+name: Update toll roads
+
+on:
+  push:
+    branches: [main]
+    paths: [tools/fetch_toll_roads.py, .github/workflows/update-toll-roads.yml]
+  schedule:
+    - cron: "17 11 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch layer
+        run: python3 tools/fetch_toll_roads.py data/toll-roads.geojson
+      - name: Commit if changed, then redeploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- data/toll-roads.geojson && git ls-files --error-unmatch data/toll-roads.geojson >/dev/null 2>&1; then
+            echo "No change."; exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/toll-roads.geojson
+          git commit -m "Update Regional Toll Roads from HCTRA"
+          git push
+          gh workflow run deploy.yml --ref main

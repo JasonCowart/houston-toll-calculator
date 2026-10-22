@@ -292,6 +292,28 @@ test("traffic levels from step speeds: freeways only, frontage roads skipped", (
   assert(Math.abs(segs[5].to - 1) < 1e-9 && segs[0].from === 0, "fractions run 0 to 1");
 });
 
+test("exit ramps and the feeder road after them aren't graded as freeway", () => {
+  const segs = T.trafficSegments([
+    { text: "Keep left at the fork to merge onto US-290 E toward Downtown", time: 6, length: 6 },  // 60+ mph
+    { text: "Take the exit on the right toward W Tidwell Rd / Hollister Rd", time: 1.2, length: 0.6 }, // exit ramp
+    { text: "Continue forward on Northwest Fwy", time: 2.4, length: 1.0 },  // feeder, named after the freeway
+    { text: "Keep left to merge onto US-290 E", time: 3, length: 3 },       // back on the main lanes
+    { text: "Continue forward on Northwest Fwy", time: 2, length: 1.0 },    // main lanes, 30 mph
+  ]);
+  assert(!segs[1].highway && !segs[2].highway, "exit and feeder skipped");
+  assert(segs[2].level === null, "feeder not colored");
+  assert(segs[3].level === null, "main lanes moving");
+  assert(segs[4].highway && segs[4].level === "slow", "a continue on the main lanes is still graded");
+});
+
+test("the entrance ramp's slow curve doesn't color a moving tollway", () => {
+  // 1.5 mi in 1.75 min = 51 mph overall, but the first 0.3 mi is the ramp (58 mph after it).
+  const segs = T.trafficSegments([{ text: "Take the ramp on the right and go on TX-249 Tollway N", time: 1.75, length: 1.5 }]);
+  assert(segs[0].highway && segs[0].level === null, "ramp-start step colored " + segs[0].level + " at " + segs[0].mph.toFixed(0));
+  const short = T.trafficSegments([{ text: "Keep left to merge onto I-10 E", time: 1, length: 0.5 }]);
+  assert(short[0].level === null, "short merge step not judged");
+});
+
 test("no traffic colors where the route runs beside managed lanes", () => {
   const steps = [
     { text: "Keep left to merge onto I-10 E", time: 4, length: 2 },   // 30 mph, before the lanes

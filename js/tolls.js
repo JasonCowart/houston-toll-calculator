@@ -446,6 +446,15 @@
   // "slow" 25-40, "heavy" under 25.
   var HIGHWAY_TEXT = /\b(i-\d+|interstate|highway|fwy|freeway|tollway|toll rd|toll road|tx-\d+|sh[- ]\d+|us-\d+|beltway|bw[- ]?8|grand (pkwy|parkway)|expy|expressway|express lanes|managed lanes|sam houston tollway|hardy toll)\b/;
   var NOT_HIGHWAY = /\b(frtg|frontage|service dr|access rd|feeder)\b/;
+  var RAMP_MILES = 0.3, RAMP_MPH = 35;
+  // "exit": onto a ramp leaving the road; "enter": onto a ramp joining a highway;
+  // "continue": staying on whatever road the last step was on.
+  function stepKind(text) {
+    if (/merge onto|go on .*(tollway|fwy|freeway|highway|i-\d|us-\d|tx-\d)|ramp .*onto/.test(text)) return "enter";
+    if (/\btake (the )?exit\b|\btake exit \d|\btake the ramp\b/.test(text)) return "exit";
+    if (/^(continue|go straight|keep straight)/.test(text)) return "continue";
+    return "other";
+  }
   function trafficLevel(mph) {
     if (mph == null || !isFinite(mph)) return null;
     return mph < 25 ? "heavy" : mph < 40 ? "slow" : mph < 55 ? "moderate" : null;
@@ -456,13 +465,24 @@
     if (!steps || !steps.length) return [];
     var total = 0;
     steps.forEach(function (s) { total += s.length > 0 ? s.length : 0; });
-    var at = 0, out = [];
+    var at = 0, out = [], off = false;
     steps.forEach(function (s) {
       var len = s.length > 0 ? s.length : 0;
       if (!len) return;
       var text = String(s.text || "").toLowerCase();
-      var highway = HIGHWAY_TEXT.test(text) && !NOT_HIGHWAY.test(text);
-      var mph = s.time > 0 ? len / (s.time / 60) : null;
+      var kind = stepKind(text);
+      // Leaving the main lanes: the exit ramp and the feeder road after it (Esri names
+      // the feeder after the freeway, e.g. "Continue forward on Northwest Fwy").
+      if (kind === "exit") off = true;
+      else if (kind === "enter") off = false;
+      else if (kind !== "continue") off = false;
+      var highway = HIGHWAY_TEXT.test(text) && !NOT_HIGHWAY.test(text) &&
+        kind !== "exit" && !(kind === "continue" && off);
+      var judged = len, mins = s.time;
+      // An entrance step starts on the ramp; leave the ramp out of the speed.
+      if (kind === "enter" && mins > 0) { judged = len - RAMP_MILES; mins = s.time - RAMP_MILES / RAMP_MPH * 60; }
+      var mph = mins > 0 && judged > 0 ? judged / (mins / 60) : null;
+      if (kind === "enter" && judged < 0.3) highway = false;
       var from = total ? at / total : 0, to = total ? (at + len) / total : 0;
       var skipped = (skip || []).some(function (r) { return from < r[1] && to > r[0]; });
       out.push({ from: from, to: to, miles: len, mph: mph, highway: highway, skipped: skipped,
@@ -560,7 +580,7 @@
     return [[Math.max(0, Math.min.apply(null, a) - 0.01), Math.min(1, Math.max.apply(null, a) + 0.01)]];
   }
 
-  var api = { findTollwayHops: findTollwayHops, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { findTollwayHops: findTollwayHops, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

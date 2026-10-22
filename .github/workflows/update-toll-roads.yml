@@ -1,14 +1,10 @@
 # Copies HCTRA's Regional Toll Roads layer into data/toll-roads.geojson, commits it if it
-# changed, and redeploys the site. Runs when the fetch script changes, every Monday, or by
-# hand (Actions > Update toll roads).
+# changed, and redeploys the site. By hand only (Actions > Update toll roads): as of
+# Oct 21, 2026 gismaps.hctra.org answers 404 to requests from outside HCTRA, so the layer
+# comes from an export instead. Turn the schedule back on if the server opens up.
 name: Update toll roads
 
 on:
-  push:
-    branches: [main]
-    paths: [tools/fetch_toll_roads.py, .github/workflows/update-toll-roads.yml]
-  schedule:
-    - cron: "17 11 * * 1"
   workflow_dispatch:
 
 permissions:

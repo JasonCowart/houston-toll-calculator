@@ -891,7 +891,8 @@ require([
     });
     svg += ends(yT) + dots;
     svg += '<text x="' + X0 + '" y="' + (yF - 16) + '" class="tc-h">Toll-free \u00b7 ' + esc(fmtTime(f.minutes)) + " \u00b7 $0.00</text>";
-    svg += '<line x1="' + X0 + '" y1="' + yF + '" x2="' + X1 + '" y2="' + yF + '" class="tc-free"/>' + trafficLines(fSegs, yF, "tc-traffic-free") + ends(yF);
+    // Toll-free: traffic bands as wide as the toll line's, with the dashed line on top.
+    svg += trafficLines(fSegs, yF, "tc-traffic") + '<line x1="' + X0 + '" y1="' + yF + '" x2="' + X1 + '" y2="' + yF + '" class="tc-free"/>' + ends(yF);
     var any = tSegs.concat(fSegs).some(function (sg) { return sg.level; });
     if (any) {
       var lx = X0, ly = 162;

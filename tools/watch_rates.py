@@ -119,7 +119,8 @@ def main(snap_path, report_path):
     for src in SOURCES:
         prev = snap["sources"].get(src["id"], {})
         try:
-            fp = fingerprint(src, fetch(src["url"]))
+            raw = fetch(src["url"])
+            fp = fingerprint(src, raw)
         except Exception as e:  # noqa: BLE001
             fails = prev.get("failures", 0) + 1
             prev.update({"failures": fails, "lastError": f"{type(e).__name__}: {e}"[:300]})
@@ -137,6 +138,16 @@ def main(snap_path, report_path):
             print(f"{src['id']}: page read but no rates found on it")
         snap["sources"][src["id"]] = {"name": src["name"], "url": src["url"], "fingerprint": fp,
                                       "checked": now, "failures": 0}
+        if empty:  # keep a few clues about what the page held, to fix the source
+            body = raw.decode("utf-8", "replace")
+            title = re.search(r"(?is)<title[^>]*>(.*?)</title>", body)
+            snap["sources"][src["id"]]["emptyClues"] = {
+                "bytes": len(raw), "title": (title.group(1).strip()[:120] if title else None),
+                "text": page_text(raw)[:600],
+                "links": sorted({h for h in HREF.findall(body) if re.search(r"rate|toll|sched", h, re.I)})[:40],
+                "scripts": sorted({h for h in re.findall(r'''<script[^>]+src=["']([^"']+)''', body, re.I)})[:15],
+                "apiHints": sorted(set(re.findall(r'''["'](/api/[^"']{3,80}|[^"' ]{0,60}(?:rate|Rate)[^"' ]{0,40}\.json)["']''', body)))[:20],
+            }
         print(f"{src['id']}: ok" + (" (baseline)" if src["id"] in baseline else ""))
     snap["lastRun"] = now
     with open(snap_path, "w") as f:

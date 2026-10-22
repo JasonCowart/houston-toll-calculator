@@ -447,17 +447,24 @@ require([
   function fmtMeta(s) { return [fmtTime(s.minutes), s.miles ? s.miles.toFixed(1) + " mi" : ""].filter(Boolean).join(" · "); }
   function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 
+  // Toll-free route line: light gray dashes, white on satellite imagery where gray
+  // disappears. Custom dash pattern (points): short dashes, close together.
+  var currentBasemap = null;
+  function freeSymbol() {
+    var color = currentBasemap === "arcgis/imagery" ? [255, 255, 255, 255] : COLORS.free.concat(255);
+    return { type: "cim", data: { type: "CIMSymbolReference", symbol: {
+      type: "CIMLineSymbol", symbolLayers: [{ type: "CIMSolidStroke", enable: true, width: 2.25, color: color,
+        capStyle: "Butt", joinStyle: "Round",
+        effects: [{ type: "CIMGeometricEffectDashes", dashTemplate: [3, 2.5], lineDashEnding: "NoConstraint" }] }] } } };
+  }
+
   function drawRoute(g, kind) {
     if (kind === "toll") {
       // A wider light blue line underneath gives the blue route its light edge.
       routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "simple-line", color: COLORS.routeEdge, width: 8, cap: "round", join: "round" } }));
       routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "simple-line", color: COLORS.route, width: 5, cap: "round", join: "round" } }));
     } else {
-      // Custom dash pattern (points): short dashes, close together.
-      routesLayer.add(freeGraphic = new Graphic({ geometry: g.geometry, symbol: { type: "cim", data: { type: "CIMSymbolReference", symbol: {
-        type: "CIMLineSymbol", symbolLayers: [{ type: "CIMSolidStroke", enable: true, width: 2.25, color: COLORS.free.concat(255),
-          capStyle: "Butt", joinStyle: "Round",
-          effects: [{ type: "CIMGeometricEffectDashes", dashTemplate: [3, 2.5], lineDashEnding: "NoConstraint" }] }] } } } }));
+      routesLayer.add(freeGraphic = new Graphic({ geometry: g.geometry, symbol: freeSymbol() }));
       freeGraphic.visible = $("show-free").checked;
     }
   }
@@ -648,6 +655,8 @@ require([
     var setBasemap = function (id) {
       if (!BASEMAPS.some(function (b) { return b[0] === id; })) id = BASEMAPS[0][0];
       map.basemap = id;
+      currentBasemap = id;
+      if (freeGraphic) freeGraphic.symbol = freeSymbol();
       Array.prototype.forEach.call(bm.querySelectorAll("button"), function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-id") === id ? "true" : "false"); });
       try { localStorage.setItem("htc-basemap", id); } catch (e) { /* not kept */ }
     };

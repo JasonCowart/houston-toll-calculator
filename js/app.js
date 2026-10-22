@@ -276,7 +276,8 @@ require([
       input: { from: lonLat(stops.from), to: lonLat(stops.to), fromLabel: label("from"), toLabel: label("to"),
         axles: t.axles, payment: t.payment, carpool: t.carpool, departure: t.departure },
       toll: { minutes: ts.minutes, miles: ts.miles, mode: lastTrip.tollRoute.modeNote || null, path: t.tollPath.map(round6),
-        steps: (t.steps || []).map(function (s) { return { maneuverType: s.maneuverType, text: s.text, path: s.path ? s.path.map(round6) : null }; }) },
+        steps: (t.steps || []).map(function (s) { return { maneuverType: s.maneuverType, text: s.text, time: s.time, length: s.length, path: s.path ? s.path.map(round6) : null }; }),
+        trafficProbe: lastTrip.tollRoute.trafficProbe || null },
       free: { minutes: fs.minutes, miles: fs.miles, mode: lastTrip.freeRoute.modeNote || null, path: t.freePath.map(round6) },
       result: { total: lastTrip.priced.total, items: lastTrip.priced.items.map(function (it) { return { id: it.point.id, name: it.point.name, rate: it.rate }; }) },
       expected: null,
@@ -483,8 +484,10 @@ require([
 
   // Returns the route graphic; with directions, also attaches route.steps
   // ([{maneuverType, text, path}]) for finding where the route takes ramps.
-  function solve(mode, withDirections) {
-    var params = new RouteParameters({
+  // probe (debug view only): also ask for the edges the route traverses with free-flow and
+  // traffic times, to see whether the free Esri tier gives per-stretch traffic for coloring.
+  function solve(mode, withDirections, probe) {
+    var opts = {
       stops: new FeatureSet({ features: [new Graphic({ geometry: stops.from }), new Graphic({ geometry: stops.to })] }),
       travelMode: mode,
       outSpatialReference: { wkid: 4326 },
@@ -492,8 +495,9 @@ require([
       returnDirections: !!withDirections,
       directionsOutputType: "complete",
       startTime: departure, // traffic for the departure time (live traffic within 4 hours of now)
-    });
-    return route.solve(ROUTE_URL, params).then(function (res) {
+    };
+    if (probe) { opts.returnTraversedEdges = true; opts.accumulateAttributes = ["TravelTime", "Minutes", "Miles"]; }
+    return route.solve(ROUTE_URL, new RouteParameters(opts)).then(function (res) {
       var rr = res.routeResults[0];
       var g = rr.route;
       g.modeNote = mode.__note || mode.name;
@@ -502,10 +506,29 @@ require([
         g.steps = feats.map(function (f) {
           var a = f.attributes || {};
           var paths = f.geometry && f.geometry.paths;
-          return { maneuverType: a.maneuverType, text: a.text, path: paths ? [].concat.apply([], paths) : null };
+          // time (minutes, with traffic) and length (miles) per step: a first source for traffic colors
+          return { maneuverType: a.maneuverType, text: a.text, time: a.time, length: a.length, path: paths ? [].concat.apply([], paths) : null };
         });
       }
+      if (probe) {
+        var te = res.traversedEdges;
+        var ef = te && te.features ? te.features : [];
+        g.trafficProbe = {
+          totals: Object.keys(g.attributes || {}).filter(function (k) { return /^Total_/.test(k); })
+            .reduce(function (o, k) { o[k] = g.attributes[k]; return o; }, {}),
+          edgeCount: ef.length,
+          fields: ef.length ? Object.keys(ef[0].attributes || {}) : [],
+          edges: ef.slice(0, 400).map(function (f) {
+            var p = f.geometry && f.geometry.paths && f.geometry.paths[0];
+            return { a: f.attributes, ends: p ? [p[0], p[p.length - 1]] : null };
+          }),
+        };
+      }
       return g;
+    }, function (err) {
+      if (!probe) throw err;
+      // The probe options were refused: solve normally and note why.
+      return solve(mode, withDirections, false).then(function (g) { g.trafficProbe = { error: String(err && err.message || err) }; return g; });
     });
   }
 
@@ -514,7 +537,7 @@ require([
     var i = 0;
     function next(err) {
       if (i >= modes.length) return Promise.reject(err);
-      return solve(modes[i++], withDirections).catch(next);
+      return solve(modes[i++], withDirections, DEBUG && withDirections).catch(next);
     }
     return next();
   }
@@ -619,6 +642,13 @@ require([
     map.add(tollLayer, map.layers.indexOf(routesLayer) + 1); // above the routes, below the highlight and pins
   }
 
+  function trafficProbeNote(tp) {
+    if (!tp) return "not run";
+    if (tp.error) return "refused: " + tp.error;
+    return tp.edgeCount + " traversed edges; edge fields: " + (tp.fields.join(", ") || "none") + "; totals: " +
+      Object.keys(tp.totals).map(function (k) { return k + " " + (typeof tp.totals[k] === "number" ? tp.totals[k].toFixed(1) : tp.totals[k]); }).join(", ");
+  }
+
   // ?debug=1: list each toll point near the route, whether it counted and why,
   // plus the route's maneuvers. For tuning the matching on real trips.
   function showDebug(tollRoute, path, rampZones, crossings, dropped) {
@@ -652,7 +682,7 @@ require([
     var bm = window.__baseMode || {};
     var base = "<p>Base mode \"" + esc(bm.name || "") + "\" restrictions: " + esc((bm.restrictionAttributeNames || []).join(", ")) +
       "<br>Parameters: " + esc((bm.attributeParameterValues || []).map(function (a) { return a.attributeName + " = " + a.value; }).join("; ")) + "</p>";
-    box.innerHTML = "<h3>Debug</h3><p><button type='button' id='save-trip' class='go small'>Save trip for testing</button></p>" + base + "<p>Toll route: " + esc(tollRoute.modeNote || "") + "<br>Toll-free route: " + esc((window.__freeNote || "")) + "</p><p>Ramp zones: " + (rampZones ? rampZones.length : "none (no directions geometry)") + "</p>" +
+    box.innerHTML = "<h3>Debug</h3><p><button type='button' id='save-trip' class='go small'>Save trip for testing</button></p>" + base + "<p>Toll route: " + esc(tollRoute.modeNote || "") + "<br>Toll-free route: " + esc((window.__freeNote || "")) + "</p><p>Traffic probe: " + esc(trafficProbeNote(tollRoute.trafficProbe)) + "</p><p>Ramp zones: " + (rampZones ? rampZones.length : "none (no directions geometry)") + "</p>" +
       "<table class='breakdown'><thead><tr><th>ID</th><th>Toll point within 60 m</th><th>Kind</th><th class='num'>Offset</th><th class='num'>Zone</th><th>Counted</th></tr></thead><tbody>" +
       html + "</tbody></table><details><summary>Maneuvers (" + (tollRoute.steps || []).length + ")</summary><ol>" + steps + "</ol></details>";
     document.getElementById("results").after(box);
@@ -668,15 +698,20 @@ require([
     if (pulseFrame) { cancelAnimationFrame(pulseFrame); pulseFrame = null; }
     highlightLayer.removeAll();
     hideCard();
-    Array.prototype.forEach.call(document.querySelectorAll("#breakdown tr.selected"), function (r) { r.classList.remove("selected"); });
+    Array.prototype.forEach.call(document.querySelectorAll("#breakdown tr.selected, #trip-chart .tc-dot.selected"), function (r) { r.classList.remove("selected"); });
   }
   var VIOLET = [140, 92, 255]; // violet-screen: the brand's on-screen highlight colour
-  function highlightItem(i, row, fromMap) {
+  // mode: "map" (tap on the map: opens the card), "chart" (tap on a trip chart dot: opens
+  // the breakdown at that row, no jump to the map), or none (a breakdown row: scrolls to the map).
+  function highlightItem(i, row, mode) {
+    var fromMap = mode === "map" || mode === true;
     var it = shownItems[i];
     if (!it) return;
     if (!fromMap && row && row.classList.contains("selected")) { clearHighlight(); return; } // tap again to clear
     clearHighlight();
     if (row) row.classList.add("selected");
+    var dot = document.querySelector('#trip-chart .tc-dot[data-i="' + i + '"]');
+    if (dot) dot.classList.add("selected");
     if (fromMap) showCard(i); // the card opens only for a tap on the map, not from the breakdown
     var pt = new Point({ longitude: it.point.lon, latitude: it.point.lat });
     // One ring, fill and outline together: it fades in at the point, swells out and fades
@@ -698,6 +733,11 @@ require([
     pulseFrame = requestAnimationFrame(frame);
     if (fromMap) return;
     if (view.extent && !view.extent.clone().expand(0.9).contains(pt)) view.goTo({ center: pt }).catch(function () {});
+    if (mode === "chart") {
+      $("breakdown-wrap").open = true;
+      if (row) row.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
     $("map").scrollIntoView({ behavior: "smooth", block: "center" });
   }
   // Toll point card: our own panel at the bottom of the map in place of Esri's popup.
@@ -829,7 +869,7 @@ require([
     if (!g) return;
     var i = +g.getAttribute("data-i");
     var row = document.querySelector('#breakdown tr[data-i="' + i + '"]');
-    highlightItem(i, row);
+    highlightItem(i, row, "chart");
   }
   $("trip-chart").addEventListener("click", chartPick);
   $("trip-chart").addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); chartPick(e); } });

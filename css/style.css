@@ -226,3 +226,4 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .tc-dot:hover .tc-pt, .tc-dot:focus-visible .tc-pt { stroke: var(--violet-screen); stroke-width: 3; }
 .vehicles-row { margin-top: -2px; }
 .saved-list li small.hint { display: block; margin: 0; }
+.tc-dot.selected .tc-pt { fill: var(--violet-screen); stroke: #fff; stroke-width: 2; }

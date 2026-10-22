@@ -296,8 +296,41 @@
    "url": "https://www.fbctra.com/toll-roads/"
   },
   "hctra": {
-   "failures": 1,
-   "lastError": "TimeoutExpired: Command '['google-chrome', '--headless=new', '--disable-gpu', '--no-sandbox', '--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 hctra-toll-calculator-rate-watch', '--virtual-time-budget=20000', '--dump-dom', 'https://www.h"
+   "checked": "2026-10-22",
+   "emptyClues": {
+    "apiHints": [
+     "/api/sessions/EnvironmentConfig/GetConfigSource"
+    ],
+    "bytes": 28323,
+    "links": [],
+    "scripts": [
+     "/Client_build/Web/main.fd8ea308d0cff239.js",
+     "/Client_build/Web/mcAfeeFallbackScript.d27a63222211bf83.js",
+     "/Client_build/Web/newRelicScript.b2e2f561bbfa4bc0.js",
+     "/Client_build/Web/runtime.f051cc21c86119c8.js",
+     "/Client_build/Web/scripts.47988c55540fe3bb.js",
+     "/api/sessions/EnvironmentConfig/GetConfigSource",
+     "https://collector-34335.us.tvsquared.com/tv2track.js",
+     "https://collector-58071.us.tvsquared.com/tv2track.js",
+     "https://cse.google.com/cse.js?cx=007967263352873193396:wp-z8mbmqhy",
+     "https://tags.tiqcdn.com/utag/adtaxi/hctra.org/prod/utag.js",
+     "https://www.google.com/cse/static/element/3735a6ee3000c0cb/cse_element__en.js?usqp=CAI%3D",
+     "https://www.google.com/recaptcha/enterprise.js?onload=hctraReCaptchaOnloadCallback&amp;render=explicit",
+     "https://www.googletagmanager.com/gtag/js?id=G-JQ4F0BJN0M&amp;cx=c&amp;gtm=4e6al0",
+     "https://www.googletagmanager.com/gtm.js?id=GTM-KDLQPVC8",
+     "https://www.gstatic.com/recaptcha/releases/4EDjxXf4knsx6UBM1L2V6cv8/recaptcha__en.js"
+    ],
+    "text": "HCTRA \u2014 Harris County Toll Road Authority",
+    "title": "HCTRA \u2014 Harris County Toll Road Authority"
+   },
+   "failures": 0,
+   "fingerprint": {
+    "amounts": [],
+    "effective": [],
+    "files": []
+   },
+   "name": "HCTRA toll rates",
+   "url": "https://www.hctra.org/TollRates"
   },
   "hctra-katy": {
    "checked": "2026-10-22",

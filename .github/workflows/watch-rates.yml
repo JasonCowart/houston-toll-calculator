@@ -1,0 +1,66 @@
+# Weekly check of the toll agencies' rate pages (tools/watch_rates.py).
+# If rates change, or a page can't be read two weeks running, it opens a GitHub
+# issue labeled "rate-watch" (GitHub emails the repo owner). Run it by hand from
+# Actions > Watch toll rates; tick "Send a test alert" to see what an alert looks like.
+name: Watch toll rates
+
+on:
+  schedule:
+    - cron: "17 13 * * 1"   # Mondays 13:17 UTC (8:17 AM Houston in summer, 7:17 AM in winter)
+  push:
+    branches: [main]
+    paths: [tools/watch_rates.py, .github/workflows/watch-rates.yml]
+  workflow_dispatch:
+    inputs:
+      test_alert:
+        description: Send a test alert
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: watch-rates
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check rate pages
+        run: python3 tools/watch_rates.py data/rate-watch.json report.md
+
+      - name: Test alert
+        if: inputs.test_alert
+        run: |
+          printf 'This is a test of the weekly toll rate check. Nothing changed; you can close this issue.\n\nWhen a real change shows up, this is where the rate page, what changed and what to update will be listed.\n' > report.md
+
+      - name: Save snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/rate-watch.json
+          if git diff --cached --quiet; then echo "Snapshot unchanged."; exit 0; fi
+          git commit -m "Rate watch: weekly snapshot"
+          git pull --rebase -q origin main
+          git push
+
+      - name: Open or update the alert issue
+        if: hashFiles('report.md') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create rate-watch --color 662D91 --description "Toll rate page changed" --force
+          OPEN=$(gh issue list --label rate-watch --state open --json number --jq '.[0].number')
+          if [ -n "$OPEN" ]; then
+            gh issue comment "$OPEN" --body-file report.md
+            echo "Commented on #$OPEN"
+          else
+            TITLE="Toll rate page changed ($(date -u +%Y-%m-%d))"
+            if [ "${{ inputs.test_alert }}" = "true" ]; then TITLE="Test: toll rate alert"; fi
+            gh issue create --title "$TITLE" --label rate-watch --body-file report.md --assignee "${{ github.repository_owner }}"
+          fi

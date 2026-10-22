@@ -31,6 +31,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install page reader
+        run: pip install --quiet playwright==1.47.0
+
       - name: Check rate pages
         run: python3 tools/watch_rates.py data/rate-watch.json report.md
 

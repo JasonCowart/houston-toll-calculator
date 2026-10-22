@@ -66,16 +66,22 @@ def fetch(url):
 
 
 def render(url):
-    """Load the page in headless Chrome (on GitHub's runners) for pages built by scripts."""
-    import shutil
-    import subprocess
-    chrome = next((c for c in ("google-chrome", "chromium", "chromium-browser") if shutil.which(c)), None)
-    if not chrome:
-        raise RuntimeError("no Chrome to render the page")
-    out = subprocess.run([chrome, "--headless=new", "--disable-gpu", "--no-sandbox", f"--user-agent={UA}",
-                          "--virtual-time-budget=20000", "--dump-dom", url],
-                         capture_output=True, timeout=120, check=True)
-    return out.stdout
+    """Load the page in Chrome (on GitHub's runners) for pages built by scripts, and wait
+    until dollar amounts show up on it."""
+    from playwright.sync_api import sync_playwright
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(channel="chrome")
+        try:
+            page = browser.new_page(user_agent=UA)
+            page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            try:
+                page.wait_for_function("/\\$\\s?\\d+\\.\\d\\d/.test(document.body.innerText)", timeout=45000)
+                page.wait_for_timeout(3000)  # let the rest of the tables fill in
+            except Exception:  # noqa: BLE001 - no amounts: the empty-page clues will show why
+                pass
+            return page.content().encode("utf-8")
+        finally:
+            browser.close()
 
 
 def page_text(raw):

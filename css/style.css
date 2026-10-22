@@ -132,3 +132,32 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 #breakdown tr.pickable:hover td { background: var(--purple-tint); }
 #breakdown tr.selected td { background: var(--purple-tint-strong); }
 #breakdown tr.pickable td:first-child { color: var(--purple); font-weight: 600; }
+
+/* Basemap switcher on the map */
+.basemap-switch { display: flex; background: var(--white); border-radius: 6px; box-shadow: 0 1px 4px rgba(28, 27, 29, 0.25); overflow: hidden; font-family: var(--brand); }
+.basemap-switch button { border: 0; background: none; font: inherit; font-size: 12px; font-weight: 600; color: var(--gray); padding: 7px 10px; cursor: pointer; }
+.basemap-switch button + button { border-left: 1px solid var(--border); }
+.basemap-switch button:hover { background: var(--purple-tint); }
+.basemap-switch button[aria-pressed="true"] { background: var(--purple); color: var(--white); }
+
+/* Toll point card (replaces Esri's popup) */
+.map-card { position: absolute; left: 12px; bottom: 28px; width: min(340px, calc(100% - 24px)); background: var(--white); color: var(--ink);
+  border-radius: 10px; box-shadow: 0 4px 18px rgba(28, 27, 29, 0.22); padding: 14px 16px 12px; font-family: var(--brand); border-top: 4px solid var(--purple); }
+.map-card[hidden] { display: none !important; }
+.map-card-close { position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--surface); color: var(--gray); font-size: 14px; cursor: pointer; }
+.map-card-close:hover { background: var(--border); }
+.map-card-road { font-size: 12px; font-weight: 600; color: var(--purple); text-transform: uppercase; letter-spacing: 0.04em; padding-right: 34px; }
+.map-card-title { font-size: 17px; line-height: 1.25; margin: 2px 34px 8px 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chip { font-size: 12px; font-weight: 600; color: var(--gray); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 2px 9px; }
+.map-card-toll { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.map-card-toll span { font-size: 13px; color: var(--ink-soft); }
+.map-card-toll strong { font-size: 26px; color: var(--purple); font-variant-numeric: tabular-nums; }
+.map-card-toll em { font-style: normal; font-size: 13px; color: var(--ink-soft); }
+.pay-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
+.pay-cell { border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; display: flex; flex-direction: column; }
+.pay-cell span { font-size: 11.5px; color: var(--ink-soft); }
+.pay-cell strong { font-size: 15px; font-variant-numeric: tabular-nums; }
+.pay-cell.chosen { border-color: var(--purple); background: var(--purple-tint); }
+.map-card-note { font-size: 12px; color: var(--ink-soft); margin: 0 0 4px; }
+.map-card-agency { font-size: 12px; color: var(--gray); font-weight: 600; margin: 0; }

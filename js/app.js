@@ -181,14 +181,25 @@ require([
     }).catch(function () { /* keep the coordinates */ });
   }
 
+  view.popupEnabled = false;
   view.on("click", function (e) {
     if (!key) return;
+    if (picking || !tollLayer) return mapTap(e);
+    view.hitTest(e, { include: [tollLayer] }).then(function (res) {
+      var hit = res.results && res.results[0] && res.results[0].graphic;
+      if (hit && hit.attributes && hit.attributes.idx != null) {
+        var i = hit.attributes.idx;
+        highlightItem(i, document.querySelector('#breakdown tr[data-i="' + i + '"]'), true);
+      } else mapTap(e);
+    }).catch(function () { mapTap(e); });
+  });
+  function mapTap(e) {
     if (!picking && highlightLayer.graphics.length) { clearHighlight(); return; } // tap the map to clear the ring
     var target = picking || (!stops.from ? "from" : !stops.to ? "to" : null);
     if (!target) return;
     placeStop(target, e.mapPoint);
     if (picking) setPicking(null);
-  });
+  }
 
   fetch("data/toll-points.json")
     .then(function (r) { return r.json(); })
@@ -430,7 +441,7 @@ require([
       var p = it.point;
       return new Graphic({
         geometry: { type: "point", longitude: p.lon, latitude: p.lat },
-        attributes: { oid: i + 1, name: p.name, road: p.road, priced: it.rate == null ? 0 : 1,
+        attributes: { oid: i + 1, idx: i, name: p.name, road: p.road, priced: it.rate == null ? 0 : 1,
           label: shortName(p.name) + " " + (it.rate == null ? "n/a" : fmtMoney(it.rate)),
           detail: esc(p.road) + (it.rate == null ? " · rate not included" : " · " + fmtMoney(it.rate)) },
       });
@@ -442,7 +453,7 @@ require([
       geometryType: "point",
       spatialReference: { wkid: 4326 },
       fields: [
-        { name: "oid", type: "oid" }, { name: "name", type: "string" }, { name: "road", type: "string" },
+        { name: "oid", type: "oid" }, { name: "idx", type: "integer" }, { name: "name", type: "string" }, { name: "road", type: "string" },
         { name: "priced", type: "integer" }, { name: "label", type: "string" }, { name: "detail", type: "string" },
       ],
       renderer: { type: "unique-value", field: "priced", defaultSymbol: marker(COLORS.toll),
@@ -454,7 +465,7 @@ require([
         symbol: { type: "text", color: [47, 26, 80], haloColor: [255, 255, 255], haloSize: 1.5,
           font: { size: 11, weight: "bold" } },
       }],
-      popupTemplate: { title: "{name}", content: "{detail}" },
+      popupEnabled: false, // tapping a point opens our own card (showCard)
     });
     map.add(tollLayer, map.layers.indexOf(routesLayer) + 1); // above the routes, below the highlight and pins
   }
@@ -507,15 +518,17 @@ require([
   function clearHighlight() {
     if (pulseFrame) { cancelAnimationFrame(pulseFrame); pulseFrame = null; }
     highlightLayer.removeAll();
+    hideCard();
     Array.prototype.forEach.call(document.querySelectorAll("#breakdown tr.selected"), function (r) { r.classList.remove("selected"); });
   }
   var VIOLET = [140, 92, 255]; // violet-screen: the brand's on-screen highlight colour
-  function highlightItem(i, row) {
+  function highlightItem(i, row, fromMap) {
     var it = shownItems[i];
     if (!it) return;
-    if (row.classList.contains("selected")) { clearHighlight(); return; } // tap again to clear
+    if (!fromMap && row && row.classList.contains("selected")) { clearHighlight(); return; } // tap again to clear
     clearHighlight();
-    row.classList.add("selected");
+    if (row) row.classList.add("selected");
+    showCard(i);
     var pt = new Point({ longitude: it.point.lon, latitude: it.point.lat });
     // One ring, fill and outline together: it fades in at the point, swells out and fades
     // to nothing, then starts again. It keeps pulsing until the selection is cleared.
@@ -534,9 +547,75 @@ require([
       pulseFrame = requestAnimationFrame(frame);
     }
     pulseFrame = requestAnimationFrame(frame);
+    if (fromMap) return;
     if (view.extent && !view.extent.clone().expand(0.9).contains(pt)) view.goTo({ center: pt }).catch(function () {});
     $("map").scrollIntoView({ behavior: "smooth", block: "center" });
   }
+  // Toll point card: our own panel at the bottom of the map in place of Esri's popup.
+  var AGENCY = { HCTRA: "Harris County Toll Road Authority", TxDOT: "TxDOT", FBCTRA: "Fort Bend County Toll Road Authority",
+    MCTRA: "Montgomery County Toll Road Authority", BCTRA: "Brazoria County Toll Road Authority" };
+  var KIND = { main: "Mainline", on: "Entrance ramp", off: "Exit ramp" };
+  var DIRS = { N: "Northbound", S: "Southbound", E: "Eastbound", W: "Westbound" };
+  var PAY = [["eztag", "EZ TAG"], ["tag", "Other tag"], ["notag", "No tag"]];
+  var card = document.createElement("div");
+  card.className = "map-card";
+  card.hidden = true;
+  card.setAttribute("role", "dialog");
+  card.setAttribute("aria-label", "Toll point details");
+  view.ui.add(card, "manual");
+  card.addEventListener("click", function (e) { if (e.target.closest(".map-card-close")) clearHighlight(); });
+
+  function hideCard() { card.hidden = true; }
+  function showCard(i) {
+    var it = shownItems[i];
+    if (!it || !lastTrip) return;
+    var p = it.point, t = lastTrip.trip;
+    var axles = t.axles, chosen = t.payment, when = it.when || null;
+    var opts = { carpool: t.carpool };
+    var rates = PAY.map(function (pay) {
+      var r = window.TollCalc.rateFor(p, axles, pay[0], when || new Date(t.departure), opts);
+      return '<div class="pay-cell' + (pay[0] === chosen ? " chosen" : "") + '"><span>' + pay[1] + "</span><strong>" +
+        (r == null ? "n/a" : fmtMoney(r)) + "</strong></div>";
+    }).join("");
+    var status = p.status === "verified" ? "Rate checked against " + esc(p.owner) + "\u2019s published schedule."
+      : p.status === "timed" ? "Priced by time of day" + (when ? " for about " + fmtClock(when) : "") + (it.note ? " (" + esc(it.note) + ")" : "") + "."
+      : "This rate hasn\u2019t been checked against " + esc(p.owner) + "\u2019s published schedule yet.";
+    if (p.assumedAxles && p.assumedAxles.indexOf(axles) !== -1) status += " Fort Bend publishes rates up to 6 axles; 7+ axles are priced at the 6-axle rate.";
+    var chips = [KIND[p.kind], DIRS[p.dir]].filter(Boolean).map(function (c) { return '<span class="chip">' + c + "</span>"; }).join("");
+    card.innerHTML =
+      '<button type="button" class="map-card-close" aria-label="Close">\u2715</button>' +
+      '<div class="map-card-road">' + esc(p.road) + "</div>" +
+      '<h3 class="map-card-title">' + esc(p.name) + "</h3>" +
+      '<div class="chips">' + chips + "</div>" +
+      '<div class="map-card-toll"><span>Your toll</span><strong>' + (it.rate == null ? "Not included" : fmtMoney(it.rate)) + "</strong>" +
+        "<em>" + axles + " axles</em></div>" +
+      '<div class="pay-grid">' + rates + "</div>" +
+      '<p class="map-card-note">' + status + "</p>" +
+      '<p class="map-card-agency">' + esc(AGENCY[p.owner] || p.owner) + "</p>";
+    card.hidden = false;
+  }
+
+  // Basemap switcher (top right of the map). The choice is remembered on this device.
+  var BASEMAPS = [["arcgis/light-gray", "Light"], ["arcgis/navigation", "Streets"], ["arcgis/imagery", "Satellite"], ["arcgis/dark-gray", "Dark"]];
+  if (key) {
+    var bm = document.createElement("div");
+    bm.className = "basemap-switch";
+    bm.setAttribute("role", "group");
+    bm.setAttribute("aria-label", "Base map");
+    bm.innerHTML = BASEMAPS.map(function (b) { return '<button type="button" data-id="' + b[0] + '">' + b[1] + "</button>"; }).join("");
+    view.ui.add(bm, "top-right");
+    var setBasemap = function (id) {
+      if (!BASEMAPS.some(function (b) { return b[0] === id; })) id = BASEMAPS[0][0];
+      map.basemap = id;
+      Array.prototype.forEach.call(bm.querySelectorAll("button"), function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-id") === id ? "true" : "false"); });
+      try { localStorage.setItem("htc-basemap", id); } catch (e) { /* not kept */ }
+    };
+    bm.addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) setBasemap(b.getAttribute("data-id")); });
+    var savedBasemap = null;
+    try { savedBasemap = localStorage.getItem("htc-basemap"); } catch (e) { /* default */ }
+    setBasemap(savedBasemap || BASEMAPS[0][0]);
+  }
+
   $("breakdown").addEventListener("click", function (e) {
     var row = e.target.closest("tr.pickable");
     if (row) highlightItem(+row.getAttribute("data-i"), row);

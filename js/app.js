@@ -503,20 +503,20 @@ require([
     clearHighlight();
     row.classList.add("selected");
     var pt = new Point({ longitude: it.point.lon, latitude: it.point.lat });
-    // One ring, fill and outline together, breathing out and back in on a smooth curve.
-    // Each pulse ends exactly where it started, so there's no snap between pulses.
-    function ring(s) { // s: 0 = resting, 1 = fully out
-      return { type: "simple-marker", size: 26 + 16 * s, color: VIOLET.concat(0.15 * (1 - 0.6 * s)),
-        outline: { color: VIOLET.concat(1 - 0.55 * s), width: 3 } };
+    // One ring, fill and outline together: it fades in at the point, swells out and fades
+    // to nothing, then starts again. It keeps pulsing until the selection is cleared.
+    function ring(size, a) {
+      return { type: "simple-marker", size: size, color: VIOLET.concat(0.25 * a), outline: { color: VIOLET.concat(a), width: 3 } };
     }
-    var g = new Graphic({ geometry: pt, symbol: ring(0) });
+    var g = new Graphic({ geometry: pt, symbol: ring(22, 0) });
     highlightLayer.add(g);
-    var PULSE = 1200, PULSES = 3, start = null;
+    var PULSE = 1400, FADE_IN = 0.12, start = null;
     function frame(ts) {
       if (start == null) start = ts;
-      var elapsed = ts - start;
-      if (elapsed >= PULSE * PULSES) { g.symbol = ring(0); pulseFrame = null; return; }
-      g.symbol = ring((1 - Math.cos(2 * Math.PI * (elapsed % PULSE) / PULSE)) / 2);
+      var t = ((ts - start) % PULSE) / PULSE;
+      var grow = 1 - Math.pow(1 - t, 2); // eases out as it widens
+      var a = t < FADE_IN ? t / FADE_IN : 1 - (t - FADE_IN) / (1 - FADE_IN);
+      g.symbol = ring(22 + 30 * grow, Math.max(0, a));
       pulseFrame = requestAnimationFrame(frame);
     }
     pulseFrame = requestAnimationFrame(frame);

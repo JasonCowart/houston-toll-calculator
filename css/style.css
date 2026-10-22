@@ -227,3 +227,6 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .vehicles-row { margin-top: -2px; }
 .saved-list li small.hint { display: block; margin: 0; }
 .tc-dot.selected .tc-pt { fill: var(--violet-screen); stroke: #fff; stroke-width: 2; }
+.tc-traffic { stroke-width: 5.5; stroke-linecap: butt; }
+.tc-traffic-free { stroke-width: 3; stroke-dasharray: 4 3; }
+.tc-k { font-size: 10px; fill: var(--ink-soft); font-weight: 600; }

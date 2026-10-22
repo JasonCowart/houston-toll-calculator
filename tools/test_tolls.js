@@ -272,4 +272,24 @@ test("Beltway 8 frontage roads don't count as the Sam Houston Tollway", () => {
   assert(T.mentionsRoad("take the exit on the right to tx-8 beltway n / sam houston tollway", "Sam Houston"), "tollway not matched");
 });
 
+test("traffic levels from step speeds: freeways only, frontage roads skipped", () => {
+  const segs = T.trafficSegments([
+    { text: "Start at Location 1", time: 0, length: 0 },
+    { text: "Keep left to merge onto I-10 E", time: 9.4, length: 6.0 },          // 38 mph
+    { text: "Continue on Katy Fwy", time: 2.0, length: 2.0 },                    // 60 mph
+    { text: "Take exit 764 to Washington Ave", time: 0.8, length: 0.27 },        // street-ish, not judged
+    { text: "Continue on Katy Fwy Frtg Rd", time: 3, length: 0.5 },              // frontage: skipped
+    { text: "Merge onto Sam Houston Tollway N", time: 6, length: 2 },            // 20 mph
+    { text: "Keep left on I-10 E", time: 1.4, length: 1.1 },                     // 47 mph
+  ]);
+  assert(segs.length === 6, "steps with length: " + segs.length);
+  assert(segs[0].level === "slow", "38 mph freeway = slow: " + segs[0].level);
+  assert(segs[1].level === null, "60 mph = moving");
+  assert(segs[2].level === null, "street not judged");
+  assert(segs[3].level === null && !segs[3].highway, "frontage skipped");
+  assert(segs[4].level === "heavy", "20 mph = heavy");
+  assert(segs[5].level === "moderate", "47 mph = moderate");
+  assert(Math.abs(segs[5].to - 1) < 1e-9 && segs[0].from === 0, "fractions run 0 to 1");
+});
+
 console.log(passed + " tests passed");

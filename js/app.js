@@ -278,7 +278,8 @@ require([
       toll: { minutes: ts.minutes, miles: ts.miles, mode: lastTrip.tollRoute.modeNote || null, path: t.tollPath.map(round6),
         steps: (t.steps || []).map(function (s) { return { maneuverType: s.maneuverType, text: s.text, time: s.time, length: s.length, path: s.path ? s.path.map(round6) : null }; }),
         trafficProbe: lastTrip.tollRoute.trafficProbe || null },
-      free: { minutes: fs.minutes, miles: fs.miles, mode: lastTrip.freeRoute.modeNote || null, path: t.freePath.map(round6) },
+      free: { minutes: fs.minutes, miles: fs.miles, mode: lastTrip.freeRoute.modeNote || null, path: t.freePath.map(round6),
+        steps: (lastTrip.freeRoute.steps || []).map(function (s) { return { maneuverType: s.maneuverType, text: s.text, time: s.time, length: s.length, path: s.path ? s.path.map(round6) : null }; }) },
       result: { total: lastTrip.priced.total, items: lastTrip.priced.items.map(function (it) { return { id: it.point.id, name: it.point.name, rate: it.rate }; }) },
       expected: null,
     };
@@ -379,7 +380,7 @@ require([
 
   // Toll-free route line on the map: on by default, can be hidden.
   var freeGraphic = null;
-  $("show-free").addEventListener("change", function () { if (freeGraphic) freeGraphic.visible = this.checked; });
+  $("show-free").addEventListener("change", function () { setFreeVisible(this.checked); });
 
   // Start over: clear both places, the routes, the results and the map. Vehicle, tag and
   // carpool stay as they are.
@@ -392,6 +393,7 @@ require([
     clearHighlight();
     routesLayer.removeAll();
     freeGraphic = null;
+    freeTraffic = [];
     if (tollLayer) { map.remove(tollLayer); tollLayer = null; }
     drawStops();
     lastTrip = null;
@@ -574,12 +576,26 @@ require([
   // Toll-free route line: light gray dashes, white on satellite imagery where gray
   // disappears. Custom dash pattern (points): short dashes, close together.
   var currentBasemap = null;
-  function freeSymbol() {
-    var color = currentBasemap === "arcgis/imagery" ? [255, 255, 255, 255] : COLORS.free.concat(255);
+  function freeSymbol(traffic) {
+    var color = traffic ? TRAFFIC[traffic].concat(255) : currentBasemap === "arcgis/imagery" ? [255, 255, 255, 255] : COLORS.free.concat(255);
     return { type: "cim", data: { type: "CIMSymbolReference", symbol: {
       type: "CIMLineSymbol", symbolLayers: [{ type: "CIMSolidStroke", enable: true, width: 2.25, color: color,
         capStyle: "Butt", joinStyle: "Round",
         effects: [{ type: "CIMGeometricEffectDashes", dashTemplate: [3, 2.5], lineDashEnding: "NoConstraint" }] }] } } };
+  }
+
+  // Traffic colors on highway stretches (TollCalc.trafficSegments): moderate, slow, heavy.
+  var TRAFFIC = { moderate: [246, 180, 0], slow: [245, 124, 0], heavy: [217, 48, 37] };
+  var TRAFFIC_HEX = { moderate: "#f6b400", slow: "#f57c00", heavy: "#d93025" };
+  var freeTraffic = [];
+  function trafficGraphics(g, kind) {
+    return window.TollCalc.trafficSegments(g.steps).filter(function (sg) { return sg.level && sg.path && sg.path.length > 1; })
+      .map(function (sg) {
+        var geom = { type: "polyline", paths: [sg.path], spatialReference: { wkid: 4326 } };
+        return new Graphic({ geometry: geom, symbol: kind === "toll"
+          ? { type: "simple-line", color: TRAFFIC[sg.level], width: 5, cap: "round", join: "round" }
+          : freeSymbol(sg.level) });
+      });
   }
 
   function drawRoute(g, kind) {
@@ -587,10 +603,17 @@ require([
       // A wider light blue line underneath gives the blue route its light edge.
       routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "simple-line", color: COLORS.routeEdge, width: 8, cap: "round", join: "round" } }));
       routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "simple-line", color: COLORS.route, width: 5, cap: "round", join: "round" } }));
+      routesLayer.addMany(trafficGraphics(g, "toll"));
     } else {
       routesLayer.add(freeGraphic = new Graphic({ geometry: g.geometry, symbol: freeSymbol() }));
-      freeGraphic.visible = $("show-free").checked;
+      freeTraffic = trafficGraphics(g, "free");
+      routesLayer.addMany(freeTraffic);
+      setFreeVisible($("show-free").checked);
     }
+  }
+  function setFreeVisible(on) {
+    if (freeGraphic) freeGraphic.visible = on;
+    freeTraffic.forEach(function (t) { t.visible = on; });
   }
 
   // Short map label for a toll point: "Peek Rd $0.84". Drops words that repeat on every gantry.
@@ -844,6 +867,15 @@ require([
     svg += '<text x="' + X0 + '" y="14" class="tc-h">Toll route \u00b7 ' + esc(fmtTime(t.minutes)) + " \u00b7 " + fmtMoney(priced.total) + "</text>";
     svg += '<line x1="' + X0 + '" y1="' + yT + '" x2="' + X1 + '" y2="' + yT + '" class="tc-toll-edge"/>';
     svg += '<line x1="' + X0 + '" y1="' + yT + '" x2="' + X1 + '" y2="' + yT + '" class="tc-toll"/>';
+    var tSegs = lastTrip ? window.TollCalc.trafficSegments(lastTrip.tollRoute.steps) : [];
+    var fSegs = lastTrip ? window.TollCalc.trafficSegments(lastTrip.freeRoute.steps) : [];
+    function trafficLines(segs, y, cls) {
+      return segs.filter(function (sg) { return sg.level; }).map(function (sg) {
+        return '<line x1="' + (X0 + (X1 - X0) * sg.from).toFixed(1) + '" y1="' + y + '" x2="' + (X0 + (X1 - X0) * sg.to).toFixed(1) +
+          '" y2="' + y + '" class="' + cls + '" style="stroke:' + TRAFFIC_HEX[sg.level] + '"><title>' + sg.level + " traffic, about " + Math.round(sg.mph) + " mph</title></line>";
+      }).join("");
+    }
+    svg += trafficLines(tSegs, yT, "tc-traffic");
     var tiers = [yT - 12, yT + 22, yT - 27], lastX = [-99, -99, -99], GAP = 36, dots = "";
     priced.items.forEach(function (it, i) {
       var frac = routeMeters && it.along != null ? Math.min(1, Math.max(0, it.along / routeMeters)) : (i + 1) / (priced.items.length + 1);
@@ -859,7 +891,19 @@ require([
     });
     svg += ends(yT) + dots;
     svg += '<text x="' + X0 + '" y="' + (yF - 16) + '" class="tc-h">Toll-free \u00b7 ' + esc(fmtTime(f.minutes)) + " \u00b7 $0.00</text>";
-    svg += '<line x1="' + X0 + '" y1="' + yF + '" x2="' + X1 + '" y2="' + yF + '" class="tc-free"/>' + ends(yF);
+    svg += '<line x1="' + X0 + '" y1="' + yF + '" x2="' + X1 + '" y2="' + yF + '" class="tc-free"/>' + trafficLines(fSegs, yF, "tc-traffic-free") + ends(yF);
+    var any = tSegs.concat(fSegs).some(function (sg) { return sg.level; });
+    if (any) {
+      var lx = X0, ly = 162;
+      svg += '<text x="' + lx + '" y="' + ly + '" class="tc-k">Highway traffic:</text>';
+      lx += 84;
+      [["moderate", "Moderate"], ["slow", "Slow"], ["heavy", "Heavy"]].forEach(function (k) {
+        svg += '<line x1="' + lx + '" y1="' + (ly - 3.5) + '" x2="' + (lx + 14) + '" y2="' + (ly - 3.5) + '" class="tc-traffic" style="stroke:' + TRAFFIC_HEX[k[0]] + '"/>' +
+          '<text x="' + (lx + 19) + '" y="' + ly + '" class="tc-k">' + k[1] + "</text>";
+        lx += k[1].length * 6 + 34;
+      });
+    }
+    svg = svg.replace('viewBox="0 0 ' + W + ' 146"', 'viewBox="0 0 ' + W + " " + (any ? 170 : 146) + '"');
     svg += "</svg>";
     box.innerHTML = svg;
     box.hidden = false;
@@ -994,13 +1038,14 @@ require([
     setStatus("Finding routes…");
     routesLayer.removeAll();
     freeGraphic = null;
+    freeTraffic = [];
     clearHighlight();
     drawStops();
 
     loadTravelModes().then(function (modes) {
       var mode = pickMode(modes, axles);
       window.__baseMode = mode;
-      return Promise.all([solveFirst(tollVariants(mode, axles, "prefer"), true), solveFirst(tollVariants(mode, axles, "prohibit"))]);
+      return Promise.all([solveFirst(tollVariants(mode, axles, "prefer"), true), solveFirst(tollVariants(mode, axles, "prohibit"), true)]);
     }).then(function (routes) {
       var tollRoute = routes[0], freeRoute = routes[1];
       var path = [].concat.apply([], tollRoute.geometry.paths);

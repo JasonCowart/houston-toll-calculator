@@ -440,7 +440,35 @@
     return { crossings: crossings, dropped: split.dropped, rampZones: rampZones, priced: priced };
   }
 
-  var api = { analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  // Traffic level of each turn-by-turn step, from its traffic-based time and length (Esri
+  // returns both per step). Only freeways, toll roads and highways are judged; streets have
+  // too wide a range of normal speeds. Levels: null = moving (55+ mph), "moderate" 40-55,
+  // "slow" 25-40, "heavy" under 25.
+  var HIGHWAY_TEXT = /\b(i-\d+|interstate|highway|fwy|freeway|tollway|toll rd|toll road|tx-\d+|sh[- ]\d+|us-\d+|beltway|bw[- ]?8|grand (pkwy|parkway)|expy|expressway|express lanes|managed lanes|sam houston tollway|hardy toll)\b/;
+  var NOT_HIGHWAY = /\b(frtg|frontage|service dr|access rd|feeder)\b/;
+  function trafficLevel(mph) {
+    if (mph == null || !isFinite(mph)) return null;
+    return mph < 25 ? "heavy" : mph < 40 ? "slow" : mph < 55 ? "moderate" : null;
+  }
+  function trafficSegments(steps) {
+    if (!steps || !steps.length) return [];
+    var total = 0;
+    steps.forEach(function (s) { total += s.length > 0 ? s.length : 0; });
+    var at = 0, out = [];
+    steps.forEach(function (s) {
+      var len = s.length > 0 ? s.length : 0;
+      if (!len) return;
+      var text = String(s.text || "").toLowerCase();
+      var highway = HIGHWAY_TEXT.test(text) && !NOT_HIGHWAY.test(text);
+      var mph = s.time > 0 ? len / (s.time / 60) : null;
+      out.push({ from: total ? at / total : 0, to: total ? (at + len) / total : 0, miles: len, mph: mph,
+        highway: highway, level: highway && len >= 0.15 ? trafficLevel(mph) : null, path: s.path || null });
+      at += len;
+    });
+    return out;
+  }
+
+  var api = { trafficSegments: trafficSegments, trafficLevel: trafficLevel, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

@@ -35,7 +35,8 @@ require([
   var routesLayer = new GraphicsLayer();
   var markersLayer = new GraphicsLayer(); // start and end pins, drawn on top
   var tollLayer = null;                   // toll points on the route, with labels
-  var map = new Map({ basemap: key ? "arcgis/light-gray" : "osm", layers: [routesLayer, markersLayer] });
+  var highlightLayer = new GraphicsLayer(); // ring around the toll point picked in the breakdown
+  var map = new Map({ basemap: key ? "arcgis/light-gray" : "osm", layers: [routesLayer, highlightLayer, markersLayer] });
   var view = new MapView({ container: "map", map: map, center: HOUSTON, zoom: 9 });
 
   function makeSearch(container, which) {
@@ -485,6 +486,44 @@ require([
 
   function fmtPerMinute(v) { return v < 1 ? Math.max(1, Math.round(v * 100)) + "¢" : fmtMoney(v); }
 
+  // Breakdown rows: tap one to scroll to the map and ring that toll point. The map pans
+  // only if the point is off screen, and keeps its zoom.
+  var shownItems = [], pulseTimer = null;
+  function clearHighlight() {
+    if (pulseTimer) { clearInterval(pulseTimer); pulseTimer = null; }
+    highlightLayer.removeAll();
+    Array.prototype.forEach.call(document.querySelectorAll("#breakdown tr.selected"), function (r) { r.classList.remove("selected"); });
+  }
+  function ring(size, alpha) {
+    return { type: "simple-marker", size: size, color: [140, 92, 255, alpha * 0.18], outline: { color: [140, 92, 255, alpha], width: 3 } };
+  }
+  function highlightItem(i, row) {
+    var it = shownItems[i];
+    if (!it) return;
+    clearHighlight();
+    row.classList.add("selected");
+    var pt = new Point({ longitude: it.point.lon, latitude: it.point.lat });
+    var g = new Graphic({ geometry: pt, symbol: ring(26, 1) });
+    highlightLayer.add(g);
+    var step = 0; // three pulses, then a steady ring
+    pulseTimer = setInterval(function () {
+      step++;
+      var t = (step % 10) / 10;
+      g.symbol = ring(26 + 18 * t, 1 - 0.7 * t);
+      if (step >= 30) { clearInterval(pulseTimer); pulseTimer = null; g.symbol = ring(26, 1); }
+    }, 50);
+    if (view.extent && !view.extent.clone().expand(0.9).contains(pt)) view.goTo({ center: pt }).catch(function () {});
+    $("map").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  $("breakdown").addEventListener("click", function (e) {
+    var row = e.target.closest("tr.pickable");
+    if (row) highlightItem(+row.getAttribute("data-i"), row);
+  });
+  $("breakdown").addEventListener("keydown", function (e) {
+    var row = e.target.closest("tr.pickable");
+    if (row && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); highlightItem(+row.getAttribute("data-i"), row); }
+  });
+
   function showResults(tollRoute, freeRoute, priced, savings) {
     var t = routeStats(tollRoute), f = routeStats(freeRoute);
     $("toll-price").textContent = fmtMoney(priced.total) + (priced.pending.length || priced.missing.length ? "+" : "");
@@ -534,10 +573,12 @@ require([
     $("breakdown").innerHTML = priced.items.map(function (it) {
       var p = it.point;
       var when = it.when ? ' <span class="tag-unverified">(' + fmtClock(it.when) + (it.note ? ", " + esc(it.note) : "") + ")</span>" : "";
-      return "<tr><td>" + esc(p.name) + (p.status === "unverified" ? ' <span class="tag-unverified">(unverified)</span>' : "") + when +
+      return '<tr class="pickable" tabindex="0" data-i="' + priced.items.indexOf(it) + '" title="Show on map"><td>' + esc(p.name) + (p.status === "unverified" ? ' <span class="tag-unverified">(unverified)</span>' : "") + when +
         "</td><td>" + esc(p.road) + '</td><td class="num">' + (it.rate == null ? "n/a" : fmtMoney(it.rate)) + "</td></tr>";
     }).join("") || '<tr><td colspan="3">No toll points crossed.</td></tr>';
     $("breakdown-wrap").hidden = !priced.items.length;
+    shownItems = priced.items;
+    clearHighlight();
     $("results").hidden = false;
   }
 
@@ -549,6 +590,7 @@ require([
     $("results").hidden = true;
     setStatus("Finding routes…");
     routesLayer.removeAll();
+    clearHighlight();
     drawStops();
 
     loadTravelModes().then(function (modes) {

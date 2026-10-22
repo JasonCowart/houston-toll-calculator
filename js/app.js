@@ -19,7 +19,8 @@ require([
   var ROUTE_URL = "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
   var GEOCODE_URL = "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer";
   var HOUSTON = [-95.37, 29.76];
-  var COLORS = { toll: [102, 45, 145], free: [143, 139, 150], missing: [245, 169, 32] }; // HCTRA purple, gray; yellow-grad-end
+  // Toll points stay HCTRA purple; the toll route is the familiar map-app blue with a light blue edge.
+  var COLORS = { toll: [102, 45, 145], route: [26, 115, 232], routeEdge: [161, 199, 250], free: [143, 139, 150], missing: [245, 169, 32] };
 
   var key = (window.TOLL_CONFIG && window.TOLL_CONFIG.arcgisApiKey || "").trim();
   var DEBUG = /[?&]debug=1\b/.test(location.search);
@@ -250,10 +251,13 @@ require([
     markersLayer.removeAll();
     ["from", "to"].forEach(function (w) {
       if (!stops[w]) return;
-      // Start: light green fill, dark green ring. End: light red fill, dark red ring.
-      var c = w === "from" ? { fill: [134, 214, 148], ring: [26, 122, 52] } : { fill: [244, 143, 143], ring: [168, 22, 28] };
-      markersLayer.add(new Graphic({ geometry: stops[w], symbol: { type: "simple-marker", size: 11,
-        color: c.fill, outline: { color: c.ring, width: 2.25 } } }));
+      // Start: green dot with a white S. End: red dot with a white E. Fills are dark enough
+      // for white letters; the rings are darker still.
+      var c = w === "from" ? { fill: [30, 142, 62], ring: [18, 94, 40], letter: "S" } : { fill: [210, 47, 47], ring: [140, 18, 24], letter: "E" };
+      markersLayer.add(new Graphic({ geometry: stops[w], symbol: { type: "simple-marker", size: 17,
+        color: c.fill, outline: { color: c.ring, width: 2 } } }));
+      markersLayer.add(new Graphic({ geometry: stops[w], symbol: { type: "text", text: c.letter, color: [255, 255, 255],
+        horizontalAlignment: "center", verticalAlignment: "middle", font: { size: 10, weight: "bold" } } }));
     });
   }
 
@@ -377,8 +381,13 @@ require([
   function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 
   function drawRoute(g, kind) {
-    routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "simple-line", color: COLORS[kind],
-      width: kind === "toll" ? 5 : 3, style: kind === "toll" ? "solid" : "short-dash" } }));
+    if (kind === "toll") {
+      // A wider light blue line underneath gives the blue route its light edge.
+      routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "simple-line", color: COLORS.routeEdge, width: 8, cap: "round", join: "round" } }));
+      routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "simple-line", color: COLORS.route, width: 5, cap: "round", join: "round" } }));
+    } else {
+      routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "simple-line", color: COLORS.free, width: 3, style: "short-dash" } }));
+    }
   }
 
   // Short map label for a toll point: "Peek Rd $0.84". Drops words that repeat on every gantry.

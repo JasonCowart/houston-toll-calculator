@@ -75,7 +75,7 @@ def hctra_rows(url):
         try:
             page = browser.new_page(user_agent=UA)
             page.goto(url, wait_until="load", timeout=90000)
-            page.wait_for_selector("table tr td", timeout=60000)
+            page.wait_for_selector("text=/\\$\\d+\\.\\d\\d/", timeout=60000)
 
             def selects():
                 found = {}
@@ -88,10 +88,10 @@ def hctra_rows(url):
                 return found
 
             def read(road, direction):
-                page.wait_for_timeout(1500)
-                for tr in page.locator("table tr").all():
-                    cells = [c.strip() for c in tr.locator("td").all_inner_texts()]
-                    if cells and any(MONEY.search(c) for c in cells):
+                page.wait_for_timeout(2000)
+                for line in page.inner_text("body").splitlines():
+                    cells = [c.strip() for c in line.split("\t") if c.strip()]
+                    if len(cells) >= 3 and sum(bool(MONEY.fullmatch(c)) for c in cells) >= 2:
                         rows.append(" | ".join([road, direction] + cells))
 
             read("(as loaded)", "")

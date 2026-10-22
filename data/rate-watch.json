@@ -295,10 +295,6 @@
    "name": "Fort Bend County Toll Road Authority toll roads page",
    "url": "https://www.fbctra.com/toll-roads/"
   },
-  "hctra": {
-   "failures": 1,
-   "lastError": "RuntimeError: HCTRA menus gave no rate rows: {\"selects\": [[\"Sam Houston Tollway\", \"Hardy Toll Road\", \"Westpark Tollway\", \"Ft. Bend Extension\", \"Katy Managed Lanes\", \"Tomball Tollway\", \"Other HCTRA-Managed Toll Roads\"], [\"Clockwise\", \"Counter Clockwise\"], [\"All Axles\", \"2 Axles EZ TAG Discount\", \"2 Axles TAG\", \"3 Axles TAG\", \"4 Axles TAG\", \"5 Axles TAG\", \"6 Axles TAG\", \"7 Axles TAG\", \"8 Axles TAG\"]], \"tables\": 1, \"rowsAsLoaded\": 0}"
-  },
   "hctra-katy": {
    "checked": "2026-10-22",
    "failures": 0,

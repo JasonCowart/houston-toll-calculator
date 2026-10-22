@@ -46,7 +46,7 @@ jobs:
           git add data/rate-watch.json
           if git diff --cached --quiet; then echo "Snapshot unchanged."; exit 0; fi
           git commit -m "Rate watch: weekly snapshot"
-          git pull --rebase -q origin main
+          git pull --rebase -X theirs -q origin main   # the snapshot just taken wins
           git push
 
       - name: Open or update the alert issue

@@ -37,6 +37,18 @@ require([
   var tollLayer = null;                   // toll points on the route, with labels
   var highlightLayer = new GraphicsLayer(); // ring around the toll point picked in the breakdown
   var map = new Map({ basemap: key ? "arcgis/light-gray" : "osm", layers: [routesLayer, highlightLayer, markersLayer] });
+  // HCTRA's Regional Toll Roads layer (every Houston-area toll road, all agencies), drawn
+  // with HCTRA's own symbols underneath the routes. If HCTRA's server is unreachable the
+  // map simply goes without it.
+  var tollRoadsLayer = new FeatureLayer({
+    url: "https://gismaps.hctra.org/rd/rest/services/ExternalOnlineMap/HCTRASystemMap/MapServer/3",
+    title: "Regional Toll Roads (HCTRA)",
+    opacity: 0.8,
+    popupEnabled: false,
+  });
+  map.add(tollRoadsLayer, 0);
+  tollRoadsLayer.load().catch(function (e) { console.warn("HCTRA toll roads layer unavailable", e); });
+
   var view = new MapView({ container: "map", map: map, center: HOUSTON, zoom: 9 });
 
   function makeSearch(container, which) {
@@ -442,7 +454,7 @@ require([
       }],
       popupTemplate: { title: "{name}", content: "{detail}" },
     });
-    map.add(tollLayer, 1); // above the routes, below the start and end pins
+    map.add(tollLayer, map.layers.indexOf(routesLayer) + 1); // above the routes, below the highlight and pins
   }
 
   // ?debug=1: list each toll point near the route, whether it counted and why,

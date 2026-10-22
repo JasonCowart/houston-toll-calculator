@@ -331,11 +331,20 @@ require([
     if (vehicles.length) html += '<option value="manage">Edit my vehicles\u2026</option>';
     $("vehicles").innerHTML = html;
     $("save-vehicle").disabled = !paymentChoice();
+    syncVehicleSelect();
+  }
+  // The box shows the saved vehicle that matches the current settings (axles, tag and
+  // carpool), or "My vehicles..." when none does, e.g. after changing the axles.
+  function syncVehicleSelect() {
+    if (!vehicles) return;
+    var axles = parseInt($("axles").value, 10), pay = paymentChoice(), car = $("carpool").checked;
+    var i = -1;
+    vehicles.some(function (v, k) { if (v.axles === axles && v.payment === pay && !!v.carpool === car) { i = k; return true; } return false; });
+    $("vehicles").value = i >= 0 ? "v" + i : "";
   }
   $("vehicles").addEventListener("change", function () {
     var v = this.value;
-    this.value = "";
-    if (v === "manage") { renderVehicleDialog(); var d = $("vehicles-dialog"); if (d.showModal) d.showModal(); else d.setAttribute("open", ""); return; }
+    if (v === "manage") { syncVehicleSelect(); renderVehicleDialog(); var d = $("vehicles-dialog"); if (d.showModal) d.showModal(); else d.setAttribute("open", ""); return; }
     var p = vehicles[+v.slice(1)];
     if (!p) return;
     $("axles").value = String(p.axles);
@@ -412,6 +421,7 @@ require([
   function updateButton() {
     updateSteps();
     $("save-vehicle").disabled = !paymentChoice();
+    if (typeof syncVehicleSelect === "function" && $("vehicles").options.length) syncVehicleSelect();
     ["from", "to"].forEach(function (w) { $("save-" + w).disabled = !stops[w]; });
     $("pay-hint").hidden = !!paymentChoice();
     $("go").disabled = !(key && stops.from && stops.to && tollPoints.length && paymentChoice());
@@ -1052,6 +1062,8 @@ require([
   Array.prototype.forEach.call(document.querySelectorAll('input[name="payment"]'), function (r) { r.addEventListener("change", repriceShown); });
   $("carpool").addEventListener("change", repriceShown);
   $("axles").addEventListener("change", repriceShown);
+  $("axles").addEventListener("change", syncVehicleSelect);
+  $("carpool").addEventListener("change", syncVehicleSelect);
 
   // Esri's toll route sometimes leaves a tollway for the frontage road (to dodge traffic or
   // skip a plaza) and gets back on a few miles later, often paying an extra entrance ramp.

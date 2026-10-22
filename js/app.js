@@ -585,6 +585,35 @@ require([
     $("results").hidden = false;
   }
 
+  // Price a routed trip and show it. Used after routing, and again when only the payment
+  // type or carpool changes: those don't change the route, so the same route is repriced
+  // without asking Esri again (a new request can come back as a different route).
+  function priceTrip(trip, tollRoute, freeRoute) {
+    var result = window.TollCalc.analyzeTrip(trip, tollPoints);
+    var priced = result.priced;
+    lastTrip = { trip: trip, tollRoute: tollRoute, freeRoute: freeRoute, priced: priced };
+    if (DEBUG) showDebug(tollRoute, trip.tollPath, result.rampZones, result.crossings, result.dropped);
+    drawCrossings(priced.items);
+    var savings = null;
+    if (trip.payment !== "eztag" && priced.items.length) {
+      var ez = window.TollCalc.analyzeTrip(Object.assign({}, trip, { payment: "eztag" }), tollPoints).priced;
+      if (!ez.missing.length && !ez.pending.length) savings = { eztag: ez.total, amount: Math.round((priced.total - ez.total) * 100) / 100 };
+    }
+    showResults(tollRoute, freeRoute, priced, savings);
+  }
+  function repriceShown() {
+    if (!lastTrip || $("results").hidden) return;
+    var payment = paymentChoice();
+    if (!payment) return;
+    var trip = Object.assign({}, lastTrip.trip, { payment: payment, carpool: $("carpool").checked });
+    if (trip.payment === lastTrip.trip.payment && trip.carpool === lastTrip.trip.carpool) return;
+    priceTrip(trip, lastTrip.tollRoute, lastTrip.freeRoute);
+    var names = { eztag: "EZ TAG", tag: "another toll tag", notag: "no tag" };
+    setStatus("Repriced for " + names[payment] + (trip.carpool ? ", carpool" : "") + " on the same route.");
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="payment"]'), function (r) { r.addEventListener("change", repriceShown); });
+  $("carpool").addEventListener("change", repriceShown);
+
   $("go").addEventListener("click", function () {
     var axles = parseInt($("axles").value, 10);
     var payment = paymentChoice();
@@ -610,20 +639,10 @@ require([
         departure: departure.toISOString(), routeMinutes: routeStats(tollRoute).minutes,
         axles: axles, payment: payment, carpool: $("carpool").checked,
       };
-      var result = window.TollCalc.analyzeTrip(trip, tollPoints);
-      var priced = result.priced;
-      lastTrip = { trip: trip, tollRoute: tollRoute, freeRoute: freeRoute, priced: priced };
-      if (DEBUG) showDebug(tollRoute, path, result.rampZones, result.crossings, result.dropped);
       drawRoute(freeRoute, "free");
       drawRoute(tollRoute, "toll");
-      drawCrossings(priced.items);
       view.goTo(tollRoute.geometry.extent.clone().expand(1.25)).catch(function () {});
-      var savings = null;
-      if (payment !== "eztag" && priced.items.length) {
-        var ez = window.TollCalc.analyzeTrip(Object.assign({}, trip, { payment: "eztag" }), tollPoints).priced;
-        if (!ez.missing.length && !ez.pending.length) savings = { eztag: ez.total, amount: Math.round((priced.total - ez.total) * 100) / 100 };
-      }
-      showResults(tollRoute, freeRoute, priced, savings);
+      priceTrip(trip, tollRoute, freeRoute);
       setStatus("");
     }).catch(function (err) {
       console.error(err);

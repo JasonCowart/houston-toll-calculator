@@ -386,7 +386,11 @@ require([
       routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "simple-line", color: COLORS.routeEdge, width: 8, cap: "round", join: "round" } }));
       routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "simple-line", color: COLORS.route, width: 5, cap: "round", join: "round" } }));
     } else {
-      routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "simple-line", color: COLORS.free, width: 3, style: "short-dash" } }));
+      // Custom dash pattern (points): short dashes, close together.
+      routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "cim", data: { type: "CIMSymbolReference", symbol: {
+        type: "CIMLineSymbol", symbolLayers: [{ type: "CIMSolidStroke", enable: true, width: 2.25, color: COLORS.free.concat(255),
+          capStyle: "Butt", joinStyle: "Round",
+          effects: [{ type: "CIMGeometricEffectDashes", dashTemplate: [3, 2.5], lineDashEnding: "NoConstraint" }] }] } } } }));
     }
   }
 

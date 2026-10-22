@@ -50,8 +50,10 @@ html, body { margin: 0; height: 100%; background: var(--surface); color: var(--i
 select, input[type="datetime-local"] { width: 100%; padding: 8px; border: 1px solid var(--ink-soft); border-radius: 6px;
   background: var(--white); color: var(--ink); font: inherit; font-size: 14px; min-height: 38px; }
 .hint { color: var(--ink-soft); font-size: 12px; margin-top: 3px; }
-.check label { font-weight: 600; font-size: 13px; display: flex; gap: 6px; align-items: flex-start; margin-top: 22px; color: var(--gray); }
-.check input { margin-top: 2px; accent-color: var(--purple); }
+.check label { font-weight: 600; font-size: 13px; display: flex; gap: 6px; align-items: center; margin: 0; color: var(--gray); }
+.check input { margin: 0; width: 18px; height: 18px; flex: none; accent-color: var(--purple); }
+.check .hint { margin-left: 24px; }
+input[type="datetime-local"] { -webkit-appearance: none; appearance: none; min-width: 0; display: block; }
 .search .esri-search { width: 100%; }
 
 /* Payment: a required choice, shown as three buttons */

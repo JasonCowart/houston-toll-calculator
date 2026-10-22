@@ -447,6 +447,7 @@
   var HIGHWAY_TEXT = /\b(i-\d+|interstate|highway|fwy|freeway|tollway|toll rd|toll road|tx-\d+|sh[- ]\d+|us-\d+|beltway|bw[- ]?8|grand (pkwy|parkway)|expy|expressway|express lanes|managed lanes|sam houston tollway|hardy toll)\b/;
   var NOT_HIGHWAY = /\b(frtg|frontage|service dr|access rd|feeder)\b/;
   var RAMP_MILES = 0.3, RAMP_MPH = 35;
+  var TRAFFIC_MAX_MILES = 4;   // longer steps: one average speed is too coarse to color
   // "exit": onto a ramp leaving the road; "enter": onto a ramp joining a highway;
   // "continue": staying on whatever road the last step was on.
   function stepKind(text) {
@@ -485,8 +486,10 @@
       if (kind === "enter" && judged < 0.3) highway = false;
       var from = total ? at / total : 0, to = total ? (at + len) / total : 0;
       var skipped = (skip || []).some(function (r) { return from < r[1] && to > r[0]; });
-      out.push({ from: from, to: to, miles: len, mph: mph, highway: highway, skipped: skipped,
-        level: highway && !skipped && len >= 0.15 ? trafficLevel(mph) : null, path: s.path || null });
+      // Esri gives one time per step; over a long step the average hides where the slowdown is.
+      var coarse = highway && len > TRAFFIC_MAX_MILES;
+      out.push({ from: from, to: to, miles: len, mph: mph, highway: highway, skipped: skipped, coarse: coarse, text: s.text || "",
+        level: highway && !skipped && !coarse && len >= 0.15 ? trafficLevel(mph) : null, path: s.path || null });
       at += len;
     });
     return out;

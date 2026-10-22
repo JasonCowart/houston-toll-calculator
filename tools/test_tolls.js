@@ -275,7 +275,7 @@ test("Beltway 8 frontage roads don't count as the Sam Houston Tollway", () => {
 test("traffic levels from step speeds: freeways only, frontage roads skipped", () => {
   const segs = T.trafficSegments([
     { text: "Start at Location 1", time: 0, length: 0 },
-    { text: "Keep left to merge onto I-10 E", time: 9.4, length: 6.0 },          // 38 mph
+    { text: "Keep left to merge onto I-10 E", time: 5.6, length: 3.6 },          // 38 mph
     { text: "Continue on Katy Fwy", time: 2.0, length: 2.0 },                    // 60 mph
     { text: "Take exit 764 to Washington Ave", time: 0.8, length: 0.27 },        // street-ish, not judged
     { text: "Continue on Katy Fwy Frtg Rd", time: 3, length: 0.5 },              // frontage: skipped
@@ -314,13 +314,21 @@ test("the entrance ramp's slow curve doesn't color a moving tollway", () => {
   assert(short[0].level === null, "short merge step not judged");
 });
 
+test("no traffic color on a long stretch: one average over many miles hides where it's slow", () => {
+  // Hardy Toll Rd at evening rush: Esri's one step is 21.4 mi at 47 mph; Google showed it moving except near Beltway 8.
+  const segs = T.trafficSegments([{ text: "Go forward on Hardy Toll Rd N", time: 27.07, length: 21.39 },
+    { text: "Take exit 60D on the right to merge onto TX-8 Beltway E", time: 6.69, length: 2.44 }]);
+  assert(segs[0].coarse && segs[0].level === null, "21 mi step not colored");
+  assert(!segs[1].coarse && segs[1].level === "heavy", "2.4 mi step at 22 mph still colored");
+});
+
 test("no traffic colors where the route runs beside managed lanes", () => {
   const steps = [
     { text: "Keep left to merge onto I-10 E", time: 4, length: 2 },   // 30 mph, before the lanes
-    { text: "Keep left to merge onto I-10 E", time: 12, length: 6 },  // 30 mph, beside the lanes
+    { text: "Keep left to merge onto I-10 E", time: 8, length: 4 },   // 30 mph, beside the lanes
     { text: "Keep left to merge onto I-10 E", time: 4, length: 2 },   // 30 mph, after
   ];
-  const skip = T.laneRanges([{ laneOption: true, along: 3500 }, { laneOption: true, along: 6500 }, { laneOption: false, along: 9000 }], 10000);
+  const skip = T.laneRanges([{ laneOption: true, along: 2800 }, { laneOption: true, along: 5200 }, { laneOption: false, along: 7000 }], 8000);
   const segs = T.trafficSegments(steps, skip);
   assert(segs[0].level === "slow" && segs[2].level === "slow", "outside the lanes still colored");
   assert(segs[1].level === null && segs[1].skipped, "beside the lanes not colored");

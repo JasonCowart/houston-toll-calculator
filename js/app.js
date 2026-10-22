@@ -948,6 +948,15 @@ require([
     }
     svg = svg.replace('viewBox="0 0 ' + W + ' 146"', 'viewBox="0 0 ' + W + " " + (any ? 170 : 146) + '"');
     svg += "</svg>";
+    // Long stretches with no turn get one average speed from Esri: say why they aren't colored.
+    var coarse = tSegs.concat(fSegs).filter(function (sg) { return sg.coarse && !sg.skipped; })
+      .sort(function (a, b) { return b.miles - a.miles; })[0];
+    if (coarse) {
+      var m = /\b(?:on|onto)\s+([^()/]+?)\s*(?:\(|\/|toward|$)/i.exec(coarse.text);
+      var where = m ? m[1].trim() : "the highway";
+      svg += '<p class="tc-note">No traffic colors on long stretches: Esri gives one average speed for ' +
+        Math.round(coarse.miles) + " mi of " + esc(where) + ", too coarse to show where it's slow. The trip time still includes traffic.</p>";
+    }
     box.innerHTML = svg;
     box.hidden = false;
   }

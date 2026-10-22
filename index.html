@@ -20,66 +20,81 @@
   </header>
   <div class="app">
     <aside class="panel">
-      <p class="sub">Toll route vs. toll-free route, priced for your vehicle. Search an address or tap the map.</p>
+      <p class="sub">See what the tolls cost on the fastest route, and how much time they save over a toll-free route.</p>
 
       <div id="key-warning" class="notice warn" hidden>
         No ArcGIS API key yet. Add it as the ARCGIS_API_KEY secret on GitHub to turn on the map, address search and routing.
       </div>
 
-      <section class="field">
-        <div class="label-row"><label>From</label><button type="button" id="pick-from" class="pick">Pick on map</button></div>
-        <div id="search-from" class="search"></div>
-        <div class="places-row">
-          <select id="places-from" class="places" aria-label="Saved, recent and common places for From"><option value="">Choose a place…</option></select>
-          <button type="button" id="save-from" class="pick" disabled>Save place</button>
+      <section class="step" id="step-trip" aria-labelledby="step-trip-title">
+        <div class="step-head">
+          <span class="step-num" aria-hidden="true">1</span>
+          <h2 id="step-trip-title">Your trip</h2>
+          <button type="button" id="reset" class="pick step-action">Start over</button>
         </div>
+        <section class="field">
+          <div class="label-row"><label>From</label><button type="button" id="pick-from" class="pick">Pick on map</button></div>
+          <div id="search-from" class="search"></div>
+          <div class="places-row">
+            <select id="places-from" class="places" aria-label="Saved, recent and common places for From"><option value="">Choose a place…</option></select>
+            <button type="button" id="save-from" class="pick" disabled>Save place</button>
+          </div>
+        </section>
+        <section class="field">
+          <div class="label-row"><label>To</label><button type="button" id="pick-to" class="pick">Pick on map</button></div>
+          <div id="search-to" class="search"></div>
+          <div class="places-row">
+            <select id="places-to" class="places" aria-label="Saved, recent and common places for To"><option value="">Choose a place…</option></select>
+            <button type="button" id="save-to" class="pick" disabled>Save place</button>
+          </div>
+        </section>
+
+        <section class="field">
+          <label for="leave">Leave</label>
+          <input type="datetime-local" id="leave" aria-describedby="leave-hint">
+          <div id="leave-hint" class="hint">Blank = now</div>
+        </section>
+
       </section>
-      <section class="field">
-        <div class="label-row"><label>To</label><button type="button" id="pick-to" class="pick">Pick on map</button></div>
-        <div id="search-to" class="search"></div>
-        <div class="places-row">
-          <select id="places-to" class="places" aria-label="Saved, recent and common places for To"><option value="">Choose a place…</option></select>
-          <button type="button" id="save-to" class="pick" disabled>Save place</button>
+
+      <section class="step" id="step-vehicle" aria-labelledby="step-vehicle-title">
+        <div class="step-head">
+          <span class="step-num" aria-hidden="true">2</span>
+          <h2 id="step-vehicle-title">Your vehicle and tag</h2>
         </div>
+        <fieldset class="pay" id="payment">
+          <legend>How do you pay tolls?</legend>
+          <div class="pay-options">
+            <input type="radio" name="payment" id="pay-eztag" value="eztag"><label for="pay-eztag">EZ TAG</label>
+            <input type="radio" name="payment" id="pay-tag" value="tag"><label for="pay-tag">Other tag<small>TxTag, TollTag</small></label>
+            <input type="radio" name="payment" id="pay-notag" value="notag"><label for="pay-notag">No tag<small>Pay by mail</small></label>
+          </div>
+          <div class="hint" id="pay-hint">Pick one: no-tag tolls can cost much more.</div>
+        </fieldset>
+
+        <section class="field">
+          <div>
+            <label for="axles">Vehicle</label>
+            <select id="axles">
+              <option value="2">2 axles (car, SUV)</option>
+              <option value="3">3 axles</option>
+              <option value="4">4 axles</option>
+              <option value="5">5 axles (18-wheeler)</option>
+              <option value="6">6 axles</option>
+              <option value="7">7 axles</option>
+              <option value="8">8 or more axles</option>
+            </select>
+          </div>
+        </section>
+
+        <section class="field check">
+          <label><input type="checkbox" id="carpool"> Carpool (2+) or motorcycle</label>
+          <div class="hint">Free on the Katy Managed Lanes during HOV hours</div>
+        </section>
+
       </section>
 
-      <fieldset class="pay" id="payment">
-        <legend>How do you pay tolls?</legend>
-        <div class="pay-options">
-          <input type="radio" name="payment" id="pay-eztag" value="eztag"><label for="pay-eztag">EZ TAG</label>
-          <input type="radio" name="payment" id="pay-tag" value="tag"><label for="pay-tag">Other tag<small>TxTag, TollTag</small></label>
-          <input type="radio" name="payment" id="pay-notag" value="notag"><label for="pay-notag">No tag<small>Pay by mail</small></label>
-        </div>
-        <div class="hint" id="pay-hint">Pick one: no-tag tolls can cost much more.</div>
-      </fieldset>
-
-      <section class="field">
-        <div>
-          <label for="axles">Vehicle</label>
-          <select id="axles">
-            <option value="2">2 axles (car, SUV)</option>
-            <option value="3">3 axles</option>
-            <option value="4">4 axles</option>
-            <option value="5">5 axles (18-wheeler)</option>
-            <option value="6">6 axles</option>
-            <option value="7">7 axles</option>
-            <option value="8">8 or more axles</option>
-          </select>
-        </div>
-      </section>
-
-      <section class="field">
-        <label for="leave">Leave</label>
-        <input type="datetime-local" id="leave" aria-describedby="leave-hint">
-        <div id="leave-hint" class="hint">Blank = now</div>
-      </section>
-
-      <section class="field check">
-        <label><input type="checkbox" id="carpool"> Carpool (2+) or motorcycle</label>
-        <div class="hint">Free on the Katy Managed Lanes during HOV hours</div>
-      </section>
-
-      <button id="go" class="go" disabled>Compare routes</button>
+      <button id="go" class="go" disabled>Compare toll and toll-free routes</button>
       <div id="status" class="status" aria-live="polite"></div>
 
       <div id="results" hidden>
@@ -95,6 +110,7 @@
             <div class="card-label"><span class="swatch free"></span>Toll-free route</div>
             <div class="price">$0.00</div>
             <div class="meta" id="free-meta"></div>
+            <label class="show-free"><input type="checkbox" id="show-free" checked> Show on map</label>
           </div>
         </div>
         <div id="flags"></div>

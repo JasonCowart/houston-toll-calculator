@@ -270,7 +270,43 @@ require([
   }
 
   function paymentChoice() { var c = document.querySelector('input[name="payment"]:checked'); return c ? c.value : null; }
+  // Step cards get a check mark once they have what they need.
+  function updateSteps() {
+    $("step-trip").classList.toggle("done", !!(stops.from && stops.to));
+    $("step-vehicle").classList.toggle("done", !!paymentChoice());
+  }
+
+  // Toll-free route line on the map: on by default, can be hidden.
+  var freeGraphic = null;
+  $("show-free").addEventListener("change", function () { if (freeGraphic) freeGraphic.visible = this.checked; });
+
+  // Start over: clear both places, the routes, the results and the map. Vehicle, tag and
+  // carpool stay as they are.
+  $("reset").addEventListener("click", function () {
+    if (picking) setPicking(null);
+    ["from", "to"].forEach(function (w) {
+      stops[w] = null;
+      if (searches[w]) { try { searches[w].clear(); } catch (e) { searches[w].searchTerm = ""; } }
+    });
+    clearHighlight();
+    routesLayer.removeAll();
+    freeGraphic = null;
+    if (tollLayer) { map.remove(tollLayer); tollLayer = null; }
+    drawStops();
+    lastTrip = null;
+    shownItems = [];
+    $("results").hidden = true;
+    var dbg = document.getElementById("debug");
+    if (dbg) dbg.remove();
+    setStatus("");
+    updateButton();
+    view.goTo({ center: HOUSTON, zoom: 9 }).catch(function () {});
+    document.querySelector(".panel").scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
   function updateButton() {
+    updateSteps();
     ["from", "to"].forEach(function (w) { $("save-" + w).disabled = !stops[w]; });
     $("pay-hint").hidden = !!paymentChoice();
     $("go").disabled = !(key && stops.from && stops.to && tollPoints.length && paymentChoice());
@@ -418,10 +454,11 @@ require([
       routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "simple-line", color: COLORS.route, width: 5, cap: "round", join: "round" } }));
     } else {
       // Custom dash pattern (points): short dashes, close together.
-      routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "cim", data: { type: "CIMSymbolReference", symbol: {
+      routesLayer.add(freeGraphic = new Graphic({ geometry: g.geometry, symbol: { type: "cim", data: { type: "CIMSymbolReference", symbol: {
         type: "CIMLineSymbol", symbolLayers: [{ type: "CIMSolidStroke", enable: true, width: 2.25, color: COLORS.free.concat(255),
           capStyle: "Butt", joinStyle: "Round",
           effects: [{ type: "CIMGeometricEffectDashes", dashTemplate: [3, 2.5], lineDashEnding: "NoConstraint" }] }] } } } }));
+      freeGraphic.visible = $("show-free").checked;
     }
   }
 
@@ -725,6 +762,7 @@ require([
     $("results").hidden = true;
     setStatus("Finding routes…");
     routesLayer.removeAll();
+    freeGraphic = null;
     clearHighlight();
     drawStops();
 

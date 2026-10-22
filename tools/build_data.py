@@ -28,6 +28,9 @@ TIMED = {
 NAME_FIX = {
     279: "Hardy ML Gantry (east of Hardy Toll Rd)", 280: "Hardy ML Gantry (east of Hardy Toll Rd)",
     281: "Riley Fuzzel ML Gantry (east of I-45)", 282: "Riley Fuzzel ML Gantry (east of I-45)",
+    # Renamed in spring 2026; keep the old name visible so drivers recognize it.
+    160: "Dr. Richard A. Tapia Bridge Gantry (formerly Ship Channel Bridge)",
+    161: "Dr. Richard A. Tapia Bridge Gantry (formerly Ship Channel Bridge)",
 }
 # Whole roads checked against the owner's published 2026 schedule (Oct 21, 2026)
 CHECKED_ROADS = {

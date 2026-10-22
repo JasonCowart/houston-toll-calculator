@@ -30,6 +30,9 @@ jobs:
       - name: Run toll tests
         run: node tools/test_tolls.js
 
+      - name: Check verified rates are unchanged
+        run: node tools/test_rates.js
+
       - name: Replay saved real trips
         run: node tools/test_trips.js
 

@@ -244,7 +244,7 @@
    * the toll route includes these plazas when it runs alongside them, same direction.
    */
   function managedLaneCrossings(lonLatPath, points, opts) {
-    var lanes = points.filter(function (p) { return p.status === "timed" && p.kind === "main"; });
+    var lanes = points.filter(function (p) { return (p.status === "timed" || p.lane) && p.kind === "main"; });
     return findCrossings(lonLatPath, lanes, { matchMeters: (opts && opts.meters) || MANAGED_LANE_METERS })
       .map(function (c) { return Object.assign(c, { rule: "managed lanes alongside", laneOption: true }); });
   }

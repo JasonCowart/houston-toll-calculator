@@ -109,6 +109,9 @@ for x in json.load(open(src)):
         **({"schedule": TIMED[oid]} if oid in TIMED else {}),
         **({"checked": checked} if checked else {}),
         **({"assumedAxles": assumed} if assumed else {}),
+        # BC Expressway gantries sit on SH 288's express lanes, which run beside the free
+        # main lanes Esri routes on: priced as a lane option, like the Katy and SH 288 lanes.
+        **({"lane": True} if owner == "BCTRA" and kind(x["Type"]) == "main" else {}),
         **({"note": "; ".join(notes)} if notes else {}),
     })
 pts.sort(key=lambda p: p["id"])

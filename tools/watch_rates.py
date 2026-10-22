@@ -83,8 +83,8 @@ def hctra_rows(url):
                     labels = [o.strip() for o in sel.locator("option").all_inner_texts()]
                     if any("Sam Houston" in o for o in labels):
                         found["road"] = sel
-                    elif any("Clockwise" in o or "bound" in o for o in labels):
-                        found["dir"] = sel
+                    elif labels and not any("Axle" in o for o in labels):
+                        found["dir"] = sel  # the menu that isn't the road or the vehicle
                 return found
 
             def read(road, direction):
@@ -106,11 +106,13 @@ def hctra_rows(url):
                 selects()["road"].select_option(label=road)
                 page.wait_for_timeout(1500)
                 s = selects()
-                dirs = [o.strip() for o in s["dir"].locator("option").all_inner_texts()] if "dir" in s else [""]
+                dirs = [o.strip() for o in s["dir"].locator("option").all_inner_texts()] if "dir" in s else []
+                if not any(d and not d.lower().startswith("select") for d in dirs):
+                    dirs = ["(one direction)"]
                 for d in dirs:
-                    if d.lower().startswith("select"):
+                    if not d or d.lower().startswith("select"):
                         continue
-                    if d:
+                    if d != "(one direction)":
                         selects()["dir"].select_option(label=d)
                     read(road, d)
         finally:

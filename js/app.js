@@ -12,7 +12,8 @@ require([
   "esri/rest/support/FeatureSet",
   "esri/rest/networkService",
   "esri/rest/locator",
-], function (esriConfig, Map, MapView, Search, GraphicsLayer, FeatureLayer, Graphic, route, RouteParameters, FeatureSet, networkService, locator) {
+  "esri/geometry/Point",
+], function (esriConfig, Map, MapView, Search, GraphicsLayer, FeatureLayer, Graphic, route, RouteParameters, FeatureSet, networkService, locator, Point) {
   "use strict";
 
   var ROUTE_URL = "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
@@ -41,6 +42,7 @@ require([
       locationEnabled: which === "from", allPlaceholder: which === "from" ? "Starting address" : "Destination" });
     s.on("select-result", function (e) {
       stops[which] = e.result && e.result.feature ? e.result.feature.geometry : null;
+      if (stops[which]) remember(e.result.name, stops[which]);
       drawStops();
       updateButton();
     });
@@ -50,6 +52,86 @@ require([
   }
   var searches = {};
   if (key) { makeSearch("search-from", "from"); makeSearch("search-to", "to"); }
+
+  // Quick picks under each address box: places you saved, places you used recently, and
+  // common Houston-area destinations. Saved and recent places stay on this device only.
+  var COMMON = [
+    ["Downtown Houston (City Hall)", -95.3693, 29.7601],
+    ["Bush Intercontinental Airport (IAH)", -95.3414, 29.9902],
+    ["Hobby Airport (HOU)", -95.2789, 29.6454],
+    ["The Galleria", -95.4613, 29.7389],
+    ["Texas Medical Center", -95.3984, 29.7072],
+    ["NRG Stadium", -95.4107, 29.6847],
+    ["Energy Corridor (I-10 at Eldridge)", -95.6216, 29.7840],
+    ["Katy Mills", -95.8077, 29.7752],
+    ["Sugar Land Town Square", -95.6216, 29.5958],
+    ["Pearland Town Center", -95.3897, 29.5545],
+    ["The Woodlands Mall", -95.4664, 30.1626],
+    ["Conroe (downtown)", -95.4560, 30.3119],
+    ["Kemah Boardwalk", -95.0187, 29.5450],
+    ["Baytown (I-10 at Garth Rd)", -94.9893, 29.7853],
+  ];
+  function loadList(name) { try { return JSON.parse(localStorage.getItem("htc-" + name) || "[]"); } catch (e) { return []; } }
+  function saveList(name, list) { try { localStorage.setItem("htc-" + name, JSON.stringify(list)); } catch (e) { /* not kept */ } }
+  var saved = loadList("saved"), recent = loadList("recent");
+  function samePlace(a, b) { return Math.abs(a.lon - b.lon) < 0.0005 && Math.abs(a.lat - b.lat) < 0.0005; }
+  function remember(label, g) {
+    if (!label || !g) return;
+    var p = { label: String(label), lon: +g.longitude.toFixed(6), lat: +g.latitude.toFixed(6) };
+    recent = [p].concat(recent.filter(function (r) { return !samePlace(r, p); })).slice(0, 6);
+    saveList("recent", recent);
+    fillPlaces();
+  }
+  function fillPlaces() {
+    ["from", "to"].forEach(function (w) {
+      var sel = $("places-" + w);
+      var html = '<option value="">Choose a place…</option>';
+      function group(title, list, prefix) {
+        if (!list.length) return;
+        html += '<optgroup label="' + esc(title) + '">' + list.map(function (p, i) {
+          return '<option value="' + prefix + i + '">' + esc(p.label) + "</option>";
+        }).join("") + "</optgroup>";
+      }
+      group("My places", saved, "s");
+      group("Recent", recent, "r");
+      group("Common places", COMMON.map(function (c) { return { label: c[0] }; }), "c");
+      sel.innerHTML = html;
+      $("save-" + w).disabled = !stops[w];
+    });
+  }
+  function placeFromValue(v) {
+    var i = +v.slice(1);
+    if (v[0] === "s") return saved[i];
+    if (v[0] === "r") return recent[i];
+    var c = COMMON[i];
+    return c && { label: c[0], lon: c[1], lat: c[2] };
+  }
+  ["from", "to"].forEach(function (w) {
+    $("places-" + w).addEventListener("change", function () {
+      var p = this.value && placeFromValue(this.value);
+      this.value = "";
+      if (!p) return;
+      stops[w] = new Point({ longitude: p.lon, latitude: p.lat });
+      if (searches[w]) searches[w].searchTerm = p.label;
+      remember(p.label, stops[w]);
+      drawStops();
+      updateButton();
+      if (!(stops.from && stops.to)) view.goTo({ target: stops[w], zoom: 13 }).catch(function () {});
+    });
+    $("save-" + w).addEventListener("click", function () {
+      if (!stops[w]) return;
+      var current = searchesTerm(w) || "";
+      var name = window.prompt("Name this place (for example, Home or Work):", /^Dropped pin/.test(current) ? "" : current);
+      if (!name || !name.trim()) return;
+      var p = { label: name.trim(), lon: +stops[w].longitude.toFixed(6), lat: +stops[w].latitude.toFixed(6) };
+      saved = saved.filter(function (s) { return s.label.toLowerCase() !== p.label.toLowerCase() && !samePlace(s, p); });
+      saved.unshift(p);
+      saveList("saved", saved);
+      fillPlaces();
+      setStatus("Saved \u201c" + p.label + "\u201d to My places on this device.");
+    });
+  });
+  fillPlaces();
 
   // Dropping pins: tap "Pick on map" next to a box, then tap the map. If a box is
   // empty, tapping the map fills it (From first). The box shows the nearest address.
@@ -79,7 +161,7 @@ require([
     var label = mapPoint.latitude.toFixed(5) + ", " + mapPoint.longitude.toFixed(5);
     if (searches[which]) searches[which].searchTerm = "Dropped pin (" + label + ")";
     locator.locationToAddress(GEOCODE_URL, { location: mapPoint }).then(function (c) {
-      if (stops[which] === mapPoint && c && c.address && searches[which]) searches[which].searchTerm = c.address;
+      if (stops[which] === mapPoint && c && c.address && searches[which]) { searches[which].searchTerm = c.address; remember(c.address, mapPoint); }
     }).catch(function () { /* keep the coordinates */ });
   }
 
@@ -157,6 +239,7 @@ require([
 
   function paymentChoice() { var c = document.querySelector('input[name="payment"]:checked'); return c ? c.value : null; }
   function updateButton() {
+    ["from", "to"].forEach(function (w) { $("save-" + w).disabled = !stops[w]; });
     $("pay-hint").hidden = !!paymentChoice();
     $("go").disabled = !(key && stops.from && stops.to && tollPoints.length && paymentChoice());
   }

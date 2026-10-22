@@ -25,10 +25,18 @@
       <section class="field">
         <div class="label-row"><label>From</label><button type="button" id="pick-from" class="pick">Pick on map</button></div>
         <div id="search-from" class="search"></div>
+        <div class="places-row">
+          <select id="places-from" class="places" aria-label="Saved, recent and common places for From"><option value="">Choose a place…</option></select>
+          <button type="button" id="save-from" class="pick" disabled>Save place</button>
+        </div>
       </section>
       <section class="field">
         <div class="label-row"><label>To</label><button type="button" id="pick-to" class="pick">Pick on map</button></div>
         <div id="search-to" class="search"></div>
+        <div class="places-row">
+          <select id="places-to" class="places" aria-label="Saved, recent and common places for To"><option value="">Choose a place…</option></select>
+          <button type="button" id="save-to" class="pick" disabled>Save place</button>
+        </div>
       </section>
 
       <fieldset class="pay" id="payment">

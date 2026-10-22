@@ -169,6 +169,7 @@ require([
 
   view.on("click", function (e) {
     if (!key) return;
+    if (!picking && highlightLayer.graphics.length) { clearHighlight(); return; } // tap the map to clear the ring
     var target = picking || (!stops.from ? "from" : !stops.to ? "to" : null);
     if (!target) return;
     placeStop(target, e.mapPoint);
@@ -500,6 +501,7 @@ require([
   function highlightItem(i, row) {
     var it = shownItems[i];
     if (!it) return;
+    if (row.classList.contains("selected")) { clearHighlight(); return; } // tap again to clear
     clearHighlight();
     row.classList.add("selected");
     var pt = new Point({ longitude: it.point.lon, latitude: it.point.lat });
@@ -519,6 +521,7 @@ require([
     var row = e.target.closest("tr.pickable");
     if (row) highlightItem(+row.getAttribute("data-i"), row);
   });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") clearHighlight(); });
   $("breakdown").addEventListener("keydown", function (e) {
     var row = e.target.closest("tr.pickable");
     if (row && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); highlightItem(+row.getAttribute("data-i"), row); }

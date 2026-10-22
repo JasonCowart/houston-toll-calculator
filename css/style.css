@@ -31,6 +31,8 @@ html, body { margin: 0; height: 100%; background: var(--surface); color: var(--i
 .topbar { flex: none; height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 18px;
   background: linear-gradient(90deg, var(--purple), var(--purple-grad-end)); color: var(--white);
   border-bottom: 3px solid var(--yellow); }
+.topbar .logo { width: 114px; height: auto; display: block; flex: none; }
+.topbar .divider { width: 1px; align-self: stretch; margin: 12px 4px; background: rgba(255, 255, 255, 0.35); }
 .topbar h1 { font-size: 19px; font-weight: 700; margin: 0; letter-spacing: 0.01em; }
 
 .app { display: flex; flex: 1; min-height: 0; }
@@ -110,7 +112,9 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 
 @media (max-width: 760px) {
   .page { height: auto; min-height: 100%; }
-  .topbar { padding: 0 16px; }
+  .topbar { padding: 0 16px; gap: 10px; }
+  .topbar .logo { width: 100px; }
+  .topbar h1 { font-size: 16px; }
   .app { flex-direction: column; }
   .panel { width: 100%; border-right: 0; border-bottom: 1px solid var(--border); padding: 14px 16px 20px; overflow: visible; }
   .map { flex: none; height: 60vh; }

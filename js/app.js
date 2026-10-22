@@ -2,6 +2,7 @@
 require([
   "esri/config",
   "esri/Map",
+  "esri/Basemap",
   "esri/views/MapView",
   "esri/widgets/Search",
   "esri/layers/GraphicsLayer",
@@ -14,7 +15,7 @@ require([
   "esri/rest/networkService",
   "esri/rest/locator",
   "esri/geometry/Point",
-], function (esriConfig, Map, MapView, Search, GraphicsLayer, FeatureLayer, GeoJSONLayer, Graphic, route, RouteParameters, FeatureSet, networkService, locator, Point) {
+], function (esriConfig, Map, Basemap, MapView, Search, GraphicsLayer, FeatureLayer, GeoJSONLayer, Graphic, route, RouteParameters, FeatureSet, networkService, locator, Point) {
   "use strict";
 
   var ROUTE_URL = "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
@@ -654,8 +655,19 @@ require([
     view.ui.add(bm, "top-right");
     var setBasemap = function (id) {
       if (!BASEMAPS.some(function (b) { return b[0] === id; })) id = BASEMAPS[0][0];
-      map.basemap = id;
       currentBasemap = id;
+      if (id === "arcgis/imagery") {
+        // Satellite comes with a road-and-label overlay that Esri draws above everything,
+        // hiding the routes. Move that overlay under the routes instead.
+        var sat = new Basemap({ style: { id: id } });
+        sat.load().then(function () {
+          if (currentBasemap !== id) return;
+          var refs = sat.referenceLayers.toArray();
+          sat.referenceLayers.removeAll();
+          sat.baseLayers.addMany(refs);
+          map.basemap = sat;
+        }).catch(function () { if (currentBasemap === id) map.basemap = id; });
+      } else map.basemap = id;
       if (freeGraphic) freeGraphic.symbol = freeSymbol();
       Array.prototype.forEach.call(bm.querySelectorAll("button"), function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-id") === id ? "true" : "false"); });
       try { localStorage.setItem("htc-basemap", id); } catch (e) { /* not kept */ }

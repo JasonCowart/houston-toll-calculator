@@ -70,6 +70,19 @@ for x in json.load(open(src)):
         notag[1] = 3.0
         notes.append("3-axle no-TAG rate corrected from $1.30 to $3.00 (layer error)")
     ez2 = r(x["EZ_Rate"])
+    tag = [r(x["AxleRate%d" % i]) for i in range(3, 9)]
+    assumed = []
+    # FBCTRA publishes rates up to 6 axles only. 7+ axles are charged the top posted class
+    # (6 axles), as on TxDOT's Grand Parkway: Jason's call, Oct 21, 2026; to confirm with FBCTRA.
+    if owner == "FBCTRA":
+        for axles in (7, 8):
+            if tag[axles - 3] is None and tag[3] is not None:
+                tag[axles - 3] = tag[3]; assumed.append(axles)
+            if notag[axles - 2] is None and notag[4] is not None:
+                notag[axles - 2] = notag[4]
+                if axles not in assumed: assumed.append(axles)
+        if assumed:
+            notes.append("7+ axles priced at FBCTRA's top posted class (6 axles); assumed")
     pts.append({
         "id": x["OBJECTID"],
         "name": NAME_FIX.get(x["OBJECTID"], x["Name"]),
@@ -81,11 +94,12 @@ for x in json.load(open(src)):
         "lat": round(x["_coords"][1], 6),
         "ez2": ez2,
         "tag2": r(x["OtherTAG2AxleRate"]) if x["OtherTAG2AxleRate"] is not None else ez2,
-        "tag": [r(x["AxleRate%d" % i]) for i in range(3, 9)],
+        "tag": tag,
         "notag": notag,
         "status": status,
         **({"schedule": TIMED[oid]} if oid in TIMED else {}),
         **({"checked": checked} if checked else {}),
+        **({"assumedAxles": assumed} if assumed else {}),
         **({"note": "; ".join(notes)} if notes else {}),
     })
 pts.sort(key=lambda p: p["id"])

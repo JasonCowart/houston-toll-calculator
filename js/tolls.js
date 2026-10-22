@@ -377,7 +377,7 @@
    */
   function price(crossings, axles, payment, ctx) {
     ctx = ctx || {};
-    var total = 0, items = [], missing = [], pending = [], unverified = 0, timed = 0, laneOptions = 0;
+    var total = 0, items = [], missing = [], pending = [], unverified = 0, timed = 0, laneOptions = 0, assumed = 0;
     var dep = ctx.departure || new Date();
     crossings.forEach(function (c) {
       var pt = c.point;
@@ -391,6 +391,7 @@
       } else rate = rateFor(pt, axles, payment);
       if (rate === null || rate === undefined) { missing.push(pt); items.push({ point: pt, rate: null }); return; }
       if (pt.status === "unverified") unverified++;
+      if (pt.assumedAxles && pt.assumedAxles.indexOf(axles) !== -1) assumed++;
       total += rate;
       items.push({ point: pt, rate: rate, when: pt.status === "timed" ? when : null, note: note, laneOption: !!c.laneOption });
       if (c.laneOption) laneOptions++;
@@ -401,6 +402,7 @@
       missing: missing,
       pending: pending,
       unverified: unverified,
+      assumed: assumed,
       timed: timed,
       laneOptions: laneOptions,
     };

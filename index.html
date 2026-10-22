@@ -5,16 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Houston Toll Calculator</title>
   <meta name="description" content="Estimate Houston-area tolls for your trip by vehicle and payment type, and compare with a toll-free route.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="https://js.arcgis.com/4.32/esri/themes/light/main.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+ <div class="page">
+  <header class="topbar"><h1>Houston Toll Calculator</h1></header>
   <div class="app">
     <aside class="panel">
-      <header>
-        <h1>Houston Toll Calculator</h1>
-        <p class="sub">Toll route vs. toll-free route, priced for your vehicle. Search an address or tap the map.</p>
-      </header>
+      <p class="sub">Toll route vs. toll-free route, priced for your vehicle. Search an address or tap the map.</p>
 
       <div id="key-warning" class="notice warn" hidden>
         No ArcGIS API key yet. Add it as the ARCGIS_API_KEY secret on GitHub to turn on the map, address search and routing.
@@ -29,7 +31,17 @@
         <div id="search-to" class="search"></div>
       </section>
 
-      <section class="field row">
+      <fieldset class="pay" id="payment">
+        <legend>How do you pay tolls?</legend>
+        <div class="pay-options">
+          <input type="radio" name="payment" id="pay-eztag" value="eztag"><label for="pay-eztag">EZ TAG</label>
+          <input type="radio" name="payment" id="pay-tag" value="tag"><label for="pay-tag">Other tag<small>TxTag, TollTag</small></label>
+          <input type="radio" name="payment" id="pay-notag" value="notag"><label for="pay-notag">No tag<small>Pay by mail</small></label>
+        </div>
+        <div class="hint" id="pay-hint">Pick one: no-tag tolls can cost much more.</div>
+      </fieldset>
+
+      <section class="field">
         <div>
           <label for="axles">Vehicle</label>
           <select id="axles">
@@ -40,14 +52,6 @@
             <option value="6">6 axles</option>
             <option value="7">7 axles</option>
             <option value="8">8 or more axles</option>
-          </select>
-        </div>
-        <div>
-          <label for="payment">Payment</label>
-          <select id="payment">
-            <option value="eztag">EZ TAG</option>
-            <option value="tag">Other toll tag (TxTag, TollTag)</option>
-            <option value="notag">No tag (pay by mail)</option>
           </select>
         </div>
       </section>
@@ -68,6 +72,8 @@
       <div id="status" class="status" aria-live="polite"></div>
 
       <div id="results" hidden>
+        <div id="headline" class="headline"><p class="big" id="headline-big"></p><p class="small" id="headline-small"></p></div>
+        <p id="tag-savings" class="tag-savings" hidden></p>
         <div class="cards">
           <div class="card toll">
             <div class="card-label"><span class="swatch toll"></span>Toll route</div>
@@ -80,7 +86,6 @@
             <div class="meta" id="free-meta"></div>
           </div>
         </div>
-        <p id="verdict" class="verdict"></p>
         <div id="flags"></div>
         <details id="breakdown-wrap">
           <summary>Toll breakdown</summary>
@@ -98,6 +103,7 @@
     </aside>
     <main id="map" class="map"></main>
   </div>
+ </div>
 
   <script src="config.js"></script>
   <script>

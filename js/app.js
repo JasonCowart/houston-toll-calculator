@@ -17,7 +17,7 @@ require([
   var ROUTE_URL = "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
   var GEOCODE_URL = "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer";
   var HOUSTON = [-95.37, 29.76];
-  var COLORS = { toll: [11, 92, 173], free: [107, 107, 102] };
+  var COLORS = { toll: [102, 45, 145], free: [66, 65, 67], missing: [245, 169, 32] }; // HCTRA purple, gray; yellow-grad-end
 
   var key = (window.TOLL_CONFIG && window.TOLL_CONFIG.arcgisApiKey || "").trim();
   var DEBUG = /[?&]debug=1\b/.test(location.search);
@@ -153,7 +153,12 @@ require([
     return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/Chicago" });
   }
 
-  function updateButton() { $("go").disabled = !(key && stops.from && stops.to && tollPoints.length); }
+  function paymentChoice() { var c = document.querySelector('input[name="payment"]:checked'); return c ? c.value : null; }
+  function updateButton() {
+    $("pay-hint").hidden = !!paymentChoice();
+    $("go").disabled = !(key && stops.from && stops.to && tollPoints.length && paymentChoice());
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="payment"]'), function (r) { r.addEventListener("change", updateButton); });
   function setStatus(msg, isError) { $("status").textContent = msg || ""; $("status").className = "status" + (isError ? " error" : ""); }
 
   function drawStops() {
@@ -294,7 +299,7 @@ require([
       var p = it.point;
       markersLayer.add(new Graphic({
         geometry: { type: "point", longitude: p.lon, latitude: p.lat },
-        symbol: { type: "simple-marker", size: 8, color: it.rate == null ? [227, 181, 74] : COLORS.toll, outline: { color: [255, 255, 255], width: 1.5 } },
+        symbol: { type: "simple-marker", size: 8, color: it.rate == null ? COLORS.missing : COLORS.toll, outline: { color: [255, 255, 255], width: 1.5 } },
         attributes: { name: p.name, road: p.road },
         popupTemplate: { title: "{name}", content: esc(p.road) + (it.rate == null ? " · rate not included" : " · " + fmtMoney(it.rate)) },
       }));
@@ -341,29 +346,51 @@ require([
     document.getElementById("save-trip").addEventListener("click", saveTrip);
   }
 
-  function showResults(tollRoute, freeRoute, priced) {
+  function fmtPerMinute(v) { return v < 1 ? Math.max(1, Math.round(v * 100)) + "¢" : fmtMoney(v); }
+
+  function showResults(tollRoute, freeRoute, priced, savings) {
     var t = routeStats(tollRoute), f = routeStats(freeRoute);
     $("toll-price").textContent = fmtMoney(priced.total) + (priced.pending.length || priced.missing.length ? "+" : "");
     $("toll-meta").textContent = fmtMeta(t);
     $("free-meta").textContent = fmtMeta(f);
 
-    var verdict = "";
-    if (!priced.items.length) verdict = "No toll road helps on this trip, so both routes are toll-free.";
-    else if (priced.laneOptions && priced.laneOptions === priced.items.length)
-      verdict = "The toll route uses the managed lanes on the same freeway for " + fmtMoney(priced.total) + ". Time saved isn't estimated: the lanes are usually faster at rush hour.";
-    else if (t.minutes != null && f.minutes != null) {
+    // Headline: is the toll worth it? Time saved and price, then cost per minute saved.
+    var big = "", small = "", neutral = false;
+    var plus = priced.pending.length || priced.missing.length ? "+" : "";
+    if (!priced.items.length) { big = "No tolls on this trip"; small = "The fastest route is already toll-free."; neutral = true; }
+    else if (priced.laneOptions && priced.laneOptions === priced.items.length) {
+      big = fmtMoney(priced.total) + plus + " for the managed lanes";
+      small = "Time saved isn't estimated: the lanes are usually faster at rush hour.";
+    } else if (t.minutes != null && f.minutes != null) {
       var saved = Math.round(f.minutes - t.minutes);
-      verdict = saved > 0 ? "Paying " + fmtMoney(priced.total) + " in tolls saves about " + saved + " min."
-        : saved < 0 ? "The toll route is about " + (-saved) + " min slower right now. Skip the tolls."
-        : "The toll-free route is about as fast. You can skip the tolls.";
+      if (saved > 0) {
+        big = "Save " + fmtTime(saved) + " for " + fmtMoney(priced.total) + plus;
+        small = "About " + fmtPerMinute(priced.total / saved) + " per minute saved.";
+      } else {
+        neutral = true;
+        big = "Skip the tolls";
+        small = saved < 0 ? "The toll route is about " + fmtTime(-saved) + " slower right now." : "The toll-free route is about as fast right now.";
+      }
     }
-    $("verdict").textContent = verdict;
+    $("headline").className = "headline" + (neutral ? " neutral" : "");
+    $("headline-big").textContent = big;
+    $("headline-small").textContent = small;
+
+    // Without an EZ TAG: what the same trip would cost with one.
+    var ts = $("tag-savings");
+    ts.hidden = true;
+    if (savings && savings.amount >= 0.01) {
+      ts.innerHTML = "With an <strong>EZ TAG</strong>, this trip would cost " + fmtMoney(savings.eztag) + " instead of " + fmtMoney(priced.total) +
+        ", saving <strong>" + fmtMoney(savings.amount) + "</strong>.";
+      ts.hidden = false;
+    }
 
     var flags = [];
     if (priced.pending.length) flags.push("Some time-of-day tolls (Katy Managed Lanes or SH 288 Express Lanes) couldn't be priced, so the total is low.");
     if (priced.laneOptions) flags.push("Your route runs alongside the Katy Managed Lanes or SH 288 Express Lanes. The toll route includes their tolls for that stretch; the toll-free route stays in the regular lanes.");
     if (priced.timed) flags.push("Katy Managed Lanes and SH 288 Express Lanes charge by time of day. These are priced for when you'd reach each gantry, leaving " + (($("leave").value ? "at " : "now, ") + fmtClock(departure)) + ".");
     if (priced.missing.length) flags.push(priced.missing.length + " toll point(s) on this route have no rate for this vehicle in the data, so the total is low.");
+    if (priced.assumed) flags.push(priced.assumed + " Fort Bend County toll point(s) on this route publish rates only up to 6 axles, so they're priced at the 6-axle rate.");
     if (priced.unverified) flags.push(priced.unverified + " toll point(s) on this route haven't been checked against their agency's published rates yet.");
     $("flags").innerHTML = flags.map(function (m) { return '<div class="notice info">' + esc(m) + "</div>"; }).join("");
 
@@ -379,7 +406,7 @@ require([
 
   $("go").addEventListener("click", function () {
     var axles = parseInt($("axles").value, 10);
-    var payment = $("payment").value;
+    var payment = paymentChoice();
     departure = readDeparture();
     $("go").disabled = true;
     $("results").hidden = true;
@@ -409,7 +436,12 @@ require([
       drawRoute(tollRoute, "toll");
       drawCrossings(priced.items);
       view.goTo(tollRoute.geometry.extent.clone().expand(1.25)).catch(function () {});
-      showResults(tollRoute, freeRoute, priced);
+      var savings = null;
+      if (payment !== "eztag" && priced.items.length) {
+        var ez = window.TollCalc.analyzeTrip(Object.assign({}, trip, { payment: "eztag" }), tollPoints).priced;
+        if (!ez.missing.length && !ez.pending.length) savings = { eztag: ez.total, amount: Math.round((priced.total - ez.total) * 100) / 100 };
+      }
+      showResults(tollRoute, freeRoute, priced, savings);
       setStatus("");
     }).catch(function (err) {
       console.error(err);

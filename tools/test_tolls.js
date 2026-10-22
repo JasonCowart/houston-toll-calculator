@@ -320,4 +320,17 @@ test("spots a toll route that skips a mainline plaza on the frontage road", () =
   }
 });
 
+test("finds toll routes that leave a tollway and get back on", () => {
+  const fs = require("fs"), path = require("path"), dir = path.join(__dirname, "..", "tests", "trips");
+  const hopTrip = JSON.parse(fs.readFileSync(path.join(dir, "2026-10-22-0853-bw8-sb-frontage-around-central-plaza.json"), "utf8"));
+  const hops = T.findTollwayHops(hopTrip.toll.steps);
+  assert(hops.length === 2 && hops.every((h) => h.road === "Sam Houston"), "two Sam Houston frontage detours: " + JSON.stringify(hops.map((h) => h.via)));
+  assert(hops[0].barrier[1] > 29.85 && hops[0].barrier[1] < 29.91, "first barrier on the frontage road by Central Plaza");
+  // Connector ramps between toll roads (SH 249 to Sam Houston) and ordinary trips aren't hops.
+  for (const f of fs.readdirSync(dir).filter((f) => f.endsWith(".json") && !/frontage-/.test(f))) {
+    const t = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    assert(T.findTollwayHops(t.toll.steps).length === 0, "no hop expected in " + f);
+  }
+});
+
 console.log(passed + " tests passed");

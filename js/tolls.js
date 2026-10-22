@@ -491,6 +491,66 @@
     });
   }
 
+  // Hops: a toll route that leaves a toll road and gets back on the same road a few miles
+  // later (usually by the frontage road, to dodge traffic or a plaza). Found from the
+  // turn-by-turn text: steps on road R, then up to 8 miles of steps not on R with no merge
+  // onto another highway, then R again. Each hop gets a barrier point at the middle of its
+  // longest off-road step, so a re-route can't use that detour.
+  var HOP_MAX_MILES = 8;
+  function stepRoad(text) {
+    var t = String(text || "").toLowerCase();
+    for (var r in ROAD_ALIASES) if (mentionsRoad(t, r)) return r;
+    return null;
+  }
+  function sameRoad(a, b) {
+    var g = function (r) { return /Sam Houston|Tapia/.test(r) ? "Sam Houston" : /Westpark/.test(r) ? "Westpark" : /Fort Bend/.test(r) ? "Fort Bend" : r; };
+    return a && b && g(a) === g(b);
+  }
+  function midPoint(path) {
+    if (!path || path.length < 2) return null;
+    var total = pathMeters(path), half = total / 2, proj = projector(path[0][1]), at = 0;
+    for (var i = 1; i < path.length; i++) {
+      var a = proj(path[i - 1][0], path[i - 1][1]), b = proj(path[i][0], path[i][1]);
+      var seg = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (at + seg >= half && seg > 0) {
+        var f = (half - at) / seg;
+        return [path[i - 1][0] + (path[i][0] - path[i - 1][0]) * f, path[i - 1][1] + (path[i][1] - path[i - 1][1]) * f];
+      }
+      at += seg;
+    }
+    return path[path.length - 1];
+  }
+  function findTollwayHops(steps) {
+    var hops = [];
+    if (!steps) return hops;
+    var lastRoad = null, offStart = -1;
+    for (var i = 0; i < steps.length; i++) {
+      var r = stepRoad(steps[i].text);
+      if (r) {
+        if (lastRoad && sameRoad(r, lastRoad) && offStart >= 0) {
+          var off = steps.slice(offStart, i), miles = 0, otherHighway = false, best = null;
+          // a real detour drives a road (frontage or street), not just a chain of ramps between toll roads
+          var drivesRoad = off.some(function (s) { return !/Ramp|Fork/.test(s.maneuverType || "") && s.length > 0.1; });
+          off.forEach(function (s, k) {
+            miles += s.length > 0 ? s.length : 0;
+            var t = String(s.text || "").toLowerCase();
+            if (/merge onto/.test(t) && HIGHWAY_TEXT.test(t.replace(FREE_ROAD_NAMES, " ")) && !/the highway/.test(t)) otherHighway = true;
+            // the barrier goes on the longest off-road step, skipping the exit ramp itself when there's more
+            if (s.path && s.path.length > 1 && (k > 0 || off.length === 1) && (!best || s.length > best.length)) best = s;
+          });
+          if (drivesRoad && !otherHighway && miles > 0 && miles <= HOP_MAX_MILES && best) {
+            hops.push({ road: lastRoad, miles: miles, fromStep: offStart, toStep: i, barrier: midPoint(best.path), via: best.text });
+          }
+        }
+        lastRoad = r;
+        offStart = -1;
+      } else if (lastRoad && offStart < 0 && steps[i].maneuverType !== "esriDMTStop") {
+        offStart = i;
+      }
+    }
+    return hops;
+  }
+
   // The stretch of a route that runs beside managed lanes, as a fraction of the route, from
   // the first to the last managed-lane toll point it passes (priced items with laneOption).
   function laneRanges(items, routeMeters) {
@@ -500,7 +560,7 @@
     return [[Math.max(0, Math.min.apply(null, a) - 0.01), Math.min(1, Math.max.apply(null, a) + 0.01)]];
   }
 
-  var api = { bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { findTollwayHops: findTollwayHops, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

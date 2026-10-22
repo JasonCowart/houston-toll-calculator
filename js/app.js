@@ -18,7 +18,7 @@ require([
   var ROUTE_URL = "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
   var GEOCODE_URL = "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer";
   var HOUSTON = [-95.37, 29.76];
-  var COLORS = { toll: [102, 45, 145], free: [66, 65, 67], missing: [245, 169, 32] }; // HCTRA purple, gray; yellow-grad-end
+  var COLORS = { toll: [102, 45, 145], free: [143, 139, 150], missing: [245, 169, 32] }; // HCTRA purple, gray; yellow-grad-end
 
   var key = (window.TOLL_CONFIG && window.TOLL_CONFIG.arcgisApiKey || "").trim();
   var DEBUG = /[?&]debug=1\b/.test(location.search);
@@ -295,7 +295,7 @@ require([
 
   function drawRoute(g, kind) {
     routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "simple-line", color: COLORS[kind],
-      width: kind === "toll" ? 5 : 4, style: kind === "toll" ? "solid" : "short-dash" } }));
+      width: kind === "toll" ? 5 : 3, style: kind === "toll" ? "solid" : "short-dash" } }));
   }
 
   // Short map label for a toll point: "Peek Rd $0.84". Drops words that repeat on every gantry.

@@ -91,7 +91,7 @@ select, input[type="datetime-local"] { width: 100%; padding: 8px; border: 1px so
 .card-label { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; color: var(--gray); }
 .swatch { width: 16px; height: 4px; border-radius: 2px; display: inline-block; }
 .swatch.toll { background: var(--purple); }
-.swatch.free { background: repeating-linear-gradient(90deg, var(--gray) 0 4px, transparent 4px 7px); }
+.swatch.free { height: 3px; background: repeating-linear-gradient(90deg, #8f8b96 0 3px, transparent 3px 5px); }
 .price { font-size: 26px; font-weight: 700; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
 .card.toll .price { color: var(--purple); }
 .meta { color: var(--ink-soft); font-size: 13px; }

@@ -17,25 +17,19 @@ const dir = path.join(__dirname, "..", "tests", "trips");
 const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.endsWith(".json")).sort() : [];
 let failed = 0, passed = 0, unconfirmed = 0;
 
-for (const f of files) {
-  const t = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
-  const trip = {
-    tollPath: t.toll.path, freePath: t.free && t.free.path, steps: t.toll.steps,
-    departure: t.input.departure, routeMinutes: t.toll.minutes,
-    axles: t.input.axles, payment: t.input.payment, carpool: t.input.carpool,
-  };
+
+function check(label, trip, expected) {
   const r = T.analyzeTrip(trip, points).priced;
   const got = r.items.filter((i) => i.rate != null).map((i) => i.point.id);
-  const label = `${f} (${t.input.fromLabel || "?"} -> ${t.input.toLabel || "?"})`;
-  if (!t.expected) {
+  if (!expected) {
     unconfirmed++;
     console.log(`?  ${label}: $${r.total.toFixed(2)} [${got.join(", ")}] (no expected total yet)`);
-    continue;
+    return;
   }
   const problems = [];
-  if (Math.abs(r.total - t.expected.total) > 0.005) problems.push(`total $${r.total.toFixed(2)}, expected $${t.expected.total.toFixed(2)}`);
-  if (t.expected.ids) {
-    const want = new Set(t.expected.ids), have = new Set(got);
+  if (Math.abs(r.total - expected.total) > 0.005) problems.push(`total $${r.total.toFixed(2)}, expected $${expected.total.toFixed(2)}`);
+  if (expected.ids) {
+    const want = new Set(expected.ids), have = new Set(got);
     const missing = [...want].filter((i) => !have.has(i)), extra = [...have].filter((i) => !want.has(i));
     if (missing.length) problems.push("missing " + missing.join(", "));
     if (extra.length) problems.push("extra " + extra.join(", "));
@@ -43,5 +37,22 @@ for (const f of files) {
   if (problems.length) { failed++; console.log(`FAIL ${label}: ${problems.join("; ")}`); }
   else { passed++; console.log(`ok   ${label}: $${r.total.toFixed(2)}`); }
 }
-console.log(`${passed} saved trips passed, ${failed} failed, ${unconfirmed} unconfirmed (${files.length} files)`);
+
+for (const f of files) {
+  const t = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+  const trip = {
+    tollPath: t.toll.path, freePath: t.free && t.free.path, steps: t.toll.steps,
+    departure: t.input.departure, routeMinutes: t.toll.minutes,
+    axles: t.input.axles, payment: t.input.payment, carpool: t.input.carpool,
+  };
+  check(`${f} (${t.input.fromLabel || "?"} -> ${t.input.toLabel || "?"})`, trip, t.expected);
+  // Variants: the same route priced with other settings (axles, payment, departure, carpool).
+  // Each expected total is worked out by hand from the owner's published rate table.
+  for (const v of t.variants || []) {
+    const vt = Object.assign({}, trip);
+    ["axles", "payment", "departure", "carpool"].forEach((k) => { if (v[k] !== undefined) vt[k] = v[k]; });
+    check(`  ${f} [${v.label}]`, vt, v.expected);
+  }
+}
+console.log(`${passed} checks passed, ${failed} failed, ${unconfirmed} unconfirmed (${files.length} saved trips)`);
 process.exit(failed ? 1 : 0);

@@ -393,13 +393,13 @@
       if (pt.status === "timed") {
         var r = timedRate(pt, axles, payment, when, ctx);
         if (r) { rate = r.rate; note = r.note; timed++; }
-        else { pending.push(pt); items.push({ point: pt, rate: null }); return; }
+        else { pending.push(pt); items.push({ point: pt, rate: null, along: c.along }); return; }
       } else rate = rateFor(pt, axles, payment);
-      if (rate === null || rate === undefined) { missing.push(pt); items.push({ point: pt, rate: null }); return; }
+      if (rate === null || rate === undefined) { missing.push(pt); items.push({ point: pt, rate: null, along: c.along }); return; }
       if (pt.status === "unverified") unverified++;
       if (pt.assumedAxles && pt.assumedAxles.indexOf(axles) !== -1) assumed++;
       total += rate;
-      items.push({ point: pt, rate: rate, when: pt.status === "timed" ? when : null, note: note, laneOption: !!c.laneOption });
+      items.push({ point: pt, rate: rate, when: pt.status === "timed" ? when : null, note: note, laneOption: !!c.laneOption, along: c.along });
       if (c.laneOption) laneOptions++;
     });
     return {

@@ -314,6 +314,62 @@ require([
   }
 
   function paymentChoice() { var c = document.querySelector('input[name="payment"]:checked'); return c ? c.value : null; }
+  // My vehicles: save the vehicle, tag and carpool setting under a name and pick it again
+  // in one tap (handy for trucks). Kept in this browser only.
+  var PAY_NAMES = { eztag: "EZ TAG", tag: "Other tag", notag: "No tag" };
+  var vehicles = loadList("vehicles");
+  function vehicleSummary(v) {
+    return v.axles + " axles \u00b7 " + PAY_NAMES[v.payment] + (v.carpool ? " \u00b7 carpool" : "");
+  }
+  function fillVehicles() {
+    var html = '<option value="">My vehicles\u2026</option>' + vehicles.map(function (v, i) {
+      return '<option value="v' + i + '">' + esc(v.name) + " (" + esc(vehicleSummary(v)) + ")</option>";
+    }).join("");
+    if (vehicles.length) html += '<option value="manage">Edit my vehicles\u2026</option>';
+    $("vehicles").innerHTML = html;
+    $("save-vehicle").disabled = !paymentChoice();
+  }
+  $("vehicles").addEventListener("change", function () {
+    var v = this.value;
+    this.value = "";
+    if (v === "manage") { renderVehicleDialog(); var d = $("vehicles-dialog"); if (d.showModal) d.showModal(); else d.setAttribute("open", ""); return; }
+    var p = vehicles[+v.slice(1)];
+    if (!p) return;
+    $("axles").value = String(p.axles);
+    var r = $("pay-" + p.payment); if (r) r.checked = true;
+    $("carpool").checked = !!p.carpool;
+    updateButton();
+    repriceShown();
+    if (!lastTrip || $("results").hidden) setStatus("Using \u201c" + p.name + "\u201d: " + vehicleSummary(p) + ".");
+  });
+  $("save-vehicle").addEventListener("click", function () {
+    var payment = paymentChoice();
+    if (!payment) return;
+    var axles = parseInt($("axles").value, 10), carpool = $("carpool").checked;
+    var name = window.prompt("Name this vehicle (for example, My truck or Work van):", axles > 2 ? axles + "-axle truck" : "My car");
+    if (!name || !name.trim()) return;
+    var v = { name: name.trim(), axles: axles, payment: payment, carpool: carpool };
+    vehicles = [v].concat(vehicles.filter(function (x) { return x.name.toLowerCase() !== v.name.toLowerCase(); }));
+    saveList("vehicles", vehicles);
+    fillVehicles();
+    setStatus("Saved \u201c" + v.name + "\u201d (" + vehicleSummary(v) + ") to My vehicles on this device.");
+  });
+  function renderVehicleDialog() {
+    $("vehicle-list").innerHTML = vehicles.length ? vehicles.map(function (v, i) {
+      return '<li><span>' + esc(v.name) + ' <small class="hint">' + esc(vehicleSummary(v)) + '</small></span><button type="button" class="btn-outline small" data-i="' + i + '">Remove</button></li>';
+    }).join("") : '<li class="empty">No saved vehicles. Set the vehicle and tag, then tap \u201cSave vehicle\u201d.</li>';
+  }
+  $("vehicle-list").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-i]");
+    if (!b) return;
+    vehicles.splice(+b.getAttribute("data-i"), 1);
+    saveList("vehicles", vehicles);
+    fillVehicles();
+    renderVehicleDialog();
+  });
+  $("vehicles-done").addEventListener("click", function () { var d = $("vehicles-dialog"); if (d.close) d.close(); else d.removeAttribute("open"); });
+  fillVehicles();
+
   // Step cards get a check mark once they have what they need.
   function updateSteps() {
     $("step-trip").classList.toggle("done", !!(stops.from && stops.to));
@@ -351,6 +407,7 @@ require([
 
   function updateButton() {
     updateSteps();
+    $("save-vehicle").disabled = !paymentChoice();
     ["from", "to"].forEach(function (w) { $("save-" + w).disabled = !stops[w]; });
     $("pay-hint").hidden = !!paymentChoice();
     $("go").disabled = !(key && stops.from && stops.to && tollPoints.length && paymentChoice());
@@ -731,6 +788,52 @@ require([
     if (row && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); highlightItem(+row.getAttribute("data-i"), row); }
   });
 
+  // Trip chart: each route as a straight line from S to E, like a subway map, with a dot
+  // and price at each toll point placed by distance along the route. Tap a dot to find it
+  // on the map. Price labels take the first free row (above, below, higher up); when all are
+  // taken the dot stays unlabeled and its price shows on tap.
+  function drawTripChart(t, f, priced, routeMeters) {
+    var box = $("trip-chart");
+    if (t.minutes == null || f.minutes == null) { box.innerHTML = ""; box.hidden = true; return; }
+    var W = 340, X0 = 18, X1 = W - 18, yT = 62, yF = 128;
+    function ends(y) {
+      return '<circle cx="' + X0 + '" cy="' + y + '" r="7" class="tc-s"/><text x="' + X0 + '" y="' + (y + 3) + '" class="tc-l">S</text>' +
+        '<circle cx="' + X1 + '" cy="' + y + '" r="7" class="tc-e"/><text x="' + X1 + '" y="' + (y + 3) + '" class="tc-l">E</text>';
+    }
+    var svg = '<svg viewBox="0 0 ' + W + ' 146" role="img" aria-label="Trip chart: toll route ' + esc(fmtTime(t.minutes)) + ", " + fmtMoney(priced.total) + "; toll-free route " + esc(fmtTime(f.minutes)) + '">';
+    svg += '<text x="' + X0 + '" y="14" class="tc-h">Toll route \u00b7 ' + esc(fmtTime(t.minutes)) + " \u00b7 " + fmtMoney(priced.total) + "</text>";
+    svg += '<line x1="' + X0 + '" y1="' + yT + '" x2="' + X1 + '" y2="' + yT + '" class="tc-toll-edge"/>';
+    svg += '<line x1="' + X0 + '" y1="' + yT + '" x2="' + X1 + '" y2="' + yT + '" class="tc-toll"/>';
+    var tiers = [yT - 12, yT + 22, yT - 27], lastX = [-99, -99, -99], GAP = 36, dots = "";
+    priced.items.forEach(function (it, i) {
+      var frac = routeMeters && it.along != null ? Math.min(1, Math.max(0, it.along / routeMeters)) : (i + 1) / (priced.items.length + 1);
+      var x = X0 + 14 + (X1 - X0 - 28) * frac;
+      var label = it.rate == null ? "n/a" : fmtMoney(it.rate);
+      var tier = -1;
+      for (var k = 0; k < tiers.length; k++) if (x - lastX[k] >= GAP) { tier = k; lastX[k] = x; break; }
+      dots += '<g class="tc-dot" tabindex="0" role="button" data-i="' + i + '" aria-label="' + esc(it.point.name + ", " + label) + '">' +
+        "<title>" + esc(it.point.name + " \u00b7 " + label) + "</title>" +
+        '<circle cx="' + x.toFixed(1) + '" cy="' + yT + '" r="12" class="tc-hit"/>' +
+        '<circle cx="' + x.toFixed(1) + '" cy="' + yT + '" r="5.5" class="' + (it.rate == null ? "tc-pt missing" : "tc-pt") + '"/>' +
+        (tier >= 0 ? '<text x="' + x.toFixed(1) + '" y="' + tiers[tier] + '" class="tc-p">' + label + "</text>" : "") + "</g>";
+    });
+    svg += ends(yT) + dots;
+    svg += '<text x="' + X0 + '" y="' + (yF - 16) + '" class="tc-h">Toll-free \u00b7 ' + esc(fmtTime(f.minutes)) + " \u00b7 $0.00</text>";
+    svg += '<line x1="' + X0 + '" y1="' + yF + '" x2="' + X1 + '" y2="' + yF + '" class="tc-free"/>' + ends(yF);
+    svg += "</svg>";
+    box.innerHTML = svg;
+    box.hidden = false;
+  }
+  function chartPick(e) {
+    var g = e.target.closest && e.target.closest(".tc-dot");
+    if (!g) return;
+    var i = +g.getAttribute("data-i");
+    var row = document.querySelector('#breakdown tr[data-i="' + i + '"]');
+    highlightItem(i, row);
+  }
+  $("trip-chart").addEventListener("click", chartPick);
+  $("trip-chart").addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); chartPick(e); } });
+
   function showResults(tollRoute, freeRoute, priced, savings) {
     var t = routeStats(tollRoute), f = routeStats(freeRoute);
     $("toll-price").textContent = fmtMoney(priced.total) + (priced.pending.length || priced.missing.length ? "+" : "");
@@ -792,6 +895,7 @@ require([
         "</td><td>" + esc(p.road) + '</td><td class="num">' + (it.rate == null ? "n/a" : fmtMoney(it.rate)) + "</td></tr>";
     }).join("") || '<tr><td colspan="3">No toll points crossed.</td></tr>';
     $("breakdown-wrap").hidden = !priced.items.length;
+    drawTripChart(t, f, priced, lastTrip ? window.TollCalc.pathMeters(lastTrip.trip.tollPath) : null);
     shownItems = priced.items;
     clearHighlight();
     $("results").hidden = false;

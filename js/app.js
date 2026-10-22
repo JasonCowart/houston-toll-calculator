@@ -503,20 +503,20 @@ require([
     clearHighlight();
     row.classList.add("selected");
     var pt = new Point({ longitude: it.point.lon, latitude: it.point.lat });
-    // A steady ring stays on the point. A second ring ripples out from it and fades to
-    // nothing before it restarts, so there's no visible jump between pulses.
-    var ripple = new Graphic({ geometry: pt, symbol: { type: "simple-marker", size: 26, color: [0, 0, 0, 0], outline: { color: VIOLET.concat(0), width: 2.5 } } });
-    var steady = new Graphic({ geometry: pt, symbol: { type: "simple-marker", size: 26, color: VIOLET.concat(0.15), outline: { color: VIOLET.concat(1), width: 3 } } });
-    highlightLayer.addMany([ripple, steady]);
-    var PULSE = 1100, PULSES = 3, start = null;
+    // One ring, fill and outline together, breathing out and back in on a smooth curve.
+    // Each pulse ends exactly where it started, so there's no snap between pulses.
+    function ring(s) { // s: 0 = resting, 1 = fully out
+      return { type: "simple-marker", size: 26 + 16 * s, color: VIOLET.concat(0.15 * (1 - 0.6 * s)),
+        outline: { color: VIOLET.concat(1 - 0.55 * s), width: 3 } };
+    }
+    var g = new Graphic({ geometry: pt, symbol: ring(0) });
+    highlightLayer.add(g);
+    var PULSE = 1200, PULSES = 3, start = null;
     function frame(ts) {
       if (start == null) start = ts;
       var elapsed = ts - start;
-      if (elapsed >= PULSE * PULSES) { highlightLayer.remove(ripple); pulseFrame = null; return; }
-      var t = (elapsed % PULSE) / PULSE;
-      var ease = 1 - Math.pow(1 - t, 3); // ease-out: fast at first, settling as it fades
-      ripple.symbol = { type: "simple-marker", size: 26 + 26 * ease, color: [0, 0, 0, 0],
-        outline: { color: VIOLET.concat(0.85 * (1 - ease)), width: 2.5 } };
+      if (elapsed >= PULSE * PULSES) { g.symbol = ring(0); pulseFrame = null; return; }
+      g.symbol = ring((1 - Math.cos(2 * Math.PI * (elapsed % PULSE) / PULSE)) / 2);
       pulseFrame = requestAnimationFrame(frame);
     }
     pulseFrame = requestAnimationFrame(frame);

@@ -230,3 +230,5 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .tc-traffic { stroke-width: 5.5; stroke-linecap: butt; }
 .tc-traffic-free { stroke-width: 3; stroke-dasharray: 4 3; }
 .tc-k { font-size: 10px; fill: var(--ink-soft); font-weight: 600; }
+.tc-lanes { stroke: var(--purple); stroke-width: 1.5; stroke-dasharray: 2 2; }
+.tc-mid { text-anchor: middle; }

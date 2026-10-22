@@ -292,4 +292,17 @@ test("traffic levels from step speeds: freeways only, frontage roads skipped", (
   assert(Math.abs(segs[5].to - 1) < 1e-9 && segs[0].from === 0, "fractions run 0 to 1");
 });
 
+test("no traffic colors where the route runs beside managed lanes", () => {
+  const steps = [
+    { text: "Keep left to merge onto I-10 E", time: 4, length: 2 },   // 30 mph, before the lanes
+    { text: "Keep left to merge onto I-10 E", time: 12, length: 6 },  // 30 mph, beside the lanes
+    { text: "Keep left to merge onto I-10 E", time: 4, length: 2 },   // 30 mph, after
+  ];
+  const skip = T.laneRanges([{ laneOption: true, along: 3500 }, { laneOption: true, along: 6500 }, { laneOption: false, along: 9000 }], 10000);
+  const segs = T.trafficSegments(steps, skip);
+  assert(segs[0].level === "slow" && segs[2].level === "slow", "outside the lanes still colored");
+  assert(segs[1].level === null && segs[1].skipped, "beside the lanes not colored");
+  assert(T.laneRanges([], 1000).length === 0, "no lanes, no range");
+});
+
 console.log(passed + " tests passed");

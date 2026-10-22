@@ -450,7 +450,9 @@
     if (mph == null || !isFinite(mph)) return null;
     return mph < 25 ? "heavy" : mph < 40 ? "slow" : mph < 55 ? "moderate" : null;
   }
-  function trafficSegments(steps) {
+  // skip: [[from, to], ...] fractions of the route where the traffic shown would be wrong
+  // (managed lanes Esri can't route on: the step times are the regular lanes').
+  function trafficSegments(steps, skip) {
     if (!steps || !steps.length) return [];
     var total = 0;
     steps.forEach(function (s) { total += s.length > 0 ? s.length : 0; });
@@ -461,14 +463,25 @@
       var text = String(s.text || "").toLowerCase();
       var highway = HIGHWAY_TEXT.test(text) && !NOT_HIGHWAY.test(text);
       var mph = s.time > 0 ? len / (s.time / 60) : null;
-      out.push({ from: total ? at / total : 0, to: total ? (at + len) / total : 0, miles: len, mph: mph,
-        highway: highway, level: highway && len >= 0.15 ? trafficLevel(mph) : null, path: s.path || null });
+      var from = total ? at / total : 0, to = total ? (at + len) / total : 0;
+      var skipped = (skip || []).some(function (r) { return from < r[1] && to > r[0]; });
+      out.push({ from: from, to: to, miles: len, mph: mph, highway: highway, skipped: skipped,
+        level: highway && !skipped && len >= 0.15 ? trafficLevel(mph) : null, path: s.path || null });
       at += len;
     });
     return out;
   }
 
-  var api = { trafficSegments: trafficSegments, trafficLevel: trafficLevel, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  // The stretch of a route that runs beside managed lanes, as a fraction of the route, from
+  // the first to the last managed-lane toll point it passes (priced items with laneOption).
+  function laneRanges(items, routeMeters) {
+    var a = (items || []).filter(function (it) { return it.laneOption && it.along != null && routeMeters; })
+      .map(function (it) { return it.along / routeMeters; });
+    if (!a.length) return [];
+    return [[Math.max(0, Math.min.apply(null, a) - 0.01), Math.min(1, Math.max.apply(null, a) + 0.01)]];
+  }
+
+  var api = { laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

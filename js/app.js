@@ -588,8 +588,8 @@ require([
   var TRAFFIC = { moderate: [246, 180, 0], slow: [245, 124, 0], heavy: [217, 48, 37] };
   var TRAFFIC_HEX = { moderate: "#f6b400", slow: "#f57c00", heavy: "#d93025" };
   var freeTraffic = [];
-  function trafficGraphics(g, kind) {
-    return window.TollCalc.trafficSegments(g.steps).filter(function (sg) { return sg.level && sg.path && sg.path.length > 1; })
+  function trafficGraphics(g, kind, skip) {
+    return window.TollCalc.trafficSegments(g.steps, skip).filter(function (sg) { return sg.level && sg.path && sg.path.length > 1; })
       .map(function (sg) {
         var geom = { type: "polyline", paths: [sg.path], spatialReference: { wkid: 4326 } };
         return new Graphic({ geometry: geom, symbol: kind === "toll"
@@ -603,13 +603,18 @@ require([
       // A wider light blue line underneath gives the blue route its light edge.
       routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "simple-line", color: COLORS.routeEdge, width: 8, cap: "round", join: "round" } }));
       routesLayer.add(new Graphic({ geometry: g.geometry, symbol: { type: "simple-line", color: COLORS.route, width: 5, cap: "round", join: "round" } }));
-      routesLayer.addMany(trafficGraphics(g, "toll"));
+      // traffic colors are added after pricing (drawTollTraffic), once the managed-lane stretch is known
     } else {
       routesLayer.add(freeGraphic = new Graphic({ geometry: g.geometry, symbol: freeSymbol() }));
       freeTraffic = trafficGraphics(g, "free");
       routesLayer.addMany(freeTraffic);
       setFreeVisible($("show-free").checked);
     }
+  }
+  // Toll route traffic colors, leaving out the stretch beside managed lanes: Esri can't route
+  // on those lanes, so the times there are the regular lanes' and would mislead.
+  function drawTollTraffic(g, priced, routeMeters) {
+    routesLayer.addMany(trafficGraphics(g, "toll", window.TollCalc.laneRanges(priced.items, routeMeters)));
   }
   function setFreeVisible(on) {
     if (freeGraphic) freeGraphic.visible = on;
@@ -867,7 +872,8 @@ require([
     svg += '<text x="' + X0 + '" y="14" class="tc-h">Toll route \u00b7 ' + esc(fmtTime(t.minutes)) + " \u00b7 " + fmtMoney(priced.total) + "</text>";
     svg += '<line x1="' + X0 + '" y1="' + yT + '" x2="' + X1 + '" y2="' + yT + '" class="tc-toll-edge"/>';
     svg += '<line x1="' + X0 + '" y1="' + yT + '" x2="' + X1 + '" y2="' + yT + '" class="tc-toll"/>';
-    var tSegs = lastTrip ? window.TollCalc.trafficSegments(lastTrip.tollRoute.steps) : [];
+    var laneSkip = window.TollCalc.laneRanges(priced.items, routeMeters);
+    var tSegs = lastTrip ? window.TollCalc.trafficSegments(lastTrip.tollRoute.steps, laneSkip) : [];
     var fSegs = lastTrip ? window.TollCalc.trafficSegments(lastTrip.freeRoute.steps) : [];
     function trafficLines(segs, y, cls) {
       return segs.filter(function (sg) { return sg.level; }).map(function (sg) {
@@ -876,6 +882,12 @@ require([
       }).join("");
     }
     svg += trafficLines(tSegs, yT, "tc-traffic");
+    // Beside managed lanes: say why there's no traffic color there.
+    laneSkip.forEach(function (r) {
+      var a = X0 + (X1 - X0) * r[0], b = X0 + (X1 - X0) * r[1];
+      svg += '<line x1="' + a.toFixed(1) + '" y1="' + (yT + 9) + '" x2="' + b.toFixed(1) + '" y2="' + (yT + 9) + '" class="tc-lanes"/>' +
+        '<text x="' + ((a + b) / 2).toFixed(1) + '" y="' + (yT + 35) + '" class="tc-k tc-mid">Managed lanes \u00b7 traffic not shown</text>';
+    });
     var tiers = [yT - 12, yT + 22, yT - 27], lastX = [-99, -99, -99], GAP = 36, dots = "";
     priced.items.forEach(function (it, i) {
       var frac = routeMeters && it.along != null ? Math.min(1, Math.max(0, it.along / routeMeters)) : (i + 1) / (priced.items.length + 1);
@@ -1061,6 +1073,7 @@ require([
       drawRoute(tollRoute, "toll");
       view.goTo(tollRoute.geometry.extent.clone().expand(1.25)).catch(function () {});
       priceTrip(trip, tollRoute, freeRoute);
+      drawTollTraffic(tollRoute, lastTrip.priced, window.TollCalc.pathMeters(path));
       setStatus("");
     }).catch(function (err) {
       console.error(err);

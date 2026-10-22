@@ -806,14 +806,29 @@ require([
     if (!lastTrip || $("results").hidden) return;
     var payment = paymentChoice();
     if (!payment) return;
-    var trip = Object.assign({}, lastTrip.trip, { payment: payment, carpool: $("carpool").checked });
-    if (trip.payment === lastTrip.trip.payment && trip.carpool === lastTrip.trip.carpool) return;
+    var axles = parseInt($("axles").value, 10);
+    var trip = Object.assign({}, lastTrip.trip, { payment: payment, carpool: $("carpool").checked, axles: axles });
+    if (trip.payment === lastTrip.trip.payment && trip.carpool === lastTrip.trip.carpool && trip.axles === lastTrip.trip.axles) return;
+    var routedAxles = lastTrip.routedAxles || lastTrip.trip.axles;
     priceTrip(trip, lastTrip.tollRoute, lastTrip.freeRoute);
+    lastTrip.routedAxles = routedAxles;
     var names = { eztag: "EZ TAG", tag: "another toll tag", notag: "no tag" };
-    setStatus("Repriced for " + names[payment] + (trip.carpool ? ", carpool" : "") + " on the same route.");
+    var what = names[payment] + ", " + axles + " axles" + (trip.carpool ? ", carpool" : "");
+    // Cars and trucks are routed differently (truck routing avoids truck-restricted roads),
+    // so crossing between them offers a fresh route; within one class the route is the same.
+    var truck = function (a) { return a > 2; };
+    if (truck(axles) !== truck(routedAxles)) {
+      var st = $("status");
+      st.className = "status notice info";
+      st.innerHTML = "Repriced for " + esc(what) + " on the " + (truck(routedAxles) ? "truck" : "car") + " route. " +
+        (truck(axles) ? "Trucks can be routed differently. " : "Cars can take a different route. ") +
+        '<button type="button" class="btn-outline small" id="reroute">Find the ' + (truck(axles) ? "truck" : "car") + " route</button>";
+      $("reroute").addEventListener("click", function () { $("go").click(); });
+    } else setStatus("Repriced for " + what + " on the same route.");
   }
   Array.prototype.forEach.call(document.querySelectorAll('input[name="payment"]'), function (r) { r.addEventListener("change", repriceShown); });
   $("carpool").addEventListener("change", repriceShown);
+  $("axles").addEventListener("change", repriceShown);
 
   $("go").addEventListener("click", function () {
     var axles = parseInt($("axles").value, 10);

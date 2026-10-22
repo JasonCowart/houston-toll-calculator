@@ -204,3 +204,5 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .btn-outline:disabled { border-color: var(--border); color: var(--ink-faint); background: var(--white); cursor: default; }
 .dialog-actions { margin-top: 16px; display: flex; justify-content: flex-end; }
 .dialog-actions .go { padding: 9px 22px; }
+.panel > * { flex-shrink: 0; } /* nothing in the side panel gets squeezed; the panel scrolls instead */
+.status .btn-outline { margin-top: 6px; }

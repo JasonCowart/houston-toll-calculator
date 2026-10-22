@@ -69,7 +69,7 @@ def hctra_rows(url):
     """HCTRA's rates page is an app: pick each toll road and direction in its menus and
     read the table rows ("Road | Direction | Location | Type | $ ... $")."""
     from playwright.sync_api import sync_playwright
-    rows = []
+    rows, first, debug = [], 0, {}
     with sync_playwright() as pw:
         browser = pw.chromium.launch(channel="chrome")
         try:
@@ -94,6 +94,11 @@ def hctra_rows(url):
                     if cells and any(MONEY.search(c) for c in cells):
                         rows.append(" | ".join([road, direction] + cells))
 
+            read("(as loaded)", "")
+            first = len(rows)
+            debug = {"selects": [[o.strip() for o in sel.locator("option").all_inner_texts()][:12]
+                                 for sel in page.locator("select").all()],
+                     "tables": page.locator("table").count(), "rowsAsLoaded": first}
             roads = [o.strip() for o in selects()["road"].locator("option").all_inner_texts()]
             for road in roads:
                 if not road or road.lower().startswith("select"):
@@ -110,9 +115,9 @@ def hctra_rows(url):
                     read(road, d)
         finally:
             browser.close()
-    if not rows:
-        raise RuntimeError("HCTRA rates page showed no rate rows")
-    return sorted(set(rows))
+    if len(rows) <= first:
+        raise RuntimeError("HCTRA menus gave no rate rows: " + json.dumps(debug)[:900])
+    return sorted(set(r for r in rows if not r.startswith("(as loaded)")))
 
 
 def page_text(raw):
@@ -184,7 +189,7 @@ def main(snap_path, report_path):
                 fp = fingerprint(src, raw)
         except Exception as e:  # noqa: BLE001
             fails = prev.get("failures", 0) + 1
-            prev.update({"failures": fails, "lastError": f"{type(e).__name__}: {e}"[:300]})
+            prev.update({"failures": fails, "lastError": f"{type(e).__name__}: {e}"[:1200]})
             snap["sources"][src["id"]] = prev
             print(f"{src['id']}: can't read ({fails} in a row): {e}")
             if fails == 2:

@@ -185,13 +185,17 @@ require([
   view.on("click", function (e) {
     if (!key) return;
     if (picking || !tollLayer) return mapTap(e);
-    view.hitTest(e, { include: [tollLayer] }).then(function (res) {
-      var hit = res.results && res.results[0] && res.results[0].graphic;
-      if (hit && hit.attributes && hit.attributes.idx != null) {
-        var i = hit.attributes.idx;
-        highlightItem(i, document.querySelector('#breakdown tr[data-i="' + i + '"]'), true);
-      } else mapTap(e);
-    }).catch(function () { mapTap(e); });
+    // Find the nearest toll point on screen within a finger-sized radius, instead of
+    // Esri's hit test, which only counts taps right on the small dot.
+    var TAP_PX = 24, best = null, bestD = TAP_PX;
+    shownItems.forEach(function (it, i) {
+      var sp = view.toScreen(new Point({ longitude: it.point.lon, latitude: it.point.lat }));
+      if (!sp) return;
+      var d = Math.hypot(sp.x - e.x, sp.y - e.y);
+      if (d <= bestD) { bestD = d; best = i; }
+    });
+    if (best == null) return mapTap(e);
+    highlightItem(best, document.querySelector('#breakdown tr[data-i="' + best + '"]'), true);
   });
   function mapTap(e) {
     if (!picking && highlightLayer.graphics.length) { clearHighlight(); return; } // tap the map to clear the ring

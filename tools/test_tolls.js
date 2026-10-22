@@ -263,4 +263,13 @@ twins.forEach((a) => twins.forEach((b) => {
   minGap = Math.min(minGap, Math.hypot(dx, dy));
 }));
 console.log("closest opposite-direction plaza pair: " + minGap.toFixed(0) + " m");
+
+test("Beltway 8 frontage roads don't count as the Sam Houston Tollway", () => {
+  assert(!T.mentionsRoad("turn right onto n sam houston pkwy w", "Sam Houston"), "frontage name matched");
+  assert(!T.mentionsRoad("continue on sam houston parkway", "Sam Houston"), "frontage name matched");
+  assert(!T.mentionsRoad("turn left onto tomball pkwy", "Tomball Tollway"), "Tomball Pkwy matched");
+  assert(T.mentionsRoad("keep right at the fork to merge onto sam houston tollway n", "Sam Houston"), "tollway not matched");
+  assert(T.mentionsRoad("take the exit on the right to tx-8 beltway n / sam houston tollway", "Sam Houston"), "tollway not matched");
+});
+
 console.log(passed + " tests passed");

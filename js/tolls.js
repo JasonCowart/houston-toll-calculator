@@ -32,10 +32,16 @@
     "Brazoria County Expressway": ["288", "brazoria"],
     "Katy Managed Lanes": ["katy managed", "managed lanes"],
   };
+  // Free roads whose names contain a toll road's name: the Beltway 8 frontage roads
+  // ("N Sam Houston Pkwy W"), SH 249's free lanes ("Tomball Pkwy") and Westpark Dr.
+  // They're removed before matching, so a turn onto a frontage road doesn't count as
+  // entering the toll road (a West Rd entrance ramp was charged that way, Oct 22, 2026).
+  var FREE_ROAD_NAMES = /\b[nsew]?\s*sam houston (pkwy|parkway)\b( [nsew]\b)?|\btomball (pkwy|parkway)\b|\bwestpark (dr|drive)\b/g;
   function mentionsRoad(text, road) {
     var a = ROAD_ALIASES[road];
     if (!a || !text) return false;
-    return a.some(function (n) { return text.indexOf(n) !== -1; });
+    var t = text.replace(FREE_ROAD_NAMES, " ");
+    return a.some(function (n) { return t.indexOf(n) !== -1; });
   }
   var RAMP_FALLBACK_METERS = 8;    // ramp gantries without directions: must be right on the route
   // Ramps curve, so a ramp gantry's road direction (e.g. "West" for the SH 249 to

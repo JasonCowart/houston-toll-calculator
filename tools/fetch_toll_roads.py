@@ -12,14 +12,19 @@ UA = {"User-Agent": "houston-toll-calculator (GitHub Actions)"}
 
 def get(url, extra=None):
     req = urllib.request.Request(url, headers={**UA, **(extra or {})})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return r.headers, r.read()
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return r.headers, r.read()
+    except Exception as e:  # surface the reason as a GitHub annotation
+        detail = getattr(e, "read", lambda: b"")()[:300]
+        print(f"::error::{type(e).__name__}: {e} for {url[:120]} {detail!r}")
+        raise
 
 out = sys.argv[1]
 
 # Why the browser couldn't load it: print the cross-origin header HCTRA sends back.
 h, body = get(LAYER + "?f=json", {"Origin": "https://jasoncowart.github.io"})
-print("Access-Control-Allow-Origin:", h.get("Access-Control-Allow-Origin"))
+print("::notice::Access-Control-Allow-Origin: %s" % h.get("Access-Control-Allow-Origin"))
 info = json.loads(body)
 print("Layer:", info.get("name"), "| fields:", [f["name"] for f in info.get("fields", [])])
 print("Renderer:", json.dumps(info.get("drawingInfo", {}).get("renderer"))[:1500])
@@ -45,4 +50,4 @@ while True:
 json.dump({"type": "FeatureCollection",
            "source": LAYER, "renderer": info.get("drawingInfo", {}).get("renderer"),
            "features": features}, open(out, "w"), separators=(",", ":"))
-print(len(features), "toll road features written to", out)
+print("::notice::%d toll road features written" % len(features))

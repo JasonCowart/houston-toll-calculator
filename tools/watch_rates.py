@@ -21,7 +21,7 @@ import urllib.request
 from datetime import datetime, timezone
 
 SOURCES = [
-    {"id": "hctra", "name": "HCTRA toll rates", "url": "https://www.hctra.org/TollRates", "kind": "page", "render": True,
+    {"id": "hctra", "name": "HCTRA toll rates", "url": "https://www.hctra.org/TollRates", "kind": "hctra",
      "covers": "Sam Houston, Hardy, Westpark, Tomball, Fort Bend Westpark plazas run by HCTRA, MCTRA SH 249"},
     {"id": "hctra-katy", "name": "HCTRA Katy Managed Lanes schedule (PDF)", "kind": "file",
      "url": "https://www.hctra.org/Content/hctra3rdPartyPages/katymanagedlanes/media/Katy_Toll_Sched.pdf",
@@ -65,23 +65,54 @@ def fetch(url):
     raise last
 
 
-def render(url):
-    """Load the page in Chrome (on GitHub's runners) for pages built by scripts, and wait
-    until dollar amounts show up on it."""
+def hctra_rows(url):
+    """HCTRA's rates page is an app: pick each toll road and direction in its menus and
+    read the table rows ("Road | Direction | Location | Type | $ ... $")."""
     from playwright.sync_api import sync_playwright
+    rows = []
     with sync_playwright() as pw:
         browser = pw.chromium.launch(channel="chrome")
         try:
             page = browser.new_page(user_agent=UA)
-            page.goto(url, wait_until="domcontentloaded", timeout=60000)
-            try:
-                page.wait_for_function("/\\$\\s?\\d+\\.\\d\\d/.test(document.body.innerText)", timeout=45000)
-                page.wait_for_timeout(3000)  # let the rest of the tables fill in
-            except Exception:  # noqa: BLE001 - no amounts: the empty-page clues will show why
-                pass
-            return page.content().encode("utf-8")
+            page.goto(url, wait_until="load", timeout=90000)
+            page.wait_for_selector("table tr td", timeout=60000)
+
+            def selects():
+                found = {}
+                for sel in page.locator("select").all():
+                    labels = [o.strip() for o in sel.locator("option").all_inner_texts()]
+                    if any("Sam Houston" in o for o in labels):
+                        found["road"] = sel
+                    elif any("Clockwise" in o or "bound" in o for o in labels):
+                        found["dir"] = sel
+                return found
+
+            def read(road, direction):
+                page.wait_for_timeout(1500)
+                for tr in page.locator("table tr").all():
+                    cells = [c.strip() for c in tr.locator("td").all_inner_texts()]
+                    if cells and any(MONEY.search(c) for c in cells):
+                        rows.append(" | ".join([road, direction] + cells))
+
+            roads = [o.strip() for o in selects()["road"].locator("option").all_inner_texts()]
+            for road in roads:
+                if not road or road.lower().startswith("select"):
+                    continue
+                selects()["road"].select_option(label=road)
+                page.wait_for_timeout(1500)
+                s = selects()
+                dirs = [o.strip() for o in s["dir"].locator("option").all_inner_texts()] if "dir" in s else [""]
+                for d in dirs:
+                    if d.lower().startswith("select"):
+                        continue
+                    if d:
+                        selects()["dir"].select_option(label=d)
+                    read(road, d)
         finally:
             browser.close()
+    if not rows:
+        raise RuntimeError("HCTRA rates page showed no rate rows")
+    return sorted(set(rows))
 
 
 def page_text(raw):
@@ -113,7 +144,7 @@ def fingerprint(src, raw):
 
 def describe(old, new):
     out = []
-    for key in ("effective", "files", "links"):
+    for key in ("effective", "files", "links", "rows"):
         a, b = set(old.get(key, [])), set(new.get(key, []))
         for x in sorted(b - a):
             out.append(f"- New {key[:-1] if key != 'effective' else 'effective date'}: `{x}`")
@@ -145,8 +176,12 @@ def main(snap_path, report_path):
     for src in SOURCES:
         prev = snap["sources"].get(src["id"], {})
         try:
-            raw = render(src["url"]) if src.get("render") else fetch(src["url"])
-            fp = fingerprint(src, raw)
+            if src["kind"] == "hctra":
+                raw = b""
+                fp = {"rows": hctra_rows(src["url"])}
+            else:
+                raw = fetch(src["url"])
+                fp = fingerprint(src, raw)
         except Exception as e:  # noqa: BLE001
             fails = prev.get("failures", 0) + 1
             prev.update({"failures": fails, "lastError": f"{type(e).__name__}: {e}"[:300]})
@@ -155,7 +190,7 @@ def main(snap_path, report_path):
             if fails == 2:
                 broken.append((src, prev["lastError"]))
             continue
-        empty = not any(fp.get(k) for k in ("amounts", "effective", "files", "links", "sha256"))
+        empty = not any(fp.get(k) for k in ("amounts", "effective", "files", "links", "sha256", "rows"))
         if "fingerprint" not in prev:
             baseline.append(src["id"])
         elif fp != prev["fingerprint"]:

@@ -489,15 +489,13 @@ require([
 
   // Breakdown rows: tap one to scroll to the map and ring that toll point. The map pans
   // only if the point is off screen, and keeps its zoom.
-  var shownItems = [], pulseTimer = null;
+  var shownItems = [], pulseFrame = null;
   function clearHighlight() {
-    if (pulseTimer) { clearInterval(pulseTimer); pulseTimer = null; }
+    if (pulseFrame) { cancelAnimationFrame(pulseFrame); pulseFrame = null; }
     highlightLayer.removeAll();
     Array.prototype.forEach.call(document.querySelectorAll("#breakdown tr.selected"), function (r) { r.classList.remove("selected"); });
   }
-  function ring(size, alpha) {
-    return { type: "simple-marker", size: size, color: [140, 92, 255, alpha * 0.18], outline: { color: [140, 92, 255, alpha], width: 3 } };
-  }
+  var VIOLET = [140, 92, 255]; // violet-screen: the brand's on-screen highlight colour
   function highlightItem(i, row) {
     var it = shownItems[i];
     if (!it) return;
@@ -505,15 +503,23 @@ require([
     clearHighlight();
     row.classList.add("selected");
     var pt = new Point({ longitude: it.point.lon, latitude: it.point.lat });
-    var g = new Graphic({ geometry: pt, symbol: ring(26, 1) });
-    highlightLayer.add(g);
-    var step = 0; // three pulses, then a steady ring
-    pulseTimer = setInterval(function () {
-      step++;
-      var t = (step % 10) / 10;
-      g.symbol = ring(26 + 18 * t, 1 - 0.7 * t);
-      if (step >= 30) { clearInterval(pulseTimer); pulseTimer = null; g.symbol = ring(26, 1); }
-    }, 50);
+    // A steady ring stays on the point. A second ring ripples out from it and fades to
+    // nothing before it restarts, so there's no visible jump between pulses.
+    var ripple = new Graphic({ geometry: pt, symbol: { type: "simple-marker", size: 26, color: [0, 0, 0, 0], outline: { color: VIOLET.concat(0), width: 2.5 } } });
+    var steady = new Graphic({ geometry: pt, symbol: { type: "simple-marker", size: 26, color: VIOLET.concat(0.15), outline: { color: VIOLET.concat(1), width: 3 } } });
+    highlightLayer.addMany([ripple, steady]);
+    var PULSE = 1100, PULSES = 3, start = null;
+    function frame(ts) {
+      if (start == null) start = ts;
+      var elapsed = ts - start;
+      if (elapsed >= PULSE * PULSES) { highlightLayer.remove(ripple); pulseFrame = null; return; }
+      var t = (elapsed % PULSE) / PULSE;
+      var ease = 1 - Math.pow(1 - t, 3); // ease-out: fast at first, settling as it fades
+      ripple.symbol = { type: "simple-marker", size: 26 + 26 * ease, color: [0, 0, 0, 0],
+        outline: { color: VIOLET.concat(0.85 * (1 - ease)), width: 2.5 } };
+      pulseFrame = requestAnimationFrame(frame);
+    }
+    pulseFrame = requestAnimationFrame(frame);
     if (view.extent && !view.extent.clone().expand(0.9).contains(pt)) view.goTo({ center: pt }).catch(function () {});
     $("map").scrollIntoView({ behavior: "smooth", block: "center" });
   }

@@ -206,3 +206,4 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .dialog-actions .go { padding: 9px 22px; }
 .panel > * { flex-shrink: 0; } /* nothing in the side panel gets squeezed; the panel scrolls instead */
 .status .btn-outline { margin-top: 6px; }
+.rates-asof { margin: 0; font-size: 12px; color: var(--ink-soft); }

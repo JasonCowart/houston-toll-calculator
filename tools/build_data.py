@@ -119,6 +119,9 @@ meta = {
     "source": "HCTRA toll location layer (ExternalOnlineMap MapServer layer 4), exported Oct 20, 2026",
     "rateCheck": "HCTRA-owned rates checked against hctra.org/TollRates on Oct 20, 2026",
     "fields": "ez2/tag2 = 2-axle EZ TAG / other tag; tag = 3..8 axles with a tag; notag = 2..8 axles pay-by-mail",
+    # Last day the rates were checked against the agencies' published tables. Shown on the
+    # site as "Rates as of". Update it whenever rates are re-checked.
+    "ratesAsOf": "2026-10-22",
 }
 json.dump({"meta": meta, "points": pts}, open(out, "w"), separators=(",", ":"))
 print(len(pts), "points written")

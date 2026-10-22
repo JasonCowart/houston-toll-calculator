@@ -240,12 +240,23 @@ require([
 
   fetch("data/toll-points.json")
     .then(function (r) { return r.json(); })
-    .then(function (d) { tollPoints = d.points; updateButton(); })
+    .then(function (d) { tollPoints = d.points; ratesAsOf = d.meta && d.meta.ratesAsOf; showRatesAsOf(); updateButton(); })
     .catch(function () { setStatus("Couldn't load the toll data.", true); });
   fetch("data/sh288-rates.json")
     .then(function (r) { return r.json(); })
-    .then(function (d) { window.TollCalc.setSchedules({ sh288: d }); })
+    .then(function (d) { window.TollCalc.setSchedules({ sh288: d }); sh288Effective = d.effective; showRatesAsOf(); })
     .catch(function () { /* SH 288 tolls will show as not included */ });
+
+  // "Rates as of": when the rates were last checked against the agencies' tables.
+  var ratesAsOf = null, sh288Effective = null;
+  function showRatesAsOf() {
+    var el = $("rates-asof");
+    if (!ratesAsOf) return;
+    var d = new Date(ratesAsOf + "T12:00:00");
+    el.textContent = "Rates as of " + d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) +
+      (sh288Effective ? " \u00b7 SH 288 time-of-day rates effective " + sh288Effective : "") + ".";
+    el.hidden = false;
+  }
 
   // Departure time: blank = now. The datetime-local value is read as the device's local time.
   var departure = new Date();

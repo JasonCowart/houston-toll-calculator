@@ -175,3 +175,8 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .step .field, .step .pay { margin: 0; }
 .show-free { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; font-weight: 600; color: var(--gray); cursor: pointer; }
 .show-free input { margin: 0; width: 15px; height: 15px; accent-color: var(--purple); }
+.btn-outline { display: inline-flex; align-items: center; gap: 5px; border: 1.5px solid var(--purple); background: var(--white); color: var(--purple);
+  font: inherit; font-size: 12px; font-weight: 700; line-height: 1; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+.btn-outline span { font-size: 14px; line-height: 1; }
+.btn-outline:hover { background: var(--purple); color: var(--white); }
+.btn-outline:active { background: var(--purple-hover); border-color: var(--purple-hover); color: var(--white); }

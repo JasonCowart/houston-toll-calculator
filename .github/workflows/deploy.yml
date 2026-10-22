@@ -36,7 +36,29 @@ jobs:
       - name: Replay saved real trips
         run: node tools/test_trips.js
 
+      # Lock switch: while a file named SITE_OFFLINE is in the repo, only a short
+      # "not available" page is published. No app, no data, no API key.
+      - name: Check lock switch
+        id: lock
+        run: |
+          if [ -f SITE_OFFLINE ]; then
+            echo "offline=true" >> "$GITHUB_OUTPUT"
+            mkdir -p _offline
+            cat > _offline/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+          <meta name="robots" content="noindex"><title>Not available</title>
+          <style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f7f6f8;color:#1c1b1d;font:16px/1.5 Montserrat,Arial,sans-serif}
+          main{max-width:420px;padding:24px;text-align:center}h1{font-size:20px;color:#662d91;margin:0 0 8px}</style></head>
+          <body><main><h1>This page isn't available</h1><p>It is not open to the public right now.</p></main></body></html>
+          HTML
+            cp _offline/index.html _offline/404.html
+          else
+            echo "offline=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Insert API key into config.js
+        if: steps.lock.outputs.offline != 'true'
         env:
           ARCGIS_API_KEY: ${{ secrets.ARCGIS_API_KEY }}
         run: |
@@ -46,6 +68,7 @@ jobs:
           KEY="$ARCGIS_API_KEY" node -e 'require("fs").writeFileSync("config.js", "window.TOLL_CONFIG = " + JSON.stringify({ arcgisApiKey: process.env.KEY.trim() }) + ";\n")'
 
       - name: Cache-bust scripts and styles
+        if: steps.lock.outputs.offline != 'true'
         run: |
           V="${GITHUB_SHA::7}"
           sed -i -E "s#(src|href)=\"(config\.js|js/[a-z]+\.js|css/[a-z]+\.css)\"#\1=\"\2?v=$V\"#g" index.html
@@ -55,7 +78,7 @@ jobs:
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: ${{ steps.lock.outputs.offline == 'true' && '_offline' || '.' }}
 
       - id: deployment
         uses: actions/deploy-pages@v4

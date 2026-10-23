@@ -1,0 +1,29 @@
+# One-off check: which TomTom addresses accept the TOMTOM_API_KEY secret.
+# Saves status codes and TomTom's error text only (no key, no traffic data).
+# Run from Actions > Probe TomTom key > Run workflow.
+name: Probe TomTom key
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [tools/probe_tomtom.py, .github/workflows/probe-tomtom.yml]
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Try the addresses
+        env:
+          TOMTOM_API_KEY: ${{ secrets.TOMTOM_API_KEY }}
+        run: python3 tools/probe_tomtom.py
+      - name: Save the result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/tomtom-probe.json
+          git diff --cached --quiet && exit 0
+          git commit -m "TomTom key probe result"
+          git pull --rebase -X theirs -q origin main
+          git push

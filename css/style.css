@@ -56,7 +56,8 @@ select, input[type="datetime-local"] { width: 100%; padding: 8px; border: 1px so
 .check input { margin: 0; width: 18px; height: 18px; flex: none; accent-color: var(--purple); }
 .check .hint { margin-left: 24px; }
 input[type="datetime-local"] { -webkit-appearance: none; appearance: none; min-width: 0; display: block; }
-.search .esri-search { width: 100%; }
+/* Esri gives the search box a fixed 240 px; the class sits on our container itself */
+.search.esri-search, .search .esri-search { width: 100%; max-width: none; }
 
 /* Payment: a required choice, shown as three buttons */
 .pay { border: 0; margin: 0; padding: 0; }
@@ -129,6 +130,28 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
   .panel { width: 100%; border-right: 0; border-bottom: 1px solid var(--border); padding: 14px 16px 20px; overflow: visible; }
   .map { flex: none; height: 60vh; }
   .fine { order: 99; }
+
+  /* Phones: one column with the map right after the trip chart, before the breakdown and fine print.
+     The panel and results unwrap (display: contents) so the map can sit between their parts. */
+  .panel { display: contents; }
+  #results:not([hidden]) { display: contents; }
+  .panel > *, #results > * { margin-left: 16px; margin-right: 16px; }
+  .panel > .sub { margin-top: 14px; }
+  .app { gap: 12px; background: var(--white); }
+  #results > * { margin-top: 0; margin-bottom: 0; }
+  .map { order: 1; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  #flags, #breakdown-wrap, #rates-asof { order: 2; }
+  #flags:empty { display: none; }
+  .fine { order: 3; margin-top: 2px; padding-bottom: 24px; }
+
+  /* Toll breakdown as two-line rows: toll point and price, then the road in gray */
+  .breakdown thead { display: none; }
+  .breakdown tr { display: grid; grid-template-columns: 1fr auto; column-gap: 12px; border-bottom: 1px solid var(--border-soft); }
+  .breakdown td { border-bottom: 0; padding: 0; }
+  .breakdown td.bd-name { grid-column: 1; grid-row: 1; padding-top: 9px; font-size: 14px; }
+  .breakdown td.num { grid-column: 2; grid-row: 1; padding-top: 9px; font-size: 14px; font-weight: 600; }
+  .breakdown td.bd-road { grid-column: 1 / span 2; grid-row: 2; padding: 1px 0 9px; color: var(--ink-soft); font-size: 12px; }
+  .breakdown td[colspan] { grid-column: 1 / span 2; padding: 9px 0; }
 }
 .debug { font-size: 12px; border-top: 1px dashed var(--border); padding-top: 8px; }
 .debug h3 { font-size: 14px; margin: 0 0 4px; }

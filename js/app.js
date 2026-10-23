@@ -659,7 +659,9 @@ require([
       .replace(/\s*(Tolled\s+)?(Entrance|Exit)\s+Ramp\b/gi, " ramp")
       .replace(/Katy Managed Lanes/i, "Katy ML").replace(/\((East|West|North|South)bound\)/i, function (m, d) { return d[0] + "B"; })
       .replace(/\s{2,}/g, " ").trim() || n;
-    return s.length > 30 ? s.slice(0, 28).trim() + "…" : s;
+    // "Hwy 249 - Hollister Rd - Bammell N Houston Rd - Antoine Dr": the first name is enough on the map
+    if (s.length > 18 && / - /.test(s)) s = s.split(" - ")[0].trim();
+    return s.length > 24 ? s.slice(0, 22).trim() + "…" : s;
   }
 
   // Toll points as a client-side feature layer, so the map can label each one and
@@ -1034,8 +1036,8 @@ require([
     $("breakdown").innerHTML = priced.items.map(function (it) {
       var p = it.point;
       var when = it.when ? ' <span class="tag-unverified">(' + fmtClock(it.when) + (it.note ? ", " + esc(it.note) : "") + ")</span>" : "";
-      return '<tr class="pickable" tabindex="0" data-i="' + priced.items.indexOf(it) + '" title="Show on map"><td>' + esc(p.name) + (p.status === "unverified" ? ' <span class="tag-unverified">(unverified)</span>' : "") + when +
-        "</td><td>" + esc(p.road) + '</td><td class="num">' + (it.rate == null ? "n/a" : fmtMoney(it.rate)) + "</td></tr>";
+      return '<tr class="pickable" tabindex="0" data-i="' + priced.items.indexOf(it) + '" title="Show on map"><td class="bd-name">' + esc(p.name) + (p.status === "unverified" ? ' <span class="tag-unverified">(unverified)</span>' : "") + when +
+        '</td><td class="bd-road">' + esc(p.road) + '</td><td class="num">' + (it.rate == null ? "n/a" : fmtMoney(it.rate)) + "</td></tr>";
     }).join("") || '<tr><td colspan="3">No toll points crossed.</td></tr>';
     $("breakdown-wrap").hidden = !priced.items.length;
     drawTripChart(t, f, priced, lastTrip ? window.TollCalc.pathMeters(lastTrip.trip.tollPath) : null);

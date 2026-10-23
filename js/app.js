@@ -16,8 +16,10 @@ require([
   "esri/rest/locator",
   "esri/geometry/Point",
   "esri/layers/WebTileLayer",
-], function (esriConfig, Map, Basemap, MapView, Search, GraphicsLayer, FeatureLayer, GeoJSONLayer, Graphic, route, RouteParameters, FeatureSet, networkService, locator, Point, WebTileLayer) {
+  "esri/intl",
+], function (esriConfig, Map, Basemap, MapView, Search, GraphicsLayer, FeatureLayer, GeoJSONLayer, Graphic, route, RouteParameters, FeatureSet, networkService, locator, Point, WebTileLayer, intl) {
   "use strict";
+  var L = window.I18N.t;   // translate (English text in, Spanish out when Spanish is on)
 
   var ROUTE_URL = "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
   var GEOCODE_URL = "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer";
@@ -60,7 +62,7 @@ require([
 
   function makeSearch(container, which) {
     var s = new Search({ view: view, container: container, popupEnabled: false, resultGraphicEnabled: false,
-      locationEnabled: which === "from", allPlaceholder: which === "from" ? "Starting address" : "Destination" });
+      locationEnabled: which === "from", allPlaceholder: which === "from" ? L("Starting address") : L("Destination") });
     s.on("select-result", function (e) {
       stops[which] = e.result && e.result.feature ? e.result.feature.geometry : null;
       if (stops[which]) remember(e.result.name, stops[which]);
@@ -106,17 +108,17 @@ require([
   function fillPlaces() {
     ["from", "to"].forEach(function (w) {
       var sel = $("places-" + w);
-      var html = '<option value="">Choose a place…</option>';
+      var html = '<option value="">' + L("Choose a place…") + "</option>";
       function group(title, list, prefix) {
         if (!list.length) return;
         html += '<optgroup label="' + esc(title) + '">' + list.map(function (p, i) {
           return '<option value="' + prefix + i + '">' + esc(p.label) + "</option>";
         }).join("") + "</optgroup>";
       }
-      group("My places", saved, "s");
-      group("Recent", recent, "r");
-      group("Common places", COMMON.map(function (c) { return { label: c[0] }; }), "c");
-      if (saved.length || recent.length) html += '<optgroup label="Manage"><option value="manage">Edit my places and recent\u2026</option></optgroup>';
+      group(L("My places"), saved, "s");
+      group(L("Recent"), recent, "r");
+      group(L("Common places"), COMMON.map(function (c) { return { label: c[0] }; }), "c");
+      if (saved.length || recent.length) html += '<optgroup label="' + L("Manage") + '"><option value="manage">' + L("Edit my places and recent…") + "</option></optgroup>";
       sel.innerHTML = html;
       $("save-" + w).disabled = !stops[w];
     });
@@ -125,9 +127,9 @@ require([
   function renderPlacesDialog() {
     var list = $("saved-list");
     list.innerHTML = saved.length ? saved.map(function (p, i) {
-      return '<li><span>' + esc(p.label) + '</span><button type="button" class="btn-outline small" data-i="' + i + '">Remove</button></li>';
-    }).join("") : '<li class="empty">No saved places. Use \u201cSave place\u201d under From or To to add one.</li>';
-    $("recent-count").textContent = recent.length ? recent.length + " recent place" + (recent.length === 1 ? "" : "s") : "No recent places";
+      return '<li><span>' + esc(p.label) + '</span><button type="button" class="btn-outline small" data-i="' + i + '">' + L("Remove") + "</button></li>";
+    }).join("") : '<li class="empty">' + L("No saved places. Use “Save place” under From or To to add one.") + "</li>";
+    $("recent-count").textContent = recent.length ? L(recent.length === 1 ? "{n} recent place" : "{n} recent places", { n: recent.length }) : L("No recent places");
     $("clear-recent").disabled = !recent.length;
   }
   function openPlacesDialog() {
@@ -174,17 +176,40 @@ require([
     $("save-" + w).addEventListener("click", function () {
       if (!stops[w]) return;
       var current = searchesTerm(w) || "";
-      var name = window.prompt("Name this place (for example, Home or Work):", /^Dropped pin/.test(current) ? "" : current);
+      var name = window.prompt(L("Name this place (for example, Home or Work):"), /^Dropped pin/.test(current) ? "" : current);
       if (!name || !name.trim()) return;
       var p = { label: name.trim(), lon: +stops[w].longitude.toFixed(6), lat: +stops[w].latitude.toFixed(6) };
       saved = saved.filter(function (s) { return s.label.toLowerCase() !== p.label.toLowerCase() && !samePlace(s, p); });
       saved.unshift(p);
       saveList("saved", saved);
       fillPlaces();
-      setStatus("Saved \u201c" + p.label + "\u201d to My places on this device.");
+      setStatus(L("Saved “{name}” to My places on this device.", { name: p.label }));
     });
   });
   fillPlaces();
+
+  // English / Español: fixed page text swaps in place (lang.js); what the app builds is redrawn.
+  function setEsriLocale() { try { if (intl && intl.setLocale) intl.setLocale(window.I18N.lang === "es" ? "es" : "en"); } catch (e) { /* keep */ } }
+  setEsriLocale();
+  window.I18N.apply();
+  $("lang-toggle").addEventListener("click", function () { window.I18N.setLang(window.I18N.lang === "es" ? "en" : "es"); });
+  window.I18N.onChange(function () {
+    setEsriLocale();
+    fillPlaces();
+    if (typeof fillVehicles === "function") fillVehicles();
+    ["from", "to"].forEach(function (w) { if (searches[w]) searches[w].allPlaceholder = L(w === "from" ? "Starting address" : "Destination"); });
+    if (typeof setPicking === "function") setPicking(picking);
+    showRatesAsOf();
+    var bmEl = document.querySelector(".basemap-switch:not(.tt-switch)");
+    if (bmEl) Array.prototype.forEach.call(bmEl.querySelectorAll("button"), function (b) {
+      var m = BASEMAPS.filter(function (x) { return x[0] === b.getAttribute("data-id"); })[0]; if (m) b.textContent = L(m[1]);
+    });
+    card.setAttribute("aria-label", L("Toll point details"));
+    hideCard();
+    setStatus("");
+    $("best-time-out").innerHTML = "";
+    if (lastTrip) showResults(lastTrip.tollRoute, lastTrip.freeRoute, lastTrip.priced, lastTrip.savings);
+  });
 
   // Dropping pins: tap "Pick on map" next to a box, then tap the map. If a box is
   // empty, tapping the map fills it (From first). The box shows the nearest address.
@@ -194,10 +219,10 @@ require([
     ["from", "to"].forEach(function (w) {
       var b = $("pick-" + w);
       b.classList.toggle("active", picking === w);
-      b.textContent = picking === w ? "Tap the map…" : "Pick on map";
+      b.textContent = picking === w ? L("Tap the map…") : L("Pick on map");
     });
     if (picking) {
-      setStatus("Tap the map to set the " + (picking === "from" ? "start." : "destination."));
+      setStatus(L(picking === "from" ? "Tap the map to set the start." : "Tap the map to set the destination."));
       if (window.innerWidth <= 760) $("map").scrollIntoView({ behavior: "smooth", block: "center" });
     } else setStatus("");
   }
@@ -212,7 +237,7 @@ require([
     drawStops();
     updateButton();
     var label = mapPoint.latitude.toFixed(5) + ", " + mapPoint.longitude.toFixed(5);
-    if (searches[which]) searches[which].searchTerm = "Dropped pin (" + label + ")";
+    if (searches[which]) searches[which].searchTerm = L("Dropped pin ({label})", { label: label });
     locator.locationToAddress(GEOCODE_URL, { location: mapPoint }).then(function (c) {
       if (stops[which] === mapPoint && c && c.address && searches[which]) { searches[which].searchTerm = c.address; remember(c.address, mapPoint); }
     }).catch(function () { /* keep the coordinates */ });
@@ -253,7 +278,7 @@ require([
   fetch("data/toll-points.json")
     .then(function (r) { return r.json(); })
     .then(function (d) { tollPoints = d.points; ratesAsOf = d.meta && d.meta.ratesAsOf; showRatesAsOf(); updateButton(); if (shared) applyShared(); })
-    .catch(function () { setStatus("Couldn't load the toll data.", true); });
+    .catch(function () { setStatus(L("Couldn't load the toll data."), true); });
   fetch("data/sh288-rates.json")
     .then(function (r) { return r.json(); })
     .then(function (d) { window.TollCalc.setSchedules({ sh288: d }); sh288Effective = d.effective; showRatesAsOf(); })
@@ -265,8 +290,8 @@ require([
     var el = $("rates-asof");
     if (!ratesAsOf) return;
     var d = new Date(ratesAsOf + "T12:00:00");
-    el.textContent = "Rates as of " + d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) +
-      (sh288Effective ? " \u00b7 SH 288 time-of-day rates effective " + sh288Effective : "") + ".";
+    el.textContent = L("Rates as of {date}", { date: d.toLocaleDateString(window.I18N.locale(), { month: "short", day: "numeric", year: "numeric" }) }) +
+      (sh288Effective ? L(" · SH 288 time-of-day rates effective {date}", { date: sh288Effective }) : "") + ".";
     el.hidden = false;
   }
 
@@ -328,7 +353,7 @@ require([
     return isNaN(d) ? new Date() : d;
   }
   function fmtClock(d) {
-    return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/Chicago" });
+    return d.toLocaleTimeString(window.I18N.locale(), { hour: "numeric", minute: "2-digit", timeZone: "America/Chicago" });
   }
 
   function paymentChoice() { var c = document.querySelector('input[name="payment"]:checked'); return c ? c.value : null; }
@@ -337,13 +362,13 @@ require([
   var PAY_NAMES = { eztag: "EZ TAG", tag: "Other tag", notag: "No tag" };
   var vehicles = loadList("vehicles");
   function vehicleSummary(v) {
-    return v.axles + " axles \u00b7 " + PAY_NAMES[v.payment] + (v.carpool ? " \u00b7 carpool" : "");
+    return L("{n} axles", { n: v.axles }) + " · " + L(PAY_NAMES[v.payment]) + (v.carpool ? " · " + L("carpool") : "");
   }
   function fillVehicles() {
-    var html = '<option value="">My vehicles\u2026</option>' + vehicles.map(function (v, i) {
+    var html = '<option value="">' + L("My vehicles…") + "</option>" + vehicles.map(function (v, i) {
       return '<option value="v' + i + '">' + esc(v.name) + " (" + esc(vehicleSummary(v)) + ")</option>";
     }).join("");
-    if (vehicles.length) html += '<option value="manage">Edit my vehicles\u2026</option>';
+    if (vehicles.length) html += '<option value="manage">' + L("Edit my vehicles…") + "</option>";
     $("vehicles").innerHTML = html;
     $("save-vehicle").disabled = !paymentChoice();
     syncVehicleSelect();
@@ -370,25 +395,25 @@ require([
     $("carpool").checked = !!p.carpool;
     updateButton();
     repriceShown();
-    if (!lastTrip || $("results").hidden) setStatus("Using \u201c" + p.name + "\u201d: " + vehicleSummary(p) + ".");
+    if (!lastTrip || $("results").hidden) setStatus(L("Using “{name}”.", { name: p.name }) + " " + vehicleSummary(p) + ".");
   });
   $("save-vehicle").addEventListener("click", function () {
     var payment = paymentChoice();
     if (!payment) return;
     var axles = parseInt($("axles").value, 10), carpool = $("carpool").checked;
-    var name = window.prompt("Name this vehicle (for example, My truck or Work van):", axles > 2 ? axles + "-axle truck" : "My car");
+    var name = window.prompt(L("Name this vehicle (for example, My truck or Work van):"), axles > 2 ? L("{n}-axle truck", { n: axles }) : L("My car"));
     if (!name || !name.trim()) return;
     var v = { name: name.trim(), axles: axles, payment: payment, carpool: carpool };
     vehicles = [v].concat(vehicles.filter(function (x) { return x.name.toLowerCase() !== v.name.toLowerCase(); }));
     saveList("vehicles", vehicles);
     activeVehicle = 0;
     fillVehicles();
-    setStatus("Saved \u201c" + v.name + "\u201d (" + vehicleSummary(v) + ") to My vehicles on this device.");
+    setStatus(L("Saved “{name}” ({summary}) to My vehicles on this device.", { name: v.name, summary: vehicleSummary(v) }));
   });
   function renderVehicleDialog() {
     $("vehicle-list").innerHTML = vehicles.length ? vehicles.map(function (v, i) {
-      return '<li><span>' + esc(v.name) + ' <small class="hint">' + esc(vehicleSummary(v)) + '</small></span><button type="button" class="btn-outline small" data-i="' + i + '">Remove</button></li>';
-    }).join("") : '<li class="empty">No saved vehicles. Set the vehicle and tag, then tap \u201cSave vehicle\u201d.</li>';
+      return '<li><span>' + esc(v.name) + ' <small class="hint">' + esc(vehicleSummary(v)) + '</small></span><button type="button" class="btn-outline small" data-i="' + i + '">' + L("Remove") + "</button></li>";
+    }).join("") : '<li class="empty">' + L("No saved vehicles. Set the vehicle and tag, then tap “Save vehicle”.") + "</li>";
   }
   $("vehicle-list").addEventListener("click", function (e) {
     var b = e.target.closest("button[data-i]");
@@ -613,7 +638,7 @@ require([
   function fmtTime(min) {
     if (min == null) return "";
     var h = Math.floor(min / 60), m = Math.round(min % 60);
-    return h ? h + " hr " + m + " min" : m + " min";
+    return h ? h + (window.I18N.lang === "es" ? " h " : " hr ") + m + " min" : m + " min";
   }
   function fmtMeta(s) { return [fmtTime(s.minutes), s.miles ? s.miles.toFixed(1) + " mi" : ""].filter(Boolean).join(" · "); }
   function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -805,7 +830,7 @@ require([
         geometry: { type: "point", longitude: p.lon, latitude: p.lat },
         attributes: { oid: i + 1, idx: i, name: p.name, road: p.road, priced: it.rate == null ? 0 : 1,
           label: shortName(p.name) + " " + (it.rate == null ? "n/a" : fmtMoney(it.rate)),
-          detail: esc(p.road) + (it.rate == null ? " · rate not included" : " · " + fmtMoney(it.rate)) },
+          detail: esc(p.road) + (it.rate == null ? " · " + L("rate not included") : " · " + fmtMoney(it.rate)) },
       });
     });
     var marker = function (color) { return { type: "simple-marker", size: 9, color: color, outline: { color: [255, 255, 255], width: 1.5 } }; };
@@ -940,7 +965,7 @@ require([
   card.className = "map-card";
   card.hidden = true;
   card.setAttribute("role", "dialog");
-  card.setAttribute("aria-label", "Toll point details");
+  card.setAttribute("aria-label", L("Toll point details"));
   view.ui.add(card, "manual");
   card.addEventListener("click", function (e) { if (e.target.closest(".map-card-close")) clearHighlight(); });
 
@@ -953,21 +978,21 @@ require([
     var opts = { carpool: t.carpool };
     var rates = PAY.map(function (pay) {
       var r = window.TollCalc.rateFor(p, axles, pay[0], when || new Date(t.departure), opts);
-      return '<div class="pay-cell' + (pay[0] === chosen ? " chosen" : "") + '"><span>' + pay[1] + "</span><strong>" +
+      return '<div class="pay-cell' + (pay[0] === chosen ? " chosen" : "") + '"><span>' + L(pay[1]) + "</span><strong>" +
         (r == null ? "n/a" : fmtMoney(r)) + "</strong></div>";
     }).join("");
-    var status = p.status === "verified" ? "Rate checked against " + esc(p.owner) + "\u2019s published schedule."
-      : p.status === "timed" ? "Priced by time of day" + (when ? " for about " + fmtClock(when) : "") + (it.note ? " (" + esc(it.note) + ")" : "") + "."
-      : "This rate hasn\u2019t been checked against " + esc(p.owner) + "\u2019s published schedule yet.";
-    if (p.assumedAxles && p.assumedAxles.indexOf(axles) !== -1) status += " Fort Bend publishes rates up to 6 axles; 7+ axles are priced at the 6-axle rate.";
-    var chips = [KIND[p.kind], DIRS[p.dir]].filter(Boolean).map(function (c) { return '<span class="chip">' + c + "</span>"; }).join("");
+    var status = p.status === "verified" ? L("Rate checked against {owner}’s published schedule.", { owner: esc(p.owner) })
+      : p.status === "timed" ? L("Priced by time of day") + (when ? L(" for about {time}", { time: fmtClock(when) }) : "") + (it.note ? " (" + esc(it.note) + ")" : "") + "."
+      : L("This rate hasn’t been checked against {owner}’s published schedule yet.", { owner: esc(p.owner) });
+    if (p.assumedAxles && p.assumedAxles.indexOf(axles) !== -1) status += L(" Fort Bend publishes rates up to 6 axles; 7+ axles are priced at the 6-axle rate.");
+    var chips = [KIND[p.kind], DIRS[p.dir]].filter(Boolean).map(function (c) { return L(c); }).map(function (c) { return '<span class="chip">' + c + "</span>"; }).join("");
     card.innerHTML =
       '<button type="button" class="map-card-close" aria-label="Close">\u2715</button>' +
       '<div class="map-card-road">' + esc(p.road) + "</div>" +
       '<h3 class="map-card-title">' + esc(p.name) + "</h3>" +
       '<div class="chips">' + chips + "</div>" +
-      '<div class="map-card-toll"><span>Your toll</span><strong>' + (it.rate == null ? "Not included" : fmtMoney(it.rate)) + "</strong>" +
-        "<em>" + axles + " axles</em></div>" +
+      '<div class="map-card-toll"><span>' + L("Your toll") + "</span><strong>" + (it.rate == null ? L("Not included") : fmtMoney(it.rate)) + "</strong>" +
+        "<em>" + L("{n} axles", { n: axles }) + "</em></div>" +
       '<div class="pay-grid">' + rates + "</div>" +
       '<p class="map-card-note">' + status + "</p>" +
       '<p class="map-card-agency">' + esc(AGENCY[p.owner] || p.owner) + "</p>";
@@ -1024,8 +1049,8 @@ require([
     var bm = document.createElement("div");
     bm.className = "basemap-switch";
     bm.setAttribute("role", "group");
-    bm.setAttribute("aria-label", "Base map");
-    bm.innerHTML = BASEMAPS.map(function (b) { return '<button type="button" data-id="' + b[0] + '">' + b[1] + "</button>"; }).join("");
+    bm.setAttribute("aria-label", L("Base map"));
+    bm.innerHTML = BASEMAPS.map(function (b) { return '<button type="button" data-id="' + b[0] + '">' + L(b[1]) + "</button>"; }).join("");
     view.ui.add(bm, "top-right");
     var setBasemap = function (id) {
       if (!BASEMAPS.some(function (b) { return b[0] === id; })) id = BASEMAPS[0][0];
@@ -1088,8 +1113,9 @@ require([
       return '<circle cx="' + X0 + '" cy="' + y + '" r="7" class="tc-s"/><text x="' + X0 + '" y="' + (y + 3) + '" class="tc-l">S</text>' +
         '<circle cx="' + X1 + '" cy="' + y + '" r="7" class="tc-e"/><text x="' + X1 + '" y="' + (y + 3) + '" class="tc-l">E</text>';
     }
-    var svg = '<svg viewBox="0 0 ' + W + ' 146" role="img" aria-label="Trip chart: toll route ' + esc(fmtTime(t.minutes)) + ", " + fmtMoney(priced.total) + "; toll-free route " + esc(fmtTime(f.minutes)) + '">';
-    svg += '<text x="' + X0 + '" y="14" class="tc-h">Toll route \u00b7 ' + esc(fmtTime(t.minutes)) + " \u00b7 " + fmtMoney(priced.total) + "</text>";
+    var tr = window.I18N.t;
+    var svg = '<svg viewBox="0 0 ' + W + ' 146" role="img" aria-label="' + esc(tr("Trip chart: toll route {tt}, {price}; toll-free route {ft}", { tt: fmtTime(t.minutes), price: fmtMoney(priced.total), ft: fmtTime(f.minutes) })) + '">';
+    svg += '<text x="' + X0 + '" y="14" class="tc-h">' + esc(tr("Toll route · {time} · {price}", { time: fmtTime(t.minutes), price: fmtMoney(priced.total) })) + "</text>";
     svg += '<line x1="' + X0 + '" y1="' + yT + '" x2="' + X1 + '" y2="' + yT + '" class="tc-toll-edge"/>';
     svg += '<line x1="' + X0 + '" y1="' + yT + '" x2="' + X1 + '" y2="' + yT + '" class="tc-toll"/>';
     var laneSkip = window.TollCalc.laneRanges(priced.items, routeMeters);
@@ -1099,7 +1125,7 @@ require([
     function trafficLines(segs, y, cls) {
       return segs.filter(function (sg) { return sg.level; }).map(function (sg) {
         return '<line x1="' + (X0 + (X1 - X0) * sg.from).toFixed(1) + '" y1="' + y + '" x2="' + (X0 + (X1 - X0) * sg.to).toFixed(1) +
-          '" y2="' + y + '" class="' + cls + '" style="stroke:' + TRAFFIC_HEX[sg.level] + '"><title>' + sg.level + " traffic, about " + Math.round(sg.mph) + " mph" + (sg.free ? " (usually " + Math.round(sg.free) + ")" : "") + "</title></line>";
+          '" y2="' + y + '" class="' + cls + '" style="stroke:' + TRAFFIC_HEX[sg.level] + '"><title>' + tr("{level} traffic, about {mph} mph", { level: tr(sg.level), mph: Math.round(sg.mph) }) + (sg.free ? " (usually " + Math.round(sg.free) + ")" : "") + "</title></line>";
       }).join("");
     }
     svg += trafficLines(tSegs, yT, "tc-traffic");
@@ -1107,7 +1133,7 @@ require([
     laneSkip.forEach(function (r) {
       var a = X0 + (X1 - X0) * r[0], b = X0 + (X1 - X0) * r[1];
       svg += '<line x1="' + a.toFixed(1) + '" y1="' + (yT + 9) + '" x2="' + b.toFixed(1) + '" y2="' + (yT + 9) + '" class="tc-lanes"/>' +
-        '<text x="' + ((a + b) / 2).toFixed(1) + '" y="' + (yT + 35) + '" class="tc-k tc-mid">Managed lanes \u00b7 traffic not shown</text>';
+        '<text x="' + ((a + b) / 2).toFixed(1) + '" y="' + (yT + 35) + '" class="tc-k tc-mid">' + tr("Managed lanes · traffic not shown") + "</text>";
     });
     var tiers = [yT - 12, yT + 22, yT - 27], lastX = [-99, -99, -99], GAP = 36, dots = "";
     priced.items.forEach(function (it, i) {
@@ -1123,7 +1149,7 @@ require([
         (tier >= 0 ? '<text x="' + x.toFixed(1) + '" y="' + tiers[tier] + '" class="tc-p">' + label + "</text>" : "") + "</g>";
     });
     svg += ends(yT) + dots;
-    svg += '<text x="' + X0 + '" y="' + (yF - 16) + '" class="tc-h">Toll-free \u00b7 ' + esc(fmtTime(f.minutes)) + " \u00b7 $0.00</text>";
+    svg += '<text x="' + X0 + '" y="' + (yF - 16) + '" class="tc-h">' + esc(tr("Toll-free · {time} · $0.00", { time: fmtTime(f.minutes) })) + "</text>";
     // Toll-free: traffic bands as wide as the toll line's, with the dashed line on top.
     svg += trafficLines(fSegs, yF, "tc-traffic") + '<line x1="' + X0 + '" y1="' + yF + '" x2="' + X1 + '" y2="' + yF + '" class="tc-free"/>' + ends(yF);
     // TomTom incidents (debug test): diamonds on each route line they're on.
@@ -1142,12 +1168,12 @@ require([
     if (any) {
       var lx = X0, ly = 162;
       legendH = 170;
-      svg += '<text x="' + lx + '" y="' + ly + '" class="tc-k">Highway traffic:</text>';
+      svg += '<text x="' + lx + '" y="' + ly + '" class="tc-k">' + tr("Highway traffic:") + "</text>";
       lx += 84;
       [["moderate", "Moderate"], ["slow", "Slow"], ["heavy", "Heavy"]].forEach(function (k) {
         svg += '<line x1="' + lx + '" y1="' + (ly - 3.5) + '" x2="' + (lx + 14) + '" y2="' + (ly - 3.5) + '" class="tc-traffic" style="stroke:' + TRAFFIC_HEX[k[0]] + '"/>' +
-          '<text x="' + (lx + 19) + '" y="' + ly + '" class="tc-k">' + k[1] + "</text>";
-        lx += k[1].length * 6 + 34;
+          '<text x="' + (lx + 19) + '" y="' + ly + '" class="tc-k">' + tr(k[1]) + "</text>";
+        lx += tr(k[1]).length * 6 + 34;
       });
     }
     if (incs.length) {
@@ -1165,9 +1191,8 @@ require([
       .sort(function (a, b) { return b.miles - a.miles; })[0];
     if (coarse) {
       var m = /\b(?:on|onto)\s+([^()/]+?)\s*(?:\(|\/|toward|$)/i.exec(coarse.text);
-      var where = m ? m[1].trim() : "the highway";
-      svg += '<p class="tc-note">No traffic colors on long stretches: Esri gives one average speed for ' +
-        Math.round(coarse.miles) + " mi of " + esc(where) + ", too coarse to show where it's slow. The trip time still includes traffic.</p>";
+      var where = m ? m[1].trim() : tr("the highway");
+      svg += '<p class="tc-note">' + esc(tr("No traffic colors on long stretches: Esri gives one average speed for {miles} mi of {road}, too coarse to show where it's slow. The trip time still includes traffic.", { miles: Math.round(coarse.miles), road: where })) + "</p>";
     }
     box.innerHTML = svg;
     box.hidden = false;
@@ -1210,9 +1235,10 @@ require([
     var extra = tf != null && ff != null ? Math.round((tf - ff) * 100) / 100 : null;
     var line = "";
     if (extra != null) {
-      line = Math.abs(extra) < 0.05 ? "Gas: about the same on both routes (" + fmtMoney(tf) + ")"
-        : "Gas: the toll route uses about " + fmtMoney(Math.abs(extra)) + (extra > 0 ? " more" : " less") + " (" + fmtMoney(tf) + " vs " + fmtMoney(ff) + ")";
-      line += " · " + fs.mpg + " mpg, " + fmtMoney(fs.price) + "/gal " + fs.fuel + ' <button type="button" id="fuel-change">change</button>';
+      line = Math.abs(extra) < 0.05 ? L("Gas: about the same on both routes ({cost})", { cost: fmtMoney(tf) })
+        : L(extra > 0 ? "Gas: the toll route uses about {cost} more ({toll} vs {free})" : "Gas: the toll route uses about {cost} less ({toll} vs {free})",
+          { cost: fmtMoney(Math.abs(extra)), toll: fmtMoney(tf), free: fmtMoney(ff) });
+      line = esc(line) + " · " + esc(L("{mpg} mpg, {price}/gal {fuel}", { mpg: fs.mpg, price: fmtMoney(fs.price), fuel: L(fs.fuel) })) + ' <button type="button" id="fuel-change">' + L("change") + "</button>";
     }
     $("fuel-line").innerHTML = line;
     $("fuel-mpg").value = fs.mpg; $("fuel-price").value = fs.price.toFixed(2);
@@ -1225,17 +1251,18 @@ require([
     if (!extrasState) return;
     var days = parseInt($("commute-days").value, 10), round = $("commute-round").checked;
     var c = window.TollCalc.commute(extrasState, days, round);
-    function row(label, v, fmt) { return v ? '<span>' + label + '</span><span class="n">' + fmt(v.week) + '</span><span class="n">' + fmt(v.month) + "</span>" : ""; }
-    var hrs = function (m) { return m >= 60 ? (m / 60).toFixed(1) + " hr" : Math.round(m) + " min"; };
+    function row(label, v, fmt) { return v ? '<span>' + L(label) + '</span><span class="n">' + fmt(v.week) + '</span><span class="n">' + fmt(v.month) + "</span>" : ""; }
+    var hrs = function (m) { return m >= 60 ? (m / 60).toFixed(1) + (window.I18N.lang === "es" ? " h" : " hr") : Math.round(m) + " min"; };
     var net = extrasState.fuelExtra != null ? { week: c.tolls.week + c.fuelExtra.week, month: c.tolls.month + c.fuelExtra.month } : null;
     $("commute-out").innerHTML =
-      '<div class="commute-grid"><span class="h">' + c.trips + " trips a week" + '</span><span class="h n">Week</span><span class="h n">Month</span>' +
+      '<div class="commute-grid"><span class="h">' + L("{n} trips a week", { n: c.trips }) + '</span><span class="h n">' + L("Week") + '</span><span class="h n">' + L("Month") + "</span>" +
       row("Tolls", c.tolls, fmtMoney) +
       (extrasState.minutesSaved ? row("Time saved", c.minutesSaved, hrs) : "") +
       (c.fuelExtra ? row(c.fuelExtra.week >= 0 ? "Extra gas" : "Gas saved", { week: Math.abs(c.fuelExtra.week), month: Math.abs(c.fuelExtra.month) }, fmtMoney) : "") +
-      (net ? '<span><strong>Tolls and gas</strong></span><span class="n"><strong>' + fmtMoney(net.week) + '</strong></span><span class="n"><strong>' + fmtMoney(net.month) + "</strong></span>" : "") +
+      (net ? '<span><strong>' + L("Tolls and gas") + '</strong></span><span class="n"><strong>' + fmtMoney(net.week) + '</strong></span><span class="n"><strong>' + fmtMoney(net.month) + "</strong></span>" : "") +
       "</div>" +
-      '<p class="hint">Assumes ' + (round ? "the trip back costs the same and " : "") + "every trip matches this one (same time of day and traffic). A month is about 4.3 weeks.</p>";
+      '<p class="hint">' + L(round ? "Assumes the trip back costs the same and every trip matches this one (same time of day and traffic). A month is about 4.3 weeks."
+        : "Assumes every trip matches this one (same time of day and traffic). A month is about 4.3 weeks.") + "</p>";
   }
   $("commute-days").addEventListener("change", renderCommute);
   $("commute-round").addEventListener("change", renderCommute);
@@ -1269,7 +1296,7 @@ require([
     var tollRoute = lastTrip.tollRoute, freeRoute = lastTrip.freeRoute, trip = lastTrip.trip;
     var via = tollRoute.anchors || null, out = $("best-time-out"), btn = $("best-time");
     btn.disabled = true;
-    out.innerHTML = '<p class="hint">Checking ' + times.length + " departure times…</p>";
+    out.innerHTML = '<p class="hint">' + L("Checking {n} departure times…", { n: times.length }) + "</p>";
     var rows = [], saveDeparture = departure;
     var chain = Promise.resolve();
     times.forEach(function (d) {
@@ -1293,17 +1320,17 @@ require([
       var cheapest = ok.reduce(function (b, r) { return !b || r.toll < b.toll - 0.005 ? r : b; }, null);
       var sameToll = ok.every(function (r) { return Math.abs(r.toll - ok[0].toll) < 0.005; });
       if (fastest && !ok.some(function (r) { return r.tollMin - fastest.tollMin >= 1; })) fastest = null; // no real difference
-      out.innerHTML = '<table class="best-time"><thead><tr><th>Leave</th><th class="n">Toll route</th><th class="n">Toll</th><th class="n">Toll-free</th><th class="n">Saves</th></tr></thead><tbody>' +
+      out.innerHTML = '<table class="best-time"><thead><tr><th>' + L("Leave") + '</th><th class="n">' + L("Toll route") + '</th><th class="n">' + L("Toll") + '</th><th class="n">' + L("Toll-free") + '</th><th class="n">' + L("Saves") + "</th></tr></thead><tbody>" +
         rows.map(function (r) {
-          if (r.error) return "<tr><td>" + esc(fmtClock(r.at)) + '</td><td colspan="4">Couldn’t check this time</td></tr>';
+          if (r.error) return "<tr><td>" + esc(fmtClock(r.at)) + '</td><td colspan="4">' + L("Couldn’t check this time") + "</td></tr>";
           var save = r.freeMin - r.tollMin;
           return '<tr class="' + (Math.abs(r.at - base) < 60000 ? "chosen" : "") + '"><td>' + esc(fmtClock(r.at)) +
-            (r === fastest ? '<span class="tag">Fastest</span>' : "") + (!sameToll && r === cheapest ? '<span class="tag cheap">Cheapest</span>' : "") +
+            (r === fastest ? '<span class="tag">' + L("Fastest") + "</span>" : "") + (!sameToll && r === cheapest ? '<span class="tag cheap">' + L("Cheapest") + "</span>" : "") +
             '</td><td class="n">' + esc(fmtTime(r.tollMin)) + '</td><td class="n">' + fmtMoney(r.toll) + (r.plus ? "+" : "") +
             '</td><td class="n">' + esc(fmtTime(r.freeMin)) + '</td><td class="n">' + (save >= 1 ? esc(fmtTime(Math.round(save))) : "—") + "</td></tr>";
         }).join("") + "</tbody></table>" +
-        '<p class="hint">Shaded row: the time you picked. Live traffic up to about 4 hours ahead; later times use typical traffic for that day and time.' +
-        (sameToll ? " Tolls on this route don’t change with the time of day." : "") + "</p>";
+        '<p class="hint">' + L("Shaded row: the time you picked. Live traffic up to about 4 hours ahead; later times use typical traffic for that day and time.") +
+        (sameToll ? L(" Tolls on this route don’t change with the time of day.") : "") + "</p>";
     });
   });
 
@@ -1318,17 +1345,18 @@ require([
     });
     q.set("ax", t.axles); q.set("pay", t.payment); if (t.carpool) q.set("cp", "1");
     if ($("leave").value) q.set("t", $("leave").value);
+    if (window.I18N.lang === "es") q.set("lang", "es");
     return location.origin + location.pathname + "?" + q.toString();
   }
   $("share").addEventListener("click", function () {
     if (!lastTrip) return;
     var url = shareUrl(), text = $("headline-big").textContent;
     if (navigator.share) {
-      navigator.share({ title: "HCTRA Toll Calculator", text: text, url: url }).catch(function () { /* closed */ });
+      navigator.share({ title: L("HCTRA Toll Calculator"), text: text, url: url }).catch(function () { /* closed */ });
     } else if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).then(function () { setStatus("Link copied. Paste it anywhere to share this trip."); },
-        function () { window.prompt("Copy this link:", url); });
-    } else window.prompt("Copy this link:", url);
+      navigator.clipboard.writeText(url).then(function () { setStatus(L("Link copied. Paste it anywhere to share this trip.")); },
+        function () { window.prompt(L("Copy this link:"), url); });
+    } else window.prompt(L("Copy this link:"), url);
   });
   // Opening a shared link: fill in the trip and compare once everything has loaded.
   var shared = (function () {
@@ -1343,8 +1371,8 @@ require([
     var sh = shared; shared = null;
     stops.from = new Point({ longitude: sh.s[0], latitude: sh.s[1] });
     stops.to = new Point({ longitude: sh.e[0], latitude: sh.e[1] });
-    searches.from.searchTerm = sh.sl || "Shared start";
-    searches.to.searchTerm = sh.el || "Shared destination";
+    searches.from.searchTerm = sh.sl || L("Shared start");
+    searches.to.searchTerm = sh.el || L("Shared destination");
     if (sh.ax >= 2 && sh.ax <= 8) $("axles").value = String(sh.ax);
     var r = document.querySelector('input[name="payment"][value="' + sh.pay + '"]'); if (r) r.checked = true;
     $("carpool").checked = sh.cp;
@@ -1369,19 +1397,19 @@ require([
     // Headline: is the toll worth it? Time saved and price, then cost per minute saved.
     var big = "", small = "", neutral = false;
     var plus = priced.pending.length || priced.missing.length ? "+" : "";
-    if (!priced.items.length) { big = "No tolls on this trip"; small = "The fastest route is already toll-free."; neutral = true; }
+    if (!priced.items.length) { big = L("No tolls on this trip"); small = L("The fastest route is already toll-free."); neutral = true; }
     else if (priced.laneOptions && priced.laneOptions === priced.items.length) {
-      big = fmtMoney(priced.total) + plus + " for the managed lanes";
-      small = "Time saved isn't estimated: the lanes are usually faster at rush hour.";
+      big = L("{price} for the managed lanes", { price: fmtMoney(priced.total) + plus });
+      small = L("Time saved isn't estimated: the lanes are usually faster at rush hour.");
     } else if (t.minutes != null && f.minutes != null) {
       var saved = Math.round(f.minutes - t.minutes);
       if (saved > 0) {
-        big = "Save " + fmtTime(saved) + " for " + fmtMoney(priced.total) + plus;
-        small = "About " + fmtPerMinute(priced.total / saved) + " per minute saved.";
+        big = L("Save {time} for {price}", { time: fmtTime(saved), price: fmtMoney(priced.total) + plus });
+        small = L("About {cost} per minute saved.", { cost: fmtPerMinute(priced.total / saved) });
       } else {
         neutral = true;
-        big = "Skip the tolls";
-        small = saved < 0 ? "The toll route is about " + fmtTime(-saved) + " slower right now." : "The toll-free route is about as fast right now.";
+        big = L("Skip the tolls");
+        small = saved < 0 ? L("The toll route is about {time} slower right now.", { time: fmtTime(-saved) }) : L("The toll-free route is about as fast right now.");
       }
     }
     $("headline").className = "headline" + (neutral ? " neutral" : "");
@@ -1395,14 +1423,14 @@ require([
     if (savings && savings.amount >= 0.01) {
       // Side by side: what you pay (red) vs. with an EZ TAG (green), the savings, and a
       // link to sign up. Labels carry the meaning too, not just the colors.
-      var yours = lastTrip && lastTrip.trip.payment === "tag" ? "Other tag" : "No tag";
+      var yours = L(lastTrip && lastTrip.trip.payment === "tag" ? "Other tag" : "No tag");
       ts.innerHTML =
         '<div class="ts-grid">' +
           '<div class="ts-col"><span>' + yours + '</span><strong class="ts-bad">' + fmtMoney(priced.total) + "</strong></div>" +
-          '<div class="ts-col"><span>With EZ TAG</span><strong class="ts-good">' + fmtMoney(savings.eztag) + "</strong></div>" +
-          '<div class="ts-pill">Save ' + fmtMoney(savings.amount) + "</div>" +
+          '<div class="ts-col"><span>' + L("With EZ TAG") + '</span><strong class="ts-good">' + fmtMoney(savings.eztag) + "</strong></div>" +
+          '<div class="ts-pill">' + L("Save {amount}", { amount: fmtMoney(savings.amount) }) + "</div>" +
         "</div>" +
-        '<a class="ts-link" href="https://www.hctra.org/NewAccount/PersonalAccount" target="_blank" rel="noopener">Get an EZ TAG \u2192</a>';
+        '<a class="ts-link" href="https://www.hctra.org/NewAccount/PersonalAccount" target="_blank" rel="noopener">' + L("Get an EZ TAG →") + "</a>";
       ts.hidden = false;
     }
 
@@ -1411,35 +1439,35 @@ require([
       flags.push("TomTom: " + i.kind + (i.road ? " on " + i.road : "") + (i.from ? " (" + i.from + (i.to && i.to !== i.from ? " to " + i.to : "") + ")" : "") +
         (i.delayMin ? ", about " + i.delayMin + " min delay" : "") + " \u2014 on the " + (i.onToll && i.onFree ? "toll and toll-free routes" : i.onToll ? "toll route" : "toll-free route") + ".");
     });
-    if (priced.pending.length) flags.push("Some time-of-day tolls (Katy Managed Lanes or SH 288 Express Lanes) couldn't be priced, so the total is low.");
-    if (priced.laneOptions) flags.push("Your route runs alongside the Katy Managed Lanes or SH 288 Express Lanes. The toll route includes their tolls for that stretch; the toll-free route stays in the regular lanes.");
-    if (priced.timed) flags.push("Katy Managed Lanes and SH 288 Express Lanes charge by time of day. These are priced for when you'd reach each gantry, leaving " + (($("leave").value ? "at " : "now, ") + fmtClock(departure)) + ".");
-    if (priced.missing.length) flags.push(priced.missing.length + " toll point(s) on this route have no rate for this vehicle in the data, so the total is low.");
+    if (priced.pending.length) flags.push(L("Some time-of-day tolls (Katy Managed Lanes or SH 288 Express Lanes) couldn't be priced, so the total is low."));
+    if (priced.laneOptions) flags.push(L("Your route runs alongside the Katy Managed Lanes or SH 288 Express Lanes. The toll route includes their tolls for that stretch; the toll-free route stays in the regular lanes."));
+    if (priced.timed) flags.push(L("Katy Managed Lanes and SH 288 Express Lanes charge by time of day. These are priced for when you'd reach each gantry, leaving {when}.", { when: $("leave").value ? L("at {time}", { time: fmtClock(departure) }) : L("now ({time})", { time: fmtClock(departure) }) }));
+    if (priced.missing.length) flags.push(L("{n} toll point(s) on this route have no rate for this vehicle in the data, so the total is low.", { n: priced.missing.length }));
     var fr = lastTrip && lastTrip.freeRoute;
     if (fr && fr.feederGap && fr.feederGap.length)
-      flags.push("Esri's toll-free route leaves the " + fr.feederGap.map(function (d) { return d.road; }).filter(function (r, i, a) { return a.indexOf(r) === i; }).join(" and ") +
-        " feeder road and comes back to it (via " + fr.feederGap.map(function (d) { return d.via.join(", "); }).join("; ") +
-        "), even when steered back. Esri's map may be missing part of the feeder road here, so the toll-free time may be a little long.");
+      flags.push(L("Esri's toll-free route leaves the {road} feeder road and comes back to it (via {via}), even when steered back. Esri's map may be missing part of the feeder road here, so the toll-free time may be a little long.",
+        { road: fr.feederGap.map(function (d) { return d.road; }).filter(function (r, i, a) { return a.indexOf(r) === i; }).join(" / "),
+          via: fr.feederGap.map(function (d) { return d.via.join(", "); }).join("; ") }));
     else if (fr && fr.feederFixed && fr.feederFixed.length)
-      flags.push("Esri's fastest toll-free route left the feeder road for side streets (" + fr.feederFixed.map(function (d) { return d.via.join(", "); }).join("; ") +
-        ") and came back. Drivers usually stay on the feeder road, so the toll-free route here does too.");
+      flags.push(L("Esri's fastest toll-free route left the feeder road for side streets ({via}) and came back. Drivers usually stay on the feeder road, so the toll-free route here does too.",
+        { via: fr.feederFixed.map(function (d) { return d.via.join(", "); }).join("; ") }));
     var still = lastTrip && lastTrip.tollRoute.stillHops;
     if (still && still.length)
-      flags.push("Esri's toll route still gets off the " + stillRoads(still) + " and back on (via " + stillVia(still) +
-        "), even after re-routing. Most drivers stay on the tollway, so the real trip may run a little differently.");
+      flags.push(L("Esri's toll route still gets off the {road} and back on (via {via}), even after re-routing. Most drivers stay on the tollway, so the real trip may run a little differently.",
+        { road: stillRoads(still), via: stillVia(still) }));
     else if (lastTrip && lastTrip.tollRoute.stayedOn && lastTrip.tollRoute.stayedOn.length)
-      flags.push("Esri's fastest toll route got off the " + lastTrip.tollRoute.stayedOn.map(function (r) { return r === "Sam Houston" ? "Sam Houston Tollway" : r; }).join(" and ") + " onto the frontage road or side streets and back on again" +
-        " (to dodge traffic or a toll). Most drivers stay on unless there's a crash or closure, so the toll route here stays on the tollway.");
-    if (priced.assumed) flags.push(priced.assumed + " Fort Bend County toll point(s) on this route publish rates only up to 6 axles, so they're priced at the 6-axle rate.");
-    if (priced.unverified) flags.push(priced.unverified + " toll point(s) on this route haven't been checked against their agency's published rates yet.");
+      flags.push(L("Esri's fastest toll route got off the {road} onto the frontage road or side streets and back on again (to dodge traffic or a toll). Most drivers stay on unless there's a crash or closure, so the toll route here stays on the tollway.",
+        { road: lastTrip.tollRoute.stayedOn.map(function (r) { return r === "Sam Houston" ? "Sam Houston Tollway" : r; }).join(" / ") }));
+    if (priced.assumed) flags.push(L("{n} Fort Bend County toll point(s) on this route publish rates only up to 6 axles, so they're priced at the 6-axle rate.", { n: priced.assumed }));
+    if (priced.unverified) flags.push(L("{n} toll point(s) on this route haven't been checked against their agency's published rates yet.", { n: priced.unverified }));
     $("flags").innerHTML = flags.map(function (m) { return '<div class="notice info">' + esc(m) + "</div>"; }).join("");
 
     $("breakdown").innerHTML = priced.items.map(function (it) {
       var p = it.point;
       var when = it.when ? ' <span class="tag-unverified">(' + fmtClock(it.when) + (it.note ? ", " + esc(it.note) : "") + ")</span>" : "";
-      return '<tr class="pickable" tabindex="0" data-i="' + priced.items.indexOf(it) + '" title="Show on map"><td class="bd-name">' + esc(p.name) + (p.status === "unverified" ? ' <span class="tag-unverified">(unverified)</span>' : "") + when +
+      return '<tr class="pickable" tabindex="0" data-i="' + priced.items.indexOf(it) + '" title="' + L("Show on map") + '"><td class="bd-name">' + esc(p.name) + (p.status === "unverified" ? ' <span class="tag-unverified">' + L("(unverified)") + "</span>" : "") + when +
         '</td><td class="bd-road">' + esc(p.road) + '</td><td class="num">' + (it.rate == null ? "n/a" : fmtMoney(it.rate)) + "</td></tr>";
-    }).join("") || '<tr><td colspan="3">No toll points crossed.</td></tr>';
+    }).join("") || '<tr><td colspan="3">' + L("No toll points crossed.") + "</td></tr>";
     $("breakdown-wrap").hidden = !priced.items.length;
     drawTripChart(t, f, priced, lastTrip ? window.TollCalc.pathMeters(lastTrip.trip.tollPath) : null);
     shownItems = priced.items;
@@ -1482,19 +1510,19 @@ require([
     var routedAxles = lastTrip.routedAxles || lastTrip.trip.axles;
     priceTrip(trip, lastTrip.tollRoute, lastTrip.freeRoute);
     lastTrip.routedAxles = routedAxles;
-    var names = { eztag: "EZ TAG", tag: "another toll tag", notag: "no tag" };
-    var what = names[payment] + ", " + axles + " axles" + (trip.carpool ? ", carpool" : "");
+    var names = { eztag: "EZ TAG", tag: L("another toll tag"), notag: L("no tag") };
+    var what = names[payment] + ", " + L("{n} axles", { n: axles }) + (trip.carpool ? ", " + L("carpool") : "");
     // Cars and trucks are routed differently (truck routing avoids truck-restricted roads),
     // so crossing between them offers a fresh route; within one class the route is the same.
     var truck = function (a) { return a > 2; };
     if (truck(axles) !== truck(routedAxles)) {
       var st = $("status");
       st.className = "status notice info";
-      st.innerHTML = "Repriced for " + esc(what) + " on the " + (truck(routedAxles) ? "truck" : "car") + " route. " +
-        (truck(axles) ? "Trucks can be routed differently. " : "Cars can take a different route. ") +
-        '<button type="button" class="btn-outline small" id="reroute">Find the ' + (truck(axles) ? "truck" : "car") + " route</button>";
+      st.innerHTML = esc(L(truck(routedAxles) ? "Repriced for {what} on the truck route. " : "Repriced for {what} on the car route. ", { what: what })) +
+        L(truck(axles) ? "Trucks can be routed differently. " : "Cars can take a different route. ") +
+        '<button type="button" class="btn-outline small" id="reroute">' + L(truck(axles) ? "Find the truck route" : "Find the car route") + "</button>";
       $("reroute").addEventListener("click", function () { $("go").click(); });
-    } else setStatus("Repriced for " + what + " on the same route.");
+    } else setStatus(L("Repriced for {what} on the same route.", { what: what }));
   }
   Array.prototype.forEach.call(document.querySelectorAll('input[name="payment"]'), function (r) { r.addEventListener("change", repriceShown); });
   $("carpool").addEventListener("change", repriceShown);
@@ -1523,7 +1551,7 @@ require([
       if (detours.length) freeRoute.feederGap = detours;
       return Promise.resolve(freeRoute);
     }
-    setStatus("Keeping the toll-free route on the feeder road\u2026");
+    setStatus(L("Keeping the toll-free route on the feeder road…"));
     detours.forEach(function (d) { barriers.push(d.barrier); });
     return solve(freeRoute.mode, true, DEBUG, null, barriers.slice()).then(function (g) {
       g.originalFreeMinutes = freeRoute.originalFreeMinutes || routeStats(freeRoute).minutes;
@@ -1544,7 +1572,7 @@ require([
     return hops.map(function (h) {
       var m = /\b(?:on|onto|to)\s+(.+)$/i.exec(h.via || "");
       var road = m ? m[1] : h.via;
-      return /sam houston pkwy|frontage|frtg/i.test(road) ? "the " + road + " frontage road" : road;
+      return /sam houston pkwy|frontage|frtg/i.test(road) ? L("the {road} frontage road", { road: road }) : road;
     }).filter(function (r, i, a) { return a.indexOf(r) === i; }).join("; ");
   }
   // Keep the toll route on the tollway when Esri's traffic route hops off and back on.
@@ -1553,7 +1581,7 @@ require([
   function stayOnTollway(tollRoute, axles) {
     var hops = window.TollCalc.findTollwayHops(tollRoute.steps);
     if (!hops.length || !tollRoute.mode) return Promise.resolve(tollRoute);
-    setStatus("Keeping the toll route on the tollway\u2026");
+    setStatus(L("Keeping the toll route on the tollway…"));
     var roads = [];
     hops.forEach(function (h) { if (roads.indexOf(h.road) === -1) roads.push(h.road); });
     var original = routeStats(tollRoute).minutes;
@@ -1606,7 +1634,7 @@ require([
     $("best-time").disabled = false;
     $("go").disabled = true;
     $("results").hidden = true;
-    setStatus("Finding routes…");
+    setStatus(L("Finding routes…"));
     routesLayer.removeAll();
     freeGraphic = null;
     freeTraffic = [];
@@ -1639,7 +1667,7 @@ require([
       scrollToHeadline();
     }).catch(function (err) {
       console.error(err);
-      setStatus("Couldn't get routes: " + (err && err.message ? err.message : "unknown error"), true);
+      setStatus(L("Couldn't get routes: {msg}", { msg: err && err.message ? err.message : L("unknown error") }), true);
     }).then(updateButton);
   });
 });

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Run: Oct 23, 2026, after the TOMTOM_API_KEY secret was added.
 """Which TomTom addresses accept our key? Saves only status codes and TomTom's error text
 (never the key, never traffic data) to data/tomtom-probe.json."""
 import json, os, re, urllib.error, urllib.request

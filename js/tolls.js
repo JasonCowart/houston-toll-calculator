@@ -685,6 +685,28 @@
     return out.map(function (a) { return { lonlat: a.lonlat, road: a.road }; });
   }
 
+  // ---- Trip extras ----
+  // Fuel defaults by vehicle class: gas for 2-3 axles, diesel for 4+. Houston-area prices,
+  // Oct 2026 (regular about $3.76, diesel $5.67); users can change them.
+  var FUEL_DEFAULTS = { 2: { mpg: 25, fuel: "regular" }, 3: { mpg: 13, fuel: "regular" }, 4: { mpg: 9, fuel: "diesel" },
+    5: { mpg: 6.5, fuel: "diesel" }, 6: { mpg: 6, fuel: "diesel" }, 7: { mpg: 5.5, fuel: "diesel" }, 8: { mpg: 5.5, fuel: "diesel" } };
+  var FUEL_PRICES = { regular: 3.76, diesel: 5.67, asOf: "Oct 2026" };
+  function fuelDefaults(axles) {
+    var d = FUEL_DEFAULTS[axles] || FUEL_DEFAULTS[2];
+    return { mpg: d.mpg, price: FUEL_PRICES[d.fuel], fuel: d.fuel };
+  }
+  function fuelCost(miles, mpg, price) {
+    if (!(miles > 0) || !(mpg > 0) || !(price >= 0)) return null;
+    return Math.round(miles / mpg * price * 100) / 100;
+  }
+  // One trip as a commute: days a week, round trip (the trip back assumed to cost the same).
+  // Months are 52/12 weeks.
+  function commute(trip, daysPerWeek, roundTrip) {
+    var per = daysPerWeek * (roundTrip ? 2 : 1), month = 52 / 12;
+    function both(v) { return v == null ? null : { week: v * per, month: v * per * month }; }
+    return { trips: per, tolls: both(trip.toll), minutesSaved: both(trip.minutesSaved), fuelExtra: both(trip.fuelExtra) };
+  }
+
   // ---- TomTom traffic (debug test) ----
   // Points every `every` meters along a route path, with their distance along it.
   function sampleAlong(path, every) {
@@ -756,7 +778,7 @@
     return [[Math.max(0, Math.min.apply(null, a) - 0.01), Math.min(1, Math.max.apply(null, a) + 0.01)]];
   }
 
-  var api = { alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

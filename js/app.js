@@ -252,7 +252,7 @@ require([
 
   fetch("data/toll-points.json")
     .then(function (r) { return r.json(); })
-    .then(function (d) { tollPoints = d.points; ratesAsOf = d.meta && d.meta.ratesAsOf; showRatesAsOf(); updateButton(); })
+    .then(function (d) { tollPoints = d.points; ratesAsOf = d.meta && d.meta.ratesAsOf; showRatesAsOf(); updateButton(); if (shared) applyShared(); })
     .catch(function () { setStatus("Couldn't load the toll data.", true); });
   fetch("data/sh288-rates.json")
     .then(function (r) { return r.json(); })
@@ -1188,6 +1188,178 @@ require([
   $("trip-chart").addEventListener("click", chartPick);
   $("trip-chart").addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); chartPick(e); } });
 
+  // ---- Trip extras: fuel estimate, commute cost, best time to leave, share ----
+  // Fuel: miles per gallon and price per gallon start from defaults for the vehicle class and
+  // can be changed (kept in this browser).
+  function fuelSettings() {
+    var axles = lastTrip ? lastTrip.trip.axles : parseInt($("axles").value, 10);
+    var d = window.TollCalc.fuelDefaults(axles), all = fuelStore(), o = all[axles] || {};
+    return { axles: axles, mpg: o.mpg > 0 ? o.mpg : d.mpg, price: o.price > 0 ? o.price : d.price, fuel: d.fuel, custom: !!(o.mpg || o.price) };
+  }
+  // Changes are kept per vehicle size (axles), so a truck's mpg doesn't change a car's.
+  function fuelStore() { try { return JSON.parse(localStorage.getItem("htc-fuel") || "{}") || {}; } catch (e) { return {}; } }
+  function saveFuel(o) {
+    var all = fuelStore(), axles = fuelSettings().axles;
+    if (o) all[axles] = o; else delete all[axles];
+    try { localStorage.setItem("htc-fuel", JSON.stringify(all)); } catch (e) { /* not kept */ }
+  }
+  var extrasState = null;
+  function renderExtras(t, f, priced) {
+    var fs = fuelSettings(), T = window.TollCalc;
+    var tf = T.fuelCost(t.miles, fs.mpg, fs.price), ff = T.fuelCost(f.miles, fs.mpg, fs.price);
+    var extra = tf != null && ff != null ? Math.round((tf - ff) * 100) / 100 : null;
+    var line = "";
+    if (extra != null) {
+      line = Math.abs(extra) < 0.05 ? "Gas: about the same on both routes (" + fmtMoney(tf) + ")"
+        : "Gas: the toll route uses about " + fmtMoney(Math.abs(extra)) + (extra > 0 ? " more" : " less") + " (" + fmtMoney(tf) + " vs " + fmtMoney(ff) + ")";
+      line += " · " + fs.mpg + " mpg, " + fmtMoney(fs.price) + "/gal " + fs.fuel + ' <button type="button" id="fuel-change">change</button>';
+    }
+    $("fuel-line").innerHTML = line;
+    $("fuel-mpg").value = fs.mpg; $("fuel-price").value = fs.price.toFixed(2);
+    var saved = t.minutes != null && f.minutes != null ? Math.max(0, f.minutes - t.minutes) : null;
+    if (priced.laneOptions && priced.laneOptions === priced.items.length) saved = null; // managed lanes: time saved isn't estimated
+    extrasState = { toll: priced.total, minutesSaved: saved, fuelExtra: extra };
+    renderCommute();
+  }
+  function renderCommute() {
+    if (!extrasState) return;
+    var days = parseInt($("commute-days").value, 10), round = $("commute-round").checked;
+    var c = window.TollCalc.commute(extrasState, days, round);
+    function row(label, v, fmt) { return v ? '<span>' + label + '</span><span class="n">' + fmt(v.week) + '</span><span class="n">' + fmt(v.month) + "</span>" : ""; }
+    var hrs = function (m) { return m >= 60 ? (m / 60).toFixed(1) + " hr" : Math.round(m) + " min"; };
+    var net = extrasState.fuelExtra != null ? { week: c.tolls.week + c.fuelExtra.week, month: c.tolls.month + c.fuelExtra.month } : null;
+    $("commute-out").innerHTML =
+      '<div class="commute-grid"><span class="h">' + c.trips + " trips a week" + '</span><span class="h n">Week</span><span class="h n">Month</span>' +
+      row("Tolls", c.tolls, fmtMoney) +
+      (extrasState.minutesSaved ? row("Time saved", c.minutesSaved, hrs) : "") +
+      (c.fuelExtra ? row(c.fuelExtra.week >= 0 ? "Extra gas" : "Gas saved", { week: Math.abs(c.fuelExtra.week), month: Math.abs(c.fuelExtra.month) }, fmtMoney) : "") +
+      (net ? '<span><strong>Tolls and gas</strong></span><span class="n"><strong>' + fmtMoney(net.week) + '</strong></span><span class="n"><strong>' + fmtMoney(net.month) + "</strong></span>" : "") +
+      "</div>" +
+      '<p class="hint">Assumes ' + (round ? "the trip back costs the same and " : "") + "every trip matches this one (same time of day and traffic). A month is about 4.3 weeks.</p>";
+  }
+  $("commute-days").addEventListener("change", renderCommute);
+  $("commute-round").addEventListener("change", renderCommute);
+  $("fuel-line").addEventListener("click", function (e) {
+    if (e.target.id !== "fuel-change") return;
+    $("fuel-edit").hidden = !$("fuel-edit").hidden;
+  });
+  function fuelEdited() {
+    var mpg = parseFloat($("fuel-mpg").value), price = parseFloat($("fuel-price").value);
+    saveFuel({ mpg: mpg > 0 ? mpg : null, price: price > 0 ? price : null });
+    if (lastTrip) renderExtras(routeStats(lastTrip.tollRoute), routeStats(lastTrip.freeRoute), lastTrip.priced);
+  }
+  $("fuel-mpg").addEventListener("change", fuelEdited);
+  $("fuel-price").addEventListener("change", fuelEdited);
+  $("fuel-reset").addEventListener("click", function () {
+    saveFuel(null);
+    $("fuel-edit").hidden = true;
+    if (lastTrip) renderExtras(routeStats(lastTrip.tollRoute), routeStats(lastTrip.freeRoute), lastTrip.priced);
+  });
+
+  // Best time to leave: the same trip leaving 30 minutes earlier through an hour later, in
+  // 15-minute steps (not before now). Each time is routed with that time's traffic and priced
+  // for it (time-of-day tolls). The toll route goes through the same tollway points as the
+  // trip shown, so it doesn't hop off at rush hour.
+  var bestRun = 0;
+  $("best-time").addEventListener("click", function () {
+    if (!lastTrip) return;
+    var run = ++bestRun, base = new Date(lastTrip.trip.departure), now = Date.now();
+    var times = [-30, -15, 0, 15, 30, 45, 60].map(function (m) { return new Date(base.getTime() + m * 60000); })
+      .filter(function (d) { return d.getTime() >= now - 60000; });
+    var tollRoute = lastTrip.tollRoute, freeRoute = lastTrip.freeRoute, trip = lastTrip.trip;
+    var via = tollRoute.anchors || null, out = $("best-time-out"), btn = $("best-time");
+    btn.disabled = true;
+    out.innerHTML = '<p class="hint">Checking ' + times.length + " departure times…</p>";
+    var rows = [], saveDeparture = departure;
+    var chain = Promise.resolve();
+    times.forEach(function (d) {
+      chain = chain.then(function () {
+        if (run !== bestRun) return;
+        departure = d;
+        return Promise.all([solve(tollRoute.mode, true, false, via), solve(freeRoute.mode, false, false)]).then(function (r) {
+          var tp = [].concat.apply([], r[0].geometry.paths), ts = routeStats(r[0]), fs = routeStats(r[1]);
+          var priced = window.TollCalc.analyzeTrip(Object.assign({}, trip, { tollPath: tp, freePath: [].concat.apply([], r[1].geometry.paths),
+            steps: r[0].steps || null, departure: d.toISOString(), routeMinutes: ts.minutes }), tollPoints).priced;
+          rows.push({ at: d, tollMin: ts.minutes, toll: priced.total, plus: priced.pending.length || priced.missing.length, freeMin: fs.minutes });
+        }).catch(function () { rows.push({ at: d, error: true }); });
+      });
+    });
+    chain.then(function () {
+      departure = saveDeparture;
+      btn.disabled = false;
+      if (run !== bestRun) return;
+      var ok = rows.filter(function (r) { return !r.error; });
+      var fastest = ok.reduce(function (b, r) { return !b || r.tollMin < b.tollMin ? r : b; }, null);
+      var cheapest = ok.reduce(function (b, r) { return !b || r.toll < b.toll - 0.005 ? r : b; }, null);
+      var sameToll = ok.every(function (r) { return Math.abs(r.toll - ok[0].toll) < 0.005; });
+      if (fastest && !ok.some(function (r) { return r.tollMin - fastest.tollMin >= 1; })) fastest = null; // no real difference
+      out.innerHTML = '<table class="best-time"><thead><tr><th>Leave</th><th class="n">Toll route</th><th class="n">Toll</th><th class="n">Toll-free</th><th class="n">Saves</th></tr></thead><tbody>' +
+        rows.map(function (r) {
+          if (r.error) return "<tr><td>" + esc(fmtClock(r.at)) + '</td><td colspan="4">Couldn’t check this time</td></tr>';
+          var save = r.freeMin - r.tollMin;
+          return '<tr class="' + (Math.abs(r.at - base) < 60000 ? "chosen" : "") + '"><td>' + esc(fmtClock(r.at)) +
+            (r === fastest ? '<span class="tag">Fastest</span>' : "") + (!sameToll && r === cheapest ? '<span class="tag cheap">Cheapest</span>' : "") +
+            '</td><td class="n">' + esc(fmtTime(r.tollMin)) + '</td><td class="n">' + fmtMoney(r.toll) + (r.plus ? "+" : "") +
+            '</td><td class="n">' + esc(fmtTime(r.freeMin)) + '</td><td class="n">' + (save >= 1 ? esc(fmtTime(Math.round(save))) : "—") + "</td></tr>";
+        }).join("") + "</tbody></table>" +
+        '<p class="hint">Shaded row: the time you picked. Live traffic up to about 4 hours ahead; later times use typical traffic for that day and time.' +
+        (sameToll ? " Tolls on this route don’t change with the time of day." : "") + "</p>";
+    });
+  });
+
+  // Share: a link that reopens this trip (places, vehicle, tag, carpool, and the leave time if
+  // one was set) and runs the compare.
+  function shareUrl() {
+    var t = lastTrip.trip, q = new URLSearchParams();
+    ["from", "to"].forEach(function (w, i) {
+      var p = stops[w]; if (!p) return;
+      q.set(i ? "e" : "s", p.longitude.toFixed(5) + "," + p.latitude.toFixed(5));
+      var label = searchesTerm(w); if (label) q.set(i ? "el" : "sl", label);
+    });
+    q.set("ax", t.axles); q.set("pay", t.payment); if (t.carpool) q.set("cp", "1");
+    if ($("leave").value) q.set("t", $("leave").value);
+    return location.origin + location.pathname + "?" + q.toString();
+  }
+  $("share").addEventListener("click", function () {
+    if (!lastTrip) return;
+    var url = shareUrl(), text = $("headline-big").textContent;
+    if (navigator.share) {
+      navigator.share({ title: "HCTRA Toll Calculator", text: text, url: url }).catch(function () { /* closed */ });
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function () { setStatus("Link copied. Paste it anywhere to share this trip."); },
+        function () { window.prompt("Copy this link:", url); });
+    } else window.prompt("Copy this link:", url);
+  });
+  // Opening a shared link: fill in the trip and compare once everything has loaded.
+  var shared = (function () {
+    var q = new URLSearchParams(location.search);
+    function pt(v) { var a = (v || "").split(",").map(Number); return a.length === 2 && a.every(isFinite) ? a : null; }
+    var s = pt(q.get("s")), e = pt(q.get("e"));
+    if (!s || !e) return null;
+    return { s: s, e: e, sl: q.get("sl"), el: q.get("el"), ax: parseInt(q.get("ax"), 10), pay: q.get("pay"), cp: q.get("cp") === "1", t: q.get("t") };
+  })();
+  function applyShared() {
+    if (!shared || !searches.from || !searches.to) return false;
+    var sh = shared; shared = null;
+    stops.from = new Point({ longitude: sh.s[0], latitude: sh.s[1] });
+    stops.to = new Point({ longitude: sh.e[0], latitude: sh.e[1] });
+    searches.from.searchTerm = sh.sl || "Shared start";
+    searches.to.searchTerm = sh.el || "Shared destination";
+    if (sh.ax >= 2 && sh.ax <= 8) $("axles").value = String(sh.ax);
+    var r = document.querySelector('input[name="payment"][value="' + sh.pay + '"]'); if (r) r.checked = true;
+    $("carpool").checked = sh.cp;
+    // A leave time in the past would show old traffic: use now instead.
+    if (sh.t && new Date(sh.t).getTime() > Date.now()) $("leave").value = sh.t;
+    drawStops();
+    updateButton();
+    var tries = 0;
+    (function go() {
+      if (!$("go").disabled) { $("go").click(); return; }
+      if (++tries < 40) setTimeout(go, 250);
+    })();
+    return true;
+  }
+
   function showResults(tollRoute, freeRoute, priced, savings) {
     var t = routeStats(tollRoute), f = routeStats(freeRoute);
     $("toll-price").textContent = fmtMoney(priced.total) + (priced.pending.length || priced.missing.length ? "+" : "");
@@ -1215,6 +1387,7 @@ require([
     $("headline").className = "headline" + (neutral ? " neutral" : "");
     $("headline-big").textContent = big;
     $("headline-small").textContent = small;
+    renderExtras(t, f, priced);
 
     // Without an EZ TAG: what the same trip would cost with one.
     var ts = $("tag-savings");
@@ -1428,6 +1601,9 @@ require([
     var axles = parseInt($("axles").value, 10);
     var payment = paymentChoice();
     departure = readDeparture();
+    bestRun++;
+    $("best-time-out").innerHTML = "";
+    $("best-time").disabled = false;
     $("go").disabled = true;
     $("results").hidden = true;
     setStatus("Finding routes…");

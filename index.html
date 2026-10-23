@@ -117,6 +117,15 @@
             <label class="show-free"><input type="checkbox" id="show-free" checked> Show on map</label>
           </div>
         </div>
+        <div class="trip-tools">
+          <p class="fuel-line" id="fuel-line"></p>
+          <button type="button" id="share" class="btn-outline share-btn"><span aria-hidden="true">&#128279;</span> Share trip</button>
+        </div>
+        <div class="fuel-edit" id="fuel-edit" hidden>
+          <label>Miles per gallon <input type="number" id="fuel-mpg" min="3" max="80" step="0.5" inputmode="decimal"></label>
+          <label>Price per gallon <input type="number" id="fuel-price" min="1" max="15" step="0.01" inputmode="decimal"></label>
+          <button type="button" id="fuel-reset" class="pick">Use defaults</button>
+        </div>
         <figure class="trip-chart" id="trip-chart" aria-label="Trip chart"></figure>
         <div id="flags"></div>
         <p class="rates-asof" id="tt-status" hidden></p>
@@ -127,6 +136,20 @@
             <thead><tr><th>Toll point</th><th>Road</th><th class="num">Toll</th></tr></thead>
             <tbody id="breakdown"></tbody>
           </table>
+        </details>
+        <details id="commute-wrap" class="extra">
+          <summary>Commute cost</summary>
+          <div class="commute-controls">
+            <label>Days a week <select id="commute-days"><option>1</option><option>2</option><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option></select></label>
+            <label class="inline-check"><input type="checkbox" id="commute-round" checked> Round trip</label>
+          </div>
+          <div id="commute-out"></div>
+        </details>
+        <details id="best-time-wrap" class="extra">
+          <summary>Best time to leave</summary>
+          <p class="hint">Compare leaving earlier or later: trip time, tolls and time saved for each. Uses about a dozen route lookups.</p>
+          <button type="button" id="best-time" class="btn-outline">Compare departure times</button>
+          <div id="best-time-out"></div>
         </details>
         <p class="rates-asof" id="rates-asof" hidden></p>
       </div>

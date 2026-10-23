@@ -420,4 +420,15 @@ test("spots a toll-free route that leaves the Beltway 8 feeder road for side str
   }
 });
 
+test("fuel cost and commute totals", () => {
+  assert(T.fuelCost(47.3, 25, 3.76) === 7.11, "47.3 mi at 25 mpg, $3.76: " + T.fuelCost(47.3, 25, 3.76));
+  assert(T.fuelCost(0, 25, 3.76) === null && T.fuelCost(10, 0, 3.76) === null, "no miles or mpg, no estimate");
+  const d2 = T.fuelDefaults(2), d5 = T.fuelDefaults(5);
+  assert(d2.fuel === "regular" && d2.mpg === 25 && d5.fuel === "diesel" && d5.price === T.FUEL_PRICES.diesel, "defaults by axles");
+  const c = T.commute({ toll: 4.63, minutesSaved: 7, fuelExtra: 0.6 }, 5, true);
+  assert(c.trips === 10 && Math.abs(c.tolls.week - 46.3) < 1e-9, "10 trips a week, $46.30: " + c.tolls.week);
+  assert(Math.abs(c.tolls.month - 46.3 * 52 / 12) < 1e-9 && Math.abs(c.minutesSaved.week - 70) < 1e-9, "month = 52/12 weeks; 70 min saved a week");
+  assert(T.commute({ toll: 2, minutesSaved: null, fuelExtra: null }, 3, false).minutesSaved === null, "missing values stay missing");
+});
+
 console.log(passed + " tests passed");

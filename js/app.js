@@ -770,7 +770,8 @@ require([
     freeTraffic = graphics(freeRoute.tt, "free");
     var marks = (tollRoute.ttIncidents || []).map(function (i) {
       return new Graphic({ geometry: { type: "point", longitude: i.at[0], latitude: i.at[1] },
-        symbol: { type: "simple-marker", style: "diamond", size: 13, color: i.category === 1 || i.category === 8 ? [217, 48, 37] : [245, 124, 0], outline: { color: [255, 255, 255], width: 1.5 } } });
+        symbol: i.category === 1 ? { type: "picture-marker", url: CRASH_URL, width: "24px", height: "24px" }
+          : { type: "simple-marker", style: "diamond", size: 13, color: i.category === 8 ? [217, 48, 37] : [245, 124, 0], outline: { color: [255, 255, 255], width: 1.5 } } });
     });
     routesLayer.addMany(tollTraffic.concat(freeTraffic, marks));
     setFreeVisible($("show-free").checked);
@@ -975,6 +976,27 @@ require([
 
   // TomTom incident card (debug test): what it is, where, delay, which route.
   function incidentColor(i) { return i.category === 1 || i.category === 8 ? "#d93025" : "#f57c00"; }
+  // Crash icon: a red circle with a white wrecked car (tilted, with an impact burst), drawn in a
+  // 32x32 box. The same shapes go on the map (as an image) and in the trip chart (inline).
+  var CRASH_SHAPES =
+    '<circle cx="16" cy="16" r="14.5" fill="#d93025" stroke="#fff" stroke-width="2"/>' +
+    '<g transform="rotate(-14 15 18)" fill="#fff">' +
+      '<path d="M10.2 16.2 11.6 12.2Q12 11.2 13.1 11.2H17Q18.1 11.2 18.5 12.2L19.9 16.2Z"/>' +
+      '<path d="M12.2 15.4 13.1 12.6H17L17.9 15.4Z" fill="#d93025"/>' +
+      '<rect x="8.4" y="15.8" width="13.3" height="5" rx="1.4"/>' +
+      '<circle cx="10.9" cy="18.3" r="1" fill="#d93025"/><circle cx="19.2" cy="18.3" r="1" fill="#d93025"/>' +
+      '<rect x="9.2" y="20.4" width="2.6" height="2.3" rx="0.6"/><rect x="18.3" y="20.4" width="2.6" height="2.3" rx="0.6"/>' +
+    "</g>" +
+    '<path fill="#fff" d="M23.6 6.2 24.4 8.6 26.8 7.9 25.4 9.9 27.4 11.3 24.9 11.4 24.8 13.9 23.4 11.9 21.3 13.2 22.2 10.9 19.8 10.1 22.3 9.4Z"/>';
+  var CRASH_URL = "data:image/svg+xml;charset=utf-8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">' + CRASH_SHAPES + "</svg>");
+  function crashMark(x, y, size) { // centered at x, y in the trip chart
+    var k = size / 32;
+    return '<g transform="translate(' + (x - size / 2).toFixed(1) + " " + (y - size / 2).toFixed(1) + ") scale(" + k.toFixed(3) + ')">' + CRASH_SHAPES + "</g>";
+  }
+  function diamondMark(x, y, color, r) {
+    r = r || 5.5;
+    return '<rect x="' + (x - r) + '" y="' + (y - r) + '" width="' + 2 * r + '" height="' + 2 * r + '" transform="rotate(45 ' + x + " " + y + ')" style="fill:' + color + ';stroke:#fff;stroke-width:1.5"/>';
+  }
   function showIncidentCard(k) {
     var i = lastTrip && (lastTrip.tollRoute.ttIncidents || [])[k];
     if (!i) return;
@@ -983,7 +1005,8 @@ require([
     var routes = i.onToll && i.onFree ? "Toll and toll-free routes" : i.onToll ? "Toll route" : "Toll-free route";
     card.innerHTML =
       '<button type="button" class="map-card-close" aria-label="Close">\u2715</button>' +
-      '<div class="map-card-road" style="color:' + incidentColor(i) + '">\u25c6 ' + esc(i.kind) + "</div>" +
+      '<div class="map-card-road map-card-inc" style="color:' + incidentColor(i) + '">' +
+        (i.category === 1 ? '<svg viewBox="0 0 32 32" width="18" height="18" aria-hidden="true">' + CRASH_SHAPES + "</svg>" : "\u25c6") + " " + esc(i.kind) + "</div>" +
       '<h3 class="map-card-title">' + esc(i.text || i.kind) + "</h3>" +
       (where ? '<p class="map-card-note">' + esc(where) + "</p>" : "") +
       '<div class="chips"><span class="chip">' + routes + "</span>" + (i.delayMin ? '<span class="chip">About ' + i.delayMin + " min delay</span>" : "") +
@@ -1111,7 +1134,7 @@ require([
         var x = (X0 + 14 + (X1 - X0 - 28) * a[0]).toFixed(1);
         svg += '<g class="tc-inc" tabindex="0" role="button" data-inc="' + k + '" aria-label="' + esc(inc.kind + (inc.road ? " on " + inc.road : "")) + '">' +
           '<rect x="' + (x - 12) + '" y="' + (a[1] - 12) + '" width="24" height="24" class="tc-hit"/>' +
-          '<rect x="' + (x - 5.5) + '" y="' + (a[1] - 5.5) + '" width="11" height="11" transform="rotate(45 ' + x + " " + a[1] + ')" style="fill:' + incidentColor(inc) + ';stroke:#fff;stroke-width:1.5"/></g>';
+          (inc.category === 1 ? crashMark(+x, a[1], 19) : diamondMark(+x, a[1], incidentColor(inc))) + "</g>";
       });
     });
     var any = tSegs.concat(fSegs).some(function (sg) { return sg.level; });
@@ -1129,10 +1152,9 @@ require([
     }
     if (incs.length) {
       var iy = any ? 180 : 162;
-      svg += '<rect x="' + (X0 + 3) + '" y="' + (iy - 8) + '" width="8" height="8" transform="rotate(45 ' + (X0 + 7) + " " + (iy - 4) + ')" style="fill:#d93025"/>' +
-        '<text x="' + (X0 + 16) + '" y="' + iy + '" class="tc-k">Crash or closure</text>' +
-        '<rect x="' + (X0 + 117) + '" y="' + (iy - 8) + '" width="8" height="8" transform="rotate(45 ' + (X0 + 121) + " " + (iy - 4) + ')" style="fill:#f57c00"/>' +
-        '<text x="' + (X0 + 130) + '" y="' + iy + '" class="tc-k">Other incident \u00b7 tap for details</text>';
+      svg += crashMark(X0 + 6, iy - 4, 13) + '<text x="' + (X0 + 16) + '" y="' + iy + '" class="tc-k">Crash</text>' +
+        diamondMark(X0 + 62, iy - 4, "#d93025", 4) + '<text x="' + (X0 + 71) + '" y="' + iy + '" class="tc-k">Road closure</text>' +
+        diamondMark(X0 + 152, iy - 4, "#f57c00", 4) + '<text x="' + (X0 + 161) + '" y="' + iy + '" class="tc-k">Other \u00b7 tap any for details</text>';
       legendH = iy + 8;
     }
     svg = svg.replace('viewBox="0 0 ' + W + ' 146"', 'viewBox="0 0 ' + W + " " + legendH + '"');

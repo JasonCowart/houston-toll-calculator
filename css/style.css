@@ -261,3 +261,4 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 #trip-chart .tc-inc { cursor: pointer; }
 #trip-chart .tc-inc:focus { outline: none; }
 #trip-chart .tc-inc:focus rect + rect { stroke: var(--ink); }
+.map-card-inc { display: flex; align-items: center; gap: 6px; }

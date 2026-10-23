@@ -107,6 +107,7 @@ input[type="datetime-local"] { -webkit-appearance: none; appearance: none; min-w
 .swatch.free { height: 3px; background: repeating-linear-gradient(90deg, #8f8b96 0 3px, transparent 3px 5px); }
 .price { font-size: 26px; font-weight: 700; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
 .card.toll .price { color: var(--purple); }
+.card.free .price { color: var(--ink-soft); }   /* gray, so the toll price leads */
 .meta { color: var(--ink-soft); font-size: 13px; }
 #flags .notice { margin-top: 8px; }
 

@@ -284,7 +284,10 @@ require([
         trafficProbe: lastTrip.tollRoute.trafficProbe || null,
         stayedOn: lastTrip.tollRoute.stayedOn || null, stillHops: lastTrip.tollRoute.stillHops || null, anchors: lastTrip.tollRoute.anchors || null, originalMinutes: lastTrip.tollRoute.originalMinutes || null },
       free: { minutes: fs.minutes, miles: fs.miles, mode: lastTrip.freeRoute.modeNote || null, path: t.freePath.map(round6),
-        steps: (lastTrip.freeRoute.steps || []).map(function (s) { return { maneuverType: s.maneuverType, text: s.text, time: s.time, length: s.length, path: s.path ? s.path.map(round6) : null }; }) },
+        steps: (lastTrip.freeRoute.steps || []).map(function (s) { return { maneuverType: s.maneuverType, text: s.text, time: s.time, length: s.length, path: s.path ? s.path.map(round6) : null }; }),
+        feederFixed: lastTrip.freeRoute.feederFixed ? lastTrip.freeRoute.feederFixed.map(function (d) { return { road: d.road, via: d.via }; }) : null,
+        feederGap: lastTrip.freeRoute.feederGap ? lastTrip.freeRoute.feederGap.map(function (d) { return { road: d.road, via: d.via }; }) : null,
+        originalMinutes: lastTrip.freeRoute.originalFreeMinutes || null },
       result: { total: lastTrip.priced.total, items: lastTrip.priced.items.map(function (it) { return { id: it.point.id, name: it.point.name, rate: it.rate }; }) },
       expected: null,
     };
@@ -1157,6 +1160,14 @@ require([
     if (priced.laneOptions) flags.push("Your route runs alongside the Katy Managed Lanes or SH 288 Express Lanes. The toll route includes their tolls for that stretch; the toll-free route stays in the regular lanes.");
     if (priced.timed) flags.push("Katy Managed Lanes and SH 288 Express Lanes charge by time of day. These are priced for when you'd reach each gantry, leaving " + (($("leave").value ? "at " : "now, ") + fmtClock(departure)) + ".");
     if (priced.missing.length) flags.push(priced.missing.length + " toll point(s) on this route have no rate for this vehicle in the data, so the total is low.");
+    var fr = lastTrip && lastTrip.freeRoute;
+    if (fr && fr.feederGap && fr.feederGap.length)
+      flags.push("Esri's toll-free route leaves the " + fr.feederGap.map(function (d) { return d.road; }).filter(function (r, i, a) { return a.indexOf(r) === i; }).join(" and ") +
+        " feeder road and comes back to it (via " + fr.feederGap.map(function (d) { return d.via.join(", "); }).join("; ") +
+        "), even when steered back. Esri's map may be missing part of the feeder road here, so the toll-free time may be a little long.");
+    else if (fr && fr.feederFixed && fr.feederFixed.length)
+      flags.push("Esri's fastest toll-free route left the feeder road for side streets (" + fr.feederFixed.map(function (d) { return d.via.join(", "); }).join("; ") +
+        ") and came back. Drivers usually stay on the feeder road, so the toll-free route here does too.");
     var still = lastTrip && lastTrip.tollRoute.stillHops;
     if (still && still.length)
       flags.push("Esri's toll route still gets off the " + stillRoads(still) + " and back on (via " + stillVia(still) +
@@ -1241,6 +1252,34 @@ require([
   // Drivers stay on the tollway unless there's a crash or closure, which the app can't see,
   // so the toll route is asked for again with a barrier on each detour (TollCalc.findTollwayHops),
   // up to twice. If that fails, the original route is kept.
+  // Toll-free routes that leave the feeder road for side streets and come back to it: re-route
+  // with the side street blocked, a few rounds. If Esri still won't stay on, its map likely has a
+  // gap in the feeder road there; say so.
+  var FEEDER_ROUNDS = 3;
+  function stayOnFeeder(freeRoute, barriers, round, first) {
+    barriers = barriers || []; round = round || 0;
+    var detours = window.TollCalc.findFeederDetours(freeRoute.steps);
+    if (!first) first = detours;
+    if (!detours.length || !freeRoute.mode || round >= FEEDER_ROUNDS) {
+      if (round > 0) {
+        freeRoute.feederFixed = detours.length ? null : first;
+        freeRoute.originalFreeMinutes = freeRoute.originalFreeMinutes || null;
+      }
+      if (detours.length) freeRoute.feederGap = detours;
+      return Promise.resolve(freeRoute);
+    }
+    setStatus("Keeping the toll-free route on the feeder road\u2026");
+    detours.forEach(function (d) { barriers.push(d.barrier); });
+    return solve(freeRoute.mode, true, DEBUG, null, barriers.slice()).then(function (g) {
+      g.originalFreeMinutes = freeRoute.originalFreeMinutes || routeStats(freeRoute).minutes;
+      return stayOnFeeder(g, barriers, round + 1, first);
+    }).catch(function (e) {
+      console.warn("stay-on-feeder route failed", e);
+      freeRoute.feederGap = detours;
+      return freeRoute;
+    });
+  }
+
   var STAY_ON_ROUNDS = 4;
   function tollwayName(r) { return r === "Sam Houston" ? "Sam Houston Tollway" : r; }
   function stillRoads(hops) {
@@ -1321,7 +1360,7 @@ require([
       window.__baseMode = mode;
       return Promise.all([solveFirst(tollVariants(mode, axles, "prefer"), true), solveFirst(tollVariants(mode, axles, "prohibit"), true)]);
     }).then(function (routes) {
-      return stayOnTollway(routes[0], axles).then(function (tollRoute) { return [tollRoute, routes[1]]; });
+      return Promise.all([stayOnTollway(routes[0], axles), stayOnFeeder(routes[1])]);
     }).then(function (routes) {
       var tollRoute = routes[0], freeRoute = routes[1];
       var path = [].concat.apply([], tollRoute.geometry.paths);

@@ -405,4 +405,19 @@ test("TomTom road segments line up with the route they run along, same direction
   assert(Math.abs(T.distanceToPath(path, [-95.57, 29.7003]) - 33) < 2, "point 33 m off the route: " + T.distanceToPath(path, [-95.57, 29.7003]));
 });
 
+test("spots a toll-free route that leaves the Beltway 8 feeder road for side streets and comes back", () => {
+  const fs = require("fs"), path = require("path"), dir = path.join(__dirname, "..", "tests", "trips");
+  const t = JSON.parse(fs.readFileSync(path.join(dir, "2026-10-23-1103-bw8-east-free-route-leaves-feeder.json"), "utf8"));
+  const d = T.findFeederDetours(t.free.steps);
+  assert(d.length === 1 && d[0].road === "Sam Houston Pkwy", "one feeder detour: " + JSON.stringify(d.map((x) => x.via)));
+  assert(d[0].via.length === 2 && /King/.test(d[0].via[0]) && /Tidwell/.test(d[0].via[1]), "via C.E. King and Tidwell: " + d[0].via);
+  assert(d[0].barrier[1] < 29.89 && d[0].barrier[1] > 29.85, "barrier on C.E. King, away from the Beltway");
+  assert(T.feederRoad("Keep left at the fork onto N Sam Houston Pkwy E") === "Sam Houston Pkwy" && T.feederRoad("Go on TX-8 Beltway E (Sam Houston Tollway)") === null, "feeder names");
+  // No other saved trip's toll-free route does this.
+  for (const f of fs.readdirSync(dir).filter((f) => f.endsWith(".json") && !/leaves-feeder/.test(f))) {
+    const x = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    assert(T.findFeederDetours(x.free && x.free.steps).length === 0, "no feeder detour expected in " + f);
+  }
+});
+
 console.log(passed + " tests passed");

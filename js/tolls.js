@@ -543,6 +543,55 @@
     }
     return path[path.length - 1];
   }
+  // The feeder (frontage) road a step drives, as a key: "Sam Houston Pkwy" for N/S/E/W Sam Houston
+  // Pkwy, the same for Tomball Pkwy and Westpark Dr, else the name of any road called a frontage
+  // or service road. null for other roads.
+  function feederRoad(text) {
+    var t = String(text || "").toLowerCase();
+    if (/sam houston (pkwy|parkway)/.test(t) && !/tollway/.test(t)) return "Sam Houston Pkwy";
+    if (/tomball (pkwy|parkway)/.test(t) && !/tollway/.test(t)) return "Tomball Pkwy";
+    if (/westpark (dr|drive)/.test(t)) return "Westpark Dr";
+    var m = /\b(?:on|onto|to)\s+(.+)$/.exec(t);
+    var name = m ? m[1] : "";
+    if (/\b(frtg|frontage|service dr|feeder|acc rd)\b/.test(name)) return name.replace(/\b[nsew]\b/g, "").replace(/\s+/g, " ").trim();
+    return null;
+  }
+  // Toll-free routes that leave a feeder road for side streets and come back to the same feeder
+  // road, up to 8 miles later. Each comes with a barrier point on the longest side street.
+  function findFeederDetours(steps) {
+    var out = [];
+    if (!steps) return out;
+    var lastFeeder = null, offStart = -1;
+    for (var i = 0; i < steps.length; i++) {
+      var f = feederRoad(steps[i].text);
+      if (f) {
+        if (lastFeeder === f && offStart >= 0) {
+          var off = steps.slice(offStart, i), miles = 0, best = null, highway = false;
+          off.forEach(function (s) {
+            miles += s.length > 0 ? s.length : 0;
+            var t = String(s.text || "").toLowerCase();
+            if (HIGHWAY_TEXT.test(t) && !NOT_HIGHWAY.test(t) && !/\bfm[- ]?\d/.test(t)) highway = true;
+            if (s.path && s.path.length > 1 && !/Ramp|Fork/.test(s.maneuverType || "") && (!best || s.length > best.length)) best = s;
+          });
+          if (!highway && best && best.length > 0.3 && miles <= HOP_MAX_MILES) {
+            var vias = [];
+            off.forEach(function (s) {
+              var m = /\b(?:on|onto)\s+([^()]+?)\s*(\(|$)/.exec(String(s.text || "")), name = m && m[1].trim();
+              var key = function (n) { return n.toLowerCase().replace(/[^a-z0-9]/g, ""); };
+              if (name && !/Ramp|Fork/.test(s.maneuverType || "") && !vias.some(function (v) { return key(v) === key(name); })) vias.push(name);
+            });
+            out.push({ road: f, miles: miles, fromStep: offStart, toStep: i, barrier: midPoint(best.path), via: vias });
+          }
+        }
+        lastFeeder = f;
+        offStart = -1;
+      } else if (lastFeeder && offStart < 0 && steps[i].maneuverType !== "esriDMTStop") {
+        offStart = i;
+      }
+    }
+    return out;
+  }
+
   function findTollwayHops(steps) {
     var hops = [];
     if (!steps) return hops;
@@ -699,7 +748,7 @@
     return [[Math.max(0, Math.min.apply(null, a) - 0.01), Math.min(1, Math.max.apply(null, a) + 0.01)]];
   }
 
-  var api = { distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

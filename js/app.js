@@ -15,7 +15,8 @@ require([
   "esri/rest/networkService",
   "esri/rest/locator",
   "esri/geometry/Point",
-], function (esriConfig, Map, Basemap, MapView, Search, GraphicsLayer, FeatureLayer, GeoJSONLayer, Graphic, route, RouteParameters, FeatureSet, networkService, locator, Point) {
+  "esri/layers/WebTileLayer",
+], function (esriConfig, Map, Basemap, MapView, Search, GraphicsLayer, FeatureLayer, GeoJSONLayer, Graphic, route, RouteParameters, FeatureSet, networkService, locator, Point, WebTileLayer) {
   "use strict";
 
   var ROUTE_URL = "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
@@ -26,6 +27,9 @@ require([
 
   var key = (window.TOLL_CONFIG && window.TOLL_CONFIG.arcgisApiKey || "").trim();
   var DEBUG = /[?&]debug=1\b/.test(location.search);
+  // TomTom traffic: being tested in the debug view only (free evaluation tier).
+  var TT_KEY = (window.TOLL_CONFIG && window.TOLL_CONFIG.tomtomApiKey || "").trim();
+  var TOMTOM = DEBUG && !!TT_KEY;
   var $ = function (id) { return document.getElementById(id); };
   var stops = { from: null, to: null };
   var tollPoints = [];
@@ -615,9 +619,9 @@ require([
   }
 
   // Traffic colors on highway stretches (TollCalc.trafficSegments): moderate, slow, heavy.
-  var TRAFFIC = { moderate: [246, 180, 0], slow: [245, 124, 0], heavy: [217, 48, 37] };
-  var TRAFFIC_HEX = { moderate: "#f6b400", slow: "#f57c00", heavy: "#d93025" };
-  var freeTraffic = [];
+  var TRAFFIC = { moderate: [246, 180, 0], slow: [245, 124, 0], heavy: [217, 48, 37], closed: [91, 15, 15] };
+  var TRAFFIC_HEX = { moderate: "#f6b400", slow: "#f57c00", heavy: "#d93025", closed: "#5b0f0f" };
+  var freeTraffic = [], tollTraffic = [];
   function trafficGraphics(g, kind, skip) {
     return window.TollCalc.trafficSegments(g.steps, skip).filter(function (sg) { return sg.level && sg.path && sg.path.length > 1; })
       .map(function (sg) {
@@ -644,11 +648,103 @@ require([
   // Toll route traffic colors, leaving out the stretch beside managed lanes: Esri can't route
   // on those lanes, so the times there are the regular lanes' and would mislead.
   function drawTollTraffic(g, priced, routeMeters) {
-    routesLayer.addMany(trafficGraphics(g, "toll", window.TollCalc.laneRanges(priced.items, routeMeters)));
+    tollTraffic = trafficGraphics(g, "toll", window.TollCalc.laneRanges(priced.items, routeMeters));
+    routesLayer.addMany(tollTraffic);
   }
   function setFreeVisible(on) {
     if (freeGraphic) freeGraphic.visible = on;
     freeTraffic.forEach(function (t) { t.visible = on; });
+  }
+
+  // ---- TomTom traffic (debug view only, while it's being evaluated) ----
+  // Live speed for each road segment along a route: TomTom returns the whole segment a point
+  // is on, so sample every half mile and skip points a segment already covers.
+  var TT_BASE = "https://api.tomtom.com/traffic/services";
+  var TT_SAMPLE_METERS = 800, TT_MAX_CALLS = 45, TT_WAVE = 6;
+  function ttFlow(path) {
+    var T = window.TollCalc, total = T.pathMeters(path), pts = T.sampleAlong(path, TT_SAMPLE_METERS);
+    var segs = [], calls = 0;
+    function covered(a) { return segs.some(function (sg) { return a >= sg.fromM - 40 && a <= sg.toM + 40; }); }
+    function wave() {
+      var batch = pts.filter(function (p) { return !p.done && !covered(p.along); }).slice(0, TT_WAVE);
+      if (!batch.length || calls >= TT_MAX_CALLS) return Promise.resolve();
+      return Promise.all(batch.map(function (p) {
+        p.done = true; calls++;
+        var url = TT_BASE + "/4/flowSegmentData/absolute/10/json?unit=MPH&point=" + p.lonlat[1].toFixed(6) + "," + p.lonlat[0].toFixed(6) + "&key=" + encodeURIComponent(TT_KEY);
+        return fetch(url).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+          var f = d && d.flowSegmentData;
+          if (!f || !f.coordinates) return;
+          var coords = (f.coordinates.coordinate || []).map(function (c) { return [c.longitude, c.latitude]; });
+          var m = T.segmentAlong(path, coords, 25);
+          if (!m) return;
+          segs.push({ fromM: m.from, toM: m.to, from: m.from / total, to: m.to / total, path: m.path,
+            mph: f.currentSpeed, freeMph: f.freeFlowSpeed, confidence: f.confidence, closed: !!f.roadClosure,
+            level: T.relativeLevel(f.currentSpeed, f.freeFlowSpeed, f.roadClosure) });
+        }).catch(function () { /* one failed point leaves a gap */ });
+      })).then(wave);
+    }
+    return wave().then(function () { segs.sort(function (a, b) { return a.fromM - b.fromM; }); segs.calls = calls; return segs; });
+  }
+  // Crashes, closures and roadwork along a route (TomTom incident details for the route's box).
+  var TT_ICON = { 0: "Incident", 1: "Crash", 2: "Fog", 3: "Dangerous conditions", 4: "Rain", 5: "Ice", 6: "Traffic jam", 7: "Lane closed",
+    8: "Road closed", 9: "Roadwork", 10: "Wind", 11: "Flooding", 14: "Broken-down vehicle" };
+  function ttIncidents(paths) {
+    var all = [].concat.apply([], paths), xs = all.map(function (p) { return p[0]; }), ys = all.map(function (p) { return p[1]; });
+    var pad = 0.01, bbox = [Math.min.apply(null, xs) - pad, Math.min.apply(null, ys) - pad, Math.max.apply(null, xs) + pad, Math.max.apply(null, ys) + pad];
+    var fields = "{incidents{type,geometry{type,coordinates},properties{id,iconCategory,magnitudeOfDelay,events{description},startTime,from,to,length,delay,roadNumbers}}}";
+    var url = TT_BASE + "/5/incidentDetails?bbox=" + bbox.map(function (n) { return n.toFixed(5); }).join(",") +
+      "&fields=" + encodeURIComponent(fields) + "&language=en-US&timeValidityFilter=present&key=" + encodeURIComponent(TT_KEY);
+    return fetch(url).then(function (r) { return r.ok ? r.json() : { incidents: [] }; }).then(function (d) {
+      return (d.incidents || []).map(function (inc) {
+        var g = inc.geometry || {}, pr = inc.properties || {};
+        var coords = g.type === "Point" ? [g.coordinates] : (g.coordinates || []);
+        var on = paths.map(function (path) {
+          if (coords.length > 1) return !!window.TollCalc.segmentAlong(path, coords, 30);
+          return window.TollCalc.distanceToPath(path, coords[0]) <= 30; // a point: just close to the route
+        });
+        return { kind: TT_ICON[pr.iconCategory] || "Incident", category: pr.iconCategory, onToll: on[0], onFree: on[1],
+          at: coords[Math.floor(coords.length / 2)], road: (pr.roadNumbers || []).join("/"), from: pr.from, to: pr.to,
+          delayMin: pr.delay ? Math.round(pr.delay / 60) : 0, text: pr.events && pr.events[0] ? pr.events[0].description : "" };
+      }).filter(function (i) { return (i.onToll || i.onFree) && i.category !== 6; }); // jams already show as traffic colors
+    }).catch(function () { return []; });
+  }
+  var ttRun = 0;
+  function loadTomTom(tollRoute, freeRoute) {
+    if (!TOMTOM) return;
+    var run = ++ttRun;
+    var tp = [].concat.apply([], tollRoute.geometry.paths), fp = [].concat.apply([], freeRoute.geometry.paths);
+    $("tt-status").hidden = false;
+    $("tt-status").textContent = "TomTom traffic: loading\u2026";
+    Promise.all([ttFlow(tp), ttFlow(fp), ttIncidents([tp, fp])]).then(function (res) {
+      if (run !== ttRun || !lastTrip || lastTrip.tollRoute !== tollRoute) return;
+      tollRoute.tt = res[0]; freeRoute.tt = res[1]; tollRoute.ttIncidents = res[2];
+      showTomTom(tollRoute, freeRoute);
+      $("tt-status").textContent = "TomTom traffic: " + (res[0].calls + res[1].calls) + " speed lookups, " +
+        res[0].length + " + " + res[1].length + " road segments, " + res[2].length + " incident(s) on the routes.";
+    });
+  }
+  // Replace Esri's step-average colors with TomTom's per-segment ones, and mark incidents.
+  function showTomTom(tollRoute, freeRoute) {
+    routesLayer.removeMany(tollTraffic.concat(freeTraffic));
+    function graphics(segs, kind) {
+      return segs.filter(function (sg) { return sg.level && sg.path.length > 1; }).map(function (sg) {
+        var geom = { type: "polyline", paths: [sg.path], spatialReference: { wkid: 4326 } };
+        return new Graphic({ geometry: geom, symbol: kind === "toll"
+          ? { type: "simple-line", color: TRAFFIC[sg.level], width: 5, cap: "round", join: "round" } : freeSymbol(sg.level) });
+      });
+    }
+    tollTraffic = graphics(tollRoute.tt, "toll");
+    freeTraffic = graphics(freeRoute.tt, "free");
+    var marks = (tollRoute.ttIncidents || []).map(function (i) {
+      return new Graphic({ geometry: { type: "point", longitude: i.at[0], latitude: i.at[1] },
+        symbol: { type: "simple-marker", style: "diamond", size: 13, color: i.category === 1 || i.category === 8 ? [217, 48, 37] : [245, 124, 0], outline: { color: [255, 255, 255], width: 1.5 } } });
+    });
+    routesLayer.addMany(tollTraffic.concat(freeTraffic, marks));
+    setFreeVisible($("show-free").checked);
+    if (lastTrip) showResults(lastTrip.tollRoute, lastTrip.freeRoute, lastTrip.priced, lastTrip.savings);
+  }
+  function ttChartSegs(route) {
+    return (route.tt || []).map(function (sg) { return { from: sg.from, to: sg.to, level: sg.level, mph: sg.mph, free: sg.freeMph }; });
   }
 
   // Short map label for a toll point: "Peek Rd $0.84". Drops words that repeat on every gantry.
@@ -873,6 +969,20 @@ require([
       try { localStorage.setItem("htc-basemap", id); } catch (e) { /* not kept */ }
     };
     bm.addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) setBasemap(b.getAttribute("data-id")); });
+    if (TOMTOM) {
+      // Debug: TomTom's traffic map layer, to compare with Google's traffic view.
+      var ttLayer = new WebTileLayer({ urlTemplate: "https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{level}/{col}/{row}.png?key=" + encodeURIComponent(TT_KEY),
+        copyright: "Traffic \u00a9 TomTom", visible: false, opacity: 0.85 });
+      map.add(ttLayer, 0);
+      var tw = document.createElement("div");
+      tw.className = "basemap-switch tt-switch";
+      tw.innerHTML = '<button type="button" aria-pressed="false">TomTom traffic</button>';
+      view.ui.add(tw, "top-right");
+      tw.addEventListener("click", function () {
+        ttLayer.visible = !ttLayer.visible;
+        tw.firstChild.setAttribute("aria-pressed", ttLayer.visible ? "true" : "false");
+      });
+    }
     var savedBasemap = null;
     try { savedBasemap = localStorage.getItem("htc-basemap"); } catch (e) { /* default */ }
     setBasemap(savedBasemap || BASEMAPS[0][0]);
@@ -905,12 +1015,13 @@ require([
     svg += '<line x1="' + X0 + '" y1="' + yT + '" x2="' + X1 + '" y2="' + yT + '" class="tc-toll-edge"/>';
     svg += '<line x1="' + X0 + '" y1="' + yT + '" x2="' + X1 + '" y2="' + yT + '" class="tc-toll"/>';
     var laneSkip = window.TollCalc.laneRanges(priced.items, routeMeters);
-    var tSegs = lastTrip ? window.TollCalc.trafficSegments(lastTrip.tollRoute.steps, laneSkip) : [];
-    var fSegs = lastTrip ? window.TollCalc.trafficSegments(lastTrip.freeRoute.steps) : [];
+    var useTT = !!(lastTrip && lastTrip.tollRoute.tt);
+    var tSegs = useTT ? ttChartSegs(lastTrip.tollRoute) : lastTrip ? window.TollCalc.trafficSegments(lastTrip.tollRoute.steps, laneSkip) : [];
+    var fSegs = useTT ? ttChartSegs(lastTrip.freeRoute) : lastTrip ? window.TollCalc.trafficSegments(lastTrip.freeRoute.steps) : [];
     function trafficLines(segs, y, cls) {
       return segs.filter(function (sg) { return sg.level; }).map(function (sg) {
         return '<line x1="' + (X0 + (X1 - X0) * sg.from).toFixed(1) + '" y1="' + y + '" x2="' + (X0 + (X1 - X0) * sg.to).toFixed(1) +
-          '" y2="' + y + '" class="' + cls + '" style="stroke:' + TRAFFIC_HEX[sg.level] + '"><title>' + sg.level + " traffic, about " + Math.round(sg.mph) + " mph</title></line>";
+          '" y2="' + y + '" class="' + cls + '" style="stroke:' + TRAFFIC_HEX[sg.level] + '"><title>' + sg.level + " traffic, about " + Math.round(sg.mph) + " mph" + (sg.free ? " (usually " + Math.round(sg.free) + ")" : "") + "</title></line>";
       }).join("");
     }
     svg += trafficLines(tSegs, yT, "tc-traffic");
@@ -951,7 +1062,8 @@ require([
     svg = svg.replace('viewBox="0 0 ' + W + ' 146"', 'viewBox="0 0 ' + W + " " + (any ? 170 : 146) + '"');
     svg += "</svg>";
     // Long stretches with no turn get one average speed from Esri: say why they aren't colored.
-    var coarse = tSegs.concat(fSegs).filter(function (sg) { return sg.coarse && !sg.skipped; })
+    if (useTT) svg += '<p class="tc-note">Traffic colors: TomTom live speeds, compared with each road\'s usual speed (debug test). Traffic \u00a9 TomTom.</p>';
+    var coarse = useTT ? null : tSegs.concat(fSegs).filter(function (sg) { return sg.coarse && !sg.skipped; })
       .sort(function (a, b) { return b.miles - a.miles; })[0];
     if (coarse) {
       var m = /\b(?:on|onto)\s+([^()/]+?)\s*(?:\(|\/|toward|$)/i.exec(coarse.text);
@@ -1018,6 +1130,10 @@ require([
     }
 
     var flags = [];
+    (lastTrip && lastTrip.tollRoute.ttIncidents || []).forEach(function (i) {
+      flags.push("TomTom: " + i.kind + (i.road ? " on " + i.road : "") + (i.from ? " (" + i.from + (i.to && i.to !== i.from ? " to " + i.to : "") + ")" : "") +
+        (i.delayMin ? ", about " + i.delayMin + " min delay" : "") + " \u2014 on the " + (i.onToll && i.onFree ? "toll and toll-free routes" : i.onToll ? "toll route" : "toll-free route") + ".");
+    });
     if (priced.pending.length) flags.push("Some time-of-day tolls (Katy Managed Lanes or SH 288 Express Lanes) couldn't be priced, so the total is low.");
     if (priced.laneOptions) flags.push("Your route runs alongside the Katy Managed Lanes or SH 288 Express Lanes. The toll route includes their tolls for that stretch; the toll-free route stays in the regular lanes.");
     if (priced.timed) flags.push("Katy Managed Lanes and SH 288 Express Lanes charge by time of day. These are priced for when you'd reach each gantry, leaving " + (($("leave").value ? "at " : "now, ") + fmtClock(departure)) + ".");
@@ -1068,6 +1184,7 @@ require([
       var ez = window.TollCalc.analyzeTrip(Object.assign({}, trip, { payment: "eztag" }), tollPoints).priced;
       if (!ez.missing.length && !ez.pending.length) savings = { eztag: ez.total, amount: Math.round((priced.total - ez.total) * 100) / 100 };
     }
+    lastTrip.savings = savings;
     showResults(tollRoute, freeRoute, priced, savings);
   }
   function repriceShown() {
@@ -1201,6 +1318,7 @@ require([
       view.goTo(tollRoute.geometry.extent.clone().expand(1.25)).catch(function () {});
       priceTrip(trip, tollRoute, freeRoute);
       drawTollTraffic(tollRoute, lastTrip.priced, window.TollCalc.pathMeters(path));
+      loadTomTom(tollRoute, freeRoute);
       setStatus("");
       scrollToHeadline();
     }).catch(function (err) {

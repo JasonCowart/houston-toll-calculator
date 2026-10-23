@@ -57,15 +57,17 @@ jobs:
             echo "offline=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Insert API key into config.js
+      - name: Insert API keys into config.js
         if: steps.lock.outputs.offline != 'true'
         env:
           ARCGIS_API_KEY: ${{ secrets.ARCGIS_API_KEY }}
+          TOMTOM_API_KEY: ${{ secrets.TOMTOM_API_KEY }}
         run: |
           if [ -z "$ARCGIS_API_KEY" ]; then
             echo "::warning::ARCGIS_API_KEY secret is not set; the site will show the missing-key notice."
           fi
-          KEY="$ARCGIS_API_KEY" node -e 'require("fs").writeFileSync("config.js", "window.TOLL_CONFIG = " + JSON.stringify({ arcgisApiKey: process.env.KEY.trim() }) + ";\n")'
+          # TomTom (debug view only for now); the key is limited to this site in TomTom's dashboard.
+          KEY="$ARCGIS_API_KEY" TT="$TOMTOM_API_KEY" node -e 'const c = { arcgisApiKey: process.env.KEY.trim() }; if (process.env.TT && process.env.TT.trim()) c.tomtomApiKey = process.env.TT.trim(); require("fs").writeFileSync("config.js", "window.TOLL_CONFIG = " + JSON.stringify(c) + ";\n")'
 
       - name: Cache-bust scripts and styles
         if: steps.lock.outputs.offline != 'true'

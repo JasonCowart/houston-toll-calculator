@@ -392,4 +392,17 @@ test("finds toll routes that leave a tollway and get back on", () => {
   }
 });
 
+test("TomTom road segments line up with the route they run along, same direction only", () => {
+  const path = [[-95.60, 29.70], [-95.55, 29.70], [-95.50, 29.70]];   // eastbound, about 9.7 km
+  const pts = T.sampleAlong(path, 1000);
+  assert(pts.length === 10 && Math.abs(pts[0].along - 500) < 1, "a point every 1 km starting at 500 m: " + pts.length);
+  const east = T.segmentAlong(path, [[-95.58, 29.70005], [-95.57, 29.70005], [-95.56, 29.70005]]);
+  assert(east && east.from > 1800 && east.to < 4100 && east.to - east.from > 1800, "eastbound segment matched: " + JSON.stringify(east && [east.from, east.to]));
+  assert(T.segmentAlong(path, [[-95.56, 29.70005], [-95.57, 29.70005], [-95.58, 29.70005]]) === null, "westbound (other side of the road) not matched");
+  assert(T.segmentAlong(path, [[-95.58, 29.7012], [-95.56, 29.7012]]) === null, "a road 130 m away not matched");
+  assert(T.relativeLevel(20, 60) === "heavy" && T.relativeLevel(30, 60) === "slow" && T.relativeLevel(42, 60) === "moderate" && T.relativeLevel(55, 60) === null, "levels by share of free-flow speed");
+  assert(T.relativeLevel(0, 60, true) === "closed", "closed road");
+  assert(Math.abs(T.distanceToPath(path, [-95.57, 29.7003]) - 33) < 2, "point 33 m off the route: " + T.distanceToPath(path, [-95.57, 29.7003]));
+});
+
 console.log(passed + " tests passed");

@@ -636,6 +636,60 @@
     return out.map(function (a) { return { lonlat: a.lonlat, road: a.road }; });
   }
 
+  // ---- TomTom traffic (debug test) ----
+  // Points every `every` meters along a route path, with their distance along it.
+  function sampleAlong(path, every) {
+    if (!path || path.length < 2) return [];
+    var proj = projector(path[0][1]), xy = path.map(function (p) { return proj(p[0], p[1]); });
+    var out = [], walked = 0, next = every / 2;
+    for (var i = 0; i < xy.length - 1; i++) {
+      var len = Math.hypot(xy[i + 1][0] - xy[i][0], xy[i + 1][1] - xy[i][1]);
+      while (len > 0 && next <= walked + len) {
+        var t = (next - walked) / len;
+        out.push({ lonlat: [path[i][0] + t * (path[i + 1][0] - path[i][0]), path[i][1] + t * (path[i + 1][1] - path[i][1])], along: next });
+        next += every;
+      }
+      walked += len;
+    }
+    return out;
+  }
+  // Where along a route a road segment runs (same direction, within maxDist meters).
+  // Returns { from, to } in meters along the route and the segment's points on it, or null.
+  function segmentAlong(path, coords, maxDist) {
+    if (!path || path.length < 2 || !coords || coords.length < 2) return null;
+    maxDist = maxDist || 25;
+    var proj = projector(path[0][1]), line = path.map(function (p) { return proj(p[0], p[1]); });
+    var hits = [], same = 0, steps = 0;
+    for (var i = 0; i < coords.length; i++) {
+      var q = proj(coords[i][0], coords[i][1]), n = nearestOnPath(line, q[0], q[1]);
+      if (n.dist > maxDist) continue;
+      hits.push({ along: n.along, lonlat: coords[i] });
+      if (i < coords.length - 1) {
+        var r = proj(coords[i + 1][0], coords[i + 1][1]);
+        if (Math.hypot(r[0] - q[0], r[1] - q[1]) > 1) { steps++; if (angleDiff(bearing(q[0], q[1], r[0], r[1]), n.heading) < 60) same++; }
+      }
+    }
+    if (hits.length < 2 || (steps && same < steps * 0.6)) return null;
+    var a = Math.min.apply(null, hits.map(function (h) { return h.along; })), b = Math.max.apply(null, hits.map(function (h) { return h.along; }));
+    if (b - a < 30) return null;
+    hits.sort(function (x, y) { return x.along - y.along; });
+    return { from: a, to: b, path: hits.map(function (h) { return h.lonlat; }) };
+  }
+  // Meters from a point to a path.
+  function distanceToPath(path, pt) {
+    if (!path || path.length < 2 || !pt) return Infinity;
+    var proj = projector(path[0][1]), q = proj(pt[0], pt[1]);
+    return nearestOnPath(path.map(function (p) { return proj(p[0], p[1]); }), q[0], q[1]).dist;
+  }
+  // Traffic level from TomTom's current vs free-flow speed on that road (like Google's colors:
+  // relative to the road's normal speed, not a fixed mph).
+  function relativeLevel(current, freeFlow, closed) {
+    if (closed) return "closed";
+    if (!(current >= 0) || !(freeFlow > 0)) return null;
+    var r = current / freeFlow;
+    return r < 0.4 ? "heavy" : r < 0.6 ? "slow" : r < 0.8 ? "moderate" : null;
+  }
+
   // The stretch of a route that runs beside managed lanes, as a fraction of the route, from
   // the first to the last managed-lane toll point it passes (priced items with laneOption).
   function laneRanges(items, routeMeters) {
@@ -645,7 +699,7 @@
     return [[Math.max(0, Math.min.apply(null, a) - 0.01), Math.min(1, Math.max.apply(null, a) + 0.01)]];
   }
 
-  var api = { findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

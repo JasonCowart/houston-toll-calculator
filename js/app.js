@@ -660,9 +660,20 @@ require([
   // Live speed for each road segment along a route: TomTom returns the whole segment a point
   // is on, so sample every half mile and skip points a segment already covers.
   var TT_BASE = "https://api.tomtom.com/traffic/services";
-  var TT_SAMPLE_METERS = 800, TT_MAX_CALLS = 45, TT_WAVE = 6;
+  var TT_SAMPLE_METERS = 800, TT_MAX_CALLS = 60, TT_WAVE = 6;
+  // Spread lookups over the whole route first, then fill in: order the half-mile points so the
+  // first ones are far apart (bit-reversed order), so the call limit never leaves the end blank.
+  function spreadOrder(n) {
+    var bits = Math.max(1, Math.ceil(Math.log2(n))), idx = [];
+    for (var i = 0; i < (1 << bits); i++) {
+      var r = 0; for (var b = 0; b < bits; b++) if (i & (1 << b)) r |= 1 << (bits - 1 - b);
+      if (r < n) idx.push(r);
+    }
+    return idx;
+  }
   function ttFlow(path) {
-    var T = window.TollCalc, total = T.pathMeters(path), pts = T.sampleAlong(path, TT_SAMPLE_METERS);
+    var T = window.TollCalc, total = T.pathMeters(path), line = T.sampleAlong(path, TT_SAMPLE_METERS);
+    var pts = spreadOrder(line.length).map(function (i) { return line[i]; });
     var segs = [], calls = 0;
     function covered(a) { return segs.some(function (sg) { return a >= sg.fromM - 40 && a <= sg.toM + 40; }); }
     function wave() {
@@ -683,7 +694,14 @@ require([
         }).catch(function () { /* one failed point leaves a gap */ });
       })).then(wave);
     }
-    return wave().then(function () { segs.sort(function (a, b) { return a.fromM - b.fromM; }); segs.calls = calls; return segs; });
+    return wave().then(function () {
+      segs.sort(function (a, b) { return a.fromM - b.fromM; });
+      // share of the route the matched segments cover
+      var covered = 0, end = 0;
+      segs.forEach(function (sg) { var a = Math.max(sg.fromM, end); if (sg.toM > a) covered += sg.toM - a; end = Math.max(end, sg.toM); });
+      segs.calls = calls; segs.coverage = total ? covered / total : 0;
+      return segs;
+    });
   }
   // Crashes, closures and roadwork along a route (TomTom incident details for the route's box).
   var TT_ICON = { 0: "Incident", 1: "Crash", 2: "Fog", 3: "Dangerous conditions", 4: "Rain", 5: "Ice", 6: "Traffic jam", 7: "Lane closed",
@@ -719,8 +737,9 @@ require([
       if (run !== ttRun || !lastTrip || lastTrip.tollRoute !== tollRoute) return;
       tollRoute.tt = res[0]; freeRoute.tt = res[1]; tollRoute.ttIncidents = res[2];
       showTomTom(tollRoute, freeRoute);
-      $("tt-status").textContent = "TomTom traffic: " + (res[0].calls + res[1].calls) + " speed lookups, " +
-        res[0].length + " + " + res[1].length + " road segments, " + res[2].length + " incident(s) on the routes.";
+      $("tt-status").textContent = "TomTom traffic: " + (res[0].calls + res[1].calls) + " speed lookups, covering " +
+        Math.round(res[0].coverage * 100) + "% of the toll route and " + Math.round(res[1].coverage * 100) + "% of the toll-free route; " +
+        res[2].length + " incident(s) on the routes.";
     });
   }
   // Replace Esri's step-average colors with TomTom's per-segment ones, and mark incidents.

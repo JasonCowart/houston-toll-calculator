@@ -231,6 +231,14 @@ require([
       var d = Math.hypot(sp.x - e.x, sp.y - e.y);
       if (d <= bestD) { bestD = d; best = i; }
     });
+    var incs = lastTrip && lastTrip.tollRoute.ttIncidents || [], bestInc = null;
+    incs.forEach(function (inc, k) {
+      var sp = view.toScreen(new Point({ longitude: inc.at[0], latitude: inc.at[1] }));
+      if (!sp) return;
+      var d = Math.hypot(sp.x - e.x, sp.y - e.y);
+      if (d <= bestD) { bestD = d; bestInc = k; }
+    });
+    if (bestInc != null) return showIncidentCard(bestInc);
     if (best == null) return mapTap(e);
     highlightItem(best, document.querySelector('#breakdown tr[data-i="' + best + '"]'), true);
   });
@@ -723,8 +731,11 @@ require([
           if (coords.length > 1) return !!window.TollCalc.segmentAlong(path, coords, 30);
           return window.TollCalc.distanceToPath(path, coords[0]) <= 30; // a point: just close to the route
         });
+        var at = coords[Math.floor(coords.length / 2)];
+        var frac = function (path) { var a = window.TollCalc.alongPath(path, at); return a && a.total ? a.along / a.total : null; };
         return { kind: TT_ICON[pr.iconCategory] || "Incident", category: pr.iconCategory, onToll: on[0], onFree: on[1],
-          at: coords[Math.floor(coords.length / 2)], road: (pr.roadNumbers || []).join("/"), from: pr.from, to: pr.to,
+          at: at, road: (pr.roadNumbers || []).join("/"), from: pr.from, to: pr.to, start: pr.startTime || null,
+          tollFrac: on[0] ? frac(paths[0]) : null, freeFrac: on[1] ? frac(paths[1]) : null,
           delayMin: pr.delay ? Math.round(pr.delay / 60) : 0, text: pr.events && pr.events[0] ? pr.events[0].description : "" };
       }).filter(function (i) { return (i.onToll || i.onFree) && i.category !== 6; }); // jams already show as traffic colors
     }).catch(function () { return []; });
@@ -962,6 +973,28 @@ require([
     card.hidden = false;
   }
 
+  // TomTom incident card (debug test): what it is, where, delay, which route.
+  function incidentColor(i) { return i.category === 1 || i.category === 8 ? "#d93025" : "#f57c00"; }
+  function showIncidentCard(k) {
+    var i = lastTrip && (lastTrip.tollRoute.ttIncidents || [])[k];
+    if (!i) return;
+    clearHighlight();
+    var where = [i.road, i.from && i.to && i.to !== i.from ? i.from + " to " + i.to : i.from].filter(Boolean).join(" \u00b7 ");
+    var routes = i.onToll && i.onFree ? "Toll and toll-free routes" : i.onToll ? "Toll route" : "Toll-free route";
+    card.innerHTML =
+      '<button type="button" class="map-card-close" aria-label="Close">\u2715</button>' +
+      '<div class="map-card-road" style="color:' + incidentColor(i) + '">\u25c6 ' + esc(i.kind) + "</div>" +
+      '<h3 class="map-card-title">' + esc(i.text || i.kind) + "</h3>" +
+      (where ? '<p class="map-card-note">' + esc(where) + "</p>" : "") +
+      '<div class="chips"><span class="chip">' + routes + "</span>" + (i.delayMin ? '<span class="chip">About ' + i.delayMin + " min delay</span>" : "") +
+        (i.start ? '<span class="chip">Since ' + esc(fmtClock(new Date(i.start))) + "</span>" : "") + "</div>" +
+      '<p class="map-card-agency">Reported by TomTom (debug test)</p>';
+    card.hidden = false;
+    var ring = new Graphic({ geometry: { type: "point", longitude: i.at[0], latitude: i.at[1] },
+      symbol: { type: "simple-marker", style: "circle", size: 30, color: [0, 0, 0, 0], outline: { color: incidentColor(i), width: 2.5 } } });
+    highlightLayer.add(ring);
+  }
+
   // Basemap switcher (top right of the map). The choice is remembered on this device.
   var BASEMAPS = [["arcgis/light-gray", "Light"], ["arcgis/navigation", "Streets"], ["arcgis/imagery", "Satellite"], ["arcgis/dark-gray", "Dark"]];
   if (key) {
@@ -1070,9 +1103,22 @@ require([
     svg += '<text x="' + X0 + '" y="' + (yF - 16) + '" class="tc-h">Toll-free \u00b7 ' + esc(fmtTime(f.minutes)) + " \u00b7 $0.00</text>";
     // Toll-free: traffic bands as wide as the toll line's, with the dashed line on top.
     svg += trafficLines(fSegs, yF, "tc-traffic") + '<line x1="' + X0 + '" y1="' + yF + '" x2="' + X1 + '" y2="' + yF + '" class="tc-free"/>' + ends(yF);
+    // TomTom incidents (debug test): diamonds on each route line they're on.
+    var incs = lastTrip && lastTrip.tollRoute.ttIncidents || [];
+    incs.forEach(function (inc, k) {
+      [[inc.tollFrac, yT], [inc.freeFrac, yF]].forEach(function (a) {
+        if (a[0] == null) return;
+        var x = (X0 + 14 + (X1 - X0 - 28) * a[0]).toFixed(1);
+        svg += '<g class="tc-inc" tabindex="0" role="button" data-inc="' + k + '" aria-label="' + esc(inc.kind + (inc.road ? " on " + inc.road : "")) + '">' +
+          '<rect x="' + (x - 12) + '" y="' + (a[1] - 12) + '" width="24" height="24" class="tc-hit"/>' +
+          '<rect x="' + (x - 5.5) + '" y="' + (a[1] - 5.5) + '" width="11" height="11" transform="rotate(45 ' + x + " " + a[1] + ')" style="fill:' + incidentColor(inc) + ';stroke:#fff;stroke-width:1.5"/></g>';
+      });
+    });
     var any = tSegs.concat(fSegs).some(function (sg) { return sg.level; });
+    var legendH = 146;
     if (any) {
       var lx = X0, ly = 162;
+      legendH = 170;
       svg += '<text x="' + lx + '" y="' + ly + '" class="tc-k">Highway traffic:</text>';
       lx += 84;
       [["moderate", "Moderate"], ["slow", "Slow"], ["heavy", "Heavy"]].forEach(function (k) {
@@ -1081,7 +1127,15 @@ require([
         lx += k[1].length * 6 + 34;
       });
     }
-    svg = svg.replace('viewBox="0 0 ' + W + ' 146"', 'viewBox="0 0 ' + W + " " + (any ? 170 : 146) + '"');
+    if (incs.length) {
+      var iy = any ? 180 : 162;
+      svg += '<rect x="' + (X0 + 3) + '" y="' + (iy - 8) + '" width="8" height="8" transform="rotate(45 ' + (X0 + 7) + " " + (iy - 4) + ')" style="fill:#d93025"/>' +
+        '<text x="' + (X0 + 16) + '" y="' + iy + '" class="tc-k">Crash or closure</text>' +
+        '<rect x="' + (X0 + 117) + '" y="' + (iy - 8) + '" width="8" height="8" transform="rotate(45 ' + (X0 + 121) + " " + (iy - 4) + ')" style="fill:#f57c00"/>' +
+        '<text x="' + (X0 + 130) + '" y="' + iy + '" class="tc-k">Other incident \u00b7 tap for details</text>';
+      legendH = iy + 8;
+    }
+    svg = svg.replace('viewBox="0 0 ' + W + ' 146"', 'viewBox="0 0 ' + W + " " + legendH + '"');
     svg += "</svg>";
     // Long stretches with no turn get one average speed from Esri: say why they aren't colored.
     if (useTT) svg += '<p class="tc-note">Traffic colors: TomTom live speeds, compared with each road\'s usual speed (debug test). Traffic \u00a9 TomTom.</p>';
@@ -1097,6 +1151,12 @@ require([
     box.hidden = false;
   }
   function chartPick(e) {
+    var inc = e.target.closest && e.target.closest(".tc-inc");
+    if (inc) {
+      showIncidentCard(+inc.getAttribute("data-inc"));
+      $("map").scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
     var g = e.target.closest && e.target.closest(".tc-dot");
     if (!g) return;
     var i = +g.getAttribute("data-i");

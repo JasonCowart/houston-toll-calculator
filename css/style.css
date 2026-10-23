@@ -258,3 +258,6 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .tc-lanes { stroke: var(--purple); stroke-width: 1.5; stroke-dasharray: 2 2; }
 .tc-mid { text-anchor: middle; }
 .tc-note { margin: 6px 0 0; font-size: 12px; line-height: 1.4; color: var(--ink-soft); }
+#trip-chart .tc-inc { cursor: pointer; }
+#trip-chart .tc-inc:focus { outline: none; }
+#trip-chart .tc-inc:focus rect + rect { stroke: var(--ink); }

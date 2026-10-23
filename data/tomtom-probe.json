@@ -1,6 +1,77 @@
 {
- "checked": "2026-10-23 04:59 UTC",
- "keyPresent": false,
- "keyLength": 0,
- "results": []
+ "checked": "2026-10-23 06:25 UTC",
+ "keyPresent": true,
+ "keyLength": 32,
+ "results": [
+  {
+   "test": "search v2 (any key should work)",
+   "status": 200,
+   "type": "application/json",
+   "bytes": 846,
+   "error": ""
+  },
+  {
+   "test": "orbis flow raster tile, key in address",
+   "status": 200,
+   "type": "image/png",
+   "bytes": 53075,
+   "error": ""
+  },
+  {
+   "test": "orbis flow raster tile, key in header",
+   "status": 200,
+   "type": "image/png",
+   "bytes": 53075,
+   "error": ""
+  },
+  {
+   "test": "orbis flow raster tile, from our site",
+   "status": 200,
+   "type": "image/png",
+   "bytes": 53075,
+   "error": ""
+  },
+  {
+   "test": "orbis flow vector tile",
+   "status": 200,
+   "type": "application/vnd.mapbox-vector-tile",
+   "bytes": 25598,
+   "error": ""
+  },
+  {
+   "test": "orbis incident details",
+   "status": 400,
+   "type": "application/json",
+   "bytes": 0,
+   "error": "{\"detailedError\":{\"code\":\"INVALID_REQUEST\",\"message\":\"Attributes header is required and its value must not be empty.\"}}"
+  },
+  {
+   "test": "old v4 flow segment data",
+   "status": 200,
+   "type": "application/json",
+   "bytes": 16713,
+   "error": ""
+  },
+  {
+   "test": "old v4 flow segment data, from our site",
+   "status": 200,
+   "type": "application/json",
+   "bytes": 16713,
+   "error": ""
+  },
+  {
+   "test": "old v4 flow raster tile",
+   "status": 200,
+   "type": "image/png",
+   "bytes": 4928,
+   "error": ""
+  },
+  {
+   "test": "old v5 incident details",
+   "status": 200,
+   "type": "application/json",
+   "bytes": 85348,
+   "error": ""
+  }
+ ]
 }

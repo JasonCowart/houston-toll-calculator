@@ -27,11 +27,7 @@
   </header>
   <div class="app">
     <aside class="panel">
-      <div class="intro-row">
-        <p class="sub">See what the tolls cost on the fastest route, and how much time they save over a toll-free route.</p>
-        <button type="button" id="install" class="btn-outline small install-btn" hidden><span aria-hidden="true">&#xFF0B;</span> Add to home screen</button>
-      </div>
-      <p class="install-help" id="install-help" hidden>On iPhone or iPad: in Safari, tap Share (the square with an arrow), then “Add to Home Screen”.</p>
+      <p class="sub">See what the tolls cost on the fastest route, and how much time they save over a toll-free route.</p>
 
       <div id="key-warning" class="notice warn" hidden>
         No ArcGIS API key yet. Add it as the ARCGIS_API_KEY secret on GitHub to turn on the map, address search and routing.
@@ -243,23 +239,9 @@
   <script src="https://js.arcgis.com/4.32/"></script>
   <script src="js/app.js"></script>
   <script>
-    // Add to home screen: the service worker (sw.js) makes the site installable. Only on the live (https) site.
+    // The service worker (sw.js) and manifest let people add the site to their home screen
+    // from the browser's own menu (Share > Add to Home Screen). Only on the live (https) site.
     if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(function () {});
-    window.addEventListener("beforeinstallprompt", function (e) {
-      e.preventDefault();
-      var btn = document.getElementById("install");
-      btn.hidden = false;
-      btn.onclick = function () { btn.hidden = true; e.prompt(); };
-    });
-    // iPhone and iPad: Safari has no install prompt, so the button shows how to add it by hand.
-    (function () {
-      var ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      var installed = navigator.standalone || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
-      if (!ios || installed) return;
-      var btn = document.getElementById("install"), help = document.getElementById("install-help");
-      btn.hidden = false;
-      btn.onclick = function () { help.hidden = !help.hidden; };
-    })();
   </script>
 </body>
 </html>

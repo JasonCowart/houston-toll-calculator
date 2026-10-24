@@ -935,6 +935,11 @@ require([
       pulseFrame = requestAnimationFrame(frame);
     }
     if (pulseFrame) cancelAnimationFrame(pulseFrame);
+    pulseFrame = null;
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      g.symbol = ring(30, 1); // reduce motion: a still ring, no pulse
+      return;
+    }
     pulseFrame = requestAnimationFrame(frame);
   }
   // mode: "map" (tap on the map: opens the card), "chart" (tap on a trip chart dot: opens
@@ -1542,6 +1547,7 @@ require([
     var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     requestAnimationFrame(function () {
       $("headline").scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+      try { $("headline").focus({ preventScroll: true }); } catch (e) {} // screen readers hear the result
     });
   }
   function priceTrip(trip, tollRoute, freeRoute) {

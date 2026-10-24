@@ -248,7 +248,8 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .tc-hit { fill: transparent; }
 .tc-p { font-size: 10.5px; font-weight: 700; fill: var(--purple-night); text-anchor: middle; font-variant-numeric: tabular-nums; }
 .tc-dot { cursor: pointer; outline: none; }
-.tc-dot:hover .tc-pt, .tc-dot:focus-visible .tc-pt { stroke: var(--violet-screen); stroke-width: 3; }
+.tc-dot:hover .tc-pt { stroke: var(--violet-screen); stroke-width: 3; }
+.tc-dot:focus-visible .tc-pt, .tc-dot.selected:focus-visible .tc-pt { stroke: var(--ink); stroke-width: 3.5; }
 .vehicles-row { margin-top: -2px; }
 .saved-list li small.hint { display: block; margin: 0; }
 .tc-dot.selected .tc-pt { fill: var(--violet-screen); stroke: #fff; stroke-width: 2; }
@@ -260,6 +261,7 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .tc-note { margin: 6px 0 0; font-size: 12px; line-height: 1.4; color: var(--ink-soft); }
 #trip-chart .tc-inc { cursor: pointer; }
 #trip-chart .tc-inc:focus { outline: none; }
+#trip-chart .tc-inc:focus-visible rect + rect { stroke: var(--ink); stroke-width: 3; }
 #trip-chart .tc-inc:focus rect + rect { stroke: var(--ink); }
 .map-card-inc { display: flex; align-items: center; gap: 6px; }
 
@@ -303,3 +305,9 @@ details.extra > summary { cursor: pointer; font-weight: 700; color: var(--purple
 .drive-apps { display: flex; gap: 6px; flex-wrap: wrap; width: 100%; }
 .drive-apps a { text-decoration: none; text-align: center; justify-content: center; display: inline-flex; align-items: center; flex: 1; min-width: 92px; }
 .drive-note { margin: 0; width: 100%; }
+
+/* Accessibility */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--violet-screen); outline-offset: 2px; }
+#headline:focus { outline: none; }
+#leave:focus, #leave:focus-within { outline: 2px solid var(--violet-screen); outline-offset: 2px; }

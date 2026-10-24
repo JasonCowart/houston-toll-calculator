@@ -206,6 +206,7 @@
     "Saves": "Ahorra",
     "Fastest": "Más rápida",
     "Your time": "Su hora",
+    "Your results": "Sus resultados",
     "Live traffic up to about 4 hours ahead; later times use typical traffic for that day and time.":
       "Tráfico en vivo hasta unas 4 horas adelante; después se usa el tráfico típico para ese día y hora.",
     "* Esri’s route leaves the tollway at this time, so this toll may be low.": "* La ruta de Esri sale de la autopista a esta hora, así que este peaje puede estar bajo.",

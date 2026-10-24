@@ -285,7 +285,8 @@ details.extra > summary { cursor: pointer; font-weight: 700; color: var(--purple
 .best-time th { text-align: left; color: var(--gray); font-size: 12px; padding: 4px; border-bottom: 1px solid var(--border-soft); }
 .best-time td { padding: 6px 4px; border-bottom: 1px solid var(--border-soft); }
 .best-time .n { text-align: right; }
-.best-time tr.chosen td { background: var(--purple-tint); }
+.best-time tr.chosen td { background: var(--purple-tint-strong); font-weight: 600; }
+.best-time .tag.picked { background: var(--white); color: var(--purple); border: 1px solid var(--purple); }
 .best-time .tag { display: inline-block; margin-left: 4px; padding: 0 5px; border-radius: 8px; font-size: 11px; font-weight: 700; background: var(--purple); color: var(--white); }
 .best-time .tag.cheap { background: #1e8e3e; }
 #best-time-out .hint { margin-top: 6px; }

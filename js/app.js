@@ -637,7 +637,7 @@ require([
   function fmtMoney(v) { return "$" + v.toFixed(2); }
   function fmtTime(min) {
     if (min == null) return "";
-    var h = Math.floor(min / 60), m = Math.round(min % 60);
+    var total = Math.round(min), h = Math.floor(total / 60), m = total % 60;
     return h ? h + (window.I18N.lang === "es" ? " h " : " hr ") + m + " min" : m + " min";
   }
   function fmtMeta(s) { return [fmtTime(s.minutes), s.miles ? s.miles.toFixed(1) + " mi" : ""].filter(Boolean).join(" · "); }
@@ -1295,23 +1295,36 @@ require([
   $("best-time").addEventListener("click", function () {
     if (!lastTrip) return;
     var run = ++bestRun, base = new Date(lastTrip.trip.departure), now = Date.now();
-    var times = [-30, -15, 0, 15, 30, 45, 60].map(function (m) { return new Date(base.getTime() + m * 60000); })
-      .filter(function (d) { return d.getTime() >= now - 60000; });
+    // 30 minutes earlier to an hour later in 15-minute steps; times already past are skipped,
+    // and then later times fill in so there are still seven.
+    var times = [-30, -15, 0, 15, 30, 45, 60, 75, 90, 105].map(function (m) { return new Date(base.getTime() + m * 60000); })
+      .filter(function (d) { return d.getTime() >= now - 60000 || Math.abs(d - base) < 60000; }).slice(0, 7);
     var tollRoute = lastTrip.tollRoute, freeRoute = lastTrip.freeRoute, trip = lastTrip.trip;
     var via = tollRoute.anchors || null, out = $("best-time-out"), btn = $("best-time");
     btn.disabled = true;
-    out.innerHTML = '<p class="hint">' + L("Checking {n} departure times…", { n: times.length }) + "</p>";
+    out.innerHTML = '<p class="hint">' + L("Checking {n} departure times…", { n: times.length - 1 }) + "</p>";
     var rows = [], saveDeparture = departure;
     var chain = Promise.resolve();
     times.forEach(function (d) {
       chain = chain.then(function () {
         if (run !== bestRun) return;
+        if (Math.abs(d - base) < 60000) {
+          // The time you picked: the trip already shown, so the row matches it exactly.
+          var ts0 = routeStats(tollRoute), fs0 = routeStats(freeRoute);
+          rows.push({ at: d, picked: true, tollMin: ts0.minutes, toll: lastTrip.priced.total,
+            plus: lastTrip.priced.pending.length || lastTrip.priced.missing.length, freeMin: fs0.minutes });
+          return;
+        }
         departure = d;
-        return Promise.all([solve(tollRoute.mode, true, false, via), solve(freeRoute.mode, false, false)]).then(function (r) {
+        // Same routing rules as the trip shown: through its tollway points, with the same side
+        // streets blocked, so Esri doesn't hop off the tollway (or the feeder road) at this time.
+        return Promise.all([solve(tollRoute.mode, true, false, via, tollRoute.barriers || null),
+          solve(freeRoute.mode, false, false, null, freeRoute.barriers || null)]).then(function (r) {
           var tp = [].concat.apply([], r[0].geometry.paths), ts = routeStats(r[0]), fs = routeStats(r[1]);
           var priced = window.TollCalc.analyzeTrip(Object.assign({}, trip, { tollPath: tp, freePath: [].concat.apply([], r[1].geometry.paths),
             steps: r[0].steps || null, departure: d.toISOString(), routeMinutes: ts.minutes }), tollPoints).priced;
-          rows.push({ at: d, tollMin: ts.minutes, toll: priced.total, plus: priced.pending.length || priced.missing.length, freeMin: fs.minutes });
+          var hop = window.TollCalc.findTollwayHops(r[0].steps).length > 0;
+          rows.push({ at: d, tollMin: ts.minutes, toll: priced.total, plus: priced.pending.length || priced.missing.length, freeMin: fs.minutes, hop: hop });
         }).catch(function () { rows.push({ at: d, error: true }); });
       });
     });
@@ -1319,22 +1332,26 @@ require([
       departure = saveDeparture;
       btn.disabled = false;
       if (run !== bestRun) return;
+      rows.sort(function (x, y) { return x.at - y.at; });
       var ok = rows.filter(function (r) { return !r.error; });
       var fastest = ok.reduce(function (b, r) { return !b || r.tollMin < b.tollMin ? r : b; }, null);
       var cheapest = ok.reduce(function (b, r) { return !b || r.toll < b.toll - 0.005 ? r : b; }, null);
       var sameToll = ok.every(function (r) { return Math.abs(r.toll - ok[0].toll) < 0.005; });
       if (fastest && !ok.some(function (r) { return r.tollMin - fastest.tollMin >= 1; })) fastest = null; // no real difference
+      var anyHop = ok.some(function (r) { return r.hop; });
       out.innerHTML = '<table class="best-time"><thead><tr><th>' + L("Leave") + '</th><th class="n">' + L("Toll route") + '</th><th class="n">' + L("Toll") + '</th><th class="n">' + L("Toll-free") + '</th><th class="n">' + L("Saves") + "</th></tr></thead><tbody>" +
         rows.map(function (r) {
           if (r.error) return "<tr><td>" + esc(fmtClock(r.at)) + '</td><td colspan="4">' + L("Couldn’t check this time") + "</td></tr>";
           var save = r.freeMin - r.tollMin;
-          return '<tr class="' + (Math.abs(r.at - base) < 60000 ? "chosen" : "") + '"><td>' + esc(fmtClock(r.at)) +
+          return '<tr class="' + (r.picked ? "chosen" : "") + '"><td>' + esc(fmtClock(r.at)) +
+            (r.picked ? '<span class="tag picked">' + L("Your time") + "</span>" : "") +
             (r === fastest ? '<span class="tag">' + L("Fastest") + "</span>" : "") + (!sameToll && r === cheapest ? '<span class="tag cheap">' + L("Cheapest") + "</span>" : "") +
-            '</td><td class="n">' + esc(fmtTime(r.tollMin)) + '</td><td class="n">' + fmtMoney(r.toll) + (r.plus ? "+" : "") +
-            '</td><td class="n">' + esc(fmtTime(r.freeMin)) + '</td><td class="n">' + (save >= 1 ? esc(fmtTime(Math.round(save))) : "—") + "</td></tr>";
+            '</td><td class="n">' + esc(fmtTime(r.tollMin)) + '</td><td class="n">' + fmtMoney(r.toll) + (r.plus ? "+" : "") + (r.hop ? " *" : "") +
+            '</td><td class="n">' + esc(fmtTime(r.freeMin)) + '</td><td class="n">' + (save >= 1 ? esc(fmtTime(save)) : "\u2014") + "</td></tr>";
         }).join("") + "</tbody></table>" +
-        '<p class="hint">' + L("Shaded row: the time you picked. Live traffic up to about 4 hours ahead; later times use typical traffic for that day and time.") +
-        (sameToll ? L(" Tolls on this route don’t change with the time of day.") : "") + "</p>";
+        '<p class="hint">' + L("Live traffic up to about 4 hours ahead; later times use typical traffic for that day and time.") +
+        (sameToll ? L(" Tolls on this route don’t change with the time of day.") : "") +
+        (anyHop ? " " + L("* Esri’s route leaves the tollway at this time, so this toll may be low.") : "") + "</p>";
     });
   });
 
@@ -1553,6 +1570,7 @@ require([
         freeRoute.originalFreeMinutes = freeRoute.originalFreeMinutes || null;
       }
       if (detours.length) freeRoute.feederGap = detours;
+      if (barriers.length) freeRoute.barriers = barriers.slice(); // reused for other departure times
       return Promise.resolve(freeRoute);
     }
     setStatus(L("Keeping the toll-free route on the feeder road…"));
@@ -1615,6 +1633,7 @@ require([
     // Each re-route can turn up a new side street, so allow a few rounds.
     if (!hops.length || round >= STAY_ON_ROUNDS) {
       if (hops.length) tollRoute.stillHops = hops.map(function (h) { return { road: h.road, via: h.via }; });
+      if (barriers.length) tollRoute.barriers = barriers.slice(); // reused for other departure times
       return Promise.resolve(tollRoute);
     }
     hops.forEach(function (h) { barriers.push(h.barrier); if (roads.indexOf(h.road) === -1) roads.push(h.road); });

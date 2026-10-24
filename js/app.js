@@ -625,7 +625,9 @@ require([
     });
     if (mids.length) {
       // Your stops, plus any route-shaping points, in the order they come along the trip.
-      middle = middle.concat(mids.map(function (m) { return { lonlat: [m.longitude, m.latitude], g: new Graphic({ geometry: m }), stop: true }; }));
+      middle = middle.concat(mids.map(function (m, k) {
+        return { lonlat: [m.longitude, m.latitude], g: new Graphic({ geometry: m, attributes: { Name: "Stop " + (k + 1), LocationType: 0 } }), stop: true };
+      }));
       var line = orderPath || [[ends.from.longitude, ends.from.latitude]].concat(mids.map(function (m) { return [m.longitude, m.latitude]; }), [[ends.to.longitude, ends.to.latitude]]);
       middle.forEach(function (x, i) { var a = window.TollCalc.alongPath(line, x.lonlat); x.along = a ? a.along : 0; x.i = i; });
       middle.sort(function (a, b) { return a.along - b.along || a.i - b.i; });
@@ -646,6 +648,7 @@ require([
         return new Graphic({ geometry: new Point({ longitude: b[0], latitude: b[1] }), attributes: { BarrierType: 0 } }); // 0 = restriction: can't pass
       }) });
     }
+    if (mids.length) opts.returnStops = true; // to check Esri placed every stop (it skips ones it can't)
     if (probe) { opts.returnTraversedEdges = true; opts.accumulateAttributes = ["TravelTime", "Minutes", "Miles"]; }
     // Timing for the debug view: each route lookup, what kind it was and how long it took.
     var t0 = performance.now(), entry = { what: (mode.__note || mode.name) + (via && via.length ? " · via " + via.length : "") +
@@ -655,6 +658,12 @@ require([
     return route.solve(ROUTE_URL, new RouteParameters(opts)).then(function (res) { done(true); return res; }, function (e) { done(false); throw e; }).then(function (res) {
       var rr = res.routeResults[0];
       var g = rr.route;
+      // Stops Esri couldn't place on a drivable road are left out of the route without an error.
+      var rs = rr.stops || (res.stops && res.stops.features) || null;
+      if (rs && rs.length) g.stopStatus = rs.map(function (st) {
+        var a = st.attributes || {};
+        return { name: st.name || a.Name || "", status: st.status != null ? st.status : a.Status, seq: st.sequence || a.Sequence };
+      });
       g.modeNote = mode.__note || mode.name;
       g.mode = mode;
       var feats = rr.directions && rr.directions.features;
@@ -1015,6 +1024,7 @@ require([
         return "<tr><td>" + secs(e.start) + "</td><td>" + (e.ms == null ? "…" : secs(e.ms)) + (e.ok === false ? " (failed)" : "") + "</td><td>" + esc(e.what) + "</td></tr>";
       }).join("") + "</table>";
     box.innerHTML = "<h3>Debug</h3><p><button type='button' id='save-trip' class='go small'>Save trip for testing</button></p>" + timing + base + "<p>Toll route: " + esc(tollRoute.modeNote || "") + "<br>Toll-free route: " + esc((window.__freeNote || "")) + "</p><p>Traffic probe: " + esc(trafficProbeNote(tollRoute.trafficProbe)) + "</p><p>Ramp zones: " + (rampZones ? rampZones.length : "none (no directions geometry)") + "</p>" +
+      (tollRoute.stopStatus ? "<p>Stops (Esri status): " + esc(tollRoute.stopStatus.map(function (st) { return (st.name || "?") + " = " + st.status; }).join("; ")) + "</p>" : "") +
       "<table class='breakdown'><thead><tr><th>ID</th><th>Toll point within 60 m</th><th>Kind</th><th class='num'>Offset</th><th class='num'>Zone</th><th>Counted</th></tr></thead><tbody>" +
       html + "</tbody></table><details><summary>Maneuvers (" + (tollRoute.steps || []).length + ")</summary><ol>" + steps + "</ol></details>";
     document.getElementById("results").after(box);
@@ -2095,6 +2105,21 @@ require([
     return true;
   }
 
+  // Stops the routes don't actually reach: Esri reported it couldn't place them, or the route
+  // line never comes within 300 m of them.
+  function unreachedStops() {
+    if (!lastTrip || !midKeys.length) return [];
+    var T = window.TollCalc, out = [], n = 0;
+    midKeys.forEach(function (k) {
+      if (!stops[k]) return;
+      n++;
+      var p = [stops[k].longitude, stops[k].latitude];
+      var far = T.distanceToPath(lastTrip.trip.tollPath, p) > 300 || T.distanceToPath(lastTrip.trip.freePath, p) > 300;
+      var bad = (lastTrip.tollRoute.stopStatus || []).some(function (st) { return st.name === "Stop " + n && st.status && st.status !== "ok" && st.status !== 0; });
+      if (far || bad) out.push({ n: n, label: searchesTerm(k) || lonLat(stops[k]).join(", ") });
+    });
+    return out;
+  }
   function showResults(tollRoute, freeRoute, priced, savings) {
     var t = routeStats(tollRoute), f = routeStats(freeRoute);
     $("toll-price").textContent = fmtMoney(priced.total) + (priced.pending.length || priced.missing.length ? "+" : "");
@@ -2144,6 +2169,9 @@ require([
     }
 
     var flags = [];
+    unreachedStops().forEach(function (u) {
+      flags.push(L("The route doesn't go to Stop {n} ({place}): the map couldn't put that spot on a road it can drive to. Pick an address or a spot right on a street nearby, then compare again.", { n: u.n, place: u.label }));
+    });
     (lastTrip && lastTrip.tollRoute.ttIncidents || []).forEach(function (i) {
       flags.push("TomTom: " + i.kind + (i.road ? " on " + i.road : "") + (i.from ? " (" + i.from + (i.to && i.to !== i.from ? " to " + i.to : "") + ")" : "") +
         (i.delayMin ? ", about " + i.delayMin + " min delay" : "") + " \u2014 on the " + (i.onToll && i.onFree ? "toll and toll-free routes" : i.onToll ? "toll route" : "toll-free route") + ".");

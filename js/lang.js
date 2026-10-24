@@ -215,6 +215,7 @@
     "Add a stop": "Agregar una parada",
     "Print": "Imprimir",
     "Save PDF": "Guardar PDF",
+    "The route doesn't go to Stop {n} ({place}): the map couldn't put that spot on a road it can drive to. Pick an address or a spot right on a street nearby, then compare again.": "La ruta no pasa por la parada {n} ({place}): el mapa no pudo ubicar ese punto en una vía por la que pueda manejar. Elija una dirección o un punto justo sobre una calle cercana y vuelva a comparar.",
     "On iPhone or iPad: in Safari, tap Share (the square with an arrow), then “Add to Home Screen”.": "En iPhone o iPad: en Safari, toque Compartir (el cuadro con una flecha) y luego “Agregar a la pantalla de inicio”.",
     "Making the PDF…": "Creando el PDF…",
     "The map picture couldn’t be made. Tap “Open this trip online” to see the map.": "No se pudo crear la imagen del mapa. Toque “Abrir este viaje en línea” para ver el mapa.",

@@ -637,7 +637,12 @@ require([
   // more.noTraffic: solve for free-flow driving instead of the departure time's traffic.
   function solve(mode, withDirections, probe, via, barriers, more) {
     more = more || {};
-    var ends = swapEnds || stops, mids = swapEnds ? swapEnds.mids : midPoints();
+    // Every point goes to Esri as longitude/latitude. A spot picked on the map (or found by the
+    // address search) is in the map's own Web Mercator coordinates; Esri reads all stops in the
+    // first one's coordinate system, so a mix left the odd one "not located" and skipped.
+    function ll(g) { return g ? new Point({ longitude: g.longitude, latitude: g.latitude }) : g; }
+    var ends0 = swapEnds || stops, ends = { from: ll(ends0.from), to: ll(ends0.to) };
+    var mids = (swapEnds ? swapEnds.mids : midPoints()).map(ll);
     var middle = (via || []).map(function (v) {
       return { lonlat: v, g: new Graphic({ geometry: new Point({ longitude: v[0], latitude: v[1] }), attributes: { LocationType: 1, CurbApproach: 0 } }) };
     });

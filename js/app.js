@@ -208,6 +208,7 @@ require([
     if (typeof fillVehicles === "function") fillVehicles();
     fieldKeys().forEach(function (w) { if (searches[w]) searches[w].allPlaceholder = placeholderFor(w); });
     labelStops();
+    addStopsLabel();
     if (typeof setPicking === "function") setPicking(picking);
     showRatesAsOf();
     var bmEl = document.querySelector(".basemap-switch:not(.tt-switch)");
@@ -225,6 +226,7 @@ require([
   // empty, tapping the map fills it (From first). The box shows the nearest address.
   var picking = null;
   function setPicking(which) {
+    if (which && addingStops) setAddingStops(false);
     picking = picking === which ? null : which;
     fieldKeys().forEach(function (w) {
       var b = $("pick-" + w);
@@ -303,7 +305,7 @@ require([
   view.popupEnabled = false;
   view.on("click", function (e) {
     if (!key) return;
-    if (picking || !tollLayer) return mapTap(e);
+    if (picking || addingStops || !tollLayer) return mapTap(e);
     // Find the nearest toll point on screen within a finger-sized radius, instead of
     // Esri's hit test, which only counts taps right on the small dot.
     var TAP_PX = 24, best = null, bestD = TAP_PX;
@@ -325,6 +327,7 @@ require([
     highlightItem(best, document.querySelector('#breakdown tr[data-i="' + best + '"]'), true);
   });
   function mapTap(e) {
+    if (addingStops) return addStopAt(e.mapPoint);
     if (!picking && highlightLayer.graphics.length) { clearHighlight(); return; } // tap the map to clear the ring
     var target = picking || (!stops.from ? "from" : !stops.to ? "to" : null);
     if (!target) return;
@@ -505,6 +508,7 @@ require([
   // carpool stay as they are.
   $("reset").addEventListener("click", function () {
     if (picking) setPicking(null);
+    if (addingStops) { addingStops = false; addStopsLabel(); }
     midKeys.slice().forEach(removeStop);
     ["from", "to"].forEach(function (w) {
       stops[w] = null;
@@ -536,6 +540,7 @@ require([
       .filter(function (v, i, a) { return v !== "-" || i === 0 || i === a.length - 1; }).join(";");
   }
   function maybeRecompare() {
+    if (addingStops) return; // wait for "Done", then compare once
     if (!lastTrip || $("results").hidden || comparedKey == null || placesKey() === comparedKey) return;
     clearTimeout(recompareTimer);
     recompareTimer = setTimeout(function () {
@@ -1202,6 +1207,51 @@ require([
     card.hidden = false;
     var hex = incidentColor(i), rgb = [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
     pulseAt(new Point({ longitude: i.at[0], latitude: i.at[1] }), rgb);
+  }
+
+  // Add stops from the map: a button on the map turns on "each tap adds the next stop" (up to 6),
+  // so stops can be dropped one after another without going back to the form. Done compares once.
+  var addingStops = false, addStopsBtn = null;
+  function addStopsLabel() {
+    if (!addStopsBtn) return;
+    var n = midKeys.filter(function (k) { return stops[k]; }).length;
+    addStopsBtn.innerHTML = addingStops ? "\u2713 " + esc(L("Done adding stops")) + " (" + n + "/" + MAX_MID + ")" : "+ " + esc(L("Add stops on map"));
+    addStopsBtn.setAttribute("aria-pressed", addingStops ? "true" : "false");
+  }
+  function stopsFull() { return midKeys.length >= MAX_MID && !midKeys.some(function (k) { return !stops[k]; }); }
+  function setAddingStops(on) {
+    addingStops = !!on;
+    if (addingStops && picking) setPicking(null);
+    if (addingStops && stopsFull()) {
+      addingStops = false;
+      setStatus(L("This trip already has {n} stops, the most allowed.", { n: MAX_MID }));
+    } else if (addingStops) {
+      setStatus(L("Tap the map to add stops, in the order you'll visit them (up to {n}). Tap Done when finished.", { n: MAX_MID }));
+    } else {
+      setStatus("");
+      maybeRecompare();
+    }
+    addStopsLabel();
+  }
+  function addStopAt(pt) {
+    // Fill an empty stop box first, else add a new one.
+    var w = midKeys.filter(function (k) { return !stops[k]; })[0] || addStop();
+    if (!w) { setAddingStops(false); return; }
+    placeStop(w, pt);
+    addStopsLabel();
+    var n = midKeys.indexOf(w) + 1;
+    if (stopsFull()) {
+      setAddingStops(false);
+      setStatus(L("Added stop {n}, the most allowed.", { n: n }));
+    } else setStatus(L("Added stop {n}. Tap the map for the next stop, or tap Done.", { n: n }));
+  }
+  if (key) {
+    addStopsBtn = document.createElement("button");
+    addStopsBtn.type = "button";
+    addStopsBtn.className = "map-add-stops";
+    addStopsBtn.addEventListener("click", function () { setAddingStops(!addingStops); });
+    addStopsLabel();
+    view.ui.add(addStopsBtn, "top-left");
   }
 
   // Basemap switcher (top right of the map). The choice is remembered on this device.

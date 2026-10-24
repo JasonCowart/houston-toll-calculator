@@ -415,3 +415,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 #via-note:has(.spinner) { color: var(--ink); }
 #debug table.dbg { border-collapse: collapse; font-size: 11px; margin-bottom: 8px; }
 #debug table.dbg th, #debug table.dbg td { text-align: left; padding: 1px 6px 1px 0; vertical-align: top; }
+.map-add-stops { border: 0; border-radius: 6px; box-shadow: 0 1px 4px rgba(28, 27, 29, 0.25); background: var(--white); color: var(--purple);
+  font: 600 12px var(--brand); padding: 8px 10px; cursor: pointer; white-space: nowrap; }
+.map-add-stops:hover { background: var(--purple-tint); }
+.map-add-stops[aria-pressed="true"] { background: #1967d2; color: #fff; }

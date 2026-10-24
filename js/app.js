@@ -1350,9 +1350,12 @@ require([
       line = Math.abs(extra) < 0.05 ? L("Gas, counting traffic: about the same on both routes ({cost})", { cost: fmtMoney(tf) })
         : L(extra > 0 ? "Gas, counting traffic: the toll route uses about {cost} more ({toll} vs {free})" : "Gas, counting traffic: the toll route saves about {cost} ({toll} vs {free})",
           { cost: fmtMoney(Math.abs(extra)), toll: fmtMoney(tf), free: fmtMoney(ff) });
-      line = esc(line) + " · " + esc(L("{mpg} mpg, {price}/gal {fuel}", { mpg: fs.mpg, price: fmtMoney(fs.price), fuel: L(fs.fuel) })) + ' <button type="button" id="fuel-change">' + L("change") + "</button>";
+      line = esc(line);
     }
     $("fuel-line").innerHTML = line;
+    $("fuel-price-label").textContent = L(fs.fuel === "diesel" ? "Diesel price per gallon" : "Price per gallon");
+    var def = window.TollCalc.fuelDefaults(lastTrip ? lastTrip.trip.axles : 2);
+    $("fuel-hint").textContent = L("Change these to match your vehicle. Defaults for {n} axles: {mpg} mpg, {price}/gal {fuel}.", { n: lastTrip ? lastTrip.trip.axles : 2, mpg: def.mpg, price: fmtMoney(def.price), fuel: L(def.fuel) });
     $("fuel-mpg").value = fs.mpg; $("fuel-price").value = fs.price.toFixed(2);
     extrasState = { toll: priced.total, minutesSaved: minutesSaved(t, f, priced), fuelExtra: extra };
     if (!backTimeSet) setBackTime();
@@ -1465,10 +1468,6 @@ require([
   });
   $("commute-days").addEventListener("change", renderCommute);
   $("commute-round").addEventListener("change", renderCommute);
-  $("fuel-line").addEventListener("click", function (e) {
-    if (e.target.id !== "fuel-change") return;
-    $("fuel-edit").hidden = !$("fuel-edit").hidden;
-  });
   function fuelEdited() {
     var mpg = parseFloat($("fuel-mpg").value), price = parseFloat($("fuel-price").value);
     saveFuel({ mpg: mpg > 0 ? mpg : null, price: price > 0 ? price : null });
@@ -1478,7 +1477,6 @@ require([
   $("fuel-price").addEventListener("change", fuelEdited);
   $("fuel-reset").addEventListener("click", function () {
     saveFuel(null);
-    $("fuel-edit").hidden = true;
     if (lastTrip) renderExtras(routeStats(lastTrip.tollRoute), routeStats(lastTrip.freeRoute), lastTrip.priced);
   });
 

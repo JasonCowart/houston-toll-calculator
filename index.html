@@ -147,15 +147,9 @@
           <p class="hint drive-note" id="drive-note"></p>
         </div>
         <div class="trip-tools">
-          <p class="fuel-line" id="fuel-line"></p>
           <button type="button" id="share" class="btn-outline share-btn"><span aria-hidden="true">&#128279;</span> Share trip</button>
           <button type="button" id="print" class="btn-outline share-btn"><span aria-hidden="true">&#128424;</span> Print</button>
           <button type="button" id="report" class="btn-outline share-btn" hidden><span aria-hidden="true">&#9993;</span> Report a wrong toll</button>
-        </div>
-        <div class="fuel-edit" id="fuel-edit" hidden>
-          <label>Miles per gallon <input type="number" id="fuel-mpg" min="3" max="80" step="0.5" inputmode="decimal"></label>
-          <label>Price per gallon <input type="number" id="fuel-price" min="1" max="15" step="0.01" inputmode="decimal"></label>
-          <button type="button" id="fuel-reset" class="pick">Use defaults</button>
         </div>
         <figure class="trip-chart" id="trip-chart" aria-label="Trip chart"></figure>
         <div id="flags"></div>
@@ -169,7 +163,16 @@
           </table>
         </details>
         <details id="commute-wrap" class="extra">
-          <summary>Commute cost</summary>
+          <summary>Gas and commute cost</summary>
+          <div class="gas-box">
+            <p class="fuel-line" id="fuel-line"></p>
+            <div class="fuel-edit" id="fuel-edit">
+              <label>Miles per gallon <input type="number" id="fuel-mpg" min="3" max="80" step="0.5" inputmode="decimal"></label>
+              <label><span id="fuel-price-label">Price per gallon</span> <input type="number" id="fuel-price" min="1" max="15" step="0.01" inputmode="decimal"></label>
+              <button type="button" id="fuel-reset" class="pick">Use defaults</button>
+            </div>
+            <p class="hint" id="fuel-hint"></p>
+          </div>
           <div class="commute-controls">
             <label>Days a week <select id="commute-days"><option>1</option><option>2</option><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option></select></label>
             <label class="inline-check"><input type="checkbox" id="commute-round" checked> Round trip</label>

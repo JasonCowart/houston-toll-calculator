@@ -267,8 +267,10 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 
 /* Trip extras: fuel line and share, commute cost, best time to leave */
 .trip-tools { display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; }
-.trip-tools .fuel-line { flex: 1 1 100%; }
-.fuel-line { margin: 0; font-size: 13px; color: var(--ink-soft); flex: 1; }
+.gas-box { margin: 8px 0 12px; padding: 10px 12px; background: var(--purple-tint); border-radius: 8px; }
+.gas-box .hint { margin: 6px 0 0; }
+.fuel-line { margin: 0 0 8px; font-size: 13px; color: var(--ink); }
+.fuel-line:empty { display: none; }
 .fuel-line button { border: 0; background: none; padding: 0; font: inherit; color: var(--purple); font-weight: 600; cursor: pointer; text-decoration: underline; }
 .share-btn { flex: none; white-space: nowrap; }
 .fuel-edit { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; font-size: 13px; }
@@ -340,7 +342,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
   .panel { width: auto !important; overflow: visible !important; padding: 0 !important; box-shadow: none !important; border: 0 !important; display: block !important; }
   .print-only { display: block; }
   .map, #map, .sub, #key-warning, #step-trip, #step-vehicle, #go, #status, .trip-tools button, .drive, .via-road select, #via-road-wrap label,
-  .lang-toggle, #fuel-edit, .commute-controls, .back-trip button, .back-trip label, #best-time-wrap, #breakdown-wrap .hint, #tag-savings button,
+  .lang-toggle, #fuel-edit, #fuel-hint, .commute-controls, .back-trip button, .back-trip label, #best-time-wrap, #breakdown-wrap .hint, #tag-savings button,
   .map-card, .install-btn, .show-free, #debug, summary::marker { display: none !important; }
   .topbar { background: #fff !important; color: var(--purple) !important; height: auto; padding: 0 0 8px; border-bottom: 2px solid var(--purple); }
   .topbar .logo, .topbar .divider { display: none; }

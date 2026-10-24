@@ -36,8 +36,9 @@ require([
   var TOMTOM = DEBUG && !!TT_KEY;
   var $ = function (id) { return document.getElementById(id); };
   var stops = { from: null, to: null };
-  // Stops along the way (up to 3), between From and To, in order. Keys m0, m1… (never reused).
-  var midKeys = [], midSeq = 0, MAX_MID = 3;
+  // Stops along the way (up to 6), between From and To, in order. Keys m0, m1… (never reused).
+  // Six leaves room in a Google Maps link (about 9 points along the way) for 3 route-shaping points.
+  var midKeys = [], midSeq = 0, MAX_MID = 6;
   function fieldKeys() { return ["from"].concat(midKeys, ["to"]); }
   function midPoints() { return midKeys.map(function (k) { return stops[k]; }).filter(Boolean); }
   function placeholderFor(w) { return L(w === "from" ? "Starting address" : w === "to" ? "Destination" : "Stop address"); }
@@ -2101,7 +2102,7 @@ require([
     var s = pt(q.get("s")), e = pt(q.get("e"));
     if (!s || !e) return null;
     return { s: s, e: e, sl: q.get("sl"), el: q.get("el"), ax: parseInt(q.get("ax"), 10), pay: q.get("pay"), cp: q.get("cp") === "1", t: q.get("t"), r: q.get("r"),
-      m: (q.get("m") || "").split(";").map(pt).filter(Boolean).slice(0, 3), ml: (q.get("ml") || "").split("|") };
+      m: (q.get("m") || "").split(";").map(pt).filter(Boolean).slice(0, MAX_MID), ml: (q.get("ml") || "").split("|") };
   })();
   if (shared) setStatus(L("Opening the shared trip…"), false, true);
   function applyShared() {

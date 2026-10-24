@@ -479,4 +479,21 @@ test("a stop on the trip isn't a tollway hop", () => {
   assert(T.findTollwayHops(visit).length === 0, "off to a stop and back on is not a hop");
 });
 
+test("Google Maps points: stops, then each toll on the route line, at most 9", () => {
+  const path = []; for (let i = 0; i <= 100; i++) path.push([-95.6 + i * 0.002, 29.8]); // a straight road, about 19 km
+  const tolls = [[-95.58, 29.8003], [-95.55, 29.7998], [-95.52, 29.8002]]; // a few meters off the line
+  const w = T.googleWaypoints(path, tolls, [], 9);
+  assert(w.length === 4 && Math.abs(w[0][1] - 29.8) < 1e-6 && Math.abs(w[0][0] + 95.58) < 1e-4 && Math.abs(w[2][0] + 95.52) < 1e-4,
+    "each toll, moved onto the route line: " + JSON.stringify(w));
+  assert(w[3][0] > -95.45, "plus a point in the long toll-free stretch at the end (5/6 of the way): " + JSON.stringify(w[3]));
+  const many = []; for (let i = 0; i < 20; i++) many.push([-95.598 + i * 0.009, 29.8]);
+  const six = [[-95.59, 29.8], [-95.57, 29.8], [-95.55, 29.8], [-95.53, 29.8], [-95.51, 29.8], [-95.49, 29.8]];
+  const w2 = T.googleWaypoints(path, many, six, 9);
+  assert(w2.length === 9, "6 stops + 3 tolls = 9, got " + w2.length);
+  six.forEach(s => assert(w2.some(p => Math.abs(p[0] - s[0]) < 1e-9), "every stop is kept"));
+  assert(w2.every((p, i) => i === 0 || p[0] >= w2[i - 1][0]), "in route order");
+  const free = T.googleWaypoints(path, [], [], 9);
+  assert(free.length === 3, "no tolls: 3 points along the route, got " + free.length);
+});
+
 console.log(passed + " tests passed");

@@ -749,6 +749,47 @@
     return { trips: per, tolls: both("toll"), minutesSaved: both("minutesSaved"), fuelExtra: both("fuelExtra"), withBack: !!useBack };
   }
 
+  // ---- Open in Google Maps ----
+  // The point on a path at `along` meters from its start.
+  function pointAt(path, along) {
+    var proj = projector(path[0][1]), walked = 0;
+    for (var i = 0; i < path.length - 1; i++) {
+      var a = proj(path[i][0], path[i][1]), b = proj(path[i + 1][0], path[i + 1][1]);
+      var len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (walked + len >= along && len > 0) {
+        var t = (along - walked) / len;
+        return [path[i][0] + t * (path[i + 1][0] - path[i][0]), path[i][1] + t * (path[i + 1][1] - path[i][1])];
+      }
+      walked += len;
+    }
+    return path[path.length - 1].slice();
+  }
+  // Points for a Google Maps link so Google drives the same roads and passes the same tolls:
+  // the driver's stops, then a point on the route line at each priced toll (spread out when
+  // there are more than fit), topped up with points along the route when there are few tolls.
+  // All in route order, at most `max` (Google takes about 9 points along the way).
+  function googleWaypoints(path, tolls, stops, max) {
+    max = max || 9;
+    if (!path || path.length < 2) return (stops || []).slice(0, max);
+    var total = pathMeters(path), out = [];
+    (stops || []).forEach(function (p) { var a = alongPath(path, p); out.push({ p: p, along: a ? a.along : 0 }); });
+    var budget = Math.max(0, max - out.length);
+    var marks = (tolls || []).map(function (t) { var a = alongPath(path, t); return a ? a.along : null; })
+      .filter(function (v) { return v != null; }).sort(function (x, y) { return x - y; });
+    var pick = [];
+    if (marks.length <= budget) pick = marks;
+    else if (budget === 1) pick = [marks[Math.floor(marks.length / 2)]];
+    else for (var i = 0; i < budget; i++) pick.push(marks[Math.round(i * (marks.length - 1) / (budget - 1))]);
+    // Few tolls: also points at 1/6, 1/2 and 5/6 of the way, unless a toll point is already within 2 km.
+    if (total > 3000) [1 / 6, 1 / 2, 5 / 6].forEach(function (f) {
+      var at = total * f;
+      if (pick.length < budget && !pick.some(function (m) { return Math.abs(m - at) < 2000; })) pick.push(at);
+    });
+    pick.forEach(function (a) { out.push({ p: pointAt(path, a), along: a }); });
+    out.sort(function (x, y) { return x.along - y.along; });
+    return out.slice(0, max).map(function (x) { return [Math.round(x.p[0] * 1e6) / 1e6, Math.round(x.p[1] * 1e6) / 1e6]; });
+  }
+
   // ---- Choose a toll road ----
   // Roads a trip could be sent along, by a mainline plaza on that road going the trip's way.
   // Managed and express lanes are left out (Esri can't route on them; they're priced alongside
@@ -845,7 +886,7 @@
     return [[Math.max(0, Math.min.apply(null, a) - 0.01), Math.min(1, Math.max.apply(null, a) + 0.01)]];
   }
 
-  var api = { viaPlazas: viaPlazas, speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { googleWaypoints: googleWaypoints, pointAt: pointAt, viaPlazas: viaPlazas, speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

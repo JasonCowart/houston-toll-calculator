@@ -1622,19 +1622,13 @@ require([
 
   // Drive it: open the toll or toll-free route in Google Maps (through a few points on the route,
   // so it follows the same roads), Apple Maps or Waze (they pick their own roads).
+  // Points for Google Maps: the stops, plus a point on the route line at each toll the app
+  // priced (toll route), so Google drives the same roads and passes the same tolls.
   function routeWaypoints(route, kind) {
-    var T = window.TollCalc, path = [].concat.apply([], route.geometry.paths), pts = [];
-    if (kind === "toll" && route.anchors && route.anchors.length) pts = route.anchors.slice(0, 3);
-    else {
-      // Points on the route itself (vertices of Esri's line, so they sit on the right lanes).
-      var total = T.pathMeters(path);
-      if (total > 3000) T.sampleAlong(path, total / 3).slice(0, 3).forEach(function (sp) { // 1/6, 1/2 and 5/6 of the way
-        var p = sp.lonlat, best = path[0], bd = Infinity;
-        path.forEach(function (v) { var d = Math.abs(v[0] - p[0]) + Math.abs(v[1] - p[1]); if (d < bd) { bd = d; best = v; } });
-        pts.push(best);
-      });
-    }
-    return pts;
+    var path = [].concat.apply([], route.geometry.paths);
+    var tolls = kind === "toll" && lastTrip ? lastTrip.priced.items.map(function (it) { return [it.point.lon, it.point.lat]; }) : [];
+    var mids = midPoints().map(function (m) { return [m.longitude, m.latitude]; });
+    return window.TollCalc.googleWaypoints(path, tolls, mids, 9);
   }
   // Choose a toll road: send the toll route through a plaza on a road the driver picks
   // (from roads near the trip, going its way). "" = the route Esri picks.
@@ -1679,12 +1673,6 @@ require([
     var ll = function (p) { return p[1].toFixed(6) + "," + p[0].toFixed(6); };
     var from = [stops.from.longitude, stops.from.latitude], to = [stops.to.longitude, stops.to.latitude];
     var via = routeWaypoints(route, kind), mids = midPoints();
-    if (mids.length) {
-      var path = [].concat.apply([], route.geometry.paths);
-      via = via.map(function (p) { return { p: p, stop: false }; }).concat(mids.map(function (m) { return { p: [m.longitude, m.latitude], stop: true }; }))
-        .map(function (x) { var a = window.TollCalc.alongPath(path, x.p); x.along = a ? a.along : 0; return x; })
-        .sort(function (a, b) { return a.along - b.along; }).map(function (x) { return x.p; }).slice(0, 9);
-    }
     var g = "https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=" + ll(from) + "&destination=" + ll(to) +
       (via.length ? "&waypoints=" + encodeURIComponent(via.map(ll).join("|")) : "");
     $("nav-google").href = g;

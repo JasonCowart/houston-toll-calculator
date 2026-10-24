@@ -334,28 +334,59 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .mid-actions { display: inline-flex; gap: 12px; align-items: center; }
 .remove-stop { font-size: 14px; padding: 2px 4px; color: var(--ink-soft); }
 
-/* Printable trip summary */
+/* Printable trip summary: one page (Letter or A4) for most trips. */
 .print-only { display: none; }
 @media print {
-  @page { margin: 12mm; }
-  html, body, .page, .app { height: auto !important; overflow: visible !important; display: block !important; background: #fff !important; }
+  @page { margin: 9mm 10mm; }
+  html, body, .page, .app { height: auto !important; overflow: visible !important; display: block !important; background: #fff !important; font-size: 10.5px; line-height: 1.3; }
   .panel { width: auto !important; overflow: visible !important; padding: 0 !important; box-shadow: none !important; border: 0 !important; display: block !important; }
-  .print-only { display: block; }
-  .map, #map, .sub, #key-warning, #step-trip, #step-vehicle, #go, #status, .trip-tools button, .drive, .via-road select, #via-road-wrap label,
-  .lang-toggle, #fuel-edit, #fuel-hint, .commute-controls, .back-trip button, .back-trip label, #best-time-wrap, #breakdown-wrap .hint, #tag-savings button,
-  .map-card, .install-btn, .show-free, #debug, summary::marker { display: none !important; }
-  .topbar { background: #fff !important; color: var(--purple) !important; height: auto; padding: 0 0 8px; border-bottom: 2px solid var(--purple); }
+  .map, #map, .sub, #key-warning, #step-trip, #step-vehicle, #go, #status, .trip-tools, .drive, #via-road-wrap, .trip-chart, #tt-status,
+  .lang-toggle, #fuel-edit, #fuel-hint, .commute-controls, .back-trip button, .back-trip label, #best-time-wrap, #breakdown-wrap .hint, #tag-savings,
+  .map-card, .install-btn, .show-free, #debug, summary::marker, .fine, #results > h2 { display: none !important; }
+  .topbar { background: #fff !important; color: var(--purple) !important; height: auto; padding: 0 0 4px; border-bottom: 1.5px solid var(--purple); }
   .topbar .logo, .topbar .divider { display: none; }
-  details > summary { list-style: none; font-weight: 700; margin-top: 10px; }
-  #results { display: block !important; }
-  .ph-title { margin: 10px 0 6px; font-size: 18px; }
-  .ph-trip { border-collapse: collapse; margin-bottom: 8px; font-size: 13px; }
-  .ph-trip th { text-align: left; padding: 2px 12px 2px 0; color: var(--gray); font-weight: 600; vertical-align: top; }
-  .ph-map { display: block; width: 100%; max-height: 90mm; object-fit: cover; border: 1px solid #ccc; margin: 6px 0; }
-  .ph-link { font-size: 10px; word-break: break-all; color: #444; margin: 4px 0; }
-  .ph-printed { font-size: 10px; color: #666; margin: 0 0 10px; }
-  .cards, .trip-chart, table.breakdown, .commute-grid { break-inside: avoid; }
+  .topbar h1 { font-size: 14px; }
   a { color: inherit; text-decoration: none; }
+
+  /* Two columns: tolls on the left, gas and commute on the right. */
+  #results { display: grid !important; grid-template-columns: 1fr 1fr; column-gap: 7mm; row-gap: 2.5mm; align-items: start; }
+  #results > * { margin: 0 !important; order: 0 !important; }
+  #print-head, #headline, .cards, #flags, #rates-asof { grid-column: 1 / -1; }
+  #breakdown-wrap { grid-column: 1; }
+  #commute-wrap { grid-column: 2; }
+  .print-only { display: block; }
+
+  #print-head { display: grid !important; grid-template-columns: 1fr 78mm; gap: 5mm; margin-top: 3mm !important; }
+  .ph-title { margin: 0 0 2mm; font-size: 13px; }
+  .ph-trip { border-collapse: collapse; font-size: 10.5px; }
+  .ph-trip th { text-align: left; padding: 1px 8px 1px 0; color: var(--gray); font-weight: 600; vertical-align: top; white-space: nowrap; }
+  .ph-trip td { padding: 1px 0; }
+  .ph-map { display: block; width: 100%; height: 46mm; object-fit: cover; border: 1px solid #ccc; }
+  .ph-link { font-size: 8px; word-break: break-all; color: #555; margin: 2mm 0 0; }
+  .ph-printed { font-size: 8px; color: #666; margin: 1mm 0 0; }
+
+  .headline { padding: 2mm 3mm; border-radius: 4px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .headline .big { font-size: 14px; }
+  .headline .small { font-size: 10px; margin-top: 1px; }
+  .cards { gap: 3mm; }
+  .card { padding: 1.5mm 3mm; border-radius: 4px; display: flex; align-items: baseline; gap: 3mm; flex-wrap: wrap; }
+  .card .price { font-size: 14px; margin: 0; }
+  .card .card-label, .card .meta { font-size: 10px; margin: 0; }
+  #flags .notice { margin: 1mm 0 0; padding: 1.5mm 2.5mm; font-size: 9px; }
+
+  details > summary { list-style: none; font-weight: 700; font-size: 11px; margin: 0 0 1mm; color: var(--purple); }
+  details > summary::-webkit-details-marker { display: none; }
+  .breakdown { margin: 0; font-size: 9.5px; }
+  .breakdown th, .breakdown td { padding: 1px 3px; }
+  .breakdown tr { break-inside: avoid; }
+  .gas-box { margin: 0 0 2mm; padding: 1.5mm 2.5mm; background: none; border: 1px solid var(--border); }
+  .fuel-line { margin: 0; font-size: 9.5px; }
+  .back-trip { margin: 0 0 1.5mm; font-size: 9.5px; }
+  .back-out { font-size: 9.5px; }
+  .commute-grid { gap: 1px 8px; font-size: 9.5px; }
+  .commute-grid .h { font-size: 9px; }
+  #commute-out .hint { font-size: 8px; margin: 1mm 0 0; }
+  #rates-asof { font-size: 8px; color: #666; }
 }
 
 /* Working indicators */

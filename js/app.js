@@ -1683,11 +1683,11 @@ require([
       [L("Vehicle"), esc(L("{n} axles", { n: t.axles }) + (t.carpool ? ", " + L("carpool") : "") + " · " + payName)]];
     if (chosenVia()) rows.push([L("Toll road"), esc(L("Use {road}", { road: tollwayName(viaChoice.road) }))]);
     var url = shareUrl();
-    return '<h2 class="ph-title">' + esc(L("Trip summary")) + "</h2>" +
+    return '<div class="ph-left"><h2 class="ph-title">' + esc(L("Trip summary")) + "</h2>" +
       '<table class="ph-trip">' + rows.map(function (r) { return "<tr><th>" + r[0] + "</th><td>" + r[1] + "</td></tr>"; }).join("") + "</table>" +
-      (mapUrl ? '<img class="ph-map" alt="' + esc(L("Map of the toll route and toll-free route")) + '" src="' + mapUrl + '">' : "") +
       '<p class="ph-link">' + esc(L("Open this trip:")) + " " + esc(url) + "</p>" +
-      '<p class="ph-printed">' + esc(L("Printed {date}. Estimates only; rates and traffic change.", { date: new Date().toLocaleString(window.I18N.locale(), { dateStyle: "medium", timeStyle: "short" }) })) + "</p>";
+      '<p class="ph-printed">' + esc(L("Printed {date}. Estimates only; rates and traffic change.", { date: new Date().toLocaleString(window.I18N.locale(), { dateStyle: "medium", timeStyle: "short" }) })) + "</p></div>" +
+      (mapUrl ? '<img class="ph-map" alt="' + esc(L("Map of the toll route and toll-free route")) + '" src="' + mapUrl + '">' : "");
   }
   var printOpened = [];
   $("print").addEventListener("click", function () {
@@ -1696,7 +1696,7 @@ require([
     // Breakdown and commute cost print opened; put them back after.
     printOpened = ["breakdown-wrap", "commute-wrap"].filter(function (id) { return !$(id).open; });
     printOpened.forEach(function (id) { $(id).open = true; });
-    var shot = view.takeScreenshot ? view.takeScreenshot({ format: "jpg", quality: 85, width: 1200, height: 700 }) : Promise.reject();
+    var shot = view.takeScreenshot ? view.takeScreenshot({ format: "jpg", quality: 85, width: 900, height: 530 }) : Promise.reject();
     var timeout = new Promise(function (res) { setTimeout(function () { res(null); }, 4000); });
     Promise.race([shot.then(function (r) { return r && r.dataUrl; }, function () { return null; }), timeout]).then(function (url) {
       $("print-head").innerHTML = printHead(url);

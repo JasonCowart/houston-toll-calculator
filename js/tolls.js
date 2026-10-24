@@ -558,6 +558,10 @@
   }
   // Toll-free routes that leave a feeder road for side streets and come back to the same feeder
   // road, up to 8 miles later. Each comes with a barrier point on the longest side street.
+  // Leaving the road to stop somewhere (a stop on the trip) isn't a detour to undo.
+  function visitsStop(steps) {
+    return steps.some(function (s) { return s.maneuverType === "esriDMTStop" || s.maneuverType === "esriDMTDepart"; });
+  }
   function findFeederDetours(steps) {
     var out = [];
     if (!steps) return out;
@@ -573,7 +577,7 @@
             if (HIGHWAY_TEXT.test(t) && !NOT_HIGHWAY.test(t) && !/\bfm[- ]?\d/.test(t)) highway = true;
             if (s.path && s.path.length > 1 && !/Ramp|Fork/.test(s.maneuverType || "") && (!best || s.length > best.length)) best = s;
           });
-          if (!highway && best && best.length > 0.3 && miles <= HOP_MAX_MILES) {
+          if (!highway && best && best.length > 0.3 && miles <= HOP_MAX_MILES && !visitsStop(off)) {
             var vias = [];
             off.forEach(function (s) {
               var m = /\b(?:on|onto)\s+([^()]+?)\s*(\(|$)/.exec(String(s.text || "")), name = m && m[1].trim();
@@ -610,7 +614,7 @@
             // the barrier goes on the longest off-road step, skipping the exit ramp itself when there's more
             if (s.path && s.path.length > 1 && (k > 0 || off.length === 1) && (!best || s.length > best.length)) best = s;
           });
-          if (drivesRoad && !otherHighway && miles > 0 && miles <= HOP_MAX_MILES && best) {
+          if (drivesRoad && !otherHighway && miles > 0 && miles <= HOP_MAX_MILES && best && !visitsStop(off)) {
             hops.push({ road: lastRoad, miles: miles, fromStep: offStart, toStep: i, barrier: midPoint(best.path), via: best.text });
           }
         }

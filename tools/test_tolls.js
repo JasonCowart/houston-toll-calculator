@@ -470,4 +470,13 @@ test("choose a toll road: plazas going the trip's way, near enough to the trip",
   assert(h && h.point.dir === "S", "southbound Hardy plaza");
 });
 
+test("a stop on the trip isn't a tollway hop", () => {
+  const step = (text, len, type) => ({ text, length: len, maneuverType: type || "esriDMTStraight", path: [[-95.5, 29.7], [-95.49, 29.7]] });
+  const hop = [step("Go east on Westpark Tollway", 2), step("Take the exit toward Fondren Rd", 0.3, "esriDMTRampRight"),
+    step("Turn right on Fondren Rd", 0.6, "esriDMTTurnRight"), step("Turn left to merge onto Westpark Tollway", 0.3, "esriDMTRampLeft"), step("Continue on Westpark Tollway", 3)];
+  assert(T.findTollwayHops(hop).length === 1, "off and back on is a hop");
+  const visit = hop.slice(0, 3).concat([step("Arrive at Stop 2", 0, "esriDMTStop"), step("Depart Stop 2", 0.4, "esriDMTDepart")], hop.slice(3));
+  assert(T.findTollwayHops(visit).length === 0, "off to a stop and back on is not a hop");
+});
+
 console.log(passed + " tests passed");

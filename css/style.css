@@ -325,3 +325,9 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .via-road select { width: auto; flex: 1 1 180px; min-height: 34px; padding: 4px 8px; }
 .via-note { flex: 1 1 100%; margin: 0; }
 .via-note:empty { display: none; }
+.add-stop { display: block; margin: -4px 0 4px; text-align: left; }
+#mid-stops { display: grid; gap: 14px; }
+#mid-stops:empty { display: none; }
+.mid-stop { border-left: 3px solid #1967d2; padding-left: 10px; }
+.mid-actions { display: inline-flex; gap: 12px; align-items: center; }
+.remove-stop { font-size: 14px; padding: 2px 4px; color: var(--ink-soft); }

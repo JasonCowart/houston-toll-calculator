@@ -36,6 +36,11 @@ require([
   var TOMTOM = DEBUG && !!TT_KEY;
   var $ = function (id) { return document.getElementById(id); };
   var stops = { from: null, to: null };
+  // Stops along the way (up to 3), between From and To, in order. Keys m0, m1… (never reused).
+  var midKeys = [], midSeq = 0, MAX_MID = 3;
+  function fieldKeys() { return ["from"].concat(midKeys, ["to"]); }
+  function midPoints() { return midKeys.map(function (k) { return stops[k]; }).filter(Boolean); }
+  function placeholderFor(w) { return L(w === "from" ? "Starting address" : w === "to" ? "Destination" : "Stop address"); }
   var tollPoints = [];
   var travelModes = null;
 
@@ -64,7 +69,7 @@ require([
 
   function makeSearch(container, which) {
     var s = new Search({ view: view, container: container, popupEnabled: false, resultGraphicEnabled: false,
-      locationEnabled: which === "from", allPlaceholder: which === "from" ? L("Starting address") : L("Destination") });
+      locationEnabled: which === "from", allPlaceholder: placeholderFor(which) });
     s.on("select-result", function (e) {
       stops[which] = e.result && e.result.feature ? e.result.feature.geometry : null;
       if (stops[which]) remember(e.result.name, stops[which]);
@@ -108,7 +113,7 @@ require([
     fillPlaces();
   }
   function fillPlaces() {
-    ["from", "to"].forEach(function (w) {
+    fieldKeys().forEach(function (w) {
       var sel = $("places-" + w);
       var html = '<option value="">' + L("Choose a place…") + "</option>";
       function group(title, list, prefix) {
@@ -162,7 +167,7 @@ require([
     var c = COMMON[i];
     return c && { label: c[0], lon: c[1], lat: c[2] };
   }
-  ["from", "to"].forEach(function (w) {
+  function wirePlaceField(w) {
     $("places-" + w).addEventListener("change", function () {
       if (this.value === "manage") { this.value = ""; openPlacesDialog(); return; }
       var p = this.value && placeFromValue(this.value);
@@ -187,7 +192,8 @@ require([
       fillPlaces();
       setStatus(L("Saved “{name}” to My places on this device.", { name: p.label }));
     });
-  });
+  }
+  wirePlaceField("from"); wirePlaceField("to");
   fillPlaces();
 
   // English / Español: fixed page text swaps in place (lang.js); what the app builds is redrawn.
@@ -199,7 +205,8 @@ require([
     setEsriLocale();
     fillPlaces();
     if (typeof fillVehicles === "function") fillVehicles();
-    ["from", "to"].forEach(function (w) { if (searches[w]) searches[w].allPlaceholder = L(w === "from" ? "Starting address" : "Destination"); });
+    fieldKeys().forEach(function (w) { if (searches[w]) searches[w].allPlaceholder = placeholderFor(w); });
+    labelStops();
     if (typeof setPicking === "function") setPicking(picking);
     showRatesAsOf();
     var bmEl = document.querySelector(".basemap-switch:not(.tt-switch)");
@@ -218,21 +225,68 @@ require([
   var picking = null;
   function setPicking(which) {
     picking = picking === which ? null : which;
-    ["from", "to"].forEach(function (w) {
+    fieldKeys().forEach(function (w) {
       var b = $("pick-" + w);
       b.classList.toggle("active", picking === w);
       b.textContent = picking === w ? L("Tap the map…") : L("Pick on map");
     });
     if (picking) {
-      setStatus(L(picking === "from" ? "Tap the map to set the start." : "Tap the map to set the destination."));
+      setStatus(L(picking === "from" ? "Tap the map to set the start." : picking === "to" ? "Tap the map to set the destination." : "Tap the map to set this stop."));
       if (window.innerWidth <= 760) $("map").scrollIntoView({ behavior: "smooth", block: "center" });
     } else setStatus("");
   }
-  ["from", "to"].forEach(function (w) {
+  function wirePick(w) {
     var b = $("pick-" + w);
     if (!key) { b.disabled = true; return; }
     b.addEventListener("click", function () { setPicking(w); });
+  }
+  wirePick("from"); wirePick("to");
+
+  // Add a stop: a box like From and To, between them. Routes go through the stops in order.
+  function labelStops() {
+    midKeys.forEach(function (w, i) {
+      $("label-" + w).textContent = L("Stop {n}", { n: i + 1 });
+      $("remove-" + w).setAttribute("aria-label", L("Remove stop {n}", { n: i + 1 }));
+      $("save-" + w).textContent = L("Save place");
+      $("places-" + w).setAttribute("aria-label", L("Saved, recent and common places for Stop {n}", { n: i + 1 }));
+    });
+    $("add-stop").hidden = midKeys.length >= MAX_MID;
+    $("add-stop").textContent = "+ " + L("Add a stop");
+  }
+  function addStop(at, label) {
+    if (midKeys.length >= MAX_MID) return null;
+    var w = "m" + (midSeq++);
+    var sec = document.createElement("section");
+    sec.className = "field mid-stop"; sec.id = "field-" + w;
+    sec.innerHTML = '<div class="label-row"><label id="label-' + w + '"></label><span class="mid-actions">' +
+      '<button type="button" id="pick-' + w + '" class="pick">' + L("Pick on map") + '</button>' +
+      '<button type="button" id="remove-' + w + '" class="pick remove-stop">\u2715</button></span></div>' +
+      '<div id="search-' + w + '" class="search"></div>' +
+      '<div class="places-row"><select id="places-' + w + '" class="places"></select>' +
+      '<button type="button" id="save-' + w + '" class="pick" disabled></button></div>';
+    $("mid-stops").appendChild(sec);
+    midKeys.push(w);
+    stops[w] = at || null;
+    if (key) makeSearch("search-" + w, w);
+    if (at && searches[w]) searches[w].searchTerm = label || "";
+    wirePlaceField(w); wirePick(w);
+    $("remove-" + w).addEventListener("click", function () { removeStop(w); });
+    labelStops(); fillPlaces(); drawStops(); updateButton();
+    return w;
+  }
+  function removeStop(w) {
+    if (picking === w) setPicking(null);
+    try { if (searches[w]) searches[w].destroy(); } catch (e) { /* gone */ }
+    delete searches[w]; delete stops[w];
+    midKeys = midKeys.filter(function (k) { return k !== w; });
+    var el = $("field-" + w); if (el) el.remove();
+    labelStops(); drawStops(); updateButton();
+  }
+  $("add-stop").addEventListener("click", function () {
+    var w = addStop();
+    if (w && searches[w]) setTimeout(function () { try { searches[w].focus(); } catch (e) { /* ok */ } }, 50);
   });
+  labelStops();
 
   function placeStop(which, mapPoint) {
     stops[which] = mapPoint;
@@ -301,6 +355,8 @@ require([
   var departure = new Date();
   // While the trip back is being priced, routes go from the end to the start (see priceBack).
   var swapEnds = null;
+  // With stops along the way: this trip's route line, for putting route-shaping points in order.
+  var orderPath = null;
   var lastTrip = null;
 
   // Debug: save the exact trip Esri returned, so it can be replayed as a test
@@ -315,6 +371,7 @@ require([
       saved: new Date().toISOString(),
       page: location.href,
       input: { from: lonLat(stops.from), to: lonLat(stops.to), fromLabel: label("from"), toLabel: label("to"),
+        stops: midKeys.length ? midPoints().map(lonLat) : undefined,
         axles: t.axles, payment: t.payment, carpool: t.carpool, departure: t.departure },
       toll: { minutes: ts.minutes, miles: ts.miles, mode: lastTrip.tollRoute.modeNote || null, path: t.tollPath.map(round6),
         steps: (t.steps || []).map(function (s) { return { maneuverType: s.maneuverType, text: s.text, time: s.time, length: s.length, path: s.path ? s.path.map(round6) : null }; }),
@@ -446,6 +503,7 @@ require([
   // carpool stay as they are.
   $("reset").addEventListener("click", function () {
     if (picking) setPicking(null);
+    midKeys.slice().forEach(removeStop);
     ["from", "to"].forEach(function (w) {
       stops[w] = null;
       if (searches[w]) { try { searches[w].clear(); } catch (e) { searches[w].searchTerm = ""; } }
@@ -472,7 +530,7 @@ require([
     updateSteps();
     $("save-vehicle").disabled = !paymentChoice();
     if (typeof syncVehicleSelect === "function" && $("vehicles").options.length) syncVehicleSelect();
-    ["from", "to"].forEach(function (w) { $("save-" + w).disabled = !stops[w]; });
+    fieldKeys().forEach(function (w) { $("save-" + w).disabled = !stops[w]; });
     $("pay-hint").hidden = !!paymentChoice();
     $("go").disabled = !(key && stops.from && stops.to && tollPoints.length && paymentChoice());
   }
@@ -481,11 +539,12 @@ require([
 
   function drawStops() {
     markersLayer.removeAll();
-    ["from", "to"].forEach(function (w) {
+    fieldKeys().forEach(function (w) {
       if (!stops[w]) return;
-      // Start: green dot with a white S. End: red dot with a white E. Fills are dark enough
-      // for white letters; the rings are darker still.
-      var c = w === "from" ? { fill: [30, 142, 62], ring: [18, 94, 40], letter: "S" } : { fill: [210, 47, 47], ring: [140, 18, 24], letter: "E" };
+      // Start: green dot with a white S. End: red dot with a white E. Stops: blue, numbered.
+      // Fills are dark enough for white letters; the rings are darker still.
+      var c = w === "from" ? { fill: [30, 142, 62], ring: [18, 94, 40], letter: "S" } : w === "to" ? { fill: [210, 47, 47], ring: [140, 18, 24], letter: "E" }
+        : { fill: [25, 103, 210], ring: [13, 60, 140], letter: String(midKeys.indexOf(w) + 1) };
       markersLayer.add(new Graphic({ geometry: stops[w], symbol: { type: "simple-marker", size: 17,
         color: c.fill, outline: { color: c.ring, width: 2 } } }));
       markersLayer.add(new Graphic({ geometry: stops[w], symbol: { type: "text", text: c.letter, color: [255, 255, 255],
@@ -553,10 +612,18 @@ require([
   // more.noTraffic: solve for free-flow driving instead of the departure time's traffic.
   function solve(mode, withDirections, probe, via, barriers, more) {
     more = more || {};
-    var ends = swapEnds || stops;
-    var stopGraphics = [new Graphic({ geometry: ends.from })].concat((via || []).map(function (v) {
-      return new Graphic({ geometry: new Point({ longitude: v[0], latitude: v[1] }), attributes: { LocationType: 1, CurbApproach: 0 } });
-    }), [new Graphic({ geometry: ends.to })]);
+    var ends = swapEnds || stops, mids = swapEnds ? swapEnds.mids : midPoints();
+    var middle = (via || []).map(function (v) {
+      return { lonlat: v, g: new Graphic({ geometry: new Point({ longitude: v[0], latitude: v[1] }), attributes: { LocationType: 1, CurbApproach: 0 } }) };
+    });
+    if (mids.length) {
+      // Your stops, plus any route-shaping points, in the order they come along the trip.
+      middle = middle.concat(mids.map(function (m) { return { lonlat: [m.longitude, m.latitude], g: new Graphic({ geometry: m }), stop: true }; }));
+      var line = orderPath || [[ends.from.longitude, ends.from.latitude]].concat(mids.map(function (m) { return [m.longitude, m.latitude]; }), [[ends.to.longitude, ends.to.latitude]]);
+      middle.forEach(function (x, i) { var a = window.TollCalc.alongPath(line, x.lonlat); x.along = a ? a.along : 0; x.i = i; });
+      middle.sort(function (a, b) { return a.along - b.along || a.i - b.i; });
+    }
+    var stopGraphics = [new Graphic({ geometry: ends.from })].concat(middle.map(function (x) { return x.g; }), [new Graphic({ geometry: ends.to })]);
     var opts = {
       stops: new FeatureSet({ features: stopGraphics }),
       travelMode: mode,
@@ -1350,7 +1417,7 @@ require([
       time: fmtClock(b.at), toll: fmtMoney(b.toll) + (b.plus ? "+" : ""), tt: fmtTime(b.tollMin), ft: fmtTime(b.freeMin) })) +
       (b.hop ? " " + esc(L("Esri’s route leaves the tollway at this time, so this toll may be low.")) : "");
   }
-  function clearBack() { backRun++; backTrip = null; backFailed = false; swapEnds = null; $("back-out").innerHTML = ""; delete $("back-out").dataset.busy; $("back-go").disabled = false; }
+  function clearBack() { if (swapEnds) orderPath = null; backRun++; backTrip = null; backFailed = false; swapEnds = null; $("back-out").innerHTML = ""; delete $("back-out").dataset.busy; $("back-go").disabled = false; }
   $("back-time").addEventListener("change", function () { backTimeSet = true; backFailed = false; if (backTrip) backTrip = null; renderCommute(); });
   $("back-go").addEventListener("click", function () {
     if (!lastTrip || !stops.from || !stops.to) return;
@@ -1365,7 +1432,8 @@ require([
     out.dataset.busy = "1";
     out.innerHTML = '<span class="hint">' + esc(L("Routing the trip back…")) + "</span>";
     function live() { if (run !== backRun) throw new Error("stale"); }
-    function begin() { live(); swapEnds = { from: stops.to, to: stops.from }; departure = at; } // set again before each step, in case another lookup ran between
+    var backMids = midPoints().slice().reverse(), saveOrder = orderPath, backOrder = null;
+    function begin() { live(); swapEnds = { from: stops.to, to: stops.from, mids: backMids }; departure = at; orderPath = backOrder; } // set again before each step, in case another lookup ran between
     begin();
     loadTravelModes().then(function (modes) {
       begin();
@@ -1373,6 +1441,7 @@ require([
       return Promise.all([bvia ? solveFirstVia(tollVariants(mode, t.axles, "prefer"), bvia) : solveFirst(tollVariants(mode, t.axles, "prefer"), true),
         solveFirst(tollVariants(mode, t.axles, "prohibit"), true)]);
     }).then(function (routes) {
+      if (backMids.length) backOrder = [].concat.apply([], routes[0].geometry.paths);
       begin();
       return Promise.all([bvia ? stayOnChosen(routes[0], bvia) : stayOnTollway(routes[0], t.axles), stayOnFeeder(routes[1])]);
     }).then(function (routes) {
@@ -1388,7 +1457,7 @@ require([
       backFailed = true;
     }).then(function () {
       if (run !== backRun) return;
-      swapEnds = null; departure = saveDeparture;
+      swapEnds = null; departure = saveDeparture; orderPath = saveOrder;
       delete out.dataset.busy;
       $("back-go").disabled = false; $("best-time").disabled = false;
       renderCommute();
@@ -1537,7 +1606,13 @@ require([
     var route = kind === "free" ? lastTrip.freeRoute : lastTrip.tollRoute;
     var ll = function (p) { return p[1].toFixed(6) + "," + p[0].toFixed(6); };
     var from = [stops.from.longitude, stops.from.latitude], to = [stops.to.longitude, stops.to.latitude];
-    var via = routeWaypoints(route, kind);
+    var via = routeWaypoints(route, kind), mids = midPoints();
+    if (mids.length) {
+      var path = [].concat.apply([], route.geometry.paths);
+      via = via.map(function (p) { return { p: p, stop: false }; }).concat(mids.map(function (m) { return { p: [m.longitude, m.latitude], stop: true }; }))
+        .map(function (x) { var a = window.TollCalc.alongPath(path, x.p); x.along = a ? a.along : 0; return x; })
+        .sort(function (a, b) { return a.along - b.along; }).map(function (x) { return x.p; }).slice(0, 9);
+    }
     var g = "https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=" + ll(from) + "&destination=" + ll(to) +
       (via.length ? "&waypoints=" + encodeURIComponent(via.map(ll).join("|")) : "");
     $("nav-google").href = g;
@@ -1545,7 +1620,8 @@ require([
     $("nav-waze").href = "https://waze.com/ul?ll=" + ll(to) + "&navigate=yes";
     $("drive-note").textContent = L(kind === "free"
       ? "Google Maps follows this route through a few points. Apple Maps and Waze pick their own roads: turn on “Avoid tolls” there to stay toll-free."
-      : "Google Maps follows this route through a few points on it. Apple Maps and Waze pick their own roads, which may differ.");
+      : "Google Maps follows this route through a few points on it. Apple Maps and Waze pick their own roads, which may differ.") +
+      (mids.length ? " " + L("Apple Maps and Waze open with the destination only; add your stops there.") : "");
   }
   Array.prototype.forEach.call(document.querySelectorAll('input[name="drive-route"]'), function (r) { r.addEventListener("change", renderDrive); });
 
@@ -1562,6 +1638,11 @@ require([
     if ($("leave").value) q.set("t", $("leave").value);
     if (window.I18N.lang === "es") q.set("lang", "es");
     if (chosenVia()) q.set("r", viaChoice.road);
+    var ms = midKeys.filter(function (k) { return stops[k]; });
+    if (ms.length) {
+      q.set("m", ms.map(function (k) { return stops[k].longitude.toFixed(5) + "," + stops[k].latitude.toFixed(5); }).join(";"));
+      q.set("ml", ms.map(function (k) { return (searchesTerm(k) || "").replace(/\|/g, "/"); }).join("|"));
+    }
     return location.origin + location.pathname + "?" + q.toString();
   }
   $("share").addEventListener("click", function () {
@@ -1585,12 +1666,12 @@ require([
     var lines = [
       L("What looks wrong? (For example: the price, a toll that is missing, or one that shouldn't be there.)"), "", "", "",
       "---- Trip details (filled in by the calculator) ----",
-      "From: " + from, "To: " + to,
+      "From: " + from].concat(midKeys.filter(function (k) { return stops[k]; }).map(function (k, n) { return "Stop " + (n + 1) + ": " + (searchesTerm(k) || lonLat(stops[k]).join(",")); }), ["To: " + to,
       "Leaving: " + new Date(t.departure).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }),
       "Vehicle: " + t.axles + " axles" + (t.carpool ? ", carpool" : "") + " · Payment: " + payName,
       "Route total: " + fmtMoney(pr.total) + " for " + pr.items.length + " toll point" + (pr.items.length === 1 ? "" : "s"),
       only == null ? "Tolls:" : "Toll being reported:"
-    ];
+    ]);
     items.slice(0, 25).forEach(function (x) {
       var p = x.it.point;
       lines.push("  " + (x.i + 1) + ". " + p.road + " · " + p.name + " (" + (p.dir || "") + ", id " + p.id + "): " +
@@ -1611,7 +1692,8 @@ require([
     function pt(v) { var a = (v || "").split(",").map(Number); return a.length === 2 && a.every(isFinite) ? a : null; }
     var s = pt(q.get("s")), e = pt(q.get("e"));
     if (!s || !e) return null;
-    return { s: s, e: e, sl: q.get("sl"), el: q.get("el"), ax: parseInt(q.get("ax"), 10), pay: q.get("pay"), cp: q.get("cp") === "1", t: q.get("t"), r: q.get("r") };
+    return { s: s, e: e, sl: q.get("sl"), el: q.get("el"), ax: parseInt(q.get("ax"), 10), pay: q.get("pay"), cp: q.get("cp") === "1", t: q.get("t"), r: q.get("r"),
+      m: (q.get("m") || "").split(";").map(pt).filter(Boolean).slice(0, 3), ml: (q.get("ml") || "").split("|") };
   })();
   function applyShared() {
     if (!shared || !searches.from || !searches.to) return false;
@@ -1620,6 +1702,7 @@ require([
     stops.to = new Point({ longitude: sh.e[0], latitude: sh.e[1] });
     searches.from.searchTerm = sh.sl || L("Shared start");
     searches.to.searchTerm = sh.el || L("Shared destination");
+    sh.m.forEach(function (m, i) { addStop(new Point({ longitude: m[0], latitude: m[1] }), sh.ml[i] || L("Stop {n}", { n: i + 1 })); });
     if (sh.ax >= 2 && sh.ax <= 8) $("axles").value = String(sh.ax);
     var r = document.querySelector('input[name="payment"][value="' + sh.pay + '"]'); if (r) r.checked = true;
     $("carpool").checked = sh.cp;
@@ -1884,6 +1967,7 @@ require([
     clearBack();
     backTimeSet = false;
     var via = chosenVia();
+    orderPath = null;
     departure = readDeparture();
     bestRun++;
     $("best-time-out").innerHTML = "";
@@ -1903,6 +1987,7 @@ require([
       return Promise.all([via ? solveFirstVia(tollVariants(mode, axles, "prefer"), [[via.lon, via.lat]]) : solveFirst(tollVariants(mode, axles, "prefer"), true),
         solveFirst(tollVariants(mode, axles, "prohibit"), true)]);
     }).then(function (routes) {
+      if (midKeys.length) orderPath = [].concat.apply([], routes[0].geometry.paths);
       return Promise.all([via ? stayOnChosen(routes[0], [[via.lon, via.lat]]) : stayOnTollway(routes[0], axles), stayOnFeeder(routes[1])]);
     }).then(function (routes) {
       var tollRoute = routes[0], freeRoute = routes[1];

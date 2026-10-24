@@ -215,6 +215,8 @@
     "Add a stop": "Agregar una parada",
     "Print": "Imprimir",
     "Save PDF": "Guardar PDF",
+    "Making the PDF…": "Creando el PDF…",
+    "The map picture couldn’t be made. Tap “Open this trip online” to see the map.": "No se pudo crear la imagen del mapa. Toque “Abrir este viaje en línea” para ver el mapa.",
     "Open this trip online": "Abrir este viaje en línea",
     "Opening the shared trip…": "Abriendo el viaje compartido…",
     "End": "Llegada",

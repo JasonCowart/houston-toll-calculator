@@ -1726,10 +1726,11 @@ require([
   var SHOT_W = 900, SHOT_H = 530;
   // The map is zoomed to show the whole trip (both routes and all stops) for the picture, then
   // put back where it was.
+  // Wait for the map to finish drawing (up to 5 seconds; a just-opened page is still loading tiles).
   function settled() {
     return new Promise(function (res) {
       var t0 = Date.now();
-      (function check() { if (!view.updating || Date.now() - t0 > 3000) setTimeout(res, 150); else setTimeout(check, 100); })();
+      (function check() { if (!view.updating || Date.now() - t0 > 5000) setTimeout(res, 200); else setTimeout(check, 100); })();
     });
   }
   function tripScreenRect() {
@@ -1772,19 +1773,15 @@ require([
   }
   function frameAndShoot() {
     if (!view.takeScreenshot || !lastTrip) return Promise.resolve(null);
-    var saved = view.viewpoint ? view.viewpoint.clone() : null, area = null;
+    var saved = view.viewpoint ? view.viewpoint.clone() : null, area = null, finished = false;
     // The map's own labels drop some when toll points are close; the picture gets numbered dots instead.
     if (tollLayer) tollLayer.labelsVisible = false;
     var ext = lastTrip.tollRoute.geometry.extent.clone();
     if (lastTrip.freeRoute && $("show-free").checked) ext = ext.union(lastTrip.freeRoute.geometry.extent);
-    var work = view.goTo(ext.expand(1.15), { animate: false }).then(settled).then(function () {
-      var a = shotArea(1.1);
-      if (a && a.fit > 1) { // the picture's shape doesn't fit the map on screen: zoom out and measure again
-        return view.goTo({ target: view.center, scale: view.scale * a.fit * 1.05 }, { animate: false }).then(settled).then(function () { return shotArea(1.1); });
-      }
-      return a;
-    }).then(function (a) {
+    function quiet(e) { console.warn("map picture step", e); window.__shotError = String(e && e.message || e); }
+    function shoot(a) {
       var o = { format: "jpg", quality: 88, width: SHOT_W, height: SHOT_H };
+      area = null;
       if (a && view.width > 0 && view.height > 0 && isFinite(a.area.width)) {
         var ar = a.area;
         ar.x = Math.max(0, ar.x); ar.y = Math.max(0, ar.y);
@@ -1792,8 +1789,12 @@ require([
         o.area = ar; area = ar;
       }
       if (!area) area = { x: 0, y: 0, width: view.width, height: view.height };
-      return view.takeScreenshot(o);
-    }).then(function (r) {
+      return view.takeScreenshot(o).catch(function (e) { // a cropped picture failed: try the whole map
+        quiet(e); area = { x: 0, y: 0, width: view.width, height: view.height };
+        return view.takeScreenshot({ format: "jpg", quality: 88, width: SHOT_W, height: SHOT_H });
+      });
+    }
+    function withMarks(r) {
       if (!r || !r.dataUrl) return null;
       // Where each toll point sits in the picture (0..1 across and down), numbered as in the toll list.
       var marks = [];
@@ -1804,9 +1805,25 @@ require([
         if (fx >= 0 && fx <= 1 && fy >= 0 && fy <= 1) marks.push({ n: i + 1, fx: fx, fy: fy, missing: it.rate == null });
       });
       return { url: r.dataUrl, marks: marks };
-    }, function () { return null; });
-    var timeout = new Promise(function (res) { setTimeout(function () { res(null); }, 6000); });
-    return Promise.race([work, timeout]).then(function (shot) {
+    }
+    // Each step carries on if it fails: a picture of the map as it is beats no picture.
+    var work = view.goTo(ext.expand(1.15), { animate: false }).catch(quiet).then(function () { return settled(); }).then(function () {
+      var a = null;
+      try { a = shotArea(1.1); } catch (e) { quiet(e); }
+      if (a && a.fit > 1) { // the picture's shape doesn't fit the map on screen: zoom out and measure again
+        return view.goTo({ target: view.center, scale: view.scale * a.fit * 1.05 }, { animate: false }).catch(quiet).then(function () { return settled(); })
+          .then(function () { try { return shotArea(1.1); } catch (e) { quiet(e); return null; } });
+      }
+      return a;
+    }).then(function (a) { return finished ? null : shoot(a); }).then(withMarks, function (e) { quiet(e); return null; });
+    // A slow phone or map still loading: after 12 seconds, take the map as it is now.
+    var late = new Promise(function (res) { setTimeout(res, 12000); }).then(function () {
+      if (finished) return null;
+      area = { x: 0, y: 0, width: view.width, height: view.height };
+      return view.takeScreenshot({ format: "jpg", quality: 85, width: SHOT_W, height: SHOT_H }).then(withMarks, function (e) { quiet(e); return null; });
+    });
+    return Promise.race([work, late]).then(function (shot) {
+      finished = true;
       if (tollLayer) tollLayer.labelsVisible = true;
       if (saved) view.goTo(saved, { animate: false }).catch(function () {});
       return shot;
@@ -1878,6 +1895,10 @@ require([
     y += 48;
     // Trip details on the left, the map on the right.
     var mapW = 228, mapH = mapW * SHOT_H / SHOT_W, leftW = R - M - mapW - 14, top = y;
+    if (!mapUrl) { // no picture: say where to see the map instead of leaving a gap
+      d.rect(R - mapW, top, mapW, mapH, { fill: "#f4f1f8", stroke: "#d9d5de", lineWidth: 0.5 });
+      d.para(R - mapW + 14, top + mapH / 2 - 10, L("The map picture couldn’t be made. Tap “Open this trip online” to see the map."), mapW - 28, { size: 8, color: GRAY });
+    }
     if (mapUrl) {
       var mx = R - mapW;
       d.jpeg(mapUrl, SHOT_W, SHOT_H, mx, top, mapW, mapH);
@@ -1890,7 +1911,7 @@ require([
         d.text(mx + m.x - P.width(lbl, 6.5, true) / 2, top + m.y + 2.4, lbl, { size: 6.5, bold: true, color: "#ffffff" });
       });
     }
-    var w = mapUrl ? leftW : R - M;
+    var w = leftW;
     d.text(M, y + 12, L("Trip summary"), { size: 12, bold: true }); y += 20;
     summaryRows().rows.forEach(function (r) {
       d.text(M, y + 9, r[0], { size: 9, bold: true, color: GRAY });
@@ -1908,7 +1929,7 @@ require([
     d.link(M, linkTop, P.width(L("Open this trip online"), 8, true), 11, url);
     y = d.para(M, linkTop + 11, url, w, { size: 6, color: FAINT });
     y = d.para(M, y + 2, printedLine(), w, { size: 6.5, color: FAINT });
-    y = Math.max(y, mapUrl ? top + mapH : y) + 12;
+    y = Math.max(y, top + mapH) + 12;
     // Headline banner.
     var big = textOf($("headline-big")), small = textOf($("headline-small")), neutral = $("headline").classList.contains("neutral");
     var hh = small ? 38 : 26;
@@ -1990,13 +2011,15 @@ require([
   $("save-pdf").addEventListener("click", function () {
     if (!lastTrip || !window.MiniPDF) return;
     var btn = this; btn.disabled = true;
+    setStatus(L("Making the PDF…"), false, true);
+    window.__shotError = null;
     Promise.all([mapShot(), loadLogo()]).then(function (r) {
       var blob = new Blob([buildPdf(r[0], r[1])], { type: "application/pdf" }), name = pdfName();
       var a = document.createElement("a");
       a.href = URL.createObjectURL(blob); a.download = name;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function () { URL.revokeObjectURL(a.href); }, 60000);
-      setStatus(L("Saved {name}.", { name: name }));
+      setStatus(L("Saved {name}.", { name: name }) + (DEBUG && !r[0] ? " Map picture failed: " + (window.__shotError || "timed out") : ""));
     }).catch(function (e) {
       console.error(e);
       setStatus(L("Couldn't make the PDF. Try Print instead."), true);

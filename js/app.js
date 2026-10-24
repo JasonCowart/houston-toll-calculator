@@ -1680,8 +1680,14 @@ require([
     var places = [searchesTerm("from") || L("Start")].concat(midKeys.filter(function (k) { return stops[k]; }).map(function (k, i) {
       return searchesTerm(k) || L("Stop {n}", { n: i + 1 }); }), [searchesTerm("to") || L("Destination")]);
     var when = new Date(t.departure).toLocaleString(window.I18N.locale(), { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
-    var rows = [[L("Trip"), places.join(" \u2192 ")], [L("Leave"), when],
-      [L("Vehicle"), L("{n} axles", { n: t.axles }) + (t.carpool ? ", " + L("carpool") : "") + " · " + payName]];
+    // Start, stops and end each get a row with the same dot as on the map.
+    var rows = places.map(function (pl, i) {
+      var last = i === places.length - 1;
+      return i === 0 ? [L("Start"), pl, { fill: "#1e8e3e", ring: "#125e28", letter: "S" }]
+        : last ? [L("End"), pl, { fill: "#d22f2f", ring: "#8c1218", letter: "E" }]
+        : [L("Stop {n}", { n: i }), pl, { fill: "#1967d2", ring: "#0d3c8c", letter: String(i) }];
+    });
+    rows.push([L("Leave"), when], [L("Vehicle"), L("{n} axles", { n: t.axles }) + (t.carpool ? ", " + L("carpool") : "") + " · " + payName]);
     if (chosenVia()) rows.push([L("Toll road"), L("Use {road}", { road: tollwayName(viaChoice.road) })]);
     return { rows: rows, places: places };
   }
@@ -1690,20 +1696,86 @@ require([
   }
   // A picture of the map (JPEG data URL), or null after 4 seconds or if the map can't make one.
   var SHOT_W = 900, SHOT_H = 530;
+  // The map is zoomed to show the whole trip (both routes and all stops) for the picture, then
+  // put back where it was.
+  function settled() {
+    return new Promise(function (res) {
+      var t0 = Date.now();
+      (function check() { if (!view.updating || Date.now() - t0 > 3000) setTimeout(res, 150); else setTimeout(check, 100); })();
+    });
+  }
+  function tripScreenRect() {
+    var ext = lastTrip.tollRoute.geometry.extent.clone();
+    if (lastTrip.freeRoute && $("show-free").checked) ext = ext.union(lastTrip.freeRoute.geometry.extent);
+    var pts = [[ext.xmin, ext.ymin], [ext.xmax, ext.ymax], [ext.xmin, ext.ymax], [ext.xmax, ext.ymin]].map(function (c) {
+      return view.toScreen(new Point({ longitude: c[0], latitude: c[1] }));
+    }).filter(Boolean);
+    if (!pts.length) return null;
+    var xs = pts.map(function (p) { return p.x; }), ys = pts.map(function (p) { return p.y; });
+    return { x0: Math.min.apply(null, xs), x1: Math.max.apply(null, xs), y0: Math.min.apply(null, ys), y1: Math.max.apply(null, ys) };
+  }
+  // The trip's box on screen, padded and widened to the picture's shape; null if it doesn't fit.
+  function shotArea(pad) {
+    var r = tripScreenRect();
+    if (!r) return null;
+    var w = (r.x1 - r.x0) * pad + 30, h = (r.y1 - r.y0) * pad + 30, want = SHOT_W / SHOT_H;
+    if (w / h < want) w = h * want; else h = w / want;
+    var cx = (r.x0 + r.x1) / 2, cy = (r.y0 + r.y1) / 2, vw = view.width, vh = view.height;
+    return { area: { x: Math.round(cx - w / 2), y: Math.round(cy - h / 2), width: Math.round(w), height: Math.round(h) }, fit: Math.max(w / vw, h / vh) };
+  }
   function mapShot() {
-    var shot = view.takeScreenshot ? view.takeScreenshot({ format: "jpg", quality: 85, width: SHOT_W, height: SHOT_H }) : Promise.reject();
-    var timeout = new Promise(function (res) { setTimeout(function () { res(null); }, 4000); });
-    return Promise.race([shot.then(function (r) { return r && r.dataUrl; }, function () { return null; }), timeout]);
+    try { return frameAndShoot(); } catch (e) { console.warn("map picture failed", e); return Promise.resolve(null); }
+  }
+  function frameAndShoot() {
+    if (!view.takeScreenshot || !lastTrip) return Promise.resolve(null);
+    var saved = view.viewpoint ? view.viewpoint.clone() : null;
+    var ext = lastTrip.tollRoute.geometry.extent.clone();
+    if (lastTrip.freeRoute && $("show-free").checked) ext = ext.union(lastTrip.freeRoute.geometry.extent);
+    var work = view.goTo(ext.expand(1.15), { animate: false }).then(settled).then(function () {
+      var a = shotArea(1.1);
+      if (a && a.fit > 1) { // the picture's shape doesn't fit the map on screen: zoom out and measure again
+        return view.goTo({ target: view.center, scale: view.scale * a.fit * 1.05 }, { animate: false }).then(settled).then(function () { return shotArea(1.1); });
+      }
+      return a;
+    }).then(function (a) {
+      var o = { format: "jpg", quality: 88, width: SHOT_W, height: SHOT_H };
+      if (a && view.width > 0 && view.height > 0 && isFinite(a.area.width)) {
+        var ar = a.area;
+        ar.x = Math.max(0, ar.x); ar.y = Math.max(0, ar.y);
+        ar.width = Math.min(ar.width, view.width - ar.x); ar.height = Math.min(ar.height, view.height - ar.y);
+        o.area = ar;
+      }
+      return view.takeScreenshot(o);
+    }).then(function (r) { return r && r.dataUrl; }, function () { return null; });
+    var timeout = new Promise(function (res) { setTimeout(function () { res(null); }, 6000); });
+    return Promise.race([work, timeout]).then(function (url) {
+      if (saved) view.goTo(saved, { animate: false }).catch(function () {});
+      return url;
+    });
+  }
+  // The HCTRA logo on the purple title bar, as a JPEG (PDF pictures here are JPEG).
+  var logoJpeg = null;
+  function loadLogo() {
+    if (logoJpeg) return Promise.resolve(logoJpeg);
+    return new Promise(function (res) {
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight;
+          var g = c.getContext("2d"); g.fillStyle = "#662d91"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0);
+          logoJpeg = { url: c.toDataURL("image/jpeg", 0.92), w: c.width, h: c.height };
+        } catch (e) { logoJpeg = null; }
+        res(logoJpeg);
+      };
+      img.onerror = function () { res(null); };
+      img.src = "assets/hctra-lockup-reverse.png";
+    });
   }
   function printHead(mapUrl) {
-    var t = lastTrip.trip;
-    var payName = L({ eztag: "EZ TAG", tag: "Other tag", notag: "No tag" }[t.payment] || t.payment);
-    var places = [searchesTerm("from") || L("Start")].concat(midKeys.filter(function (k) { return stops[k]; }).map(function (k, i) {
-      return searchesTerm(k) || L("Stop {n}", { n: i + 1 }); }), [searchesTerm("to") || L("Destination")]);
-    var when = new Date(t.departure).toLocaleString(window.I18N.locale(), { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
-    var rows = [[L("Trip"), places.map(esc).join(" \u2192 ")], [L("Leave"), esc(when)],
-      [L("Vehicle"), esc(L("{n} axles", { n: t.axles }) + (t.carpool ? ", " + L("carpool") : "") + " · " + payName)]];
-    if (chosenVia()) rows.push([L("Toll road"), esc(L("Use {road}", { road: tollwayName(viaChoice.road) }))]);
+    var rows = summaryRows().rows.map(function (r) {
+      var dot = r[2] ? '<span class="ph-dot" style="background:' + r[2].fill + ";border-color:" + r[2].ring + '">' + r[2].letter + "</span>" : "";
+      return [esc(r[0]), dot + esc(r[1])];
+    });
     var url = shareUrl();
     return '<div class="ph-left"><h2 class="ph-title">' + esc(L("Trip summary")) + "</h2>" +
       '<table class="ph-trip">' + rows.map(function (r) { return "<tr><th>" + r[0] + "</th><td>" + r[1] + "</td></tr>"; }).join("") + "</table>" +
@@ -1727,11 +1799,20 @@ require([
   // Save PDF: the same one-page summary as a PDF file, drawn directly (js/pdf.js), so it works
   // on phones whose print screen has no "Save as PDF".
   function textOf(el) { return el ? el.textContent.replace(/\s+/g, " ").trim() : ""; }
-  function buildPdf(mapUrl) {
+  function buildPdf(mapUrl, logo) {
     var P = window.MiniPDF, d = new P.Doc(612, 792), M = 32, R = 612 - M, PURPLE = "#662d91", GRAY = "#5f5a66", FAINT = "#8a8590", LINE = "#d9d5de";
     var y = M;
-    d.text(M, y + 13, L("HCTRA Toll Calculator"), { size: 14, bold: true, color: PURPLE });
-    y += 20; d.line(M, y, R, y, { color: PURPLE, lineWidth: 1.2 }); y += 10;
+    // Title bar like the site's: the HCTRA logo, a thin divider, the title.
+    d.rect(M, y, R - M, 36, { fill: PURPLE });
+    var tx = M + 12;
+    if (logo) {
+      var lh = 22, lw = lh * logo.w / logo.h;
+      d.jpeg(logo.url, logo.w, logo.h, M + 12, y + 7, lw, lh);
+      d.line(M + 22 + lw, y + 8, M + 22 + lw, y + 28, { color: "#a585c2", lineWidth: 0.75 });
+      tx = M + 32 + lw;
+    }
+    d.text(tx, y + 23, L("HCTRA Toll Calculator"), { size: 14, bold: true, color: "#ffffff" });
+    y += 48;
     // Trip details on the left, the map on the right.
     var mapW = 228, mapH = mapW * SHOT_H / SHOT_W, leftW = R - M - mapW - 14, top = y;
     if (mapUrl) { d.jpeg(mapUrl, SHOT_W, SHOT_H, R - mapW, top, mapW, mapH); d.rect(R - mapW, top, mapW, mapH, { stroke: "#bbbbbb", lineWidth: 0.5 }); }
@@ -1739,7 +1820,13 @@ require([
     d.text(M, y + 12, L("Trip summary"), { size: 12, bold: true }); y += 20;
     summaryRows().rows.forEach(function (r) {
       d.text(M, y + 9, r[0], { size: 9, bold: true, color: GRAY });
-      y = d.para(M + 52, y, r[1], w - 52, { size: 9 }) + 3;
+      var vx = M + 52;
+      if (r[2]) { // the map's dot: green S, blue numbered stop, red E
+        d.circle(vx + 5.5, y + 6, 5.5, { fill: r[2].fill, stroke: r[2].ring, lineWidth: 0.8 });
+        d.text(vx + 5.5 - P.width(r[2].letter, 6.5, true) / 2, y + 8.4, r[2].letter, { size: 6.5, bold: true, color: "#ffffff" });
+        vx += 15;
+      }
+      y = d.para(vx, y, r[1], w - (vx - M), { size: 9 }) + 3;
     });
     y = d.para(M, y + 3, L("Open this trip:") + " " + shareUrl(), w, { size: 6.5, color: FAINT });
     y = d.para(M, y + 2, printedLine(), w, { size: 6.5, color: FAINT });
@@ -1775,20 +1862,24 @@ require([
     var colW = (R - M - 20) / 2, lx0 = M, rx0 = M + colW + 20, ly = y, ry = y;
     d.text(lx0, ly + 10, L("Toll breakdown"), { size: 10, bold: true, color: PURPLE }); ly += 16;
     var roadX = lx0 + colW * 0.58;
-    d.text(lx0, ly + 7, L("Toll point"), { size: 7.5, bold: true, color: GRAY });
+    d.text(lx0 + 3, ly + 7, L("Toll point"), { size: 7.5, bold: true, color: GRAY });
     d.text(roadX, ly + 7, L("Road"), { size: 7.5, bold: true, color: GRAY });
-    d.text(lx0 + colW, ly + 7, L("Toll"), { size: 7.5, bold: true, color: GRAY, align: "right" });
+    d.text(lx0 + colW - 3, ly + 7, L("Toll"), { size: 7.5, bold: true, color: GRAY, align: "right" });
     ly += 10; d.line(lx0, ly, lx0 + colW, ly, { color: LINE });
-    Array.prototype.forEach.call(document.querySelectorAll("#breakdown tr"), function (tr) {
+    Array.prototype.forEach.call(document.querySelectorAll("#breakdown tr"), function (tr, k) {
       var td = tr.querySelectorAll("td");
       if (ly > 792 - M - 20) { d.addPage(); ly = M; ry = Math.max(ry, M); }
-      var start = ly;
       if (td.length < 3) { ly = d.para(lx0, ly + 2, textOf(td[0]), colW, { size: 8 }); return; }
-      var a = d.para(lx0, ly + 2, textOf(td[0]), colW * 0.56, { size: 8, lineHeight: 9.5 });
-      var b = d.para(roadX, start + 2, textOf(td[1]), colW * 0.3, { size: 8, lineHeight: 9.5 });
-      d.text(lx0 + colW, start + 10, textOf(td[2]), { size: 8, align: "right" });
-      ly = Math.max(a, b) + 3; d.line(lx0, ly, lx0 + colW, ly, { color: "#ece9ef" });
+      // Rows alternate white and light purple.
+      var n = Math.max(P.wrap(textOf(td[0]), 8, false, colW * 0.56 - 4).length, P.wrap(textOf(td[1]), 8, false, colW * 0.3).length);
+      var h = n * 9.5 + 5;
+      if (k % 2 === 1) d.rect(lx0, ly, colW, h, { fill: "#f3eef8" });
+      d.para(lx0 + 3, ly + 2, textOf(td[0]), colW * 0.56 - 4, { size: 8, lineHeight: 9.5 });
+      d.para(roadX, ly + 2, textOf(td[1]), colW * 0.3, { size: 8, lineHeight: 9.5 });
+      d.text(lx0 + colW - 3, ly + 10, textOf(td[2]), { size: 8, align: "right" });
+      ly += h;
     });
+    d.line(lx0, ly, lx0 + colW, ly, { color: LINE });
     d.text(rx0, ry + 10, L("Gas and commute cost"), { size: 10, bold: true, color: PURPLE }); ry += 16;
     var gas = textOf($("fuel-line"));
     if (gas) ry = d.para(rx0, ry, gas, colW, { size: 8, lineHeight: 10 }) + 4;
@@ -1818,8 +1909,8 @@ require([
   $("save-pdf").addEventListener("click", function () {
     if (!lastTrip || !window.MiniPDF) return;
     var btn = this; btn.disabled = true;
-    mapShot().then(function (url) {
-      var blob = new Blob([buildPdf(url)], { type: "application/pdf" }), name = pdfName();
+    Promise.all([mapShot(), loadLogo()]).then(function (r) {
+      var blob = new Blob([buildPdf(r[0], r[1])], { type: "application/pdf" }), name = pdfName();
       var a = document.createElement("a");
       a.href = URL.createObjectURL(blob); a.download = name;
       document.body.appendChild(a); a.click(); a.remove();

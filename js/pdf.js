@@ -73,6 +73,18 @@
     s += num(x) + " " + num(this.H - y - h) + " " + num(w) + " " + num(h) + " re " + (o.fill && o.stroke ? "B" : o.fill ? "f" : "S");
     this.ops.push(s);
   };
+  // A filled circle centered at x, y (y from the top).
+  Doc.prototype.circle = function (x, y, r, o) {
+    o = o || {};
+    var k = 0.5523 * r, cy = this.H - y, s = rgb(o.fill || "#000000") + " rg ";
+    if (o.stroke) s += rgb(o.stroke) + " RG " + num(o.lineWidth || 0.75) + " w ";
+    s += num(x + r) + " " + num(cy) + " m " +
+      num(x + r) + " " + num(cy + k) + " " + num(x + k) + " " + num(cy + r) + " " + num(x) + " " + num(cy + r) + " c " +
+      num(x - k) + " " + num(cy + r) + " " + num(x - r) + " " + num(cy + k) + " " + num(x - r) + " " + num(cy) + " c " +
+      num(x - r) + " " + num(cy - k) + " " + num(x - k) + " " + num(cy - r) + " " + num(x) + " " + num(cy - r) + " c " +
+      num(x + k) + " " + num(cy - r) + " " + num(x + r) + " " + num(cy - k) + " " + num(x + r) + " " + num(cy) + " c " + (o.stroke ? "B" : "f");
+    this.ops.push(s);
+  };
   Doc.prototype.line = function (x1, y1, x2, y2, o) {
     o = o || {};
     this.ops.push(rgb(o.color || "#cccccc") + " RG " + num(o.lineWidth || 0.5) + " w " + num(x1) + " " + num(this.H - y1) + " m " + num(x2) + " " + num(this.H - y2) + " l S");

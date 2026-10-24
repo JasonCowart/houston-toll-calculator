@@ -215,6 +215,7 @@
     "Add a stop": "Agregar una parada",
     "Print": "Imprimir",
     "Save PDF": "Guardar PDF",
+    "End": "Llegada",
     "Saved {name}.": "Se guardó {name}.",
     "Couldn't make the PDF. Try Print instead.": "No se pudo crear el PDF. Pruebe Imprimir.",
     "Finding a route on {road}…": "Buscando una ruta por {road}…",

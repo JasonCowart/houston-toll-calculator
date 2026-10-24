@@ -535,7 +535,13 @@ require([
     $("go").disabled = !(key && stops.from && stops.to && tollPoints.length && paymentChoice());
   }
   Array.prototype.forEach.call(document.querySelectorAll('input[name="payment"]'), function (r) { r.addEventListener("change", updateButton); });
-  function setStatus(msg, isError) { if (swapEnds) return; /* the trip back is routed quietly */ $("status").textContent = msg || ""; $("status").className = "status" + (isError ? " error" : ""); }
+  // busy: a spinner beside the message, while the app waits on Esri.
+  function spinner() { return '<span class="spinner" aria-hidden="true"></span>'; }
+  function setStatus(msg, isError, busy) {
+    if (swapEnds) return; // the trip back is routed quietly
+    $("status").innerHTML = msg ? (busy ? spinner() : "") + esc(msg) : "";
+    $("status").className = "status" + (isError ? " error" : "") + (busy ? " busy" : "");
+  }
 
   function drawStops() {
     markersLayer.removeAll();
@@ -1433,7 +1439,7 @@ require([
     backTrip = null; backFailed = false;
     $("back-go").disabled = true; $("best-time").disabled = true;
     out.dataset.busy = "1";
-    out.innerHTML = '<span class="hint">' + esc(L("Routing the trip back…")) + "</span>";
+    out.innerHTML = '<span class="busy-line">' + spinner() + esc(L("Routing the trip back…")) + "</span>";
     function live() { if (run !== backRun) throw new Error("stale"); }
     var backMids = midPoints().slice().reverse(), saveOrder = orderPath, backOrder = null;
     function begin() { live(); swapEnds = { from: stops.to, to: stops.from, mids: backMids }; departure = at; orderPath = backOrder; } // set again before each step, in case another lookup ran between
@@ -1495,7 +1501,17 @@ require([
     var tollRoute = lastTrip.tollRoute, freeRoute = lastTrip.freeRoute, trip = lastTrip.trip;
     var via = tollRoute.anchors || null, out = $("best-time-out"), btn = $("best-time");
     btn.disabled = true; $("back-go").disabled = true;
-    out.innerHTML = '<p class="hint">' + L("Checking {n} departure times…", { n: times.length - 1 }) + "</p>";
+    var todo = times.length - 1, done = 0;
+    out.innerHTML = '<div class="busy-line">' + spinner() + "<span>" + esc(L("Checking {n} departure times…", { n: todo })) +
+      ' <span class="busy-count" id="bt-count"></span></span></div><div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="' + todo +
+      '" aria-valuenow="0" aria-label="' + esc(L("Departure times checked")) + '"><span id="bt-bar"></span></div>';
+    function tick() {
+      done++;
+      if (!$("bt-bar")) return;
+      $("bt-bar").style.width = Math.round(100 * done / todo) + "%";
+      $("bt-count").textContent = L("{done} of {n}", { done: done, n: todo });
+      out.querySelector(".progress").setAttribute("aria-valuenow", done);
+    }
     var rows = [], saveDeparture = departure;
     var chain = Promise.resolve();
     times.forEach(function (d) {
@@ -1518,7 +1534,7 @@ require([
             steps: r[0].steps || null, departure: d.toISOString(), routeMinutes: ts.minutes }), tollPoints).priced;
           var hop = window.TollCalc.findTollwayHops(r[0].steps).length > 0;
           rows.push({ at: d, tollMin: ts.minutes, toll: priced.total, plus: priced.pending.length || priced.missing.length, freeMin: fs.minutes, hop: hop });
-        }).catch(function () { rows.push({ at: d, error: true }); });
+        }).catch(function () { rows.push({ at: d, error: true }); }).then(function () { if (run === bestRun) tick(); });
       });
     });
     chain.then(function () {
@@ -1593,8 +1609,10 @@ require([
     }
     $("via-note").textContent = note;
   }
+  var rerouteMsg = null;
   $("via-road").addEventListener("change", function () {
     viaChoice = { road: this.value, ends: endsKey() };
+    rerouteMsg = this.value ? L("Finding a route on {road}…", { road: tollwayName(this.value) }) : L("Finding the fastest route…");
     if (!$("go").disabled) $("go").click();
   });
 
@@ -1922,7 +1940,7 @@ require([
       if (barriers.length) freeRoute.barriers = barriers.slice(); // reused for other departure times
       return Promise.resolve(freeRoute);
     }
-    setStatus(L("Keeping the toll-free route on the feeder road…"));
+    setStatus(L("Keeping the toll-free route on the feeder road…"), false, true);
     detours.forEach(function (d) { barriers.push(d.barrier); });
     return solve(freeRoute.mode, true, DEBUG, null, barriers.slice()).then(function (g) {
       g.originalFreeMinutes = freeRoute.originalFreeMinutes || routeStats(freeRoute).minutes;
@@ -1952,7 +1970,7 @@ require([
   function stayOnTollway(tollRoute, axles) {
     var hops = window.TollCalc.findTollwayHops(tollRoute.steps);
     if (!hops.length || !tollRoute.mode) return Promise.resolve(tollRoute);
-    setStatus(L("Keeping the toll route on the tollway…"));
+    setStatus(L("Keeping the toll route on the tollway…"), false, true);
     var roads = [];
     hops.forEach(function (h) { if (roads.indexOf(h.road) === -1) roads.push(h.road); });
     var original = routeStats(tollRoute).minutes;
@@ -2009,8 +2027,14 @@ require([
     $("best-time-out").innerHTML = "";
     $("best-time").disabled = false;
     $("go").disabled = true;
-    $("results").hidden = true;
-    setStatus(L("Finding routes…"));
+    // Changing the toll road keeps the results on screen, dimmed, with a spinner by the picker.
+    var keep = $("results").hidden ? null : rerouteMsg; rerouteMsg = null;
+    if (keep) {
+      $("results").classList.add("updating");
+      $("results").setAttribute("aria-busy", "true");
+      $("via-note").innerHTML = spinner() + esc(keep);
+    } else $("results").hidden = true;
+    setStatus(L("Finding routes…"), false, true);
     routesLayer.removeAll();
     freeGraphic = null;
     freeTraffic = [];
@@ -2042,10 +2066,15 @@ require([
       drawTollTraffic(tollRoute, lastTrip.priced, window.TollCalc.pathMeters(path));
       loadTomTom(tollRoute, freeRoute);
       setStatus("");
-      scrollToHeadline();
+      if (!keep) scrollToHeadline();
     }).catch(function (err) {
       console.error(err);
       setStatus(L("Couldn't get routes: {msg}", { msg: err && err.message ? err.message : L("unknown error") }), true);
-    }).then(updateButton);
+      if (keep) $("via-note").textContent = L("Couldn't get routes: {msg}", { msg: err && err.message ? err.message : L("unknown error") });
+    }).then(function () {
+      $("results").classList.remove("updating");
+      $("results").removeAttribute("aria-busy");
+      updateButton();
+    });
   });
 });

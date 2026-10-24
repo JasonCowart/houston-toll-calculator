@@ -43,6 +43,11 @@ Keep pay-as-you-go **off** in Esri. The free tier then pauses at its limit inste
 | `.github/workflows/deploy.yml` | Tests, inserts the key, publishes to GitHub Pages |
 | `js/app.js` | Map, address search, routing, results |
 | `js/tolls.js` | Toll matching and pricing (no map code) |
+| `js/lang.js` | English/Spanish text |
+| `js/pdf.js` | Builds the one-page trip summary PDF (Save PDF) |
+| `manifest.webmanifest`, `sw.js`, `assets/icon-*.png` | Add to home screen (app icon, offline copy) |
+| `tests/trips/*.json` | Saved real trips replayed by `tools/test_trips.js` on every deploy |
+| `tools/watch_rates.py` | Weekly check of the agencies' rate pages (Watch toll rates workflow) |
 | `data/toll-points.json` | Toll points and rates |
 | `data/sh288-rates.json` | SH 288 time-of-day tables (from TxDOT) |
 | `tools/fetch_sh288.py` | Downloads the SH 288 tables (run by the Update SH 288 rates workflow) |

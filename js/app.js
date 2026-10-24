@@ -916,6 +916,27 @@ require([
     Array.prototype.forEach.call(document.querySelectorAll("#breakdown tr.selected, #trip-chart .tc-dot.selected"), function (r) { r.classList.remove("selected"); });
   }
   var VIOLET = [140, 92, 255]; // violet-screen: the brand's on-screen highlight colour
+  // One ring, fill and outline together: it fades in at the point, swells out and fades
+  // to nothing, then starts again. It keeps pulsing until the selection is cleared.
+  // Toll points pulse violet; TomTom incidents pulse in their own color.
+  function pulseAt(pt, rgb) {
+    function ring(size, a) {
+      return { type: "simple-marker", size: size, color: rgb.concat(0.25 * a), outline: { color: rgb.concat(a), width: 3 } };
+    }
+    var g = new Graphic({ geometry: pt, symbol: ring(22, 0) });
+    highlightLayer.add(g);
+    var PULSE = 1400, FADE_IN = 0.12, start = null;
+    function frame(ts) {
+      if (start == null) start = ts;
+      var t = ((ts - start) % PULSE) / PULSE;
+      var grow = 1 - Math.pow(1 - t, 2); // eases out as it widens
+      var a = t < FADE_IN ? t / FADE_IN : 1 - (t - FADE_IN) / (1 - FADE_IN);
+      g.symbol = ring(22 + 30 * grow, Math.max(0, a));
+      pulseFrame = requestAnimationFrame(frame);
+    }
+    if (pulseFrame) cancelAnimationFrame(pulseFrame);
+    pulseFrame = requestAnimationFrame(frame);
+  }
   // mode: "map" (tap on the map: opens the card), "chart" (tap on a trip chart dot: opens
   // the breakdown at that row, no jump to the map), or none (a breakdown row: scrolls to the map).
   function highlightItem(i, row, mode) {
@@ -929,23 +950,7 @@ require([
     if (dot) dot.classList.add("selected");
     if (fromMap) showCard(i); // the card opens only for a tap on the map, not from the breakdown
     var pt = new Point({ longitude: it.point.lon, latitude: it.point.lat });
-    // One ring, fill and outline together: it fades in at the point, swells out and fades
-    // to nothing, then starts again. It keeps pulsing until the selection is cleared.
-    function ring(size, a) {
-      return { type: "simple-marker", size: size, color: VIOLET.concat(0.25 * a), outline: { color: VIOLET.concat(a), width: 3 } };
-    }
-    var g = new Graphic({ geometry: pt, symbol: ring(22, 0) });
-    highlightLayer.add(g);
-    var PULSE = 1400, FADE_IN = 0.12, start = null;
-    function frame(ts) {
-      if (start == null) start = ts;
-      var t = ((ts - start) % PULSE) / PULSE;
-      var grow = 1 - Math.pow(1 - t, 2); // eases out as it widens
-      var a = t < FADE_IN ? t / FADE_IN : 1 - (t - FADE_IN) / (1 - FADE_IN);
-      g.symbol = ring(22 + 30 * grow, Math.max(0, a));
-      pulseFrame = requestAnimationFrame(frame);
-    }
-    pulseFrame = requestAnimationFrame(frame);
+    pulseAt(pt, VIOLET);
     if (fromMap) return;
     if (view.extent && !view.extent.clone().expand(0.9).contains(pt)) view.goTo({ center: pt }).catch(function () {});
     if (mode === "chart") {
@@ -1038,9 +1043,8 @@ require([
         (i.start ? '<span class="chip">Since ' + esc(fmtClock(new Date(i.start))) + "</span>" : "") + "</div>" +
       '<p class="map-card-agency">Reported by TomTom (debug test)</p>';
     card.hidden = false;
-    var ring = new Graphic({ geometry: { type: "point", longitude: i.at[0], latitude: i.at[1] },
-      symbol: { type: "simple-marker", style: "circle", size: 30, color: [0, 0, 0, 0], outline: { color: incidentColor(i), width: 2.5 } } });
-    highlightLayer.add(ring);
+    var hex = incidentColor(i), rgb = [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+    pulseAt(new Point({ longitude: i.at[0], latitude: i.at[1] }), rgb);
   }
 
   // Basemap switcher (top right of the map). The choice is remembered on this device.

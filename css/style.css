@@ -416,3 +416,5 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 #via-note:has(.spinner) { color: var(--ink); }
 #debug table.dbg { border-collapse: collapse; font-size: 11px; margin-bottom: 8px; }
 #debug table.dbg th, #debug table.dbg td { text-align: left; padding: 1px 6px 1px 0; vertical-align: top; }
+.install-help { margin: 4px 0 0; padding: 8px 10px; border-radius: 6px; background: var(--purple-tint); color: var(--ink); font-size: 12px; }
+@media print { .install-help { display: none !important; } }

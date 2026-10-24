@@ -205,6 +205,7 @@
         Estimates only. Houston-area rates checked Oct 20–22, 2026 against HCTRA, Montgomery, Fort Bend and Brazoria counties, and TxDOT
         (Grand Parkway, SH 249, SH 288). Katy Managed Lanes use HCTRA's 2013 schedule, still current. Pay-by-mail fees aren't included.
         <button type="button" id="install" class="pick install-btn" hidden>Add to home screen</button>
+        <p class="install-help" id="install-help" hidden>On iPhone or iPad: in Safari, tap Share (the square with an arrow), then “Add to Home Screen”.</p>
       </footer>
     </aside>
     <main id="map" class="map"></main>
@@ -248,6 +249,15 @@
       btn.hidden = false;
       btn.onclick = function () { btn.hidden = true; e.prompt(); };
     });
+    // iPhone and iPad: Safari has no install prompt, so the button shows how to add it by hand.
+    (function () {
+      var ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      var installed = navigator.standalone || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+      if (!ios || installed) return;
+      var btn = document.getElementById("install"), help = document.getElementById("install-help");
+      btn.hidden = false;
+      btn.onclick = function () { help.hidden = !help.hidden; };
+    })();
   </script>
 </body>
 </html>

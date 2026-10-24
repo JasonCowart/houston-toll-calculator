@@ -215,6 +215,7 @@
     "Add a stop": "Agregar una parada",
     "Print": "Imprimir",
     "Save PDF": "Guardar PDF",
+    "Opening the shared trip…": "Abriendo el viaje compartido…",
     "End": "Llegada",
     "Saved {name}.": "Se guardó {name}.",
     "Couldn't make the PDF. Try Print instead.": "No se pudo crear el PDF. Pruebe Imprimir.",

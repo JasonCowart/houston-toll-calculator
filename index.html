@@ -109,6 +109,13 @@
 
       <button id="go" class="go" disabled>Compare toll and toll-free routes</button>
       <div id="status" class="status" aria-live="polite"></div>
+      <script>
+        // A shared link: say so straight away, while the map code is still loading.
+        if (/[?&]s=/.test(location.search)) {
+          document.getElementById("status").className = "status busy";
+          document.getElementById("status").innerHTML = '<span class="spinner" aria-hidden="true"></span>' + (/[?&]lang=es/.test(location.search) ? "Abriendo el viaje compartido…" : "Opening the shared trip…");
+        }
+      </script>
 
       <div id="results" hidden>
         <h2 class="sr-only">Your results</h2>

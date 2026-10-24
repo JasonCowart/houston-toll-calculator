@@ -353,6 +353,7 @@ require([
 
   // Departure time: blank = now. The datetime-local value is read as the device's local time.
   var departure = new Date();
+  var lookupLog = { t0: performance.now(), list: [] };
   // While the trip back is being priced, routes go from the end to the start (see priceBack).
   var swapEnds = null;
   // With stops along the way: this trip's route line, for putting route-shaping points in order.
@@ -646,7 +647,12 @@ require([
       }) });
     }
     if (probe) { opts.returnTraversedEdges = true; opts.accumulateAttributes = ["TravelTime", "Minutes", "Miles"]; }
-    return route.solve(ROUTE_URL, new RouteParameters(opts)).then(function (res) {
+    // Timing for the debug view: each route lookup, what kind it was and how long it took.
+    var t0 = performance.now(), entry = { what: (mode.__note || mode.name) + (via && via.length ? " · via " + via.length : "") +
+      (barriers && barriers.length ? " · " + barriers.length + " blocked" : "") + (more.noTraffic ? " · no traffic" : "") + (swapEnds ? " · trip back" : ""), start: t0 - lookupLog.t0 };
+    lookupLog.list.push(entry);
+    function done(ok) { entry.ms = performance.now() - t0; entry.ok = ok; }
+    return route.solve(ROUTE_URL, new RouteParameters(opts)).then(function (res) { done(true); return res; }, function (e) { done(false); throw e; }).then(function (res) {
       var rr = res.routeResults[0];
       var g = rr.route;
       g.modeNote = mode.__note || mode.name;
@@ -700,11 +706,22 @@ require([
     hops.forEach(function (h) { if (roads.indexOf(h.road) === -1) roads.push(h.road); });
     return blockSideStreets(tollRoute, [], roads, 0, via);
   }
+  // Variants that the routing service turned down (a restriction name it doesn't have) are
+  // remembered for this visit, so later lookups don't spend a round trip on them again.
+  var badVariant = {};
   function solveFirst(modes, withDirections) {
+    var list = modes.filter(function (m) { return !badVariant[m.__note]; });
+    if (!list.length) list = modes;
     var i = 0;
     function next(err) {
-      if (i >= modes.length) return Promise.reject(err);
-      return solve(modes[i++], withDirections, DEBUG && withDirections).catch(next);
+      if (i >= list.length) return Promise.reject(err);
+      var m = list[i++];
+      return solve(m, withDirections, DEBUG && withDirections).catch(function (e) {
+        // Only a "no such restriction / bad parameter" answer counts, not a network hiccup.
+        var msg = String(e && (e.message || (e.details && JSON.stringify(e.details))) || "");
+        if (i < list.length && /restriction|attribute|parameter|invalid/i.test(msg)) badVariant[m.__note] = true;
+        return next(e);
+      });
     }
     return next();
   }
@@ -992,7 +1009,12 @@ require([
     var bm = window.__baseMode || {};
     var base = "<p>Base mode \"" + esc(bm.name || "") + "\" restrictions: " + esc((bm.restrictionAttributeNames || []).join(", ")) +
       "<br>Parameters: " + esc((bm.attributeParameterValues || []).map(function (a) { return a.attributeName + " = " + a.value; }).join("; ")) + "</p>";
-    box.innerHTML = "<h3>Debug</h3><p><button type='button' id='save-trip' class='go small'>Save trip for testing</button></p>" + base + "<p>Toll route: " + esc(tollRoute.modeNote || "") + "<br>Toll-free route: " + esc((window.__freeNote || "")) + "</p><p>Traffic probe: " + esc(trafficProbeNote(tollRoute.trafficProbe)) + "</p><p>Ramp zones: " + (rampZones ? rampZones.length : "none (no directions geometry)") + "</p>" +
+    var lk = lookupLog.list, secs = function (ms) { return (ms / 1000).toFixed(1) + " s"; };
+    var timing = "<p><strong>Timing:</strong> " + lk.length + " route lookups, " + secs(lookupLog.totalMs || 0) + " from Compare to results; page open to Compare " +
+      secs(lookupLog.pageMs || 0) + ".</p><table class='dbg'><tr><th>Start</th><th>Took</th><th>Lookup</th></tr>" + lk.map(function (e) {
+        return "<tr><td>" + secs(e.start) + "</td><td>" + (e.ms == null ? "…" : secs(e.ms)) + (e.ok === false ? " (failed)" : "") + "</td><td>" + esc(e.what) + "</td></tr>";
+      }).join("") + "</table>";
+    box.innerHTML = "<h3>Debug</h3><p><button type='button' id='save-trip' class='go small'>Save trip for testing</button></p>" + timing + base + "<p>Toll route: " + esc(tollRoute.modeNote || "") + "<br>Toll-free route: " + esc((window.__freeNote || "")) + "</p><p>Traffic probe: " + esc(trafficProbeNote(tollRoute.trafficProbe)) + "</p><p>Ramp zones: " + (rampZones ? rampZones.length : "none (no directions geometry)") + "</p>" +
       "<table class='breakdown'><thead><tr><th>ID</th><th>Toll point within 60 m</th><th>Kind</th><th class='num'>Offset</th><th class='num'>Zone</th><th>Counted</th></tr></thead><tbody>" +
       html + "</tbody></table><details><summary>Maneuvers (" + (tollRoute.steps || []).length + ")</summary><ol>" + steps + "</ol></details>";
     document.getElementById("results").after(box);
@@ -2021,6 +2043,7 @@ require([
     return { s: s, e: e, sl: q.get("sl"), el: q.get("el"), ax: parseInt(q.get("ax"), 10), pay: q.get("pay"), cp: q.get("cp") === "1", t: q.get("t"), r: q.get("r"),
       m: (q.get("m") || "").split(";").map(pt).filter(Boolean).slice(0, 3), ml: (q.get("ml") || "").split("|") };
   })();
+  if (shared) setStatus(L("Opening the shared trip…"), false, true);
   function applyShared() {
     if (!shared || !searches.from || !searches.to) return false;
     var sh = shared; shared = null;
@@ -2294,6 +2317,7 @@ require([
     backTimeSet = false;
     var via = chosenVia();
     orderPath = null;
+    lookupLog = { t0: performance.now(), list: [], pageMs: performance.now() };
     departure = readDeparture();
     bestRun++;
     $("best-time-out").innerHTML = "";
@@ -2334,6 +2358,7 @@ require([
       drawRoute(freeRoute, "free");
       drawRoute(tollRoute, "toll");
       view.goTo(tollRoute.geometry.extent.clone().expand(1.25)).catch(function () {});
+      lookupLog.totalMs = performance.now() - lookupLog.t0;
       priceTrip(trip, tollRoute, freeRoute);
       drawTollTraffic(tollRoute, lastTrip.priced, window.TollCalc.pathMeters(path));
       loadTomTom(tollRoute, freeRoute);

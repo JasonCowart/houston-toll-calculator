@@ -414,3 +414,5 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 #results.updating > *:not(#via-road-wrap):not(h2) { opacity: 0.45; pointer-events: none; transition: opacity 0.2s; }
 .via-note .spinner { vertical-align: -3px; }
 #via-note:has(.spinner) { color: var(--ink); }
+#debug table.dbg { border-collapse: collapse; font-size: 11px; margin-bottom: 8px; }
+#debug table.dbg th, #debug table.dbg td { text-align: left; padding: 1px 6px 1px 0; vertical-align: top; }

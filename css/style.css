@@ -419,3 +419,9 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
   font: 600 12px var(--brand); padding: 8px 10px; cursor: pointer; white-space: nowrap; }
 .map-add-stops:hover { background: var(--purple-tint); }
 .map-add-stops[aria-pressed="true"] { background: #1967d2; color: #fff; }
+.stop-bubble { position: absolute; transform: translate(-50%, calc(-100% - 12px)); background: var(--white); border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(28, 27, 29, 0.3); padding: 4px; font: 600 13px var(--brand); white-space: nowrap; z-index: 2; }
+.stop-bubble[hidden] { display: none; }
+.stop-bubble::after { content: ""; position: absolute; left: 50%; bottom: -6px; margin-left: -6px; border: 6px solid transparent; border-bottom: 0; border-top-color: var(--white); }
+.stop-bubble .sb-add { border: 0; background: #1967d2; color: #fff; font: inherit; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+.stop-bubble .sb-note { display: inline-block; padding: 6px 8px; color: var(--ink); font-weight: 500; }

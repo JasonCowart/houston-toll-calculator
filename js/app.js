@@ -328,9 +328,10 @@ require([
   });
   function mapTap(e) {
     if (addingStops) return addStopAt(e.mapPoint);
+    if (stopBubble && !stopBubble.hidden) { hideStopBubble(); return; } // tap elsewhere closes the bubble
     if (!picking && highlightLayer.graphics.length) { clearHighlight(); return; } // tap the map to clear the ring
     var target = picking || (!stops.from ? "from" : !stops.to ? "to" : null);
-    if (!target) return;
+    if (!target) { if (STOP_UI === "bubble") showStopBubble(e); return; }
     placeStop(target, e.mapPoint);
     if (picking) setPicking(null);
   }
@@ -545,10 +546,12 @@ require([
     clearTimeout(recompareTimer);
     recompareTimer = setTimeout(function () {
       if (!$("go").disabled && placesKey() !== comparedKey) {
-        setStatus(L("Your trip changed. Finding new routes…"), false, true);
+        // Keep the results on screen (dimmed) and the page where it is while the new routes come in.
+        rerouteMsg = L("Your trip changed. Finding new routes…");
+        setStatus(rerouteMsg, false, true);
         $("go").click();
       }
-    }, 700);
+    }, 1200);
   }
   function updateButton() {
     updateSteps();
@@ -1240,12 +1243,39 @@ require([
     placeStop(w, pt);
     addStopsLabel();
     var n = midKeys.indexOf(w) + 1;
-    if (stopsFull()) {
+    if (stopsFull() && addingStops) {
       setAddingStops(false);
       setStatus(L("Added stop {n}, the most allowed.", { n: n }));
-    } else setStatus(L("Added stop {n}. Tap the map for the next stop, or tap Done.", { n: n }));
+    } else if (addingStops) setStatus(L("Added stop {n}. Tap the map for the next stop, or tap Done.", { n: n }));
   }
-  if (key) {
+  // Which way the map offers adding stops: "bubble" (tap the map, then "Add stop here"),
+  // or "button" (the "Add stops on map" mode button). Jason is trying the bubble first.
+  var STOP_UI = "bubble";
+  // The bubble: once start and end are set, a tap on an empty spot offers "Add stop here" there.
+  var stopBubble = null, bubbleTimer = null;
+  function hideStopBubble() { if (stopBubble) stopBubble.hidden = true; clearTimeout(bubbleTimer); }
+  function showStopBubble(e) {
+    if (!stopBubble) {
+      stopBubble = document.createElement("div");
+      stopBubble.className = "stop-bubble";
+      view.ui.add(stopBubble, "manual");
+      view.on("drag", hideStopBubble);
+    }
+    var full = stopsFull(), pt = e.mapPoint;
+    stopBubble.innerHTML = full ? '<span class="sb-note">' + esc(L("This trip already has {n} stops, the most allowed.", { n: MAX_MID })) + "</span>"
+      : '<button type="button" class="sb-add">+ ' + esc(L("Add stop here")) + "</button>";
+    stopBubble.style.left = Math.round(e.x) + "px";
+    stopBubble.style.top = Math.round(e.y) + "px";
+    stopBubble.hidden = false;
+    var add = stopBubble.querySelector(".sb-add");
+    if (add) {
+      add.onclick = function (ev) { ev.stopPropagation(); hideStopBubble(); addStopAt(pt); };
+      try { add.focus({ preventScroll: true }); } catch (x) { /* ok */ }
+    }
+    clearTimeout(bubbleTimer);
+    bubbleTimer = setTimeout(hideStopBubble, 6000);
+  }
+  if (key && STOP_UI === "button") {
     addStopsBtn = document.createElement("button");
     addStopsBtn.type = "button";
     addStopsBtn.className = "map-add-stops";

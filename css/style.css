@@ -137,7 +137,7 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
   .panel { display: contents; }
   #results:not([hidden]) { display: contents; }
   .panel > *, #results > * { margin-left: 16px; margin-right: 16px; }
-  .panel > .sub { margin-top: 14px; }
+  .panel > .sub, .panel > .intro-row { margin-top: 14px; }
   .app { gap: 12px; background: var(--white); }
   #results > * { margin-top: 0; margin-bottom: 0; }
   .map { order: 2; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
@@ -321,7 +321,10 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .back-trip input[type="time"] { width: auto; min-height: 32px; padding: 4px 8px; }
 .back-out { flex: 1 1 100%; margin: 0; font-size: 13px; color: var(--ink); }
 .back-out:empty { display: none; }
-.install-btn { display: block; margin-top: 6px; padding: 0; font-size: 12px; }
+.intro-row { display: flex; align-items: flex-start; gap: 12px; }
+.intro-row .sub { flex: 1; min-width: 0; }
+.install-btn { flex: none; margin-top: 2px; white-space: nowrap; }
+.install-btn[hidden] { display: none; }
 .via-road { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 10px 0 4px; font-size: 13px; }
 .via-road label { font-weight: 600; color: var(--gray); }
 .via-road select { width: auto; flex: 1 1 180px; min-height: 34px; padding: 4px 8px; }
@@ -416,5 +419,5 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 #via-note:has(.spinner) { color: var(--ink); }
 #debug table.dbg { border-collapse: collapse; font-size: 11px; margin-bottom: 8px; }
 #debug table.dbg th, #debug table.dbg td { text-align: left; padding: 1px 6px 1px 0; vertical-align: top; }
-.install-help { margin: 4px 0 0; padding: 8px 10px; border-radius: 6px; background: var(--purple-tint); color: var(--ink); font-size: 12px; }
+.install-help { margin-top: 0; margin-bottom: 12px; padding: 8px 10px; border-radius: 6px; background: var(--purple-tint); color: var(--ink); font-size: 12px; }
 @media print { .install-help { display: none !important; } }

@@ -27,7 +27,11 @@
   </header>
   <div class="app">
     <aside class="panel">
-      <p class="sub">See what the tolls cost on the fastest route, and how much time they save over a toll-free route.</p>
+      <div class="intro-row">
+        <p class="sub">See what the tolls cost on the fastest route, and how much time they save over a toll-free route.</p>
+        <button type="button" id="install" class="btn-outline small install-btn" hidden><span aria-hidden="true">&#xFF0B;</span> Add to home screen</button>
+      </div>
+      <p class="install-help" id="install-help" hidden>On iPhone or iPad: in Safari, tap Share (the square with an arrow), then “Add to Home Screen”.</p>
 
       <div id="key-warning" class="notice warn" hidden>
         No ArcGIS API key yet. Add it as the ARCGIS_API_KEY secret on GitHub to turn on the map, address search and routing.
@@ -204,8 +208,6 @@
       <footer class="fine">
         Estimates only. Houston-area rates checked Oct 20–22, 2026 against HCTRA, Montgomery, Fort Bend and Brazoria counties, and TxDOT
         (Grand Parkway, SH 249, SH 288). Katy Managed Lanes use HCTRA's 2013 schedule, still current. Pay-by-mail fees aren't included.
-        <button type="button" id="install" class="pick install-btn" hidden>Add to home screen</button>
-        <p class="install-help" id="install-help" hidden>On iPhone or iPad: in Safari, tap Share (the square with an arrow), then “Add to Home Screen”.</p>
       </footer>
     </aside>
     <main id="map" class="map"></main>

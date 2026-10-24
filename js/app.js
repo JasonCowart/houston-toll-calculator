@@ -1248,9 +1248,9 @@ require([
       setStatus(L("Added stop {n}, the most allowed.", { n: n }));
     } else if (addingStops) setStatus(L("Added stop {n}. Tap the map for the next stop, or tap Done.", { n: n }));
   }
-  // Which way the map offers adding stops: "bubble" (tap the map, then "Add stop here"),
-  // or "button" (the "Add stops on map" mode button). Jason is trying the bubble first.
-  var STOP_UI = "bubble";
+  // Which way the map offers adding stops: "hold" (press and hold the map), "bubble" (tap the map,
+  // then "Add stop here") or "button" (the "Add stops on map" mode button). Jason picked "hold".
+  var STOP_UI = "hold";
   // The bubble: once start and end are set, a tap on an empty spot offers "Add stop here" there.
   var stopBubble = null, bubbleTimer = null;
   function hideStopBubble() { if (stopBubble) stopBubble.hidden = true; clearTimeout(bubbleTimer); }
@@ -1274,6 +1274,33 @@ require([
     }
     clearTimeout(bubbleTimer);
     bubbleTimer = setTimeout(hideStopBubble, 6000);
+  }
+  // Press and hold: with start and end set, holding a finger (or the mouse) on the map drops the
+  // next stop there; a short note at that spot says which stop it is.
+  if (key && STOP_UI === "hold") {
+    view.on("hold", function (e) {
+      if (picking) return; // "Pick on map" is waiting for a tap
+      if (!stops.from || !stops.to) { mapTap(e); return; } // start/end first, as with a tap
+      if (stopsFull()) { flashNote(e, L("This trip already has {n} stops, the most allowed.", { n: MAX_MID })); return; }
+      var before = midKeys.filter(function (k) { return stops[k]; }).length;
+      addStopAt(e.mapPoint);
+      flashNote(e, L("Stop {n} added", { n: before + 1 }));
+    });
+    $("hold-tip").hidden = false;
+  }
+  function flashNote(e, text) {
+    if (!stopBubble) {
+      stopBubble = document.createElement("div");
+      stopBubble.className = "stop-bubble";
+      view.ui.add(stopBubble, "manual");
+      view.on("drag", hideStopBubble);
+    }
+    stopBubble.innerHTML = '<span class="sb-note">' + esc(text) + "</span>";
+    stopBubble.style.left = Math.round(e.x) + "px";
+    stopBubble.style.top = Math.round(e.y) + "px";
+    stopBubble.hidden = false;
+    clearTimeout(bubbleTimer);
+    bubbleTimer = setTimeout(hideStopBubble, 1600);
   }
   if (key && STOP_UI === "button") {
     addStopsBtn = document.createElement("button");

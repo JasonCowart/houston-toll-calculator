@@ -216,6 +216,8 @@
     "Print": "Imprimir",
     "Save PDF": "Guardar PDF",
     "Add stop here": "Agregar parada aquí",
+    "Stop {n} added": "Parada {n} agregada",
+    "Tip: with a start and end set, press and hold the map to add a stop there.": "Consejo: con la salida y el destino fijados, mantenga presionado el mapa para agregar una parada ahí.",
     "Add stops on map": "Agregar paradas en el mapa",
     "Done adding stops": "Listo con las paradas",
     "This trip already has {n} stops, the most allowed.": "Este viaje ya tiene {n} paradas, el máximo permitido.",

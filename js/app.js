@@ -299,6 +299,8 @@ require([
 
   // Departure time: blank = now. The datetime-local value is read as the device's local time.
   var departure = new Date();
+  // While the trip back is being priced, routes go from the end to the start (see priceBack).
+  var swapEnds = null;
   var lastTrip = null;
 
   // Debug: save the exact trip Esri returned, so it can be replayed as a test
@@ -475,7 +477,7 @@ require([
     $("go").disabled = !(key && stops.from && stops.to && tollPoints.length && paymentChoice());
   }
   Array.prototype.forEach.call(document.querySelectorAll('input[name="payment"]'), function (r) { r.addEventListener("change", updateButton); });
-  function setStatus(msg, isError) { $("status").textContent = msg || ""; $("status").className = "status" + (isError ? " error" : ""); }
+  function setStatus(msg, isError) { if (swapEnds) return; /* the trip back is routed quietly */ $("status").textContent = msg || ""; $("status").className = "status" + (isError ? " error" : ""); }
 
   function drawStops() {
     markersLayer.removeAll();
@@ -551,9 +553,10 @@ require([
   // more.noTraffic: solve for free-flow driving instead of the departure time's traffic.
   function solve(mode, withDirections, probe, via, barriers, more) {
     more = more || {};
-    var stopGraphics = [new Graphic({ geometry: stops.from })].concat((via || []).map(function (v) {
+    var ends = swapEnds || stops;
+    var stopGraphics = [new Graphic({ geometry: ends.from })].concat((via || []).map(function (v) {
       return new Graphic({ geometry: new Point({ longitude: v[0], latitude: v[1] }), attributes: { LocationType: 1, CurbApproach: 0 } });
-    }), [new Graphic({ geometry: stops.to })]);
+    }), [new Graphic({ geometry: ends.to })]);
     var opts = {
       stops: new FeatureSet({ features: stopGraphics }),
       travelMode: mode,
@@ -1241,12 +1244,23 @@ require([
     try { localStorage.setItem("htc-fuel", JSON.stringify(all)); } catch (e) { /* not kept */ }
   }
   var extrasState = null;
-  function renderExtras(t, f, priced) {
+  // Gas for each route (counting each stretch's speed: stop-and-go burns more per mile than
+  // steady driving) and the toll route's extra over the toll-free one.
+  function gasFor(tollRoute, freeRoute) {
     var fs = fuelSettings(), T = window.TollCalc;
-    // Gallons count each stretch's speed (stop-and-go burns more per mile than steady driving).
-    var gal = function (route, st) { var g = T.fuelGallons(route && route.steps, st.miles, st.minutes, fs.mpg); return g == null ? null : Math.round(g * fs.price * 100) / 100; };
-    var tf = gal(lastTrip && lastTrip.tollRoute, t), ff = gal(lastTrip && lastTrip.freeRoute, f);
-    var extra = tf != null && ff != null ? Math.round((tf - ff) * 100) / 100 : null;
+    var gal = function (route) { var st = routeStats(route), g = T.fuelGallons(route && route.steps, st.miles, st.minutes, fs.mpg); return g == null ? null : Math.round(g * fs.price * 100) / 100; };
+    var tf = gal(tollRoute), ff = gal(freeRoute);
+    return { toll: tf, free: ff, extra: tf != null && ff != null ? Math.round((tf - ff) * 100) / 100 : null };
+  }
+  function minutesSaved(t, f, priced) {
+    var saved = t.minutes != null && f.minutes != null ? Math.max(0, f.minutes - t.minutes) : null;
+    if (priced.laneOptions && priced.laneOptions === priced.items.length) saved = null; // managed lanes: time saved isn't estimated
+    return saved;
+  }
+  function renderExtras(t, f, priced) {
+    var fs = fuelSettings();
+    var gas = gasFor(lastTrip && lastTrip.tollRoute, lastTrip && lastTrip.freeRoute);
+    var tf = gas.toll, ff = gas.free, extra = gas.extra;
     var line = "";
     if (extra != null) {
       line = Math.abs(extra) < 0.05 ? L("Gas, counting traffic: about the same on both routes ({cost})", { cost: fmtMoney(tf) })
@@ -1256,15 +1270,17 @@ require([
     }
     $("fuel-line").innerHTML = line;
     $("fuel-mpg").value = fs.mpg; $("fuel-price").value = fs.price.toFixed(2);
-    var saved = t.minutes != null && f.minutes != null ? Math.max(0, f.minutes - t.minutes) : null;
-    if (priced.laneOptions && priced.laneOptions === priced.items.length) saved = null; // managed lanes: time saved isn't estimated
-    extrasState = { toll: priced.total, minutesSaved: saved, fuelExtra: extra };
+    extrasState = { toll: priced.total, minutesSaved: minutesSaved(t, f, priced), fuelExtra: extra };
+    if (!backTimeSet) setBackTime();
     renderCommute();
   }
   function renderCommute() {
     if (!extrasState) return;
     var days = parseInt($("commute-days").value, 10), round = $("commute-round").checked;
-    var c = window.TollCalc.commute(extrasState, days, round);
+    var back = round ? backState() : null;
+    $("back-trip").hidden = !round;
+    renderBack(back);
+    var c = window.TollCalc.commute(extrasState, days, round, back);
     function row(label, v, fmt) { return v ? '<span>' + L(label) + '</span><span class="n">' + fmt(v.week) + '</span><span class="n">' + fmt(v.month) + "</span>" : ""; }
     var hrs = function (m) { return m >= 60 ? (m / 60).toFixed(1) + (window.I18N.lang === "es" ? " h" : " hr") : Math.round(m) + " min"; };
     var net = extrasState.fuelExtra != null ? { week: c.tolls.week + c.fuelExtra.week, month: c.tolls.month + c.fuelExtra.month } : null;
@@ -1275,9 +1291,88 @@ require([
       (c.fuelExtra ? row(c.fuelExtra.week >= 0 ? "Extra gas on the toll route" : "Gas saved on the toll route", { week: Math.abs(c.fuelExtra.week), month: Math.abs(c.fuelExtra.month) }, fmtMoney) : "") +
       (net ? '<span><strong>' + L(c.fuelExtra && c.fuelExtra.week < 0 ? "Tolls minus gas saved" : "Tolls plus extra gas") + '</strong></span><span class="n"><strong>' + fmtMoney(net.week) + '</strong></span><span class="n"><strong>' + fmtMoney(net.month) + "</strong></span>" : "") +
       "</div>" +
-      '<p class="hint">' + L(round ? "Assumes the trip back costs the same and every trip matches this one (same time of day and traffic). A month is about 4.3 weeks."
-        : "Assumes every trip matches this one (same time of day and traffic). A month is about 4.3 weeks.") + "</p>";
+      '<p class="hint">' + L(c.withBack ? "Uses this trip there and the trip back priced for {time}, every day the same. A month is about 4.3 weeks."
+        : round ? "Assumes the trip back costs the same and every trip matches this one (same time of day and traffic). A month is about 4.3 weeks."
+        : "Assumes every trip matches this one (same time of day and traffic). A month is about 4.3 weeks.", { time: back ? fmtClock(back.at) : "" }) + "</p>";
   }
+
+  // The trip back: the same trip from the end to the start, routed and priced for the time you
+  // come back (its own traffic and time-of-day tolls). Used in the commute cost.
+  var backTrip = null, backRun = 0, backTimeSet = false, backFailed = false;
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+  function setBackTime() {
+    // A workday later, on the quarter hour: leave 7:40 AM, back about 4:45 PM.
+    var d = new Date(new Date(lastTrip.trip.departure).getTime() + 9 * 3600000);
+    d.setMinutes(Math.round(d.getMinutes() / 15) * 15, 0, 0);
+    $("back-time").value = pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+  }
+  function backDeparture() {
+    var v = ($("back-time").value || "").split(":"), out = new Date(lastTrip.trip.departure);
+    if (v.length < 2) return null;
+    var d = new Date(out); d.setHours(+v[0], +v[1], 0, 0);
+    if (d <= out) d = new Date(d.getTime() + 86400000); // coming back the next day
+    return d;
+  }
+  function backState() {
+    if (!backTrip || !lastTrip) return null;
+    // Priced with today's vehicle and payment, so a change to either applies both ways.
+    var t = lastTrip.trip, trip = Object.assign({}, backTrip.trip, { axles: t.axles, payment: t.payment, carpool: t.carpool });
+    var priced = window.TollCalc.analyzeTrip(trip, tollPoints).priced;
+    var ts = routeStats(backTrip.tollRoute), fs = routeStats(backTrip.freeRoute);
+    return { at: backTrip.at, toll: priced.total, plus: priced.pending.length || priced.missing.length, tollMin: ts.minutes, freeMin: fs.minutes,
+      minutesSaved: minutesSaved(ts, fs, priced), fuelExtra: gasFor(backTrip.tollRoute, backTrip.freeRoute).extra, hop: backTrip.hop };
+  }
+  function renderBack(b) {
+    var out = $("back-out");
+    if (!b) {
+      if (out.dataset.busy) return;
+      out.innerHTML = backFailed ? esc(L("Couldn’t route the trip back. Try again in a moment.")) : "";
+      return;
+    }
+    out.innerHTML = esc(L("Trip back at {time}: {toll} in tolls. Toll route {tt}, toll-free {ft}.", {
+      time: fmtClock(b.at), toll: fmtMoney(b.toll) + (b.plus ? "+" : ""), tt: fmtTime(b.tollMin), ft: fmtTime(b.freeMin) })) +
+      (b.hop ? " " + esc(L("Esri’s route leaves the tollway at this time, so this toll may be low.")) : "");
+  }
+  function clearBack() { backRun++; backTrip = null; backFailed = false; swapEnds = null; $("back-out").innerHTML = ""; delete $("back-out").dataset.busy; $("back-go").disabled = false; }
+  $("back-time").addEventListener("change", function () { backTimeSet = true; backFailed = false; if (backTrip) backTrip = null; renderCommute(); });
+  $("back-go").addEventListener("click", function () {
+    if (!lastTrip || !stops.from || !stops.to) return;
+    var at = backDeparture();
+    if (!at) return;
+    var run = ++backRun, t = lastTrip.trip, saveDeparture = departure, out = $("back-out");
+    backTrip = null; backFailed = false;
+    $("back-go").disabled = true; $("best-time").disabled = true;
+    out.dataset.busy = "1";
+    out.innerHTML = '<span class="hint">' + esc(L("Routing the trip back…")) + "</span>";
+    function live() { if (run !== backRun) throw new Error("stale"); }
+    function begin() { live(); swapEnds = { from: stops.to, to: stops.from }; departure = at; } // set again before each step, in case another lookup ran between
+    begin();
+    loadTravelModes().then(function (modes) {
+      begin();
+      var mode = pickMode(modes, t.axles);
+      return Promise.all([solveFirst(tollVariants(mode, t.axles, "prefer"), true), solveFirst(tollVariants(mode, t.axles, "prohibit"), true)]);
+    }).then(function (routes) {
+      begin();
+      return Promise.all([stayOnTollway(routes[0], t.axles), stayOnFeeder(routes[1])]);
+    }).then(function (routes) {
+      live();
+      var tollRoute = routes[0], freeRoute = routes[1];
+      backTrip = { at: at, tollRoute: tollRoute, freeRoute: freeRoute, hop: window.TollCalc.findTollwayHops(tollRoute.steps).length > 0,
+        trip: { tollPath: [].concat.apply([], tollRoute.geometry.paths), freePath: [].concat.apply([], freeRoute.geometry.paths),
+          steps: tollRoute.steps || null, departure: at.toISOString(), routeMinutes: routeStats(tollRoute).minutes,
+          axles: t.axles, payment: t.payment, carpool: t.carpool } };
+    }).catch(function (e) {
+      if (run !== backRun) return;
+      console.warn("trip back failed", e);
+      backFailed = true;
+    }).then(function () {
+      if (run !== backRun) return;
+      swapEnds = null; departure = saveDeparture;
+      delete out.dataset.busy;
+      $("back-go").disabled = false; $("best-time").disabled = false;
+      renderCommute();
+    });
+  });
   $("commute-days").addEventListener("change", renderCommute);
   $("commute-round").addEventListener("change", renderCommute);
   $("fuel-line").addEventListener("click", function (e) {
@@ -1311,7 +1406,7 @@ require([
       .filter(function (d) { return d.getTime() >= now - 60000 || Math.abs(d - base) < 60000; }).slice(0, 7);
     var tollRoute = lastTrip.tollRoute, freeRoute = lastTrip.freeRoute, trip = lastTrip.trip;
     var via = tollRoute.anchors || null, out = $("best-time-out"), btn = $("best-time");
-    btn.disabled = true;
+    btn.disabled = true; $("back-go").disabled = true;
     out.innerHTML = '<p class="hint">' + L("Checking {n} departure times…", { n: times.length - 1 }) + "</p>";
     var rows = [], saveDeparture = departure;
     var chain = Promise.resolve();
@@ -1340,7 +1435,7 @@ require([
     });
     chain.then(function () {
       departure = saveDeparture;
-      btn.disabled = false;
+      btn.disabled = false; $("back-go").disabled = false;
       if (run !== bestRun) return;
       rows.sort(function (x, y) { return x.at - y.at; });
       var ok = rows.filter(function (r) { return !r.error; });
@@ -1728,6 +1823,8 @@ require([
   $("go").addEventListener("click", function () {
     var axles = parseInt($("axles").value, 10);
     var payment = paymentChoice();
+    clearBack();
+    backTimeSet = false;
     departure = readDeparture();
     bestRun++;
     $("best-time-out").innerHTML = "";

@@ -431,6 +431,18 @@ test("fuel cost and commute totals", () => {
   assert(T.commute({ toll: 2, minutesSaved: null, fuelExtra: null }, 3, false).minutesSaved === null, "missing values stay missing");
 });
 
+test("commute with the trip back priced for its own time", () => {
+  const there = { toll: 2.43, minutesSaved: 6, fuelExtra: 0.3 }, back = { toll: 3.78, minutesSaved: 18, fuelExtra: -0.1 };
+  const c = T.commute(there, 5, true, back);
+  assert(c.withBack && c.trips === 10, "10 trips, using the trip back");
+  assert(Math.abs(c.tolls.week - (2.43 + 3.78) * 5) < 1e-9, "tolls: (there + back) x 5 days: " + c.tolls.week);
+  assert(Math.abs(c.minutesSaved.week - 120) < 1e-9 && Math.abs(c.fuelExtra.week - 1) < 1e-9, "time and gas add both ways");
+  const one = T.commute(there, 5, false, back);
+  assert(!one.withBack && Math.abs(one.tolls.week - 2.43 * 5) < 1e-9, "one-way ignores the trip back");
+  const gap = T.commute({ toll: 2, minutesSaved: null, fuelExtra: null }, 1, true, { toll: 1, minutesSaved: 5, fuelExtra: null });
+  assert(gap.minutesSaved.week === 5 && gap.fuelExtra === null, "a value missing one way counts as 0; missing both ways stays missing");
+});
+
 test("gas counts slow traffic: stop-and-go burns more per mile than a steady tollway", () => {
   assert(T.speedFactor(50) > 1 && T.speedFactor(10) < 0.55 && T.speedFactor(25) < 0.8 && T.speedFactor(75) < 0.95, "mileage by speed");
   // Same 10 miles at 25 mpg: steady 55 mph vs crawling at 12 mph.

@@ -728,12 +728,21 @@
     if (!(miles > 0) || !(mpg > 0) || !(price >= 0)) return null;
     return Math.round(miles / mpg * price * 100) / 100;
   }
-  // One trip as a commute: days a week, round trip (the trip back assumed to cost the same).
-  // Months are 52/12 weeks.
-  function commute(trip, daysPerWeek, roundTrip) {
+  // One trip as a commute: days a week, round trip. The trip back costs the same as the trip
+  // there unless `back` (the trip back, priced for its own time) is given. Months are 52/12 weeks.
+  function commute(trip, daysPerWeek, roundTrip, back) {
     var per = daysPerWeek * (roundTrip ? 2 : 1), month = 52 / 12;
-    function both(v) { return v == null ? null : { week: v * per, month: v * per * month }; }
-    return { trips: per, tolls: both(trip.toll), minutesSaved: both(trip.minutesSaved), fuelExtra: both(trip.fuelExtra) };
+    var useBack = roundTrip && back;
+    function both(k) {
+      var v = trip[k];
+      if (useBack) {
+        if (v == null && back[k] == null) return null;
+        var day = (v || 0) + (back[k] || 0);
+        return { week: day * daysPerWeek, month: day * daysPerWeek * month };
+      }
+      return v == null ? null : { week: v * per, month: v * per * month };
+    }
+    return { trips: per, tolls: both("toll"), minutesSaved: both("minutesSaved"), fuelExtra: both("fuelExtra"), withBack: !!useBack };
   }
 
   // ---- TomTom traffic (debug test) ----

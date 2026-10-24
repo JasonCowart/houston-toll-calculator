@@ -209,6 +209,13 @@
     "Your results": "Sus resultados",
     "Report a wrong toll": "Reportar un peaje incorrecto",
     "Report this toll": "Reportar este peaje",
+    "Coming back at": "Regreso a las",
+    "Price the trip back": "Calcular el regreso",
+    "Routing the trip back…": "Calculando la ruta de regreso…",
+    "Couldn’t route the trip back. Try again in a moment.": "No se pudo calcular el regreso. Inténtelo de nuevo en un momento.",
+    "Trip back at {time}: {toll} in tolls. Toll route {tt}, toll-free {ft}.": "Regreso a las {time}: {toll} en peajes. Ruta con peaje {tt}, sin peaje {ft}.",
+    "Esri’s route leaves the tollway at this time, so this toll may be low.": "La ruta de Esri sale de la autopista a esta hora, así que este peaje podría ser bajo.",
+    "Uses this trip there and the trip back priced for {time}, every day the same. A month is about 4.3 weeks.": "Usa este viaje de ida y el regreso calculado para las {time}, igual todos los días. Un mes son unas 4.3 semanas.",
     "What looks wrong? (For example: the price, a toll that is missing, or one that shouldn't be there.)": "¿Qué parece incorrecto? (Por ejemplo: el precio, un peaje que falta o uno que no debería estar.)",
     "Live traffic up to about 4 hours ahead; later times use typical traffic for that day and time.":
       "Tráfico en vivo hasta unas 4 horas adelante; después se usa el tráfico típico para ese día y hora.",

@@ -159,6 +159,11 @@
             <label>Days a week <select id="commute-days"><option>1</option><option>2</option><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option></select></label>
             <label class="inline-check"><input type="checkbox" id="commute-round" checked> Round trip</label>
           </div>
+          <div class="back-trip" id="back-trip">
+            <label>Coming back at <input type="time" id="back-time" step="900"></label>
+            <button type="button" id="back-go" class="btn-outline small">Price the trip back</button>
+            <p class="back-out" id="back-out" aria-live="polite"></p>
+          </div>
           <div id="commute-out"></div>
         </details>
         <details id="best-time-wrap" class="extra">

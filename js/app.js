@@ -1655,6 +1655,44 @@ require([
         function () { window.prompt(L("Copy this link:"), url); });
     } else window.prompt(L("Copy this link:"), url);
   });
+  // Printable summary: a header with the trip (places, time, vehicle, payment, link) and a
+  // picture of the map, then the results with the breakdown and commute cost opened.
+  function printHead(mapUrl) {
+    var t = lastTrip.trip;
+    var payName = L({ eztag: "EZ TAG", tag: "Other tag", notag: "No tag" }[t.payment] || t.payment);
+    var places = [searchesTerm("from") || L("Start")].concat(midKeys.filter(function (k) { return stops[k]; }).map(function (k, i) {
+      return searchesTerm(k) || L("Stop {n}", { n: i + 1 }); }), [searchesTerm("to") || L("Destination")]);
+    var when = new Date(t.departure).toLocaleString(window.I18N.locale(), { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    var rows = [[L("Trip"), places.map(esc).join(" \u2192 ")], [L("Leave"), esc(when)],
+      [L("Vehicle"), esc(L("{n} axles", { n: t.axles }) + (t.carpool ? ", " + L("carpool") : "") + " · " + payName)]];
+    if (chosenVia()) rows.push([L("Toll road"), esc(L("Use {road}", { road: tollwayName(viaChoice.road) }))]);
+    var url = shareUrl();
+    return '<h2 class="ph-title">' + esc(L("Trip summary")) + "</h2>" +
+      '<table class="ph-trip">' + rows.map(function (r) { return "<tr><th>" + r[0] + "</th><td>" + r[1] + "</td></tr>"; }).join("") + "</table>" +
+      (mapUrl ? '<img class="ph-map" alt="' + esc(L("Map of the toll route and toll-free route")) + '" src="' + mapUrl + '">' : "") +
+      '<p class="ph-link">' + esc(L("Open this trip:")) + " " + esc(url) + "</p>" +
+      '<p class="ph-printed">' + esc(L("Printed {date}. Estimates only; rates and traffic change.", { date: new Date().toLocaleString(window.I18N.locale(), { dateStyle: "medium", timeStyle: "short" }) })) + "</p>";
+  }
+  var printOpened = [];
+  $("print").addEventListener("click", function () {
+    if (!lastTrip) return;
+    var btn = this; btn.disabled = true;
+    // Breakdown and commute cost print opened; put them back after.
+    printOpened = ["breakdown-wrap", "commute-wrap"].filter(function (id) { return !$(id).open; });
+    printOpened.forEach(function (id) { $(id).open = true; });
+    var shot = view.takeScreenshot ? view.takeScreenshot({ format: "jpg", quality: 85, width: 1200, height: 700 }) : Promise.reject();
+    var timeout = new Promise(function (res) { setTimeout(function () { res(null); }, 4000); });
+    Promise.race([shot.then(function (r) { return r && r.dataUrl; }, function () { return null; }), timeout]).then(function (url) {
+      $("print-head").innerHTML = printHead(url);
+      btn.disabled = false;
+      setTimeout(function () { window.print(); }, 50);
+    });
+  });
+  window.addEventListener("afterprint", function () {
+    printOpened.forEach(function (id) { $(id).open = false; });
+    printOpened = [];
+  });
+
   // Report a wrong toll: an email with the trip filled in, so staff can open the same trip from the link.
   // The facts are in English for the team reading them; only the question to the driver is translated.
   function reportMailto(only) {

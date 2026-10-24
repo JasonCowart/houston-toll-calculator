@@ -331,3 +331,27 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .mid-stop { border-left: 3px solid #1967d2; padding-left: 10px; }
 .mid-actions { display: inline-flex; gap: 12px; align-items: center; }
 .remove-stop { font-size: 14px; padding: 2px 4px; color: var(--ink-soft); }
+
+/* Printable trip summary */
+.print-only { display: none; }
+@media print {
+  @page { margin: 12mm; }
+  html, body, .page, .app { height: auto !important; overflow: visible !important; display: block !important; background: #fff !important; }
+  .panel { width: auto !important; overflow: visible !important; padding: 0 !important; box-shadow: none !important; border: 0 !important; display: block !important; }
+  .print-only { display: block; }
+  .map, #map, .sub, #key-warning, #step-trip, #step-vehicle, #go, #status, .trip-tools button, .drive, .via-road select, #via-road-wrap label,
+  .lang-toggle, #fuel-edit, .commute-controls, .back-trip button, .back-trip label, #best-time-wrap, #breakdown-wrap .hint, #tag-savings button,
+  .map-card, .install-btn, .show-free, #debug, summary::marker { display: none !important; }
+  .topbar { background: #fff !important; color: var(--purple) !important; height: auto; padding: 0 0 8px; border-bottom: 2px solid var(--purple); }
+  .topbar .logo, .topbar .divider { display: none; }
+  details > summary { list-style: none; font-weight: 700; margin-top: 10px; }
+  #results { display: block !important; }
+  .ph-title { margin: 10px 0 6px; font-size: 18px; }
+  .ph-trip { border-collapse: collapse; margin-bottom: 8px; font-size: 13px; }
+  .ph-trip th { text-align: left; padding: 2px 12px 2px 0; color: var(--gray); font-weight: 600; vertical-align: top; }
+  .ph-map { display: block; width: 100%; max-height: 90mm; object-fit: cover; border: 1px solid #ccc; margin: 6px 0; }
+  .ph-link { font-size: 10px; word-break: break-all; color: #444; margin: 4px 0; }
+  .ph-printed { font-size: 10px; color: #666; margin: 0 0 10px; }
+  .cards, .trip-chart, table.breakdown, .commute-grid { break-inside: avoid; }
+  a { color: inherit; text-decoration: none; }
+}

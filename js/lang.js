@@ -210,6 +210,7 @@
     "Report a wrong toll": "Reportar un peaje incorrecto",
     "Report this toll": "Reportar este peaje",
     "Coming back at": "Regreso a las",
+    "Add to home screen": "Agregar a la pantalla de inicio",
     "Price the trip back": "Calcular el regreso",
     "Routing the trip back…": "Calculando la ruta de regreso…",
     "Couldn’t route the trip back. Try again in a moment.": "No se pudo calcular el regreso. Inténtelo de nuevo en un momento.",

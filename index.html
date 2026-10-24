@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>HCTRA Toll Calculator</title>
   <meta name="description" content="Estimate Houston-area tolls for your trip by vehicle and payment type, and compare with a toll-free route.">
+  <meta name="theme-color" content="#662d91">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Toll Calc">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap">
@@ -178,6 +184,7 @@
       <footer class="fine">
         Estimates only. Houston-area rates checked Oct 20–22, 2026 against HCTRA, Montgomery, Fort Bend and Brazoria counties, and TxDOT
         (Grand Parkway, SH 249, SH 288). Katy Managed Lanes use HCTRA's 2013 schedule, still current. Pay-by-mail fees aren't included.
+        <button type="button" id="install" class="pick install-btn" hidden>Add to home screen</button>
       </footer>
     </aside>
     <main id="map" class="map"></main>
@@ -211,5 +218,15 @@
   <script src="js/tolls.js"></script>
   <script src="https://js.arcgis.com/4.32/"></script>
   <script src="js/app.js"></script>
+  <script>
+    // Add to home screen: the service worker (sw.js) makes the site installable. Only on the live (https) site.
+    if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(function () {});
+    window.addEventListener("beforeinstallprompt", function (e) {
+      e.preventDefault();
+      var btn = document.getElementById("install");
+      btn.hidden = false;
+      btn.onclick = function () { btn.hidden = true; e.prompt(); };
+    });
+  </script>
 </body>
 </html>

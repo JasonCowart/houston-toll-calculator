@@ -1,0 +1,16 @@
+{
+  "name": "HCTRA Toll Calculator",
+  "short_name": "Toll Calc",
+  "description": "Estimate Houston-area tolls for your trip and compare with a toll-free route.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#662d91",
+  "lang": "en-US",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

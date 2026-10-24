@@ -319,3 +319,4 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .back-trip input[type="time"] { width: auto; min-height: 32px; padding: 4px 8px; }
 .back-out { flex: 1 1 100%; margin: 0; font-size: 13px; color: var(--ink); }
 .back-out:empty { display: none; }
+.install-btn { display: block; margin-top: 6px; padding: 0; font-size: 12px; }

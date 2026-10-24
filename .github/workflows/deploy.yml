@@ -78,6 +78,9 @@ jobs:
           V="${GITHUB_SHA::7}"
           sed -i -E "s#(src|href)=\"(config\.js|js/[a-z]+\.js|css/[a-z]+\.css)\"#\1=\"\2?v=$V\"#g" index.html
           grep -E "v=$V" index.html
+          # The service worker's cache is named for this deploy, so old copies are cleared.
+          sed -i "s/^var VERSION = \"dev\";/var VERSION = \"$V\";/" sw.js
+          grep -q "VERSION = \"$V\"" sw.js
 
       - uses: actions/configure-pages@v5
 

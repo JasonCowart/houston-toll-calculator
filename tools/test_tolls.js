@@ -496,4 +496,16 @@ test("Google Maps points: stops, then each toll on the route line, at most 9", (
   assert(free.length === 3, "no tolls: 3 points along the route, got " + free.length);
 });
 
+test("Beltway 8 to Westpark connector ('turn right to Rogerdale Rd') isn't a hop", () => {
+  const step = (text, len, type) => ({ text, length: len, maneuverType: type || "esriDMTStraight", path: [[-95.55, 29.72], [-95.551, 29.72]] });
+  const steps = [step("Take the exit on the left to merge onto N Beltway 8 W / Sam Houston Tollway W", 16.3, "esriDMTRampLeft"),
+    step("Take the exit on the right to merge onto Westpark Tollway W", 0.55, "esriDMTRampRight"),
+    step("Turn right to Rogerdale Rd", 0.08, "esriDMTTurnRight"),
+    step("Keep left at the fork to Westpark Tollway W", 0.09, "esriDMTForkLeft"),
+    step("Merge onto Westpark Tollway W", 4.7)];
+  assert(T.findTollwayHops(steps).length === 0, "connector wording is not a hop");
+  const path = [[-95.6, 29.8], [-95.5, 29.8]], near = [[-95.6, 29.8005], [-95.5, 29.8005]], other = [[-95.6, 29.8], [-95.55, 29.81], [-95.5, 29.8]];
+  assert(!T.pathsDiffer(path, near, 150) && T.pathsDiffer(path, other, 150), "routes 55 m apart are the same; 1 km apart differ");
+});
+
 console.log(passed + " tests passed");

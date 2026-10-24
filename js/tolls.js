@@ -606,7 +606,11 @@
         if (lastRoad && sameRoad(r, lastRoad) && offStart >= 0) {
           var off = steps.slice(offStart, i), miles = 0, otherHighway = false, best = null;
           // a real detour drives a road (frontage or street), not just a chain of ramps between toll roads
-          var drivesRoad = off.some(function (s) { return !/Ramp|Fork/.test(s.maneuverType || "") && s.length > 0.05; });
+          // ...on a named road ("turn right on Fondren Rd"); "turn right to Rogerdale Rd" is ramp wording,
+          // as on the Beltway 8 to Westpark Tollway connector.
+          var drivesRoad = off.some(function (s) {
+            return !/Ramp|Fork/.test(s.maneuverType || "") && s.length > 0.05 && / (on|onto) (?!the (right|left)\b)/i.test(" " + (s.text || "") + " ");
+          });
           off.forEach(function (s, k) {
             miles += s.length > 0 ? s.length : 0;
             var t = String(s.text || "").toLowerCase();
@@ -749,6 +753,17 @@
     return { trips: per, tolls: both("toll"), minutesSaved: both("minutesSaved"), fuelExtra: both("fuelExtra"), withBack: !!useBack };
   }
 
+  // Whether two routes really differ: some point of one is more than `tol` meters from the other.
+  function pathsDiffer(a, b, tol) {
+    tol = tol || 150;
+    if (!a || !b || a.length < 2 || b.length < 2) return true;
+    function far(p, q) {
+      var total = pathMeters(p), step = Math.max(100, total / 200);
+      return sampleAlong(p, step).some(function (s) { return distanceToPath(q, s.lonlat) > tol; });
+    }
+    return far(a, b) || far(b, a);
+  }
+
   // ---- Open in Google Maps ----
   // The point on a path at `along` meters from its start.
   function pointAt(path, along) {
@@ -886,7 +901,7 @@
     return [[Math.max(0, Math.min.apply(null, a) - 0.01), Math.min(1, Math.max.apply(null, a) + 0.01)]];
   }
 
-  var api = { googleWaypoints: googleWaypoints, pointAt: pointAt, viaPlazas: viaPlazas, speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { pathsDiffer: pathsDiffer, googleWaypoints: googleWaypoints, pointAt: pointAt, viaPlazas: viaPlazas, speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

@@ -2335,7 +2335,7 @@ require([
     setStatus(L("Keeping the toll route on the tollway…"), false, true);
     var roads = [];
     hops.forEach(function (h) { if (roads.indexOf(h.road) === -1) roads.push(h.road); });
-    var original = routeStats(tollRoute).minutes;
+    var original = routeStats(tollRoute).minutes, originalPath = [].concat.apply([], tollRoute.geometry.paths);
     return solve(tollRoute.mode, true, false, null, null, { noTraffic: true }).then(function (calm) {
       var anchors = window.TollCalc.tollwayAnchors(calm.steps, tollRoute.steps, hops);
       if (!anchors.length) return blockSideStreets(tollRoute, [], roads, 0, null);
@@ -2352,7 +2352,9 @@ require([
       console.warn("no-traffic route failed", e);
       return blockSideStreets(tollRoute, [], roads, 0, null);
     }).then(function (g) {
-      g.stayedOn = roads;
+      // Say so only when the route really changed (not when Esri's wording looked like a hop
+      // but the kept route is the same roads).
+      g.stayedOn = window.TollCalc.pathsDiffer(originalPath, [].concat.apply([], g.geometry.paths), 150) ? roads : null;
       if (g.originalMinutes == null) g.originalMinutes = original;
       return g;
     });

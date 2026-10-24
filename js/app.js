@@ -1673,6 +1673,28 @@ require([
   });
   // Printable summary: a header with the trip (places, time, vehicle, payment, link) and a
   // picture of the map, then the results with the breakdown and commute cost opened.
+  // The trip's facts as label/value pairs, for the printout and the PDF.
+  function summaryRows() {
+    var t = lastTrip.trip;
+    var payName = L({ eztag: "EZ TAG", tag: "Other tag", notag: "No tag" }[t.payment] || t.payment);
+    var places = [searchesTerm("from") || L("Start")].concat(midKeys.filter(function (k) { return stops[k]; }).map(function (k, i) {
+      return searchesTerm(k) || L("Stop {n}", { n: i + 1 }); }), [searchesTerm("to") || L("Destination")]);
+    var when = new Date(t.departure).toLocaleString(window.I18N.locale(), { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    var rows = [[L("Trip"), places.join(" \u2192 ")], [L("Leave"), when],
+      [L("Vehicle"), L("{n} axles", { n: t.axles }) + (t.carpool ? ", " + L("carpool") : "") + " · " + payName]];
+    if (chosenVia()) rows.push([L("Toll road"), L("Use {road}", { road: tollwayName(viaChoice.road) })]);
+    return { rows: rows, places: places };
+  }
+  function printedLine() {
+    return L("Printed {date}. Estimates only; rates and traffic change.", { date: new Date().toLocaleString(window.I18N.locale(), { dateStyle: "medium", timeStyle: "short" }) });
+  }
+  // A picture of the map (JPEG data URL), or null after 4 seconds or if the map can't make one.
+  var SHOT_W = 900, SHOT_H = 530;
+  function mapShot() {
+    var shot = view.takeScreenshot ? view.takeScreenshot({ format: "jpg", quality: 85, width: SHOT_W, height: SHOT_H }) : Promise.reject();
+    var timeout = new Promise(function (res) { setTimeout(function () { res(null); }, 4000); });
+    return Promise.race([shot.then(function (r) { return r && r.dataUrl; }, function () { return null; }), timeout]);
+  }
   function printHead(mapUrl) {
     var t = lastTrip.trip;
     var payName = L({ eztag: "EZ TAG", tag: "Other tag", notag: "No tag" }[t.payment] || t.payment);
@@ -1696,13 +1718,117 @@ require([
     // Breakdown and commute cost print opened; put them back after.
     printOpened = ["breakdown-wrap", "commute-wrap"].filter(function (id) { return !$(id).open; });
     printOpened.forEach(function (id) { $(id).open = true; });
-    var shot = view.takeScreenshot ? view.takeScreenshot({ format: "jpg", quality: 85, width: 900, height: 530 }) : Promise.reject();
-    var timeout = new Promise(function (res) { setTimeout(function () { res(null); }, 4000); });
-    Promise.race([shot.then(function (r) { return r && r.dataUrl; }, function () { return null; }), timeout]).then(function (url) {
+    mapShot().then(function (url) {
       $("print-head").innerHTML = printHead(url);
       btn.disabled = false;
       setTimeout(function () { window.print(); }, 50);
     });
+  });
+  // Save PDF: the same one-page summary as a PDF file, drawn directly (js/pdf.js), so it works
+  // on phones whose print screen has no "Save as PDF".
+  function textOf(el) { return el ? el.textContent.replace(/\s+/g, " ").trim() : ""; }
+  function buildPdf(mapUrl) {
+    var P = window.MiniPDF, d = new P.Doc(612, 792), M = 32, R = 612 - M, PURPLE = "#662d91", GRAY = "#5f5a66", FAINT = "#8a8590", LINE = "#d9d5de";
+    var y = M;
+    d.text(M, y + 13, L("HCTRA Toll Calculator"), { size: 14, bold: true, color: PURPLE });
+    y += 20; d.line(M, y, R, y, { color: PURPLE, lineWidth: 1.2 }); y += 10;
+    // Trip details on the left, the map on the right.
+    var mapW = 228, mapH = mapW * SHOT_H / SHOT_W, leftW = R - M - mapW - 14, top = y;
+    if (mapUrl) { d.jpeg(mapUrl, SHOT_W, SHOT_H, R - mapW, top, mapW, mapH); d.rect(R - mapW, top, mapW, mapH, { stroke: "#bbbbbb", lineWidth: 0.5 }); }
+    var w = mapUrl ? leftW : R - M;
+    d.text(M, y + 12, L("Trip summary"), { size: 12, bold: true }); y += 20;
+    summaryRows().rows.forEach(function (r) {
+      d.text(M, y + 9, r[0], { size: 9, bold: true, color: GRAY });
+      y = d.para(M + 52, y, r[1], w - 52, { size: 9 }) + 3;
+    });
+    y = d.para(M, y + 3, L("Open this trip:") + " " + shareUrl(), w, { size: 6.5, color: FAINT });
+    y = d.para(M, y + 2, printedLine(), w, { size: 6.5, color: FAINT });
+    y = Math.max(y, mapUrl ? top + mapH : y) + 12;
+    // Headline banner.
+    var big = textOf($("headline-big")), small = textOf($("headline-small")), neutral = $("headline").classList.contains("neutral");
+    var hh = small ? 38 : 26;
+    d.rect(M, y, R - M, hh, { fill: neutral ? "#ebe4f2" : PURPLE });
+    d.text(M + 10, y + 17, big, { size: 13, bold: true, color: neutral ? "#1c1b1d" : "#ffffff" });
+    if (small) d.text(M + 10, y + 30, small, { size: 8.5, color: neutral ? GRAY : "#ffffff" });
+    y += hh + 6;
+    // Route cards.
+    var cw = (R - M - 10) / 2;
+    [[L("Toll route"), textOf($("toll-price")), textOf($("toll-meta"))], [L("Toll-free route"), "$0.00", textOf($("free-meta"))]].forEach(function (c, i) {
+      var x = M + i * (cw + 10);
+      d.rect(x, y, cw, 24, { stroke: LINE });
+      d.text(x + 8, y + 15.5, c[0], { size: 8.5, bold: true, color: GRAY });
+      var lx = x + 14 + P.width(c[0], 8.5, true);
+      d.text(lx, y + 16, c[1], { size: 12, bold: true, color: i ? FAINT : PURPLE });
+      d.text(lx + P.width(c[1], 12, true) + 8, y + 15.5, c[2], { size: 8.5, color: GRAY });
+    });
+    y += 32;
+    // Notes (managed lanes, time-of-day pricing, etc.).
+    Array.prototype.forEach.call(document.querySelectorAll("#flags .notice"), function (n) {
+      var lines = P.wrap(textOf(n), 7.5, false, R - M - 14);
+      var h = lines.length * 9.5 + 6;
+      d.rect(M, y, R - M, h, { fill: "#f4f1f8" });
+      d.para(M + 7, y + 3, textOf(n), R - M - 14, { size: 7.5, lineHeight: 9.5, color: "#333333" });
+      y += h + 4;
+    });
+    y += 6;
+    // Two columns: tolls on the left, gas and commute on the right.
+    var colW = (R - M - 20) / 2, lx0 = M, rx0 = M + colW + 20, ly = y, ry = y;
+    d.text(lx0, ly + 10, L("Toll breakdown"), { size: 10, bold: true, color: PURPLE }); ly += 16;
+    var roadX = lx0 + colW * 0.58;
+    d.text(lx0, ly + 7, L("Toll point"), { size: 7.5, bold: true, color: GRAY });
+    d.text(roadX, ly + 7, L("Road"), { size: 7.5, bold: true, color: GRAY });
+    d.text(lx0 + colW, ly + 7, L("Toll"), { size: 7.5, bold: true, color: GRAY, align: "right" });
+    ly += 10; d.line(lx0, ly, lx0 + colW, ly, { color: LINE });
+    Array.prototype.forEach.call(document.querySelectorAll("#breakdown tr"), function (tr) {
+      var td = tr.querySelectorAll("td");
+      if (ly > 792 - M - 20) { d.addPage(); ly = M; ry = Math.max(ry, M); }
+      var start = ly;
+      if (td.length < 3) { ly = d.para(lx0, ly + 2, textOf(td[0]), colW, { size: 8 }); return; }
+      var a = d.para(lx0, ly + 2, textOf(td[0]), colW * 0.56, { size: 8, lineHeight: 9.5 });
+      var b = d.para(roadX, start + 2, textOf(td[1]), colW * 0.3, { size: 8, lineHeight: 9.5 });
+      d.text(lx0 + colW, start + 10, textOf(td[2]), { size: 8, align: "right" });
+      ly = Math.max(a, b) + 3; d.line(lx0, ly, lx0 + colW, ly, { color: "#ece9ef" });
+    });
+    d.text(rx0, ry + 10, L("Gas and commute cost"), { size: 10, bold: true, color: PURPLE }); ry += 16;
+    var gas = textOf($("fuel-line"));
+    if (gas) ry = d.para(rx0, ry, gas, colW, { size: 8, lineHeight: 10 }) + 4;
+    var back = textOf($("back-out"));
+    if (back && !$("back-trip").hidden) ry = d.para(rx0, ry, back, colW, { size: 8, lineHeight: 10 }) + 4;
+    var cells = document.querySelectorAll("#commute-out .commute-grid > span");
+    for (var i = 0; i + 2 < cells.length; i += 3) {
+      var head = i === 0, bold = !!cells[i].querySelector("strong");
+      var o = { size: head ? 7.5 : 8, bold: bold, color: head ? FAINT : bold ? PURPLE : "#1c1b1d" };
+      d.text(rx0, ry + 9, textOf(cells[i]), o);
+      d.text(rx0 + colW - 52, ry + 9, textOf(cells[i + 1]), Object.assign({ align: "right" }, o));
+      d.text(rx0 + colW, ry + 9, textOf(cells[i + 2]), Object.assign({ align: "right" }, o));
+      ry += 12;
+    }
+    var hint = textOf(document.querySelector("#commute-out .hint"));
+    if (hint) ry = d.para(rx0, ry + 2, hint, colW, { size: 6.5, color: FAINT });
+    y = Math.max(ly, ry) + 12;
+    var asof = textOf($("rates-asof"));
+    if (asof) d.para(M, Math.min(y, 792 - M - 10), asof, R - M, { size: 6.5, color: FAINT });
+    return d.bytes();
+  }
+  function pdfName() {
+    var pl = summaryRows().places, slug = function (s) { return String(s).toLowerCase().replace(/\(.*?\)/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").replace(/^(.{0,24})(-.*)?$/, "$1"); }; // up to 24 letters, whole words
+    var d = new Date(lastTrip.trip.departure), ymd = d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+    return "tolls-" + [slug(pl[0]), "to", slug(pl[pl.length - 1]), ymd].filter(Boolean).join("-") + ".pdf";
+  }
+  $("save-pdf").addEventListener("click", function () {
+    if (!lastTrip || !window.MiniPDF) return;
+    var btn = this; btn.disabled = true;
+    mapShot().then(function (url) {
+      var blob = new Blob([buildPdf(url)], { type: "application/pdf" }), name = pdfName();
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 60000);
+      setStatus(L("Saved {name}.", { name: name }));
+    }).catch(function (e) {
+      console.error(e);
+      setStatus(L("Couldn't make the PDF. Try Print instead."), true);
+    }).then(function () { btn.disabled = false; });
   });
   window.addEventListener("afterprint", function () {
     printOpened.forEach(function (id) { $(id).open = false; });

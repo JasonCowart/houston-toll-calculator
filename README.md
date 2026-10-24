@@ -11,6 +11,12 @@ It's a static site (no server), hosted on GitHub Pages. Maps, address search and
 3. Turn on GitHub Pages: **Settings → Pages → Source: GitHub Actions**.
 4. Run the **Deploy site** workflow (**Actions → Deploy site → Run workflow**). It also runs on every push to `main`. The site is at `https://jasoncowart.github.io/houston-toll-calculator/`.
 
+Optional settings (same page):
+- `TOMTOM_API_KEY` (secret): live traffic test in the debug view (`?debug=1`) only.
+- `REPORT_EMAIL` (on the **Variables** tab): turns on "Report a wrong toll". Use a shared inbox; the address is visible in the page.
+
+To take the site offline, add an empty `SITE_OFFLINE` file and push; delete it to bring the site back.
+
 The key never goes in the code. The workflow writes it into `config.js` only in the published copy.
 
 Keep pay-as-you-go **off** in Esri. The free tier then pauses at its limit instead of billing.

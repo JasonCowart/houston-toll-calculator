@@ -431,4 +431,15 @@ test("fuel cost and commute totals", () => {
   assert(T.commute({ toll: 2, minutesSaved: null, fuelExtra: null }, 3, false).minutesSaved === null, "missing values stay missing");
 });
 
+test("gas counts slow traffic: stop-and-go burns more per mile than a steady tollway", () => {
+  assert(T.speedFactor(50) > 1 && T.speedFactor(10) < 0.55 && T.speedFactor(25) < 0.8 && T.speedFactor(75) < 0.95, "mileage by speed");
+  // Same 10 miles at 25 mpg: steady 55 mph vs crawling at 12 mph.
+  const steady = T.fuelGallons([{ length: 10, time: 10.9 }], 10, 10.9, 25), crawl = T.fuelGallons([{ length: 10, time: 50 }], 10, 50, 25);
+  assert(steady < 0.4 && crawl > 0.7, "steady " + steady.toFixed(2) + " gal, crawl " + crawl.toFixed(2) + " gal");
+  // A longer tollway trip can use less gas than a shorter stop-and-go one.
+  const toll = T.fuelGallons([{ length: 42, time: 46 }], 42, 46, 25), free = T.fuelGallons([{ length: 37.5, time: 90 }], 37.5, 90, 25);
+  assert(toll < free, "42 mi at 55 mph (" + toll.toFixed(2) + ") < 37.5 mi at 25 mph (" + free.toFixed(2) + ")");
+  assert(T.fuelGallons(null, 20, 20, 25) > 0 && T.fuelGallons([], 0, 0, 25) === null, "without steps: whole route at its average speed");
+});
+
 console.log(passed + " tests passed");

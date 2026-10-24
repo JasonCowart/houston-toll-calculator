@@ -1235,12 +1235,14 @@ require([
   var extrasState = null;
   function renderExtras(t, f, priced) {
     var fs = fuelSettings(), T = window.TollCalc;
-    var tf = T.fuelCost(t.miles, fs.mpg, fs.price), ff = T.fuelCost(f.miles, fs.mpg, fs.price);
+    // Gallons count each stretch's speed (stop-and-go burns more per mile than steady driving).
+    var gal = function (route, st) { var g = T.fuelGallons(route && route.steps, st.miles, st.minutes, fs.mpg); return g == null ? null : Math.round(g * fs.price * 100) / 100; };
+    var tf = gal(lastTrip && lastTrip.tollRoute, t), ff = gal(lastTrip && lastTrip.freeRoute, f);
     var extra = tf != null && ff != null ? Math.round((tf - ff) * 100) / 100 : null;
     var line = "";
     if (extra != null) {
-      line = Math.abs(extra) < 0.05 ? L("Gas: about the same on both routes ({cost})", { cost: fmtMoney(tf) })
-        : L(extra > 0 ? "Gas: the toll route uses about {cost} more ({toll} vs {free})" : "Gas: the toll route uses about {cost} less ({toll} vs {free})",
+      line = Math.abs(extra) < 0.05 ? L("Gas, counting traffic: about the same on both routes ({cost})", { cost: fmtMoney(tf) })
+        : L(extra > 0 ? "Gas, counting traffic: the toll route uses about {cost} more ({toll} vs {free})" : "Gas, counting traffic: the toll route saves about {cost} ({toll} vs {free})",
           { cost: fmtMoney(Math.abs(extra)), toll: fmtMoney(tf), free: fmtMoney(ff) });
       line = esc(line) + " · " + esc(L("{mpg} mpg, {price}/gal {fuel}", { mpg: fs.mpg, price: fmtMoney(fs.price), fuel: L(fs.fuel) })) + ' <button type="button" id="fuel-change">' + L("change") + "</button>";
     }
@@ -1262,8 +1264,8 @@ require([
       '<div class="commute-grid"><span class="h">' + L("{n} trips a week", { n: c.trips }) + '</span><span class="h n">' + L("Week") + '</span><span class="h n">' + L("Month") + "</span>" +
       row("Tolls", c.tolls, fmtMoney) +
       (extrasState.minutesSaved ? row("Time saved", c.minutesSaved, hrs) : "") +
-      (c.fuelExtra ? row(c.fuelExtra.week >= 0 ? "Extra gas" : "Gas saved", { week: Math.abs(c.fuelExtra.week), month: Math.abs(c.fuelExtra.month) }, fmtMoney) : "") +
-      (net ? '<span><strong>' + L("Tolls and gas") + '</strong></span><span class="n"><strong>' + fmtMoney(net.week) + '</strong></span><span class="n"><strong>' + fmtMoney(net.month) + "</strong></span>" : "") +
+      (c.fuelExtra ? row(c.fuelExtra.week >= 0 ? "Extra gas on the toll route" : "Gas saved on the toll route", { week: Math.abs(c.fuelExtra.week), month: Math.abs(c.fuelExtra.month) }, fmtMoney) : "") +
+      (net ? '<span><strong>' + L(c.fuelExtra && c.fuelExtra.week < 0 ? "Tolls minus gas saved" : "Tolls plus extra gas") + '</strong></span><span class="n"><strong>' + fmtMoney(net.week) + '</strong></span><span class="n"><strong>' + fmtMoney(net.month) + "</strong></span>" : "") +
       "</div>" +
       '<p class="hint">' + L(round ? "Assumes the trip back costs the same and every trip matches this one (same time of day and traffic). A month is about 4.3 weeks."
         : "Assumes every trip matches this one (same time of day and traffic). A month is about 4.3 weeks.") + "</p>";

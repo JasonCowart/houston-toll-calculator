@@ -183,9 +183,9 @@
       "Sin colores de tráfico en tramos largos: Esri da una sola velocidad promedio para {miles} mi de {road}, muy general para mostrar dónde está lento. El tiempo del viaje sí incluye el tráfico.",
     "the highway": "la autopista",
     // ---- gas, commute, best time, share ----
-    "Gas: about the same on both routes ({cost})": "Gasolina: casi igual en ambas rutas ({cost})",
-    "Gas: the toll route uses about {cost} more ({toll} vs {free})": "Gasolina: la ruta con peaje gasta unos {cost} más ({toll} vs {free})",
-    "Gas: the toll route uses about {cost} less ({toll} vs {free})": "Gasolina: la ruta con peaje gasta unos {cost} menos ({toll} vs {free})",
+    "Gas, counting traffic: about the same on both routes ({cost})": "Gasolina, contando el tráfico: casi igual en ambas rutas ({cost})",
+    "Gas, counting traffic: the toll route uses about {cost} more ({toll} vs {free})": "Gasolina, contando el tráfico: la ruta con peaje gasta unos {cost} más ({toll} vs {free})",
+    "Gas, counting traffic: the toll route saves about {cost} ({toll} vs {free})": "Gasolina, contando el tráfico: la ruta con peaje ahorra unos {cost} ({toll} vs {free})",
     "{mpg} mpg, {price}/gal {fuel}": "{mpg} mpg, {price}/gal {fuel}",
     "regular": "regular", "diesel": "diésel",
     "change": "cambiar",
@@ -193,9 +193,10 @@
     "Week": "Semana", "Month": "Mes",
     "Tolls": "Peajes",
     "Time saved": "Tiempo ahorrado",
-    "Extra gas": "Gasolina extra",
-    "Gas saved": "Gasolina ahorrada",
-    "Tolls and gas": "Peajes y gasolina",
+    "Extra gas on the toll route": "Gasolina extra en la ruta con peaje",
+    "Gas saved on the toll route": "Gasolina ahorrada en la ruta con peaje",
+    "Tolls plus extra gas": "Peajes más gasolina extra",
+    "Tolls minus gas saved": "Peajes menos gasolina ahorrada",
     "Assumes the trip back costs the same and every trip matches this one (same time of day and traffic). A month is about 4.3 weeks.":
       "Supone que el regreso cuesta lo mismo y que cada viaje es igual a este (misma hora y tráfico). Un mes son unas 4.3 semanas.",
     "Assumes every trip matches this one (same time of day and traffic). A month is about 4.3 weeks.":

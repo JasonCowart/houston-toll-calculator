@@ -695,6 +695,35 @@
     var d = FUEL_DEFAULTS[axles] || FUEL_DEFAULTS[2];
     return { mpg: d.mpg, price: FUEL_PRICES[d.fuel], fuel: d.fuel };
   }
+  // Mileage depends on speed: worst in stop-and-go, best at a steady 45-60 mph, dropping again
+  // at high speed. Share of the vehicle's mpg at an average speed (rounded from fuel economy vs
+  // speed studies); straight lines in between.
+  var MPG_BY_SPEED = [[0, 0.35], [5, 0.4], [15, 0.6], [25, 0.78], [35, 0.93], [45, 1.03], [55, 1.06], [62, 1.02], [70, 0.94], [80, 0.82]];
+  function speedFactor(mph) {
+    if (!(mph > 0)) return 1;
+    var c = MPG_BY_SPEED;
+    if (mph >= c[c.length - 1][0]) return c[c.length - 1][1];
+    for (var i = 1; i < c.length; i++) if (mph <= c[i][0]) {
+      var a = c[i - 1], b = c[i];
+      return a[1] + (b[1] - a[1]) * (mph - a[0]) / (b[0] - a[0]);
+    }
+    return 1;
+  }
+  // Gallons for a route: each step's miles at its own average speed (Esri's step time, with
+  // traffic). Without steps, the whole route at its average speed.
+  function fuelGallons(steps, miles, minutes, mpg) {
+    if (!(mpg > 0)) return null;
+    var used = 0, counted = 0;
+    (steps || []).forEach(function (s) {
+      if (!(s.length > 0)) return;
+      var mph = s.time > 0 ? s.length / (s.time / 60) : null;
+      used += s.length / (mpg * speedFactor(mph || (minutes > 0 ? miles / (minutes / 60) : 0)));
+      counted += s.length;
+    });
+    if (!counted) return miles > 0 ? miles / (mpg * speedFactor(minutes > 0 ? miles / (minutes / 60) : 0)) : null;
+    if (miles > counted) used += (miles - counted) / mpg; // any miles the steps don't cover
+    return used;
+  }
   function fuelCost(miles, mpg, price) {
     if (!(miles > 0) || !(mpg > 0) || !(price >= 0)) return null;
     return Math.round(miles / mpg * price * 100) / 100;
@@ -778,7 +807,7 @@
     return [[Math.max(0, Math.min.apply(null, a) - 0.01), Math.min(1, Math.max.apply(null, a) + 0.01)]];
   }
 
-  var api = { fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

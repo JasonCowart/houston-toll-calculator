@@ -454,4 +454,20 @@ test("gas counts slow traffic: stop-and-go burns more per mile than a steady tol
   assert(T.fuelGallons(null, 20, 20, 25) > 0 && T.fuelGallons([], 0, 0, 25) === null, "without steps: whole route at its average speed");
 });
 
+
+test("choose a toll road: plazas going the trip's way, near enough to the trip", () => {
+  const pts = require("../data/toll-points.json").points;
+  // Katy-area (Westpark & Hwy 6) to the Galleria: heading east.
+  const opts = T.viaPlazas(pts, [-95.6435, 29.7105], [-95.4614, 29.7398]);
+  const roads = opts.map(o => o.road);
+  assert(roads.includes("Westpark Tollway"), "Westpark is offered: " + roads.join(", "));
+  const wp = opts.find(o => o.road === "Westpark Tollway").point;
+  assert(wp.dir === "E", "eastbound plaza for an eastbound trip, got " + wp.dir);
+  assert(!roads.some(r => /Managed|Express/.test(r)), "managed and express lanes aren't offered");
+  assert(!roads.includes("Hardy Toll Rd") && !roads.includes("SH 130"), "far-off roads aren't offered: " + roads.join(", "));
+  // IAH to Hobby, heading south: the Hardy plaza offered is southbound.
+  const h = T.viaPlazas(pts, [-95.3414, 29.9902], [-95.2789, 29.6454]).find(o => o.road === "Hardy Toll Rd");
+  assert(h && h.point.dir === "S", "southbound Hardy plaza");
+});
+
 console.log(passed + " tests passed");

@@ -745,6 +745,31 @@
     return { trips: per, tolls: both("toll"), minutesSaved: both("minutesSaved"), fuelExtra: both("fuelExtra"), withBack: !!useBack };
   }
 
+  // ---- Choose a toll road ----
+  // Roads a trip could be sent along, by a mainline plaza on that road going the trip's way.
+  // Managed and express lanes are left out (Esri can't route on them; they're priced alongside
+  // I-10 and SH 288). A road is offered when going through its plaza adds at most `maxExtra`
+  // (as a share of the straight-line distance, 30% by default) plus 3 km. Closest first, at most 6.
+  var VIA_SKIP = /managed lanes|express lanes/i;
+  var DIR_VEC = { N: [0, 1], S: [0, -1], E: [1, 0], W: [-1, 0] };
+  function viaPlazas(points, from, to, maxExtra) {
+    maxExtra = maxExtra == null ? 0.3 : maxExtra;
+    var proj = projector((from[1] + to[1]) / 2), a = proj(from[0], from[1]), b = proj(to[0], to[1]);
+    var direct = Math.hypot(b[0] - a[0], b[1] - a[1]), go = [b[0] - a[0], b[1] - a[1]];
+    var best = {};
+    points.forEach(function (p) {
+      if (p.kind !== "main" || VIA_SKIP.test(p.road) || p.lon == null) return;
+      var v = DIR_VEC[p.dir];
+      if (v && v[0] * go[0] + v[1] * go[1] <= 0) return; // the other direction's lanes
+      var q = proj(p.lon, p.lat);
+      var via = Math.hypot(q[0] - a[0], q[1] - a[1]) + Math.hypot(b[0] - q[0], b[1] - q[1]);
+      var extra = via - direct;
+      if (extra > direct * maxExtra + 3000) return;
+      if (!best[p.road] || extra < best[p.road].extra) best[p.road] = { road: p.road, point: p, extra: extra };
+    });
+    return Object.keys(best).map(function (k) { return best[k]; }).sort(function (x, y) { return x.extra - y.extra; }).slice(0, 6);
+  }
+
   // ---- TomTom traffic (debug test) ----
   // Points every `every` meters along a route path, with their distance along it.
   function sampleAlong(path, every) {
@@ -816,7 +841,7 @@
     return [[Math.max(0, Math.min.apply(null, a) - 0.01), Math.min(1, Math.max.apply(null, a) + 0.01)]];
   }
 
-  var api = { speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { viaPlazas: viaPlazas, speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

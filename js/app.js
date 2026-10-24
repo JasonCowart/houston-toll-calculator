@@ -610,6 +610,23 @@ require([
   }
 
   // Try each travel mode in turn (some restriction names may not exist for every mode).
+  // Toll route through a chosen plaza (Choose a toll road).
+  function solveFirstVia(modes, via) {
+    var i = 0;
+    function next(err) {
+      if (i >= modes.length) return Promise.reject(err);
+      return solve(modes[i++], true, DEBUG, via).then(function (g) { g.anchors = via; g.chosenVia = true; return g; }, next);
+    }
+    return next();
+  }
+  // Same as stayOnTollway's last step: block side streets if Esri hops off and back on, still through the chosen plaza.
+  function stayOnChosen(tollRoute, via) {
+    var hops = window.TollCalc.findTollwayHops(tollRoute.steps);
+    if (!hops.length || !tollRoute.mode) return Promise.resolve(tollRoute);
+    var roads = [];
+    hops.forEach(function (h) { if (roads.indexOf(h.road) === -1) roads.push(h.road); });
+    return blockSideStreets(tollRoute, [], roads, 0, via);
+  }
   function solveFirst(modes, withDirections) {
     var i = 0;
     function next(err) {
@@ -1340,6 +1357,9 @@ require([
     var at = backDeparture();
     if (!at) return;
     var run = ++backRun, t = lastTrip.trip, saveDeparture = departure, out = $("back-out");
+    var bv = chosenVia() && window.TollCalc.viaPlazas(tollPoints, [stops.to.longitude, stops.to.latitude], [stops.from.longitude, stops.from.latitude])
+      .filter(function (o) { return o.road === viaChoice.road; })[0];
+    var bvia = bv ? [[bv.point.lon, bv.point.lat]] : null; // the chosen toll road, going the other way
     backTrip = null; backFailed = false;
     $("back-go").disabled = true; $("best-time").disabled = true;
     out.dataset.busy = "1";
@@ -1350,10 +1370,11 @@ require([
     loadTravelModes().then(function (modes) {
       begin();
       var mode = pickMode(modes, t.axles);
-      return Promise.all([solveFirst(tollVariants(mode, t.axles, "prefer"), true), solveFirst(tollVariants(mode, t.axles, "prohibit"), true)]);
+      return Promise.all([bvia ? solveFirstVia(tollVariants(mode, t.axles, "prefer"), bvia) : solveFirst(tollVariants(mode, t.axles, "prefer"), true),
+        solveFirst(tollVariants(mode, t.axles, "prohibit"), true)]);
     }).then(function (routes) {
       begin();
-      return Promise.all([stayOnTollway(routes[0], t.axles), stayOnFeeder(routes[1])]);
+      return Promise.all([bvia ? stayOnChosen(routes[0], bvia) : stayOnTollway(routes[0], t.axles), stayOnFeeder(routes[1])]);
     }).then(function (routes) {
       live();
       var tollRoute = routes[0], freeRoute = routes[1];
@@ -1476,6 +1497,40 @@ require([
     }
     return pts;
   }
+  // Choose a toll road: send the toll route through a plaza on a road the driver picks
+  // (from roads near the trip, going its way). "" = the route Esri picks.
+  var viaChoice = { road: "", ends: null };
+  function endsKey() { return stops.from && stops.to ? [stops.from.longitude, stops.from.latitude, stops.to.longitude, stops.to.latitude].map(function (v) { return v.toFixed(5); }).join(",") : ""; }
+  function chosenVia() {
+    if (!viaChoice.road || viaChoice.ends !== endsKey()) return null;
+    var o = window.TollCalc.viaPlazas(tollPoints, [stops.from.longitude, stops.from.latitude], [stops.to.longitude, stops.to.latitude])
+      .filter(function (x) { return x.road === viaChoice.road; })[0];
+    return o ? o.point : null;
+  }
+  function renderViaRoads() {
+    if (!lastTrip || !stops.from || !stops.to) return;
+    var opts = window.TollCalc.viaPlazas(tollPoints, [stops.from.longitude, stops.from.latitude], [stops.to.longitude, stops.to.latitude]);
+    var used = {};
+    lastTrip.priced.items.forEach(function (it) { used[it.point.road] = true; });
+    var via = chosenVia(), sel = $("via-road");
+    // Only worth showing when there's a road to pick that this route doesn't already take.
+    var others = opts.filter(function (o) { return !used[o.road]; });
+    $("via-road-wrap").hidden = !via && !others.length;
+    sel.innerHTML = '<option value="">' + esc(L("Fastest (any toll road)")) + "</option>" + opts.map(function (o) {
+      return '<option value="' + esc(o.road) + '"' + (via && via.road === o.road ? " selected" : "") + ">" + esc(L("Use {road}", { road: tollwayName(o.road) })) + "</option>";
+    }).join("");
+    var note = "";
+    if (via) {
+      note = used[via.road] ? L("Routed through the {name} plaza on {road}.", { name: via.name, road: tollwayName(via.road) })
+        : L("Couldn’t keep the route on {road}. Try “Fastest” instead.", { road: tollwayName(via.road) });
+    }
+    $("via-note").textContent = note;
+  }
+  $("via-road").addEventListener("change", function () {
+    viaChoice = { road: this.value, ends: endsKey() };
+    if (!$("go").disabled) $("go").click();
+  });
+
   function renderDrive() {
     if (!lastTrip || !stops.from || !stops.to) return;
     var kind = (document.querySelector('input[name="drive-route"]:checked') || {}).value || "toll";
@@ -1506,6 +1561,7 @@ require([
     q.set("ax", t.axles); q.set("pay", t.payment); if (t.carpool) q.set("cp", "1");
     if ($("leave").value) q.set("t", $("leave").value);
     if (window.I18N.lang === "es") q.set("lang", "es");
+    if (chosenVia()) q.set("r", viaChoice.road);
     return location.origin + location.pathname + "?" + q.toString();
   }
   $("share").addEventListener("click", function () {
@@ -1555,7 +1611,7 @@ require([
     function pt(v) { var a = (v || "").split(",").map(Number); return a.length === 2 && a.every(isFinite) ? a : null; }
     var s = pt(q.get("s")), e = pt(q.get("e"));
     if (!s || !e) return null;
-    return { s: s, e: e, sl: q.get("sl"), el: q.get("el"), ax: parseInt(q.get("ax"), 10), pay: q.get("pay"), cp: q.get("cp") === "1", t: q.get("t") };
+    return { s: s, e: e, sl: q.get("sl"), el: q.get("el"), ax: parseInt(q.get("ax"), 10), pay: q.get("pay"), cp: q.get("cp") === "1", t: q.get("t"), r: q.get("r") };
   })();
   function applyShared() {
     if (!shared || !searches.from || !searches.to) return false;
@@ -1567,6 +1623,7 @@ require([
     if (sh.ax >= 2 && sh.ax <= 8) $("axles").value = String(sh.ax);
     var r = document.querySelector('input[name="payment"][value="' + sh.pay + '"]'); if (r) r.checked = true;
     $("carpool").checked = sh.cp;
+    if (sh.r) viaChoice = { road: sh.r, ends: endsKey() };
     // A leave time in the past would show old traffic: use now instead.
     if (sh.t && new Date(sh.t).getTime() > Date.now()) $("leave").value = sh.t;
     drawStops();
@@ -1608,6 +1665,7 @@ require([
     $("headline-small").textContent = small;
     renderExtras(t, f, priced);
     renderDrive();
+    renderViaRoads();
 
     // Without an EZ TAG: what the same trip would cost with one.
     var ts = $("tag-savings");
@@ -1825,6 +1883,7 @@ require([
     var payment = paymentChoice();
     clearBack();
     backTimeSet = false;
+    var via = chosenVia();
     departure = readDeparture();
     bestRun++;
     $("best-time-out").innerHTML = "";
@@ -1841,9 +1900,10 @@ require([
     loadTravelModes().then(function (modes) {
       var mode = pickMode(modes, axles);
       window.__baseMode = mode;
-      return Promise.all([solveFirst(tollVariants(mode, axles, "prefer"), true), solveFirst(tollVariants(mode, axles, "prohibit"), true)]);
+      return Promise.all([via ? solveFirstVia(tollVariants(mode, axles, "prefer"), [[via.lon, via.lat]]) : solveFirst(tollVariants(mode, axles, "prefer"), true),
+        solveFirst(tollVariants(mode, axles, "prohibit"), true)]);
     }).then(function (routes) {
-      return Promise.all([stayOnTollway(routes[0], axles), stayOnFeeder(routes[1])]);
+      return Promise.all([via ? stayOnChosen(routes[0], [[via.lon, via.lat]]) : stayOnTollway(routes[0], axles), stayOnFeeder(routes[1])]);
     }).then(function (routes) {
       var tollRoute = routes[0], freeRoute = routes[1];
       var path = [].concat.apply([], tollRoute.geometry.paths);

@@ -377,7 +377,7 @@ require([
       toll: { minutes: ts.minutes, miles: ts.miles, mode: lastTrip.tollRoute.modeNote || null, path: t.tollPath.map(round6),
         steps: (t.steps || []).map(function (s) { return { maneuverType: s.maneuverType, text: s.text, time: s.time, length: s.length, path: s.path ? s.path.map(round6) : null }; }),
         trafficProbe: lastTrip.tollRoute.trafficProbe || null,
-        stayedOn: lastTrip.tollRoute.stayedOn || null, stillHops: lastTrip.tollRoute.stillHops || null, anchors: lastTrip.tollRoute.anchors || null, originalMinutes: lastTrip.tollRoute.originalMinutes || null },
+        stayedOn: lastTrip.tollRoute.stayedOn || null, stopStatus: lastTrip.tollRoute.stopStatus || null, stillHops: lastTrip.tollRoute.stillHops || null, anchors: lastTrip.tollRoute.anchors || null, originalMinutes: lastTrip.tollRoute.originalMinutes || null },
       free: { minutes: fs.minutes, miles: fs.miles, mode: lastTrip.freeRoute.modeNote || null, path: t.freePath.map(round6),
         steps: (lastTrip.freeRoute.steps || []).map(function (s) { return { maneuverType: s.maneuverType, text: s.text, time: s.time, length: s.length, path: s.path ? s.path.map(round6) : null }; }),
         feederFixed: lastTrip.freeRoute.feederFixed ? lastTrip.freeRoute.feederFixed.map(function (d) { return { road: d.road, via: d.via }; }) : null,
@@ -527,6 +527,23 @@ require([
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
+  // The places as last compared. If they change while results are showing (a stop added,
+  // moved or removed, a new start or end), compare again by itself so the results match.
+  var comparedKey = null, recompareTimer = null;
+  function placesKey() {
+    return fieldKeys().map(function (k) { var p = stops[k]; return p ? p.longitude.toFixed(5) + "," + p.latitude.toFixed(5) : "-"; })
+      .filter(function (v, i, a) { return v !== "-" || i === 0 || i === a.length - 1; }).join(";");
+  }
+  function maybeRecompare() {
+    if (!lastTrip || $("results").hidden || comparedKey == null || placesKey() === comparedKey) return;
+    clearTimeout(recompareTimer);
+    recompareTimer = setTimeout(function () {
+      if (!$("go").disabled && placesKey() !== comparedKey) {
+        setStatus(L("Your trip changed. Finding new routes…"), false, true);
+        $("go").click();
+      }
+    }, 700);
+  }
   function updateButton() {
     updateSteps();
     $("save-vehicle").disabled = !paymentChoice();
@@ -534,6 +551,7 @@ require([
     fieldKeys().forEach(function (w) { $("save-" + w).disabled = !stops[w]; });
     $("pay-hint").hidden = !!paymentChoice();
     $("go").disabled = !(key && stops.from && stops.to && tollPoints.length && paymentChoice());
+    maybeRecompare();
   }
   Array.prototype.forEach.call(document.querySelectorAll('input[name="payment"]'), function (r) { r.addEventListener("change", updateButton); });
   // busy: a spinner beside the message, while the app waits on Esri.
@@ -2371,6 +2389,7 @@ require([
     clearBack();
     backTimeSet = false;
     var via = chosenVia();
+    comparedKey = placesKey(); clearTimeout(recompareTimer);
     orderPath = null;
     lookupLog = { t0: performance.now(), list: [], pageMs: performance.now() };
     departure = readDeparture();

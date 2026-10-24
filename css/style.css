@@ -266,7 +266,8 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .map-card-inc { display: flex; align-items: center; gap: 6px; }
 
 /* Trip extras: fuel line and share, commute cost, best time to leave */
-.trip-tools { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.trip-tools { display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; }
+.trip-tools .fuel-line { flex: 1 1 100%; }
 .fuel-line { margin: 0; font-size: 13px; color: var(--ink-soft); flex: 1; }
 .fuel-line button { border: 0; background: none; padding: 0; font: inherit; color: var(--purple); font-weight: 600; cursor: pointer; text-decoration: underline; }
 .share-btn { flex: none; white-space: nowrap; }
@@ -311,3 +312,5 @@ details.extra > summary { cursor: pointer; font-weight: 700; color: var(--purple
 input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--violet-screen); outline-offset: 2px; }
 #headline:focus { outline: none; }
 #leave:focus, #leave:focus-within { outline: 2px solid var(--violet-screen); outline-offset: 2px; }
+.map-card-report { margin: 6px 0 0; font-size: 12px; }
+.map-card-report a { color: var(--purple); font-weight: 600; }

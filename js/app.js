@@ -31,6 +31,8 @@ require([
   var DEBUG = /[?&]debug=1\b/.test(location.search);
   // TomTom traffic: being tested in the debug view only (free evaluation tier).
   var TT_KEY = (window.TOLL_CONFIG && window.TOLL_CONFIG.tomtomApiKey || "").trim();
+  // "Report a wrong toll" opens an email to this address; set by the REPORT_EMAIL repo variable. No address, no button.
+  var REPORT_TO = (window.TOLL_CONFIG && window.TOLL_CONFIG.reportEmail || "").trim();
   var TOMTOM = DEBUG && !!TT_KEY;
   var $ = function (id) { return document.getElementById(id); };
   var stops = { from: null, to: null };
@@ -1005,7 +1007,8 @@ require([
         "<em>" + L("{n} axles", { n: axles }) + "</em></div>" +
       '<div class="pay-grid">' + rates + "</div>" +
       '<p class="map-card-note">' + status + "</p>" +
-      '<p class="map-card-agency">' + esc(AGENCY[p.owner] || p.owner) + "</p>";
+      '<p class="map-card-agency">' + esc(AGENCY[p.owner] || p.owner) + "</p>" +
+      (REPORT_TO ? '<p class="map-card-report"><a href="' + esc(reportMailto(i)) + '">' + L("Report this toll") + "</a></p>" : "");
     card.hidden = false;
   }
 
@@ -1420,6 +1423,37 @@ require([
         function () { window.prompt(L("Copy this link:"), url); });
     } else window.prompt(L("Copy this link:"), url);
   });
+  // Report a wrong toll: an email with the trip filled in, so staff can open the same trip from the link.
+  // The facts are in English for the team reading them; only the question to the driver is translated.
+  function reportMailto(only) {
+    var t = lastTrip.trip, pr = lastTrip.priced;
+    var payName = { eztag: "EZ TAG", tag: "Other tag", notag: "No tag" }[t.payment] || t.payment;
+    var from = searchesTerm("from") || "", to = searchesTerm("to") || "";
+    var items = pr.items.map(function (it, i) { return { it: it, i: i }; })
+      .filter(function (x) { return only == null || x.i === only; });
+    var lines = [
+      L("What looks wrong? (For example: the price, a toll that is missing, or one that shouldn't be there.)"), "", "", "",
+      "---- Trip details (filled in by the calculator) ----",
+      "From: " + from, "To: " + to,
+      "Leaving: " + new Date(t.departure).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }),
+      "Vehicle: " + t.axles + " axles" + (t.carpool ? ", carpool" : "") + " · Payment: " + payName,
+      "Route total: " + fmtMoney(pr.total) + " for " + pr.items.length + " toll point" + (pr.items.length === 1 ? "" : "s"),
+      only == null ? "Tolls:" : "Toll being reported:"
+    ];
+    items.slice(0, 25).forEach(function (x) {
+      var p = x.it.point;
+      lines.push("  " + (x.i + 1) + ". " + p.road + " · " + p.name + " (" + (p.dir || "") + ", id " + p.id + "): " +
+        (x.it.rate == null ? "not included" : fmtMoney(x.it.rate)) + (p.status === "verified" ? "" : " [rate not yet checked]"));
+    });
+    if (items.length > 25) lines.push("  ... and " + (items.length - 25) + " more");
+    lines.push("Open this trip: " + shareUrl(), "Page language: " + window.I18N.lang);
+    var subject = "Toll calculator report" + (from || to ? ": " + (from || "?") + " to " + (to || "?") : "");
+    return "mailto:" + REPORT_TO + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(lines.join("\n"));
+  }
+  if (REPORT_TO) {
+    $("report").hidden = false;
+    $("report").addEventListener("click", function () { if (lastTrip) location.href = reportMailto(null); });
+  }
   // Opening a shared link: fill in the trip and compare once everything has loaded.
   var shared = (function () {
     var q = new URLSearchParams(location.search);

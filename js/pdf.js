@@ -31,15 +31,19 @@
   }
   // Split text into lines no wider than maxW.
   function wrap(s, size, bold, maxW) {
-    var words = String(s).split(/\s+/).filter(Boolean), lines = [], cur = "";
+    var words = [], lines = [], cur = "";
+    // A word wider than the line (a web address) is cut into pieces that fit.
+    String(s).split(/\s+/).filter(Boolean).forEach(function (wd) {
+      while (width(wd, size, bold) > maxW && wd.length > 1) {
+        var j = wd.length; while (j > 1 && width(wd.slice(0, j), size, bold) > maxW) j--;
+        words.push(wd.slice(0, j)); wd = wd.slice(j);
+      }
+      words.push(wd);
+    });
     words.forEach(function (wd) {
       var t = cur ? cur + " " + wd : wd;
       if (!cur || width(t, size, bold) <= maxW) { cur = t; return; }
       lines.push(cur); cur = wd;
-      while (width(cur, size, bold) > maxW && cur.length > 1) { // a long link: break it anywhere
-        var j = cur.length; while (j > 1 && width(cur.slice(0, j), size, bold) > maxW) j--;
-        lines.push(cur.slice(0, j)); cur = cur.slice(j);
-      }
     });
     if (cur) lines.push(cur);
     return lines;
@@ -51,7 +55,9 @@
   }
 
   function Doc(w, h) { this.W = w || 612; this.H = h || 792; this.pages = []; this.images = []; this.addPage(); }
-  Doc.prototype.addPage = function () { this.ops = []; this.pages.push(this.ops); };
+  Doc.prototype.addPage = function () { this.ops = []; this.ops.links = []; this.pages.push(this.ops); };
+  // A tappable web link over the box x, y, w, h (y from the top).
+  Doc.prototype.link = function (x, y, w, h, url) { this.ops.links.push({ x: x, y: this.H - y - h, w: w, h: h, url: url }); };
   // y is measured from the top of the page (like the screen); PDF counts from the bottom.
   Doc.prototype.text = function (x, y, s, o) {
     o = o || {};
@@ -112,7 +118,11 @@
     this.pages.forEach(function (ops) {
       var body = ops.join("\n");
       var c = add("<< /Length " + body.length + " >>\nstream\n" + body + "\nendstream");
-      kids.push(add("<< /Type /Page /Parent " + pagesId + " 0 R /MediaBox [0 0 " + self.W + " " + self.H + "] /Resources " + res + " /Contents " + c + " 0 R >>"));
+      var annots = ops.links.map(function (l) {
+        return "<< /Type /Annot /Subtype /Link /Rect [" + [l.x, l.y, l.x + l.w, l.y + l.h].map(num).join(" ") + "] /Border [0 0 0] /A << /S /URI /URI (" + esc(enc(l.url)) + ") >> >>";
+      });
+      kids.push(add("<< /Type /Page /Parent " + pagesId + " 0 R /MediaBox [0 0 " + self.W + " " + self.H + "] /Resources " + res + " /Contents " + c + " 0 R" +
+        (annots.length ? " /Annots [" + annots.join(" ") + "]" : "") + " >>"));
     });
     var pages = add("<< /Type /Pages /Kids [" + kids.map(function (k) { return k + " 0 R"; }).join(" ") + "] /Count " + kids.length + " >>");
     var cat = add("<< /Type /Catalog /Pages " + pages + " 0 R >>");

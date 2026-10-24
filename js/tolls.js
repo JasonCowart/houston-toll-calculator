@@ -22,7 +22,7 @@
     "Airport Connector": ["airport connector", "hardy toll", "hardy airport"],
     "Westpark Tollway": ["westpark"],
     "Westpark Tollway Extension": ["westpark"],
-    "Tomball Tollway": ["tomball"],
+    "Tomball Tollway": ["tomball", "eztag"], // "merge onto the highway toward TX-249 N / EZTAG" = the tolled lanes
     "SH 249 Tollway": ["249 tollway", "tollway 249", "aggie", "tomball"],
     "SH 249 Tollway Extension": ["aggie", "249 tollway", "tollway 249", "tx-249", "sh 249"],
     "Fort Bend Parkway": ["fort bend"],

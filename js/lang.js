@@ -215,6 +215,7 @@
     "Add a stop": "Agregar una parada",
     "Print": "Imprimir",
     "Save PDF": "Guardar PDF",
+    "Open this trip online": "Abrir este viaje en línea",
     "Opening the shared trip…": "Abriendo el viaje compartido…",
     "End": "Llegada",
     "Saved {name}.": "Se guardó {name}.",

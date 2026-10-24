@@ -1902,7 +1902,11 @@ require([
       }
       y = d.para(vx, y, r[1], w - (vx - M), { size: 9 }) + 3;
     });
-    y = d.para(M, y + 3, L("Open this trip:") + " " + shareUrl(), w, { size: 6.5, color: FAINT });
+    // The link: a tappable "Open this trip online" (copying a wrapped address breaks it), then the address.
+    var url = shareUrl(), linkTop = y + 3;
+    d.text(M, linkTop + 8, L("Open this trip online"), { size: 8, bold: true, color: PURPLE });
+    d.link(M, linkTop, P.width(L("Open this trip online"), 8, true), 11, url);
+    y = d.para(M, linkTop + 11, url, w, { size: 6, color: FAINT });
     y = d.para(M, y + 2, printedLine(), w, { size: 6.5, color: FAINT });
     y = Math.max(y, mapUrl ? top + mapH : y) + 12;
     // Headline banner.

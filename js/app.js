@@ -919,6 +919,17 @@ require([
     }).catch(function () { return []; });
   }
   var ttRun = 0;
+  // Debug view: TomTom traffic loads only when asked (each load uses about 50-120 of the
+  // 20,000 free speed lookups a month), not on every compare.
+  function offerTomTom(tollRoute, freeRoute) {
+    if (!TOMTOM) return;
+    ttRun++;
+    var st = $("tt-status");
+    st.hidden = false;
+    st.innerHTML = '<button type="button" class="btn-outline small" id="tt-load">Load TomTom traffic</button> ' +
+      '<span>Uses about 50\u2013120 of the 20,000 free speed lookups a month.</span>';
+    $("tt-load").addEventListener("click", function () { loadTomTom(tollRoute, freeRoute); });
+  }
   function loadTomTom(tollRoute, freeRoute) {
     if (!TOMTOM) return;
     var run = ++ttRun;
@@ -2538,7 +2549,7 @@ require([
       lookupLog.totalMs = performance.now() - lookupLog.t0;
       priceTrip(trip, tollRoute, freeRoute);
       drawTollTraffic(tollRoute, lastTrip.priced, window.TollCalc.pathMeters(path));
-      loadTomTom(tollRoute, freeRoute);
+      offerTomTom(tollRoute, freeRoute);
       setStatus("");
       if (!keep) scrollToHeadline();
     }).catch(function (err) {

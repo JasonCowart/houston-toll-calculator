@@ -294,3 +294,12 @@ details.extra > summary { cursor: pointer; font-weight: 700; color: var(--purple
   font: inherit; font-size: 13px; font-weight: 600; padding: 5px 10px; border-radius: 6px; cursor: pointer; }
 .lang-toggle:hover { background: rgba(255, 255, 255, 0.12); }
 @media (max-width: 760px) { .lang-toggle { font-size: 12px; padding: 4px 8px; } }
+/* Drive it: hand the route to a navigation app */
+.drive { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 13px; }
+.drive-label { font-weight: 700; color: var(--gray); }
+.drive-route { display: flex; gap: 12px; }
+.drive-route label { display: flex; align-items: center; gap: 4px; font-weight: 600; color: var(--gray); }
+.drive-route input { accent-color: var(--purple); }
+.drive-apps { display: flex; gap: 6px; flex-wrap: wrap; width: 100%; }
+.drive-apps a { text-decoration: none; text-align: center; justify-content: center; display: inline-flex; align-items: center; flex: 1; min-width: 92px; }
+.drive-note { margin: 0; width: 100%; }

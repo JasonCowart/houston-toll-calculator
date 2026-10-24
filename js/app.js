@@ -1357,6 +1357,40 @@ require([
     });
   });
 
+  // Drive it: open the toll or toll-free route in Google Maps (through a few points on the route,
+  // so it follows the same roads), Apple Maps or Waze (they pick their own roads).
+  function routeWaypoints(route, kind) {
+    var T = window.TollCalc, path = [].concat.apply([], route.geometry.paths), pts = [];
+    if (kind === "toll" && route.anchors && route.anchors.length) pts = route.anchors.slice(0, 3);
+    else {
+      // Points on the route itself (vertices of Esri's line, so they sit on the right lanes).
+      var total = T.pathMeters(path);
+      if (total > 3000) T.sampleAlong(path, total / 3).slice(0, 3).forEach(function (sp) { // 1/6, 1/2 and 5/6 of the way
+        var p = sp.lonlat, best = path[0], bd = Infinity;
+        path.forEach(function (v) { var d = Math.abs(v[0] - p[0]) + Math.abs(v[1] - p[1]); if (d < bd) { bd = d; best = v; } });
+        pts.push(best);
+      });
+    }
+    return pts;
+  }
+  function renderDrive() {
+    if (!lastTrip || !stops.from || !stops.to) return;
+    var kind = (document.querySelector('input[name="drive-route"]:checked') || {}).value || "toll";
+    var route = kind === "free" ? lastTrip.freeRoute : lastTrip.tollRoute;
+    var ll = function (p) { return p[1].toFixed(6) + "," + p[0].toFixed(6); };
+    var from = [stops.from.longitude, stops.from.latitude], to = [stops.to.longitude, stops.to.latitude];
+    var via = routeWaypoints(route, kind);
+    var g = "https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=" + ll(from) + "&destination=" + ll(to) +
+      (via.length ? "&waypoints=" + encodeURIComponent(via.map(ll).join("|")) : "");
+    $("nav-google").href = g;
+    $("nav-apple").href = "https://maps.apple.com/?saddr=" + ll(from) + "&daddr=" + ll(to) + "&dirflg=d";
+    $("nav-waze").href = "https://waze.com/ul?ll=" + ll(to) + "&navigate=yes";
+    $("drive-note").textContent = L(kind === "free"
+      ? "Google Maps follows this route through a few points. Apple Maps and Waze pick their own roads: turn on “Avoid tolls” there to stay toll-free."
+      : "Google Maps follows this route through a few points on it. Apple Maps and Waze pick their own roads, which may differ.");
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="drive-route"]'), function (r) { r.addEventListener("change", renderDrive); });
+
   // Share: a link that reopens this trip (places, vehicle, tag, carpool, and the leave time if
   // one was set) and runs the compare.
   function shareUrl() {
@@ -1439,6 +1473,7 @@ require([
     $("headline-big").textContent = big;
     $("headline-small").textContent = small;
     renderExtras(t, f, priced);
+    renderDrive();
 
     // Without an EZ TAG: what the same trip would cost with one.
     var ts = $("tag-savings");

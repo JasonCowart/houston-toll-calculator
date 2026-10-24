@@ -216,6 +216,12 @@
     " Tolls on this route don’t change with the time of day.": " Los peajes de esta ruta no cambian según la hora.",
     "Link copied. Paste it anywhere to share this trip.": "Enlace copiado. Péguelo donde quiera para compartir este viaje.",
     "Copy this link:": "Copie este enlace:",
+    "Drive it:": "Manejar:",
+    "Route to open": "Ruta para abrir",
+    "Google Maps follows this route through a few points. Apple Maps and Waze pick their own roads: turn on “Avoid tolls” there to stay toll-free.":
+      "Google Maps sigue esta ruta por algunos puntos. Apple Maps y Waze eligen sus propias vías: active “Evitar peajes” ahí para no pagar peaje.",
+    "Google Maps follows this route through a few points on it. Apple Maps and Waze pick their own roads, which may differ.":
+      "Google Maps sigue esta ruta por algunos puntos. Apple Maps y Waze eligen sus propias vías, que pueden ser distintas.",
     "Shared start": "Salida compartida",
     "Shared destination": "Destino compartido",
     "Español": "English"

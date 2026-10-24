@@ -118,6 +118,19 @@
             <label class="show-free"><input type="checkbox" id="show-free" checked> Show on map</label>
           </div>
         </div>
+        <div class="drive" id="drive">
+          <span class="drive-label">Drive it:</span>
+          <div class="drive-route" role="radiogroup" aria-label="Route to open">
+            <label><input type="radio" name="drive-route" value="toll" checked> Toll route</label>
+            <label><input type="radio" name="drive-route" value="free"> Toll-free route</label>
+          </div>
+          <div class="drive-apps">
+            <a id="nav-google" class="btn-outline small" target="_blank" rel="noopener">Google Maps</a>
+            <a id="nav-apple" class="btn-outline small" target="_blank" rel="noopener">Apple Maps</a>
+            <a id="nav-waze" class="btn-outline small" target="_blank" rel="noopener">Waze</a>
+          </div>
+          <p class="hint drive-note" id="drive-note"></p>
+        </div>
         <div class="trip-tools">
           <p class="fuel-line" id="fuel-line"></p>
           <button type="button" id="share" class="btn-outline share-btn"><span aria-hidden="true">&#128279;</span> Share trip</button>

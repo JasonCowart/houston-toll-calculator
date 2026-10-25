@@ -909,7 +909,77 @@
     return [[Math.max(0, Math.min.apply(null, a) - 0.01), Math.min(1, Math.max.apply(null, a) + 0.01)]];
   }
 
-  var api = { pathsDiffer: pathsDiffer, googleWaypoints: googleWaypoints, pointAt: pointAt, viaPlazas: viaPlazas, speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+
+  // ---- Toll roads the app can't price yet ----
+  // Express, managed and HOV/HOT lanes run in the middle of free highways, so a route on the free
+  // lanes would look like it's on them. They're left out of the "not priced" check.
+  var LANE_RE = /TEXpress|Express Lane|HOV|HOT Lane|Managed Lane|Toll Lane/i;
+  // Groups the statewide toll road lines (GeoJSON features with properties.name) by name and keeps
+  // the roads with no toll point within nearMeters of them: roads we have no rates for.
+  // Returns [{ name, lines: [[[lon,lat],...]], meters, box: [w,s,e,n] }].
+  function unpricedRoads(features, points, nearMeters) {
+    nearMeters = nearMeters || 400;
+    var byName = {};
+    (features || []).forEach(function (f) {
+      var n = f && f.properties && f.properties.name, g = f && f.geometry;
+      if (!n || !g || LANE_RE.test(n)) return;
+      var lines = g.type === "LineString" ? [g.coordinates] : g.type === "MultiLineString" ? g.coordinates : [];
+      (byName[n] = byName[n] || []).push.apply(byName[n], lines.filter(function (l) { return l && l.length > 1; }));
+    });
+    var pts = (points || []).filter(function (p) { return p && p.lon != null && p.lat != null; });
+    var out = [];
+    Object.keys(byName).forEach(function (n) {
+      var lines = byName[n]; if (!lines.length) return;
+      var w = 180, s = 90, e = -180, no = -90;
+      lines.forEach(function (l) { l.forEach(function (c) { w = Math.min(w, c[0]); e = Math.max(e, c[0]); s = Math.min(s, c[1]); no = Math.max(no, c[1]); }); });
+      var proj = projector((s + no) / 2), pad = nearMeters / 90000;
+      var near = pts.filter(function (p) { return p.lon > w - pad && p.lon < e + pad && p.lat > s - pad && p.lat < no + pad; });
+      var meters = 0, covered = false;
+      lines.forEach(function (l) {
+        var xy = l.map(function (c) { return proj(c[0], c[1]); });
+        for (var i = 1; i < xy.length; i++) meters += Math.hypot(xy[i][0] - xy[i - 1][0], xy[i][1] - xy[i - 1][1]);
+        if (!covered) covered = near.some(function (p) { var q = proj(p.lon, p.lat); return nearestOnPath(xy, q[0], q[1]).dist <= nearMeters; });
+      });
+      if (!covered) out.push({ name: n, lines: lines, meters: meters, box: [w, s, e, no] });
+    });
+    return out;
+  }
+  // Which of those roads a route drives on: route samples every 50 m within maxDist meters of the
+  // road and running along it (either direction). A road counts once the route spends at least
+  // minMeters on it, or half the road for short ones like bridges.
+  // Returns [{ name, meters, at: [lon,lat] }] in route order.
+  function unpricedOnRoute(lonLatPath, roads, opts) {
+    opts = opts || {};
+    var maxDist = opts.maxDist || 35, minMeters = opts.minMeters || 600, every = 50;
+    if (!lonLatPath || lonLatPath.length < 2 || !roads || !roads.length) return [];
+    var samples = sampleAlong(lonLatPath, every);
+    var proj = projector(lonLatPath[0][1]);
+    var routeXY = lonLatPath.map(function (p) { return proj(p[0], p[1]); });
+    var pad = maxDist / 90000, found = {};
+    var lw = 180, ls = 90, le = -180, ln = -90;
+    lonLatPath.forEach(function (c) { lw = Math.min(lw, c[0]); le = Math.max(le, c[0]); ls = Math.min(ls, c[1]); ln = Math.max(ln, c[1]); });
+    roads.forEach(function (r) {
+      var b = r.box;
+      if (b[0] > le + pad || b[2] < lw - pad || b[1] > ln + pad || b[3] < ls - pad) return;
+      var lines = r.lines.map(function (l) { return l.map(function (c) { return proj(c[0], c[1]); }); });
+      var on = 0, first = null;
+      samples.forEach(function (sm) {
+        var q = proj(sm.lonlat[0], sm.lonlat[1]);
+        var here = nearestOnPath(routeXY, q[0], q[1]).heading;
+        for (var i = 0; i < lines.length; i++) {
+          var n = nearestOnPath(lines[i], q[0], q[1]);
+          if (n.dist > maxDist) continue;
+          var d = here == null || n.heading == null ? 0 : angleDiff(here, n.heading);
+          if (d < 30 || d > 150) { on += every; if (!first) first = sm; return; }
+        }
+      });
+      if (on >= Math.min(minMeters, r.meters * 0.5)) found[r.name] = { name: r.name, meters: on, at: first.lonlat, along: first.along };
+    });
+    return Object.keys(found).map(function (k) { return found[k]; }).sort(function (a, b) { return a.along - b.along; })
+      .map(function (f) { return { name: f.name, meters: f.meters, at: f.at }; });
+  }
+
+  var api = { unpricedRoads: unpricedRoads, unpricedOnRoute: unpricedOnRoute, pathsDiffer: pathsDiffer, googleWaypoints: googleWaypoints, pointAt: pointAt, viaPlazas: viaPlazas, speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

@@ -37,7 +37,7 @@ Keep pay-as-you-go **off** in Esri. The free tier then pauses at its limit inste
 
 ## Coverage
 
-The toll road lines on the map (`data/toll-roads.geojson`) cover every toll road in Texas, from TxDOT. Toll points and rates exist only for the areas below. A trip on a road without toll points shows **$0** for that road, so the app can understate a trip's tolls there.
+The toll road lines on the map (`data/toll-roads.geojson`) cover every toll road in Texas, from TxDOT. Toll points and rates exist only for the areas below. A route that drives on a toll road with no toll points (within 400 m of its line) gets a red warning naming the road, and the toll total shows a "+", instead of a silent $0 (`unpricedRoads` and `unpricedOnRoute` in `js/tolls.js`). Express, managed and HOV/HOT lanes are left out of that check, because they run beside free lanes.
 
 Covered: Houston area (HCTRA, Fort Bend, Montgomery and Brazoria counties, TxDOT Grand Parkway, SH 249 and SH 288), Austin (TxDOT SH 130, SH 45 and Loop 1, and SH 130 segments 5–6), and DFW (NTTA).
 

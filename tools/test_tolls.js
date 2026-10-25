@@ -535,4 +535,21 @@ test("Dallas-Fort Worth: NTTA fares, axles and ZipCash", () => {
   assert(pts.every(p => p.notag[0] === Math.round(p.ez2 * 200) / 100), "ZipCash is twice the TollTag rate");
 });
 
+test("Toll roads without rates: Toll 49 and 183A are flagged, priced roads and express lanes aren't", () => {
+  const roads = T.unpricedRoads(JSON.parse(require("fs").readFileSync(__dirname + "/../data/toll-roads.geojson")).features, require("../data/toll-points.json").points);
+  const names = roads.map(r => r.name);
+  ["Toll 49", "183A Toll", "290 Toll (Manor Expressway)", "San Luis-Vacek Pass Bridge"].forEach(n => assert(names.includes(n), n + " has no rates"));
+  ["Sam Houston Tollway", "Westpark Tollway", "SH 130", "President George Bush Turnpike"].forEach(n => assert(!names.some(x => x.indexOf(n) === 0), n + " is priced"));
+  assert(!names.some(n => /TEXpress|HOV|Managed|Express Lane/.test(n)), "express and HOV lanes left out");
+  const toll49 = roads.find(r => r.name === "Toll 49").lines.slice().sort((a, b) => b.length - a.length)[0];
+  const hit = T.unpricedOnRoute(toll49, roads);
+  assert(hit.length === 1 && hit[0].name === "Toll 49", "a drive along Toll 49 is flagged");
+  const fs = require("fs"), dir = __dirname + "/../tests/trips/";
+  const clean = fs.readdirSync(dir).filter(f => f.endsWith(".json")).every(f => {
+    const t = JSON.parse(fs.readFileSync(dir + f));
+    return !T.unpricedOnRoute(t.toll.path, roads).length && !(t.free && T.unpricedOnRoute(t.free.path, roads).length);
+  });
+  assert(clean, "no saved Houston, Austin or DFW trip is flagged");
+});
+
 console.log(passed + " tests passed");

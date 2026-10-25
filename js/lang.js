@@ -121,6 +121,13 @@
     "another toll tag": "otro TAG",
     "no tag": "sin TAG",
     // ---- results ----
+    "Tolls not included": "Peajes no incluidos",
+    "This route uses {roads}. This calculator doesn't have those toll rates yet.": "Esta ruta usa {roads}. Esta calculadora todavía no tiene esas tarifas de peaje.",
+    "The toll route uses {roads}. This calculator doesn't have toll rates for {them} yet, so the total leaves {them} out.": "La ruta con peaje usa {roads}. Esta calculadora todavía no tiene las tarifas de {them}, así que el total no las incluye.",
+    "those roads": "esas vías",
+    "that road": "esa vía",
+    "The toll-free route uses {roads}, which charges a toll. This calculator doesn't have that rate yet.": "La ruta sin peaje usa {roads}, que cobra peaje. Esta calculadora todavía no tiene esa tarifa.",
+    "and": "y",
     "No tolls on this trip": "Este viaje no tiene peajes",
     "The fastest route is already toll-free.": "La ruta más rápida ya es sin peaje.",
     "{price} for the managed lanes": "{price} por los carriles administrados",

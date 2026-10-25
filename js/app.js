@@ -402,8 +402,36 @@ require([
 
   fetch("data/toll-points.json")
     .then(function (r) { return r.json(); })
-    .then(function (d) { tollPoints = d.points; ratesAsOf = d.meta && d.meta.ratesAsOf; showRatesAsOf(); drawAllPoints(); updateButton(); if (shared) applyShared(); })
+    .then(function (d) { tollPoints = d.points; ratesAsOf = d.meta && d.meta.ratesAsOf; showRatesAsOf(); drawAllPoints(); updateButton(); if (shared) applyShared(); loadUnpriced(); })
     .catch(function () { setStatus(L("Couldn't load the toll data."), true); });
+
+  // Texas toll roads we don't have rates for yet (no toll points near them, e.g. Toll 49 in Tyler
+  // or CTRMA's roads in Austin). A route that drives on one gets a warning instead of a silent $0.
+  var unpricedRoadList = null;
+  function loadUnpriced() {
+    fetch("data/toll-roads.geojson")
+      .then(function (r) { return r.json(); })
+      .then(function (g) {
+        unpricedRoadList = window.TollCalc.unpricedRoads(g.features, tollPoints);
+        if (lastTrip && !$("results").hidden) showResults(lastTrip.tollRoute, lastTrip.freeRoute, lastTrip.priced, lastTrip.savings);
+      })
+      .catch(function (e) { console.warn("Toll roads check unavailable", e); });
+  }
+  // { toll: [{name}], free: [{name}] } for the current trip, worked out once per route.
+  function unpricedOnTrip() {
+    var none = { toll: [], free: [] };
+    if (!lastTrip || !unpricedRoadList) return none;
+    var T = window.TollCalc, tp = lastTrip.trip.tollPath, fp = lastTrip.trip.freePath, c = lastTrip.unpriced;
+    if (c && c.tp === tp && c.fp === fp) return c.found;
+    var found = { toll: T.unpricedOnRoute(tp, unpricedRoadList), free: T.unpricedOnRoute(fp, unpricedRoadList) };
+    lastTrip.unpriced = { tp: tp, fp: fp, found: found };
+    return found;
+  }
+  function roadList(list) {
+    var names = list.map(function (r) { return r.name; });
+    if (names.length < 2) return names.join("");
+    return names.slice(0, -1).join(", ") + " " + L("and") + " " + names[names.length - 1];
+  }
   fetch("data/sh288-rates.json")
     .then(function (r) { return r.json(); })
     .then(function (d) { window.TollCalc.setSchedules({ sh288: d }); sh288Effective = d.effective; showRatesAsOf(); })
@@ -2429,14 +2457,16 @@ require([
   }
   function showResults(tollRoute, freeRoute, priced, savings) {
     var t = routeStats(tollRoute), f = routeStats(freeRoute);
-    $("toll-price").textContent = fmtMoney(priced.total) + (priced.pending.length || priced.missing.length ? "+" : "");
+    var unpriced = unpricedOnTrip();
+    $("toll-price").textContent = fmtMoney(priced.total) + (priced.pending.length || priced.missing.length || unpriced.toll.length ? "+" : "");
     $("toll-meta").textContent = fmtMeta(t);
     $("free-meta").textContent = fmtMeta(f);
 
     // Headline: is the toll worth it? Time saved and price, then cost per minute saved.
     var big = "", small = "", neutral = false;
-    var plus = priced.pending.length || priced.missing.length ? "+" : "";
-    if (!priced.items.length) { big = L("No tolls on this trip"); small = L("The fastest route is already toll-free."); neutral = true; }
+    var plus = priced.pending.length || priced.missing.length || unpriced.toll.length ? "+" : "";
+    if (!priced.items.length && unpriced.toll.length) { big = L("Tolls not included"); small = L("This route uses {roads}. This calculator doesn't have those toll rates yet.", { roads: roadList(unpriced.toll) }); neutral = true; }
+    else if (!priced.items.length) { big = L("No tolls on this trip"); small = L("The fastest route is already toll-free."); neutral = true; }
     else if (priced.laneOptions && priced.laneOptions === priced.items.length) {
       big = L("{price} for the managed lanes", { price: fmtMoney(priced.total) + plus });
       small = L("Time saved isn't estimated: the lanes are usually faster at rush hour.");
@@ -2475,7 +2505,11 @@ require([
       ts.hidden = false;
     }
 
-    var flags = [];
+    var flags = [], warns = [];
+    if (unpriced.toll.length)
+      warns.push(L("The toll route uses {roads}. This calculator doesn't have toll rates for {them} yet, so the total leaves {them} out.", { roads: roadList(unpriced.toll), them: L(unpriced.toll.length > 1 ? "those roads" : "that road") }));
+    if (unpriced.free.length)
+      warns.push(L("The toll-free route uses {roads}, which charges a toll. This calculator doesn't have that rate yet.", { roads: roadList(unpriced.free) }));
     unreachedStops().forEach(function (u) {
       flags.push(L("The route doesn't go to Stop {n} ({place}): the map couldn't put that spot on a road it can drive to. Pick an address or a spot right on a street nearby, then compare again.", { n: u.n, place: u.label }));
     });
@@ -2504,7 +2538,8 @@ require([
         { road: lastTrip.tollRoute.stayedOn.map(function (r) { return r === "Sam Houston" ? "Sam Houston Tollway" : r; }).join(" / ") }));
     if (priced.assumed) flags.push(L("{n} Fort Bend County toll point(s) on this route publish rates only up to 6 axles, so they're priced at the 6-axle rate.", { n: priced.assumed }));
     if (priced.unverified) flags.push(L("{n} toll point(s) on this route haven't been checked against their agency's published rates yet.", { n: priced.unverified }));
-    $("flags").innerHTML = flags.map(function (m) { return '<div class="notice info">' + esc(m) + "</div>"; }).join("");
+    $("flags").innerHTML = warns.map(function (m) { return '<div class="notice warn">' + esc(m) + "</div>"; }).join("") +
+      flags.map(function (m) { return '<div class="notice info">' + esc(m) + "</div>"; }).join("");
 
     $("breakdown").innerHTML = priced.items.map(function (it) {
       var p = it.point;

@@ -215,6 +215,7 @@
     "Add a stop": "Agregar una parada",
     "Print": "Imprimir",
     "Save PDF": "Guardar PDF",
+    "This site counts visits and actions anonymously: no cookies, no addresses or routes.": "Este sitio cuenta visitas y acciones de forma anónima: sin cookies, sin direcciones ni rutas.",
     "Add stop here": "Agregar parada aquí",
     "Stop {n} added": "Parada {n} agregada",
     "Tip: with a start and end set, press and hold the map to add a stop there.": "Consejo: con la salida y el destino fijados, mantenga presionado el mapa para agregar una parada ahí.",

@@ -65,12 +65,14 @@ jobs:
           # Where "Report a wrong toll" emails go (a repo variable, Settings > Secrets and variables > Actions > Variables).
           # It ends up visible in the site's config.js, as any mailto address would, so use a shared team inbox.
           REPORT_EMAIL: ${{ vars.REPORT_EMAIL }}
+          # Anonymous usage counts (goatcounter.com): the site code, e.g. "hctra-tolls" for hctra-tolls.goatcounter.com.
+          GOATCOUNTER_CODE: ${{ vars.GOATCOUNTER_CODE }}
         run: |
           if [ -z "$ARCGIS_API_KEY" ]; then
             echo "::warning::ARCGIS_API_KEY secret is not set; the site will show the missing-key notice."
           fi
           # TomTom (debug view only for now); the key is limited to this site in TomTom's dashboard.
-          KEY="$ARCGIS_API_KEY" TT="$TOMTOM_API_KEY" RE="$REPORT_EMAIL" node -e 'const c = { arcgisApiKey: process.env.KEY.trim() }; if (process.env.TT && process.env.TT.trim()) c.tomtomApiKey = process.env.TT.trim(); const re = (process.env.RE || "").trim(); if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(re)) c.reportEmail = re; require("fs").writeFileSync("config.js", "window.TOLL_CONFIG = " + JSON.stringify(c) + ";\n")'
+          KEY="$ARCGIS_API_KEY" TT="$TOMTOM_API_KEY" RE="$REPORT_EMAIL" GC="$GOATCOUNTER_CODE" node -e 'const c = { arcgisApiKey: process.env.KEY.trim() }; if (process.env.TT && process.env.TT.trim()) c.tomtomApiKey = process.env.TT.trim(); const re = (process.env.RE || "").trim(); if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(re)) c.reportEmail = re; const gc = (process.env.GC || "").trim().toLowerCase(); if (/^[a-z0-9-]{2,40}$/.test(gc)) c.goatcounter = gc; require("fs").writeFileSync("config.js", "window.TOLL_CONFIG = " + JSON.stringify(c) + ";\n")'
 
       - name: Cache-bust scripts and styles
         if: steps.lock.outputs.offline != 'true'

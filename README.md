@@ -14,6 +14,7 @@ It's a static site (no server), hosted on GitHub Pages. Maps, address search and
 Optional settings (same page):
 - `TOMTOM_API_KEY` (secret): live traffic test in the debug view (`?debug=1`) only.
 - `REPORT_EMAIL` (on the **Variables** tab): turns on "Report a wrong toll". Use a shared inbox; the address is visible in the page.
+- `GOATCOUNTER_CODE` (on the **Variables** tab): turns on anonymous usage counts at goatcounter.com (no cookies). Use the site code only, e.g. `hctra-tolls` for hctra-tolls.goatcounter.com. Counted: visits, actions (compare, PDF, print, share, map app opens, reports, best time, trip back, stops added, language) and trip types (state, axles, payment, number of stops, toll range, toll roads). Never addresses or routes; not counted in the debug view.
 
 To take the site offline, add an empty `SITE_OFFLINE` file and push; delete it to bring the site back.
 

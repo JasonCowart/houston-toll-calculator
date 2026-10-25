@@ -33,6 +33,47 @@ require([
   var TT_KEY = (window.TOLL_CONFIG && window.TOLL_CONFIG.tomtomApiKey || "").trim();
   // "Report a wrong toll" opens an email to this address; set by the REPORT_EMAIL repo variable. No address, no button.
   var REPORT_TO = (window.TOLL_CONFIG && window.TOLL_CONFIG.reportEmail || "").trim();
+  // Anonymous usage counts (GoatCounter, no cookies): set by the GOATCOUNTER_CODE repo variable.
+  // Nothing personal is sent: no addresses, places or routes; only actions and trip types.
+  // Not counted in the debug view or when testing on this computer.
+  var GC_CODE = (window.TOLL_CONFIG && window.TOLL_CONFIG.goatcounter || "").trim();
+  var COUNTING = !!GC_CODE && !DEBUG && location.protocol === "https:";
+  if (COUNTING) {
+    // The page's own address is counted without its ?query: a shared link's query holds places.
+    window.goatcounter = { path: function () { return location.pathname + (/[?&]s=/.test(location.search) ? "#shared-link" : ""); } };
+    var gcs = document.createElement("script");
+    gcs.async = true; gcs.src = "https://gc.zgo.at/count.js";
+    gcs.setAttribute("data-goatcounter", "https://" + GC_CODE + ".goatcounter.com/count");
+    document.head.appendChild(gcs);
+    document.getElementById("count-note").hidden = false;
+  }
+  // Count one action, e.g. track("pdf") or track("trip/2-axles/eztag/TX").
+  var trackQueue = [];
+  function track(path) {
+    if (!COUNTING) return;
+    var go = function () { try { window.goatcounter.count({ path: path, title: path, event: true }); } catch (e) { /* not counted */ } };
+    if (window.goatcounter && window.goatcounter.count) go();
+    else if (trackQueue.push(go) === 1) (function wait(n) {
+      if (window.goatcounter && window.goatcounter.count) { trackQueue.splice(0).forEach(function (f) { f(); }); return; }
+      if (n < 40) setTimeout(function () { wait(n + 1); }, 250);
+    })(0);
+  }
+  // A toll point's state; every point today is in Texas. Interoperability partners (Kansas,
+  // Colorado, Oklahoma, Florida) will carry their own "state" in the data.
+  function stateOf(p) { return p && p.state || "TX"; }
+  function tollBucket(v) { return v <= 0 ? "0" : v < 2 ? "under-2" : v < 5 ? "2-5" : v < 10 ? "5-10" : v < 20 ? "10-20" : "20-plus"; }
+  function trackTrip(trip, priced) {
+    var states = [], roads = [];
+    priced.items.forEach(function (it) {
+      var st = stateOf(it.point); if (states.indexOf(st) < 0) states.push(st);
+      if (roads.indexOf(it.point.road) < 0) roads.push(it.point.road);
+    });
+    var stopsN = midPoints().length;
+    track("compare");
+    track("trip/" + (states.join("+") || "no-tolls") + "/" + trip.axles + "-axles/" + trip.payment + (trip.carpool ? "/carpool" : "") +
+      "/stops-" + stopsN + "/toll-" + tollBucket(priced.total));
+    if (roads.length) track("roads/" + roads.sort().join(" + "));
+  }
   var TOMTOM = DEBUG && !!TT_KEY;
   var $ = function (id) { return document.getElementById(id); };
   var stops = { from: null, to: null };
@@ -201,7 +242,7 @@ require([
   function setEsriLocale() { try { if (intl && intl.setLocale) intl.setLocale(window.I18N.lang === "es" ? "es" : "en"); } catch (e) { /* keep */ } }
   setEsriLocale();
   window.I18N.apply();
-  $("lang-toggle").addEventListener("click", function () { window.I18N.setLang(window.I18N.lang === "es" ? "en" : "es"); });
+  $("lang-toggle").addEventListener("click", function () { window.I18N.setLang(window.I18N.lang === "es" ? "en" : "es"); track("language/" + window.I18N.lang); });
   window.I18N.onChange(function () {
     setEsriLocale();
     fillPlaces();
@@ -286,6 +327,7 @@ require([
     labelStops(); drawStops(); updateButton();
   }
   $("add-stop").addEventListener("click", function () {
+    track("stop-added/form");
     var w = addStop();
     if (w && searches[w]) setTimeout(function () { try { searches[w].focus(); } catch (e) { /* ok */ } }, 50);
   });
@@ -1295,6 +1337,7 @@ require([
       if (stopsFull()) { flashNote(e, L("This trip already has {n} stops, the most allowed.", { n: MAX_MID })); return; }
       var before = midKeys.filter(function (k) { return stops[k]; }).length;
       addStopAt(e.mapPoint);
+      track("stop-added/hold");
       flashNote(e, L("Stop {n} added", { n: before + 1 }));
     });
     $("hold-tip").hidden = false;
@@ -1603,6 +1646,7 @@ require([
   function clearBack() { if (swapEnds) orderPath = null; backRun++; backTrip = null; backFailed = false; swapEnds = null; $("back-out").innerHTML = ""; delete $("back-out").dataset.busy; $("back-go").disabled = false; }
   $("back-time").addEventListener("change", function () { backTimeSet = true; backFailed = false; if (backTrip) backTrip = null; renderCommute(); });
   $("back-go").addEventListener("click", function () {
+    track("trip-back");
     if (!lastTrip || !stops.from || !stops.to) return;
     var at = backDeparture();
     if (!at) return;
@@ -1666,6 +1710,7 @@ require([
   // trip shown, so it doesn't hop off at rush hour.
   var bestRun = 0;
   $("best-time").addEventListener("click", function () {
+    track("best-time");
     if (!lastTrip) return;
     var run = ++bestRun, base = new Date(lastTrip.trip.departure), now = Date.now();
     // 30 minutes earlier to an hour later in 15-minute steps; times already past are skipped,
@@ -1779,6 +1824,7 @@ require([
   }
   var rerouteMsg = null;
   $("via-road").addEventListener("change", function () {
+    track(this.value ? "toll-road-picked" : "toll-road-fastest");
     viaChoice = { road: this.value, ends: endsKey() };
     rerouteMsg = this.value ? L("Finding a route on {road}…", { road: tollwayName(this.value) }) : L("Finding the fastest route…");
     if (!$("go").disabled) $("go").click();
@@ -1802,6 +1848,11 @@ require([
       (mids.length ? " " + L("Apple Maps and Waze open with the destination only; add your stops there.") : "");
   }
   Array.prototype.forEach.call(document.querySelectorAll('input[name="drive-route"]'), function (r) { r.addEventListener("change", renderDrive); });
+  ["google", "apple", "waze"].forEach(function (app) {
+    $("nav-" + app).addEventListener("click", function () {
+      track("drive/" + app + "/" + ((document.querySelector('input[name="drive-route"]:checked') || {}).value || "toll"));
+    });
+  });
 
   // Share: a link that reopens this trip (places, vehicle, tag, carpool, and the leave time if
   // one was set) and runs the compare.
@@ -1824,6 +1875,7 @@ require([
     return location.origin + location.pathname + "?" + q.toString();
   }
   $("share").addEventListener("click", function () {
+    track("share");
     if (!lastTrip) return;
     var url = shareUrl(), text = $("headline-big").textContent;
     if (navigator.share) {
@@ -2004,6 +2056,7 @@ require([
   }
   var printOpened = [];
   $("print").addEventListener("click", function () {
+    track("print");
     if (!lastTrip) return;
     var btn = this; btn.disabled = true;
     // Breakdown and commute cost print opened; put them back after.
@@ -2149,6 +2202,7 @@ require([
     return "tolls-" + [slug(pl[0]), "to", slug(pl[pl.length - 1]), ymd].filter(Boolean).join("-") + ".pdf";
   }
   $("save-pdf").addEventListener("click", function () {
+    track("pdf");
     if (!lastTrip || !window.MiniPDF) return;
     var btn = this; btn.disabled = true;
     setStatus(L("Making the PDF…"), false, true);
@@ -2199,7 +2253,7 @@ require([
   }
   if (REPORT_TO) {
     $("report").hidden = false;
-    $("report").addEventListener("click", function () { if (lastTrip) location.href = reportMailto(null); });
+    $("report").addEventListener("click", function () { if (lastTrip) { track("report"); location.href = reportMailto(null); } });
   }
   // Opening a shared link: fill in the trip and compare once everything has loaded.
   var shared = (function () {
@@ -2548,6 +2602,7 @@ require([
       view.goTo(tollRoute.geometry.extent.clone().expand(1.25)).catch(function () {});
       lookupLog.totalMs = performance.now() - lookupLog.t0;
       priceTrip(trip, tollRoute, freeRoute);
+      trackTrip(trip, lastTrip.priced);
       drawTollTraffic(tollRoute, lastTrip.priced, window.TollCalc.pathMeters(path));
       offerTomTom(tollRoute, freeRoute);
       setStatus("");

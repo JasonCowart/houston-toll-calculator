@@ -297,7 +297,7 @@
   },
   "hctra": {
    "checked": "2026-10-25",
-   "failures": 0,
+   "failures": 1,
    "fingerprint": {
     "rows": [
      "Ft. Bend Extension | North | Fort Bend Parkway | PASS THROUGH | $1.35 | $1.50 | $3.50 | $5.25 | $7.00 | $8.75 | $10.50 | $12.25",
@@ -422,22 +422,34 @@
      "Westpark Tollway | West | Wilcrest West Mainlane | PASS THROUGH | $1.35 | $1.50 | $3.50 | $5.25 | $7.00 | $8.75 | $10.50 | $12.25"
     ]
    },
+   "lastError": "Error: Page.goto: net::ERR_CONNECTION_RESET at https://www.hctra.org/TollRates\nCall log:\nnavigating to \"https://www.hctra.org/TollRates\", waiting until \"load\"\n",
    "name": "HCTRA toll rates",
    "url": "https://www.hctra.org/TollRates"
   },
   "hctra-katy": {
    "checked": "2026-10-25",
-   "failures": 0,
+   "failures": 1,
    "fingerprint": {
     "bytes": 118102,
     "sha256": "10e952d217a8e207faba3a1db4bf8372b28e76f3c0aca85bc6277b29dc2dee79"
    },
+   "lastError": "URLError: <urlopen error [Errno 104] Connection reset by peer>",
    "name": "HCTRA Katy Managed Lanes schedule (PDF)",
    "url": "https://www.hctra.org/Content/hctra3rdPartyPages/katymanagedlanes/media/Katy_Toll_Sched.pdf"
   },
-  "sh130-south": {
+  "ntta": {
    "checked": "2026-10-25",
    "failures": 0,
+   "fingerprint": {
+    "bytes": 128380,
+    "sha256": "525ab51c0fd47dc083e5a490dbfff0fb2f94fe11b545def465a6958f971a02cf"
+   },
+   "name": "NTTA toll rate tables (PDF, July 2025 - June 2027)",
+   "url": "https://www.ntta.org/sites/default/files/2025-06/NTTAS_2025-2027_Toll%20Rate%20Tables.pdf"
+  },
+  "sh130-south": {
+   "checked": "2026-10-25",
+   "failures": 1,
    "fingerprint": {
     "amounts": [
      "$10.47",
@@ -600,6 +612,7 @@
     "effective": [],
     "files": []
    },
+   "lastError": "HTTPError: HTTP Error 403: Forbidden",
    "name": "SH 130 segments 5-6 rates (SH 130 Concession Co.)",
    "url": "https://mysh130.com/traveler-info/toll-rates/"
   },

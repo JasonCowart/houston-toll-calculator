@@ -217,6 +217,7 @@
     "Save PDF": "Guardar PDF",
     "Houston area": "Área de Houston",
     "Austin area": "Área de Austin",
+    "Toll roads": "Vías de peaje",
     "Dallas-Fort Worth area": "Área de Dallas-Fort Worth",
     " This stretch of SH 130 charges by vehicle size, not axles. For 3+ axles the app assumes: 3 = car with a trailer, 4 = larger vehicle, 5 = larger vehicle with a trailer, 6+ = more than one trailer.": " Este tramo de la SH 130 cobra según el tamaño del vehículo, no por ejes. Para 3 o más ejes la aplicación supone: 3 = auto con remolque, 4 = vehículo más grande, 5 = vehículo más grande con remolque, 6 o más = más de un remolque.",
     " New rates start {date}; your trip is priced for its own date.": " Las tarifas nuevas empiezan el {date}; su viaje se calcula para su propia fecha.",

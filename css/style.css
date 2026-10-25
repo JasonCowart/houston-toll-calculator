@@ -427,3 +427,4 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .stop-bubble .sb-note { display: inline-block; padding: 6px 8px; color: var(--ink); font-weight: 500; }
 .hold-tip { margin: -2px 0 6px; }
 #map { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; } /* press and hold adds a stop, not a text menu */
+.tr-switch button[aria-pressed="false"] { color: var(--ink-soft); }

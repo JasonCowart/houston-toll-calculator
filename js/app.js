@@ -94,13 +94,13 @@ require([
   var tollLayer = null;                   // toll points on the route, with labels
   var highlightLayer = new GraphicsLayer(); // ring around the toll point picked in the breakdown
   var map = new Map({ basemap: key ? "arcgis/light-gray" : "osm", layers: [routesLayer, highlightLayer, markersLayer] });
-  // HCTRA's Regional Toll Roads layer (every Houston-area toll road, all agencies). The
-  // browser can't load it from HCTRA's server directly, so a copy is kept in
-  // data/toll-roads.geojson (tools/fetch_toll_roads.py, refreshed weekly on GitHub).
+  // Every toll road and managed lane in Texas (TxDOT's statewide "Texas Toll Roads" layer), kept
+  // in data/toll-roads.geojson by the "Update Texas toll roads" workflow (monthly). Shown with
+  // the "Toll roads" switch on the map.
   var tollRoadsLayer = new GeoJSONLayer({
     url: "data/toll-roads.geojson",
-    title: "Regional Toll Roads (HCTRA)",
-    copyright: "HCTRA",
+    title: "Texas toll roads (TxDOT)",
+    copyright: "TxDOT",
     popupEnabled: false,
     renderer: { type: "simple", symbol: { type: "simple-line", color: [102, 45, 145, 0.4], width: 4, cap: "round", join: "round" } },
   });
@@ -401,7 +401,7 @@ require([
 
   fetch("data/toll-points.json")
     .then(function (r) { return r.json(); })
-    .then(function (d) { tollPoints = d.points; ratesAsOf = d.meta && d.meta.ratesAsOf; showRatesAsOf(); updateButton(); if (shared) applyShared(); })
+    .then(function (d) { tollPoints = d.points; ratesAsOf = d.meta && d.meta.ratesAsOf; showRatesAsOf(); drawAllPoints(); updateButton(); if (shared) applyShared(); })
     .catch(function () { setStatus(L("Couldn't load the toll data."), true); });
   fetch("data/sh288-rates.json")
     .then(function (r) { return r.json(); })
@@ -1049,6 +1049,30 @@ require([
 
   // Toll points as a client-side feature layer, so the map can label each one and
   // hide labels that would overlap (they come back as you zoom in).
+  // Every toll point in the data (Houston, Austin, DFW), small, under the routes: shown with the
+  // "Toll roads" switch. Labels (name and 2-axle EZ TAG rate) appear once zoomed in.
+  var allPointsLayer = null;
+  function drawAllPoints() {
+    if (!key || allPointsLayer || !tollPoints.length) return;
+    var src = tollPoints.map(function (p, i) {
+      var rate = p.status === "timed" ? null : p.ez2;
+      return new Graphic({ geometry: { type: "point", longitude: p.lon, latitude: p.lat },
+        attributes: { oid: i + 1, kind: p.kind || "main", label: shortName(p.name) + (rate != null ? " " + fmtMoney(rate) : "") } });
+    });
+    var dot = function (size, color) { return { type: "simple-marker", size: size, color: color, outline: { color: [255, 255, 255], width: 1 } }; };
+    allPointsLayer = new FeatureLayer({
+      source: src, objectIdField: "oid", geometryType: "point", spatialReference: { wkid: 4326 },
+      fields: [{ name: "oid", type: "oid" }, { name: "kind", type: "string" }, { name: "label", type: "string" }],
+      title: "Toll points",
+      renderer: { type: "unique-value", field: "kind", defaultSymbol: dot(6, [102, 45, 145, 0.85]),
+        uniqueValueInfos: [{ value: "main", symbol: dot(7, [102, 45, 145, 0.9]) }, { value: "on", symbol: dot(5, [140, 92, 255, 0.85]) }, { value: "off", symbol: dot(5, [140, 92, 255, 0.85]) }] },
+      labelingInfo: [{ labelExpressionInfo: { expression: "$feature.label" }, labelPlacement: "center-right", minScale: 40000,
+        symbol: { type: "text", color: [74, 42, 118], haloColor: [255, 255, 255], haloSize: 1, font: { size: 9 } } }],
+      popupEnabled: false, visible: showTollMapNow(),
+    });
+    map.add(allPointsLayer, map.layers.indexOf(tollRoadsLayer) + 1); // over the road lines, under the routes
+  }
+  function showTollMapNow() { try { return localStorage.getItem("htc-tollmap") !== "off"; } catch (e) { return true; } }
   // Fallback when the toll point layer doesn't draw: the same dots and labels as plain map
   // graphics (no hiding of overlapping labels), like the highlight ring, which always draws.
   var tollFallback = new GraphicsLayer();
@@ -1470,6 +1494,25 @@ require([
       try { localStorage.setItem("htc-basemap", id); } catch (e) { /* not kept */ }
     };
     bm.addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) setBasemap(b.getAttribute("data-id")); });
+    // "Toll roads" switch: every toll road line and every toll point (all agencies), for
+    // seeing where the tolls are before picking a route. Remembered on this device; on by default.
+    var trSwitch = document.createElement("div");
+    trSwitch.className = "basemap-switch tr-switch";
+    trSwitch.innerHTML = '<button type="button" aria-pressed="true"></button>';
+    view.ui.add(trSwitch, "top-right");
+    var showTollMap = true;
+    try { showTollMap = localStorage.getItem("htc-tollmap") !== "off"; } catch (e) { /* default on */ }
+    var setTollMap = function (on) {
+      showTollMap = on;
+      tollRoadsLayer.visible = on;
+      if (allPointsLayer) allPointsLayer.visible = on;
+      trSwitch.firstChild.setAttribute("aria-pressed", on ? "true" : "false");
+      trSwitch.firstChild.textContent = L("Toll roads");
+      try { localStorage.setItem("htc-tollmap", on ? "on" : "off"); } catch (e) { /* not kept */ }
+    };
+    trSwitch.addEventListener("click", function () { setTollMap(!showTollMap); });
+    setTollMap(showTollMap);
+    window.I18N.onChange(function () { setTollMap(showTollMap); });
     if (TOMTOM) {
       // Debug: TomTom's traffic map layer, to compare with Google's traffic view.
       var ttLayer = new WebTileLayer({ urlTemplate: "https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{level}/{col}/{row}.png?key=" + encodeURIComponent(TT_KEY),

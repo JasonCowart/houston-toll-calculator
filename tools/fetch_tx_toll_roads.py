@@ -41,11 +41,12 @@ for lu in layers:
         for f in got:
             g = f.get("geometry") or {}
             if not g.get("paths"): continue
-            feats.append({"type": "Feature", "properties": f.get("attributes") or {},
+            at = f.get("attributes") or {}
+            feats.append({"type": "Feature", "properties": {"name": at.get("TOLL_NM"), "charge": at.get("CHRG_TYPE")},
                           "geometry": {"type": "MultiLineString", "coordinates": g["paths"]}})
         if not got or not page.get("exceededTransferLimit"): break
         offset += len(got)
-note("Features: %d" % len(feats))
+note("Features: %d (TxDOT extract %s)" % (len(feats), (got and (got[0].get("attributes") or {}).get("EXT_DATE")) or "?"))
 if feats: note("Sample properties: " + json.dumps(feats[0]["properties"])[:700])
 if not feats: sys.exit("No toll road lines downloaded")
 json.dump({"type": "FeatureCollection", "source": "TxDOT Texas Toll Roads (arcgis.com item " + ITEM + ")", "features": feats},

@@ -102,7 +102,8 @@ require([
     title: "Texas toll roads (TxDOT)",
     copyright: "TxDOT",
     popupEnabled: false,
-    renderer: { type: "simple", symbol: { type: "simple-line", color: [102, 45, 145, 0.4], width: 4, cap: "round", join: "round" } },
+    // Neutral light gray, not HCTRA purple: most of these roads belong to other agencies.
+    renderer: { type: "simple", symbol: { type: "simple-line", color: [150, 150, 156, 0.5], width: 4, cap: "round", join: "round" } },
   });
   map.add(tollRoadsLayer, 0);
   tollRoadsLayer.load().catch(function (e) { console.warn("Toll roads layer unavailable", e); });

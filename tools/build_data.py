@@ -11,6 +11,8 @@ Rate check (Oct 20, 2026) results applied here:
 - Grand Parkway (TxDOT and FBCTRA), Fort Bend Parkway and the Westpark Tollway Extension
   were checked against their 2026 schedules on Oct 21, 2026 -> "verified".
 - Everything else (SH 130, SH 45, Loop 1 near Austin; BCTRA) -> "unverified".
+Then run tools/austin_rates.py on the output: it applies the Austin rates checked Oct 24, 2026
+(TxDOT Central Texas Turnpike System; SH 130 segments 5-6 by vehicle class, with the Nov 11, 2026 change).
 """
 import json, sys
 

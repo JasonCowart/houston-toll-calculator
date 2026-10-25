@@ -369,11 +369,19 @@
    * @param {"eztag"|"tag"|"notag"} payment
    * @returns {number|null} null when the layer has no rate for this case
    */
+  // A point's rates on a given day: "next" holds a published rate change and its first day
+  // (Central time), e.g. SH 130 segments 5-6 from Nov 11, 2026.
+  function ratesOn(pt, when) {
+    var n = pt.next;
+    if (n && n.from && when && when.getTime() >= new Date(n.from + "T00:00:00-06:00").getTime()) return n;
+    return pt;
+  }
   function rateFor(pt, axles, payment, when, opts) {
     if (pt.status === "timed") { var r = timedRate(pt, axles, payment, when, opts); return r ? r.rate : null; }
-    if (payment === "notag") return pt.notag[axles - 2];
-    if (axles === 2) return payment === "eztag" ? pt.ez2 : pt.tag2;
-    return pt.tag[axles - 3];
+    var q = ratesOn(pt, when || new Date());
+    if (payment === "notag") return q.notag[axles - 2];
+    if (axles === 2) return payment === "eztag" ? q.ez2 : q.tag2;
+    return q.tag[axles - 3];
   }
 
   /**
@@ -394,7 +402,7 @@
         var r = timedRate(pt, axles, payment, when, ctx);
         if (r) { rate = r.rate; note = r.note; timed++; }
         else { pending.push(pt); items.push({ point: pt, rate: null, along: c.along }); return; }
-      } else rate = rateFor(pt, axles, payment);
+      } else rate = rateFor(pt, axles, payment, when);
       if (rate === null || rate === undefined) { missing.push(pt); items.push({ point: pt, rate: null, along: c.along }); return; }
       if (pt.status === "unverified") unverified++;
       if (pt.assumedAxles && pt.assumedAxles.indexOf(axles) !== -1) assumed++;

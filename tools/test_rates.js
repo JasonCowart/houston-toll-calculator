@@ -14,9 +14,9 @@ const dataFile = path.join(__dirname, "..", "data", "toll-points.json");
 const snapFile = path.join(__dirname, "..", "tests", "rates-verified.json");
 const points = JSON.parse(fs.readFileSync(dataFile, "utf8")).points;
 
-const FIELDS = ["ez2", "tag2", "tag", "notag"];
+const FIELDS = ["ez2", "tag2", "tag", "notag", "next"];
 const pick = (p) => ({ name: p.name, road: p.road, owner: p.owner, lon: p.lon, lat: p.lat,
-  ez2: p.ez2, tag2: p.tag2, tag: p.tag, notag: p.notag });
+  ez2: p.ez2, tag2: p.tag2, tag: p.tag, notag: p.notag, ...(p.next ? { next: p.next } : {}) });
 const verified = points.filter((p) => p.status === "verified");
 
 if (process.argv.includes("--update")) {

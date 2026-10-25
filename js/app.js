@@ -142,6 +142,13 @@ require([
     ["Conroe (downtown)", -95.4560, 30.3119],
     ["Kemah Boardwalk", -95.0187, 29.5450],
     ["Baytown (I-10 at Garth Rd)", -94.9893, 29.7853],
+    // Austin area
+    ["Austin-Bergstrom Airport (AUS)", -97.6699, 30.1975, "austin"],
+    ["Texas Capitol (Austin)", -97.7404, 30.2747, "austin"],
+    ["Round Rock (downtown)", -97.6789, 30.5083, "austin"],
+    ["Georgetown (courthouse square)", -97.6773, 30.6372, "austin"],
+    ["Pflugerville (downtown)", -97.6200, 30.4394, "austin"],
+    ["San Marcos (downtown)", -97.9414, 29.8833, "austin"],
   ];
   function loadList(name) { try { return JSON.parse(localStorage.getItem("htc-" + name) || "[]"); } catch (e) { return []; } }
   function saveList(name, list) { try { localStorage.setItem("htc-" + name, JSON.stringify(list)); } catch (e) { /* not kept */ } }
@@ -166,7 +173,12 @@ require([
       }
       group(L("My places"), saved, "s");
       group(L("Recent"), recent, "r");
-      group(L("Common places"), COMMON.map(function (c) { return { label: c[0] }; }), "c");
+      // Common places by area; the option values keep their place in COMMON ("c" + index).
+      [["houston", "Houston area"], ["austin", "Austin area"]].forEach(function (a) {
+        var items = COMMON.map(function (c, i) { return { label: c[0], i: i, area: c[3] || "houston" }; }).filter(function (c) { return c.area === a[0]; });
+        if (!items.length) return;
+        html += '<optgroup label="' + esc(L(a[1])) + '">' + items.map(function (c) { return '<option value="c' + c.i + '">' + esc(c.label) + "</option>"; }).join("") + "</optgroup>";
+      });
       if (saved.length || recent.length) html += '<optgroup label="' + L("Manage") + '"><option value="manage">' + L("Edit my places and recent…") + "</option></optgroup>";
       sel.innerHTML = html;
       $("save-" + w).disabled = !stops[w];
@@ -1179,7 +1191,8 @@ require([
   }
   // Toll point card: our own panel at the bottom of the map in place of Esri's popup.
   var AGENCY = { HCTRA: "Harris County Toll Road Authority", TxDOT: "TxDOT", FBCTRA: "Fort Bend County Toll Road Authority",
-    MCTRA: "Montgomery County Toll Road Authority", BCTRA: "Brazoria County Toll Road Authority" };
+    MCTRA: "Montgomery County Toll Road Authority", BCTRA: "Brazoria County Toll Road Authority",
+    SH130CC: "SH 130 Concession Company (SH 130 south of Mustang Ridge)" };
   var KIND = { main: "Mainline", on: "Entrance ramp", off: "Exit ramp" };
   var DIRS = { N: "Northbound", S: "Southbound", E: "Eastbound", W: "Westbound" };
   var PAY = [["eztag", "EZ TAG"], ["tag", "Other tag"], ["notag", "No tag"]];
@@ -1206,7 +1219,11 @@ require([
     var status = p.status === "verified" ? L("Rate checked against {owner}’s published schedule.", { owner: esc(p.owner) })
       : p.status === "timed" ? L("Priced by time of day") + (when ? L(" for about {time}", { time: fmtClock(when) }) : "") + (it.note ? " (" + esc(it.note) + ")" : "") + "."
       : L("This rate hasn’t been checked against {owner}’s published schedule yet.", { owner: esc(p.owner) });
-    if (p.assumedAxles && p.assumedAxles.indexOf(axles) !== -1) status += L(" Fort Bend publishes rates up to 6 axles; 7+ axles are priced at the 6-axle rate.");
+    if (p.assumedAxles && p.assumedAxles.indexOf(axles) !== -1)
+      status += p.axleNote === "class" ? L(" This stretch of SH 130 charges by vehicle size, not axles. For 3+ axles the app assumes: 3 = car with a trailer, 4 = larger vehicle, 5 = larger vehicle with a trailer, 6+ = more than one trailer.")
+        : L(" Fort Bend publishes rates up to 6 axles; 7+ axles are priced at the 6-axle rate.");
+    if (p.next && p.next.from) status += L(" New rates start {date}; your trip is priced for its own date.", {
+      date: new Date(p.next.from + "T12:00:00").toLocaleDateString(window.I18N.locale(), { month: "short", day: "numeric", year: "numeric" }) });
     var chips = [KIND[p.kind], DIRS[p.dir]].filter(Boolean).map(function (c) { return L(c); }).map(function (c) { return '<span class="chip">' + c + "</span>"; }).join("");
     card.innerHTML =
       '<button type="button" class="map-card-close" aria-label="Close">\u2715</button>' +

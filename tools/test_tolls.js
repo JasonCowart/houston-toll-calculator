@@ -238,8 +238,9 @@ test("time-of-day tolls are priced when the car reaches the gantry, not at depar
   assert.strictEqual(r.total, 3.26);
   assert.strictEqual(r.timed, 1);
 });
-test("non-HCTRA points count as unverified", () => {
-  const p = pts.find((x) => x.status === "unverified" && x.ez2 != null);
+test("points not yet checked count as unverified", () => {
+  // Every point is checked today; a new agency's points start out unverified.
+  const p = Object.assign({}, pts.find((x) => x.ez2 != null && x.status === "verified"), { status: "unverified" });
   assert.strictEqual(T.price([{ point: p }], 2, "eztag").unverified, 1);
 });
 test("data sanity: every point has a 2-axle rate (or a time-of-day schedule) and coordinates in Texas", () => {
@@ -506,6 +507,21 @@ test("Beltway 8 to Westpark connector ('turn right to Rogerdale Rd') isn't a hop
   assert(T.findTollwayHops(steps).length === 0, "connector wording is not a hop");
   const path = [[-95.6, 29.8], [-95.5, 29.8]], near = [[-95.6, 29.8005], [-95.5, 29.8005]], other = [[-95.6, 29.8], [-95.55, 29.81], [-95.5, 29.8]];
   assert(!T.pathsDiffer(path, near, 150) && T.pathsDiffer(path, other, 150), "routes 55 m apart are the same; 1 km apart differ");
+});
+
+test("Austin: TxDOT truck caps, SH 130 south by class, and the Nov 11, 2026 rate change", () => {
+  const pts = require("../data/toll-points.json").points;
+  const byName = (road, name) => pts.find(p => p.road === road && p.name === name);
+  const airport = byName("SH 130", "Airport Plaza");
+  assert(T.rateFor(airport, 2, "eztag") === 2.24 && T.rateFor(airport, 2, "notag") === 3.36, "SH 130 Airport plaza $2.24 / $3.36");
+  assert(T.rateFor(airport, 4, "tag") === 6.72 && T.rateFor(airport, 6, "tag") === 6.72, "SH 130 trucks capped at the 4-axle rate");
+  const lake = byName("SH 45 N", "Lake Creek Plaza");
+  assert(T.rateFor(lake, 6, "tag") === 6.8, "SH 45 N: 6 axles = 5 x $1.36");
+  const blue = byName("SH 130", "Bluebonnet Plaza");
+  assert(T.rateFor(blue, 2, "eztag", new Date("2026-11-10T12:00:00-06:00")) === 7.18, "Bluebonnet before Nov 11: $7.18");
+  assert(T.rateFor(blue, 2, "eztag", new Date("2026-11-11T08:00:00-06:00")) === 7.58, "Bluebonnet from Nov 11: $7.58");
+  assert(T.rateFor(blue, 2, "notag", new Date("2026-11-12T08:00:00-06:00")) === 10.08, "Bluebonnet mail from Nov 11: $10.08");
+  assert(pts.filter(p => p.lon > -98.2 && p.lon < -97.2).every(p => p.status === "verified"), "every Austin point checked");
 });
 
 console.log(passed + " tests passed");

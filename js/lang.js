@@ -57,8 +57,8 @@
     "Compare leaving earlier or later: trip time, tolls and time saved for each. Uses about a dozen route lookups.":
       "Compare salir más temprano o más tarde: tiempo de viaje, peajes y tiempo ahorrado en cada caso. Usa una docena de consultas de ruta.",
     "Compare departure times": "Comparar horas de salida",
-    "Estimates only. Houston-area rates checked Oct 20–22, 2026 against HCTRA, Montgomery, Fort Bend and Brazoria counties, and TxDOT (Grand Parkway, SH 249, SH 288). Katy Managed Lanes use HCTRA's 2013 schedule, still current. Pay-by-mail fees aren't included.":
-      "Solo estimaciones. Tarifas del área de Houston verificadas del 20 al 22 de oct. de 2026 con HCTRA, los condados de Montgomery, Fort Bend y Brazoria, y TxDOT (Grand Parkway, SH 249, SH 288). Los carriles administrados de Katy usan la tabla de HCTRA de 2013, aún vigente. No incluye cargos del pago por correo.",
+    "Estimates only. Houston-area rates checked Oct 20–22, 2026 against HCTRA, Montgomery, Fort Bend and Brazoria counties, and TxDOT (Grand Parkway, SH 249, SH 288). Katy Managed Lanes use HCTRA's 2013 schedule, still current. Austin-area rates (TxDOT's SH 130, SH 45 and Loop 1, and SH 130 south of Mustang Ridge) checked Oct 24, 2026. Pay-by-mail fees aren't included.":
+      "Solo estimaciones. Tarifas del área de Houston verificadas del 20 al 22 de oct. de 2026 con HCTRA, los condados de Montgomery, Fort Bend y Brazoria, y TxDOT (Grand Parkway, SH 249, SH 288). Los carriles administrados de Katy usan la tabla de HCTRA de 2013, aún vigente. Tarifas del área de Austin (SH 130, SH 45 y Loop 1 de TxDOT, y SH 130 al sur de Mustang Ridge) verificadas el 24 de oct. de 2026. No incluye cargos del pago por correo.",
     "Edit my places": "Editar mis lugares",
     "Saved and recent places are kept in this browser only.": "Los lugares guardados y recientes se quedan solo en este navegador.",
     "My places": "Mis lugares",
@@ -215,6 +215,10 @@
     "Add a stop": "Agregar una parada",
     "Print": "Imprimir",
     "Save PDF": "Guardar PDF",
+    "Houston area": "Área de Houston",
+    "Austin area": "Área de Austin",
+    " This stretch of SH 130 charges by vehicle size, not axles. For 3+ axles the app assumes: 3 = car with a trailer, 4 = larger vehicle, 5 = larger vehicle with a trailer, 6+ = more than one trailer.": " Este tramo de la SH 130 cobra según el tamaño del vehículo, no por ejes. Para 3 o más ejes la aplicación supone: 3 = auto con remolque, 4 = vehículo más grande, 5 = vehículo más grande con remolque, 6 o más = más de un remolque.",
+    " New rates start {date}; your trip is priced for its own date.": " Las tarifas nuevas empiezan el {date}; su viaje se calcula para su propia fecha.",
     "This site counts visits and actions anonymously: no cookies, no addresses or routes.": "Este sitio cuenta visitas y acciones de forma anónima: sin cookies, sin direcciones ni rutas.",
     "Add stop here": "Agregar parada aquí",
     "Stop {n} added": "Parada {n} agregada",

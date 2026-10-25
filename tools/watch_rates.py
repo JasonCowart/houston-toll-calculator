@@ -42,6 +42,12 @@ SOURCES = [
     {"id": "txdot-sh288", "name": "TxDOT SH 288 Managed Lanes rates", "kind": "page",
      "url": "https://www.txdot.gov/discover/toll-roads-managed-lanes/managed-lanes/sh288-toll/sh288-managed-lanes-project-toll-rates.html",
      "covers": "SH 288 Express Lanes (Harris County) time-of-day rates"},
+    {"id": "txdot-ctts", "name": "TxDOT Central Texas Turnpike System rates (Austin)", "kind": "page",
+     "url": "https://www.txdot.gov/discover/toll-roads-managed-lanes/txdot-toll-roads/central-texas-turnpike-system-toll-rates.html",
+     "covers": "SH 130 segments 1-4, SH 45 North, Loop 1, SH 45 Southeast"},
+    {"id": "sh130-south", "name": "SH 130 segments 5-6 rates (SH 130 Concession Co.)", "kind": "page",
+     "url": "https://mysh130.com/traveler-info/toll-rates/",
+     "covers": "SH 130 from Mustang Ridge to Seguin (by vehicle class)"},
 ]
 
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 hctra-toll-calculator-rate-watch"

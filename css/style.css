@@ -162,8 +162,11 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .places-row { display: flex; gap: 10px; align-items: center; margin-top: 6px; }
 .places-row .places { flex: 1; min-height: 34px; padding: 6px 8px; font-size: 13px; }
 #breakdown tr.pickable { cursor: pointer; }
-#breakdown tr.pickable:hover td { background: var(--purple-tint); }
-#breakdown tr.selected td { background: var(--purple-tint-strong); }
+/* Paint the whole row, not each cell: on phones the row is a grid with a gap
+   between cells, and painting cells left white stripes. Hover only on mice,
+   so a tapped row doesn't stay tinted on phones. */
+@media (hover: hover) { #breakdown tr.pickable:hover { background: var(--purple-tint); } }
+#breakdown tr.selected { background: var(--purple-tint-strong); }
 #breakdown tr.pickable td:first-child { color: var(--purple); font-weight: 600; }
 
 /* Basemap switcher on the map */

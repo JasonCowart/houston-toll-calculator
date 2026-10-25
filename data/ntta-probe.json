@@ -1,0 +1,3927 @@
+{
+ "checked": "2026-10-25T02:22:11.205307Z",
+ "searches": [
+  {
+   "q": "title:\"Toll Gantries\"",
+   "items": [
+    {
+     "id": "29741aecf75847ca99b746411879276a",
+     "title": "Toll Gantries",
+     "owner": "TR_NCTCOGGIS",
+     "type": "Feature Service",
+     "url": "https://geospatial.nctcog.org/map/rest/services/Transportation/DFWMaps_Roadway/MapServer/6",
+     "modified": 1768606676000,
+     "access": "public"
+    },
+    {
+     "id": "2158c1f093a24a5ca45ae26c30a08d6b",
+     "title": "NY State Thruway Toll Gantries",
+     "owner": "anyee.fields.nysta",
+     "type": "Feature Service",
+     "url": "https://services2.arcgis.com/gubH6kG9JCAsMX2M/arcgis/rest/services/NY_State_Thruway_Toll_Gantries/FeatureServer",
+     "modified": 1677868211000,
+     "access": "public"
+    },
+    {
+     "id": "8bca7c19f144439e83150b031ab0bf61",
+     "title": "All_ Fixed Systems_WFL1",
+     "owner": "URIEDC_aimee",
+     "type": "Feature Service",
+     "url": "https://services2.arcgis.com/S8zZg9pg23JUEexQ/arcgis/rest/services/All__Fixed_Systems_WFL1/FeatureServer",
+     "modified": 1646856768000,
+     "access": "public"
+    },
+    {
+     "id": "abb97f2ff4db4c969a41ead400ae6663",
+     "title": "Fixed Systems_updated_WFL1",
+     "owner": "URIEDC_aimee",
+     "type": "Feature Service",
+     "url": "https://services2.arcgis.com/S8zZg9pg23JUEexQ/arcgis/rest/services/Fixed_Systems_updated_WFL1/FeatureServer",
+     "modified": 1646939813000,
+     "access": "public"
+    },
+    {
+     "id": "efc234096cbe4f8a9ce417637d0abd28",
+     "title": "Fixed Systems_ New_WFL1",
+     "owner": "URIEDC_aimee",
+     "type": "Feature Service",
+     "url": "https://services2.arcgis.com/S8zZg9pg23JUEexQ/arcgis/rest/services/Fixed_Systems__New_WFL1/FeatureServer",
+     "modified": 1646855795000,
+     "access": "public"
+    },
+    {
+     "id": "d69f2407bc7f4007aa21c68e462216ea",
+     "title": "Fixed SystemsDOT_WFL1",
+     "owner": "URIEDC_aimee",
+     "type": "Feature Service",
+     "url": "https://services2.arcgis.com/S8zZg9pg23JUEexQ/arcgis/rest/services/Fixed_SystemsDOT_WFL1/FeatureServer",
+     "modified": 1646859751000,
+     "access": "public"
+    },
+    {
+     "id": "f29dd08d26b848e69137dcb71b48a92d",
+     "title": "BB Toll Gantry",
+     "owner": "marshall.stevenson1",
+     "type": "Image",
+     "url": null,
+     "modified": 1593089159000,
+     "access": "public"
+    },
+    {
+     "id": "6e6b1b3d875446c1a768989807246bb5",
+     "title": "I-77 Toll Gantry",
+     "owner": "cschenck@hntb.com_HNTBCorp",
+     "type": "Group Layer",
+     "url": null,
+     "modified": 1762719415000,
+     "access": "public"
+    },
+    {
+     "id": "7aa5f9b0cf61436ca39126786dc96729",
+     "title": "CMS and Gantries",
+     "owner": "RoaA@metro.net_LAMetro",
+     "type": "Feature Service",
+     "url": "https://services8.arcgis.com/TNoJFjk1LsD45Juj/arcgis/rest/services/CMS_and_Gantries/FeatureServer",
+     "modified": 1729106907000,
+     "access": "public"
+    }
+   ]
+  },
+  {
+   "q": "\"Toll Gantries\" NCTCOG",
+   "items": [
+    {
+     "id": "29741aecf75847ca99b746411879276a",
+     "title": "Toll Gantries",
+     "owner": "TR_NCTCOGGIS",
+     "type": "Feature Service",
+     "url": "https://geospatial.nctcog.org/map/rest/services/Transportation/DFWMaps_Roadway/MapServer/6",
+     "modified": 1768606676000,
+     "access": "public"
+    }
+   ]
+  },
+  {
+   "q": "NTTA toll gantries",
+   "items": [
+    {
+     "id": "29741aecf75847ca99b746411879276a",
+     "title": "Toll Gantries",
+     "owner": "TR_NCTCOGGIS",
+     "type": "Feature Service",
+     "url": "https://geospatial.nctcog.org/map/rest/services/Transportation/DFWMaps_Roadway/MapServer/6",
+     "modified": 1768606676000,
+     "access": "public"
+    },
+    {
+     "id": "06c5e54b951747ea92080b90f24b058c",
+     "title": "Toll Rates Web Map - NTTA.org",
+     "owner": "nttagis",
+     "type": "Web Map",
+     "url": "",
+     "modified": 1767841897000,
+     "access": "public"
+    },
+    {
+     "id": "df02b8c450fa454ba3be8ffc4eb6b505",
+     "title": "NTTA Gantry Location",
+     "owner": "nttagis",
+     "type": "Feature Service",
+     "url": "https://services.arcgis.com/pS2RA6RqB5M3sZIg/arcgis/rest/services/RDWY_Gantry/FeatureServer",
+     "modified": 1668811819000,
+     "access": "public"
+    },
+    {
+     "id": "a51f53a15d1b45f3a4c0e448450d7b11",
+     "title": "NTTA Gantry Location",
+     "owner": "nttagis",
+     "type": "Service Definition",
+     "url": "",
+     "modified": 1668811802000,
+     "access": "public"
+    },
+    {
+     "id": "4716421a4ee649dd8222361dc0e37f4d",
+     "title": "TCal Entry Exit",
+     "owner": "nttagis",
+     "type": "Feature Service",
+     "url": "https://services.arcgis.com/pS2RA6RqB5M3sZIg/arcgis/rest/services/TCal_Entry_Exit/FeatureServer",
+     "modified": 1598997077000,
+     "access": "public"
+    },
+    {
+     "id": "18a4357211ea4e20a7c8743d14d8e318",
+     "title": "TCAL_RDWY_Gantry_PROD",
+     "owner": "nttagis",
+     "type": "Feature Service",
+     "url": "https://services.arcgis.com/pS2RA6RqB5M3sZIg/arcgis/rest/services/TCAL_RDWY_Gantry_PROD/FeatureServer",
+     "modified": 1767812852000,
+     "access": "public"
+    },
+    {
+     "id": "7e788b50dd3d4b3e983758df3194a248",
+     "title": "NTTA Toll Location (Public)",
+     "owner": "nttagis",
+     "type": "Feature Service",
+     "url": "https://services.arcgis.com/pS2RA6RqB5M3sZIg/arcgis/rest/services/tolllocation_PUB/FeatureServer",
+     "modified": 1583205128000,
+     "access": "public"
+    },
+    {
+     "id": "57c21ef3932546d4a74df63566262aca",
+     "title": "TCAL_RDWY_Gantry_Tollrates_PROD",
+     "owner": "nttagis",
+     "type": "Feature Service",
+     "url": "https://services.arcgis.com/pS2RA6RqB5M3sZIg/arcgis/rest/services/TCAL_RDWY_Gantry_Tollrates_PROD/FeatureServer",
+     "modified": 1767813316000,
+     "access": "public"
+    }
+   ]
+  }
+ ],
+ "layers": [
+  {
+   "why": "search: Toll Gantries (TR_NCTCOGGIS)",
+   "url": "https://geospatial.nctcog.org/map/rest/services/Transportation/DFWMaps_Roadway/MapServer/6",
+   "name": "Toll Gantries",
+   "geometryType": "esriGeometryPoint",
+   "description": "Depicts the location of toll collection equipment (or \"gantries\") in North Central Texas on facilities maintained by NTTA, TxDOT, and the private sector through Comprehensive Development Agreements (CDAs). Some gantries may not be currently operational due to construction or other changes. Fixed-toll prices are updated as expediently as possible, but always refer to NTTA sources for the latest fixed-toll prices: https://www.ntta.org/roadsprojects/rates/Pages/Toll-Rates.aspx Incorporates data fro",
+   "copyright": "NTTA, NCTCOG",
+   "editingInfo": null,
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID",
+     "alias": "OBJECTID",
+     "domain": null
+    },
+    {
+     "name": "Corridor",
+     "type": "esriFieldTypeString",
+     "alias": "Corridor",
+     "domain": null
+    },
+    {
+     "name": "Location",
+     "type": "esriFieldTypeString",
+     "alias": "Location",
+     "domain": null
+    },
+    {
+     "name": "Ramp_Type",
+     "type": "esriFieldTypeString",
+     "alias": "Ramp Type",
+     "domain": [
+      "Entrance",
+      "Exit",
+      "Gantry"
+     ]
+    },
+    {
+     "name": "Address",
+     "type": "esriFieldTypeString",
+     "alias": "Address",
+     "domain": null
+    },
+    {
+     "name": "County",
+     "type": "esriFieldTypeString",
+     "alias": "County",
+     "domain": null
+    },
+    {
+     "name": "Toll_Type",
+     "type": "esriFieldTypeString",
+     "alias": "Toll Type",
+     "domain": [
+      "Fixed",
+      "Variable"
+     ]
+    },
+    {
+     "name": "NCTCOG_Gantry_ID",
+     "type": "esriFieldTypeInteger",
+     "alias": "NCTCOG Gantry ID",
+     "domain": null
+    },
+    {
+     "name": "NTTA_Gantry_ID",
+     "type": "esriFieldTypeString",
+     "alias": "NTTA Gantry ID",
+     "domain": null
+    },
+    {
+     "name": "NTTA_Corridor_ID",
+     "type": "esriFieldTypeString",
+     "alias": "NTTA Corridor ID",
+     "domain": null
+    },
+    {
+     "name": "Fixed_Toll_Tag",
+     "type": "esriFieldTypeDouble",
+     "alias": "Fixed Toll with TollTag",
+     "domain": null
+    },
+    {
+     "name": "Fixed_Toll_ZipCash",
+     "type": "esriFieldTypeDouble",
+     "alias": "Fixed Toll with ZipCash",
+     "domain": null
+    },
+    {
+     "name": "Maintaining_Authority",
+     "type": "esriFieldTypeString",
+     "alias": "Maintaining Authority",
+     "domain": null
+    },
+    {
+     "name": "Status",
+     "type": "esriFieldTypeString",
+     "alias": "Status",
+     "domain": [
+      "Planned",
+      "Under Construction",
+      "Operational",
+      "Inactive"
+     ]
+    },
+    {
+     "name": "Shape",
+     "type": "esriFieldTypeGeometry",
+     "alias": "Shape",
+     "domain": null
+    }
+   ],
+   "count": 303,
+   "extent": {
+    "xmin": -97.43522392936005,
+    "ymin": 32.390052650493956,
+    "xmax": -96.54564628386754,
+    "ymax": 33.23090082578889,
+    "spatialReference": {
+     "wkid": 4326,
+     "latestWkid": 4326
+    }
+   },
+   "sample": [
+    {
+     "attributes": {
+      "OBJECTID": 1787,
+      "Corridor": "I35W",
+      "Location": "US 287 NB ramp to 35W Express NB",
+      "Ramp_Type": "Entrance",
+      "Address": "NB Interstate 35W Fort Worth, TX 76102",
+      "County": "Tarrant",
+      "Toll_Type": "Variable",
+      "NCTCOG_Gantry_ID": 305,
+      "NTTA_Gantry_ID": null,
+      "NTTA_Corridor_ID": null,
+      "Fixed_Toll_Tag": null,
+      "Fixed_Toll_ZipCash": null,
+      "Maintaining_Authority": "NTE Mobility Partners",
+      "Status": "Operational"
+     },
+     "geometry": {
+      "x": -97.317382841974,
+      "y": 32.756445663323774
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 1788,
+      "Corridor": "I35E",
+      "Location": "Southwest of Reeder Rd & Forest Ln",
+      "Ramp_Type": "Mainlane",
+      "Address": "SB I35E Express Dallas, TX 75229",
+      "County": "Dallas",
+      "Toll_Type": "Variable",
+      "NCTCOG_Gantry_ID": 268,
+      "NTTA_Gantry_ID": null,
+      "NTTA_Corridor_ID": null,
+      "Fixed_Toll_Tag": null,
+      "Fixed_Toll_ZipCash": null,
+      "Maintaining_Authority": "TxDOT",
+      "Status": "Operational"
+     },
+     "geometry": {
+      "x": -96.897788464575,
+      "y": 32.90495166636262
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 1789,
+      "Corridor": "I35E",
+      "Location": "West of Reeder Rd & Forest Ln",
+      "Ramp_Type": "Mainlane",
+      "Address": "SB I35E Express Dallas, TX 75229",
+      "County": "Dallas",
+      "Toll_Type": "Variable",
+      "NCTCOG_Gantry_ID": 267,
+      "NTTA_Gantry_ID": null,
+      "NTTA_Corridor_ID": null,
+      "Fixed_Toll_Tag": null,
+      "Fixed_Toll_ZipCash": null,
+      "Maintaining_Authority": "TxDOT",
+      "Status": "Operational"
+     },
+     "geometry": {
+      "x": -96.89756885509337,
+      "y": 32.905635279849996
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 1790,
+      "Corridor": "DFW Int'l Airport",
+      "Location": "DFW International Airport South",
+      "Ramp_Type": "Mainlane",
+      "Address": "SB International Pkwy Euless, TX 76039",
+      "County": "Tarrant",
+      "Toll_Type": "Fixed",
+      "NCTCOG_Gantry_ID": 257,
+      "NTTA_Gantry_ID": null,
+      "NTTA_Corridor_ID": null,
+      "Fixed_Toll_Tag": null,
+      "Fixed_Toll_ZipCash": null,
+      "Maintaining_Authority": "DFW Int'l Airport",
+      "Status": "Operational"
+     },
+     "geometry": {
+      "x": -97.04128572802992,
+      "y": 32.86577305590498
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 1791,
+      "Corridor": "360",
+      "Location": "Main Lane Gantry NB",
+      "Ramp_Type": "Mainlane",
+      "Address": "698 S Hwy 360 Grand Prairie, TX 76063",
+      "County": "Tarrant",
+      "Toll_Type": "Fixed",
+      "NCTCOG_Gantry_ID": 209,
+      "NTTA_Gantry_ID": "MLG15",
+      "NTTA_Corridor_ID": "360T",
+      "Fixed_Toll_Tag": 0.64,
+      "Fixed_Toll_ZipCash": 1.28,
+      "Maintaining_Authority": "NTTA",
+      "Status": "Operational"
+     },
+     "geometry": {
+      "x": -97.08558450382546,
+      "y": 32.55216067892007
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 1792,
+      "Corridor": "I820",
+      "Location": "Entrance to EB SH183 Express from I820 NB",
+      "Ramp_Type": "Entrance",
+      "Address": "I820 & Pipeline Rd./Glenview Dr.",
+      "County": "Tarrant",
+      "Toll_Type": "Variable",
+      "NCTCOG_Gantry_ID": 304,
+      "NTTA_Gantry_ID": null,
+      "NTTA_Corridor_ID": null,
+      "Fixed_Toll_Tag": null,
+      "Fixed_Toll_ZipCash": null,
+      "Maintaining_Authority": "NTE Mobility Partners",
+      "Status": "Operational"
+     },
+     "geometry": {
+      "x": -97.20547559081929,
+      "y": 32.82523733698681
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 1793,
+      "Corridor": "I30",
+      "Location": "Southeast of Terre Colony Ct",
+      "Ramp_Type": "Mainlane",
+      "Address": "E/WB I30 TEXpress Dallas, TX 75212",
+      "County": "Dallas",
+      "Toll_Type": "Variable",
+      "NCTCOG_Gantry_ID": 303,
+      "NTTA_Gantry_ID": null,
+      "NTTA_Corridor_ID": null,
+      "Fixed_Toll_Tag": null,
+      "Fixed_Toll_ZipCash": null,
+      "Maintaining_Authority": "TxDOT",
+      "Status": "Operational"
+     },
+     "geometry": {
+      "x": -96.86746842942503,
+      "y": 32.767255147125795
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 1794,
+      "Corridor": "I30",
+      "Location": "East of N Cockrell Hill Rd",
+      "Ramp_Type": "Mainlane",
+      "Address": "E/WB I30 TEXpress Dallas, TX 75211",
+      "County": "Dallas",
+      "Toll_Type": "Variable",
+      "NCTCOG_Gantry_ID": 302,
+      "NTTA_Gantry_ID": null,
+      "NTTA_Corridor_ID": null,
+      "Fixed_Toll_Tag": null,
+      "Fixed_Toll_ZipCash": null,
+      "Maintaining_Authority": "TxDOT",
+      "Status": "Operational"
+     },
+     "geometry": {
+      "x": -96.89501790383797,
+      "y": 32.766777719413426
+     }
+    }
+   ]
+  },
+  {
+   "why": "search: NY State Thruway Toll Gantries (anyee.fields.nysta)",
+   "url": "https://services2.arcgis.com/gubH6kG9JCAsMX2M/arcgis/rest/services/NY_State_Thruway_Toll_Gantries/FeatureServer",
+   "serviceLayers": [
+    {
+     "id": 0,
+     "name": "NY State Thruway Toll Gantries",
+     "geometryType": "esriGeometryPoint"
+    }
+   ]
+  },
+  {
+   "why": "search: NY State Thruway Toll Gantries (anyee.fields.nysta) / NY State Thruway Toll Gantries",
+   "url": "https://services2.arcgis.com/gubH6kG9JCAsMX2M/arcgis/rest/services/NY_State_Thruway_Toll_Gantries/FeatureServer/0",
+   "name": "NY State Thruway Toll Gantries",
+   "geometryType": "esriGeometryPoint",
+   "description": "This dataset provides information about the locations where toll gantries cross over the Thruway Authority's Roadways. A single record is provided for at each location, even if there are two gantries (e.g., one over the westbound direction of travel, and one over the eastbound). The gantries are used to determine tolls for vehicles that pass under them. They contain E-ZPass tag readers and cameras and sensors to bill non-E-ZPass users via Cashless Tolling.",
+   "copyright": "",
+   "editingInfo": {
+    "lastEditDate": 1677868189413,
+    "schemaLastEditDate": 1677682363788,
+    "dataLastEditDate": 1675957211164
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID",
+     "alias": "OBJECTID",
+     "domain": null
+    },
+    {
+     "name": "NAME",
+     "type": "esriFieldTypeString",
+     "alias": "NAME",
+     "domain": null
+    },
+    {
+     "name": "LOCATION",
+     "type": "esriFieldTypeString",
+     "alias": "LOCATION_TYPE",
+     "domain": null
+    },
+    {
+     "name": "ROAD",
+     "type": "esriFieldTypeString",
+     "alias": "ROAD",
+     "domain": null
+    },
+    {
+     "name": "MILEPOST",
+     "type": "esriFieldTypeDouble",
+     "alias": "MILEPOST",
+     "domain": null
+    },
+    {
+     "name": "LATITUDE",
+     "type": "esriFieldTypeDouble",
+     "alias": "LATITUDE",
+     "domain": null
+    },
+    {
+     "name": "LONGITUDE",
+     "type": "esriFieldTypeDouble",
+     "alias": "LONGITUDE",
+     "domain": null
+    },
+    {
+     "name": "TOLL_TYPE",
+     "type": "esriFieldTypeString",
+     "alias": "TOLL_TYPE",
+     "domain": null
+    }
+   ],
+   "count": 70,
+   "extent": {
+    "xmin": -79.69015230425754,
+    "ymin": 40.8458313473636,
+    "xmax": -73.48368798901774,
+    "ymax": 43.118047727214666,
+    "spatialReference": {
+     "wkid": 4326,
+     "latestWkid": 4326
+    }
+   },
+   "sample": [
+    {
+     "attributes": {
+      "OBJECTID": 1,
+      "NAME": "Yonkers Barrier",
+      "LOCATION": "Highway",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 5.8,
+      "LATITUDE": 40.979537,
+      "LONGITUDE": -73.855534,
+      "TOLL_TYPE": "Barrier Fixed Toll"
+     },
+     "geometry": {
+      "x": -73.85520282231934,
+      "y": 40.98010823834465
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 2,
+      "NAME": "Governor Mario M. Cuomo Bridge Entry Ramp",
+      "LOCATION": "Ramp",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 16.7,
+      "LATITUDE": 41.0802,
+      "LONGITUDE": -73.922862,
+      "TOLL_TYPE": "Barrier Fixed Toll"
+     },
+     "geometry": {
+      "x": -73.92286344430288,
+      "y": 41.08020833100371
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 3,
+      "NAME": "Governor Mario M. Cuomo Bridge Barrier",
+      "LOCATION": "Highway",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 16.7,
+      "LATITUDE": 41.081283,
+      "LONGITUDE": -73.92286,
+      "TOLL_TYPE": "Barrier Fixed Toll"
+     },
+     "geometry": {
+      "x": -73.92286144436899,
+      "y": 41.08129133121409
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 4,
+      "NAME": "Spring Valley Barrier",
+      "LOCATION": "Highway",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 24.3,
+      "LATITUDE": 41.098372,
+      "LONGITUDE": -74.054562,
+      "TOLL_TYPE": "Barrier Fixed Toll"
+     },
+     "geometry": {
+      "x": -74.05456348772141,
+      "y": 41.09838032986928
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 5,
+      "NAME": "Harriman Barrier SB Ramp",
+      "LOCATION": "Ramp",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 45,
+      "LATITUDE": 41.310046,
+      "LONGITUDE": -74.124945,
+      "TOLL_TYPE": "Barrier Fixed Toll"
+     },
+     "geometry": {
+      "x": -74.12494652356469,
+      "y": 41.310054368311036
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 6,
+      "NAME": "Woodbury Barrier",
+      "LOCATION": "Highway",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 45.25,
+      "LATITUDE": 41.311403,
+      "LONGITUDE": -74.121587,
+      "TOLL_TYPE": "Highway Start/End Segment"
+     },
+     "geometry": {
+      "x": -74.12158852257046,
+      "y": 41.31141136869299
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 7,
+      "NAME": "Harriman Barrier NB Ramp",
+      "LOCATION": "Ramp",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 45.4,
+      "LATITUDE": 41.31241,
+      "LONGITUDE": -74.12484,
+      "TOLL_TYPE": "Barrier Fixed Toll"
+     },
+     "geometry": {
+      "x": -74.12484152367975,
+      "y": 41.31241836877082
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 8,
+      "NAME": "Interchange 16 NB Entry Ramp",
+      "LOCATION": "Ramp",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 45.4,
+      "LATITUDE": 41.31236,
+      "LONGITUDE": -74.12491,
+      "TOLL_TYPE": "Ramp Exit/Entry"
+     },
+     "geometry": {
+      "x": -74.12491152369911,
+      "y": 41.31236836875867
+     }
+    }
+   ]
+  },
+  {
+   "why": "search: NTTA Toll Location (Public) (nttagis)",
+   "url": "https://services.arcgis.com/pS2RA6RqB5M3sZIg/arcgis/rest/services/tolllocation_PUB/FeatureServer",
+   "serviceLayers": [
+    {
+     "id": 0,
+     "name": "tolllocation_PUB",
+     "geometryType": "esriGeometryPoint"
+    }
+   ]
+  },
+  {
+   "why": "search: NTTA Toll Location (Public) (nttagis) / tolllocation_PUB",
+   "url": "https://services.arcgis.com/pS2RA6RqB5M3sZIg/arcgis/rest/services/tolllocation_PUB/FeatureServer/0",
+   "name": "tolllocation_PUB",
+   "geometryType": "esriGeometryPoint",
+   "description": "",
+   "copyright": "",
+   "editingInfo": {
+    "lastEditDate": 1583205127131,
+    "schemaLastEditDate": 1583205127131,
+    "dataLastEditDate": 1583205127131
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeInteger",
+     "alias": "OBJECTID",
+     "domain": null
+    },
+    {
+     "name": "CORRIDOR",
+     "type": "esriFieldTypeString",
+     "alias": "CORRIDOR",
+     "domain": null
+    },
+    {
+     "name": "ROADWAY_TYPE",
+     "type": "esriFieldTypeString",
+     "alias": "ROADWAY_TYPE",
+     "domain": null
+    },
+    {
+     "name": "ROADWAY_DESC",
+     "type": "esriFieldTypeString",
+     "alias": "ROADWAY_DESC",
+     "domain": null
+    },
+    {
+     "name": "STATUS",
+     "type": "esriFieldTypeInteger",
+     "alias": "STATUS",
+     "domain": null
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString",
+     "alias": "TYPE",
+     "domain": null
+    },
+    {
+     "name": "TOLLED_LANES",
+     "type": "esriFieldTypeInteger",
+     "alias": "TOLLED_LANES",
+     "domain": null
+    },
+    {
+     "name": "CLASS_2AVI",
+     "type": "esriFieldTypeDouble",
+     "alias": "CLASS_2AVI",
+     "domain": null
+    },
+    {
+     "name": "CLASS_2CASH",
+     "type": "esriFieldTypeDouble",
+     "alias": "CLASS_2CASH",
+     "domain": null
+    },
+    {
+     "name": "X_COORD",
+     "type": "esriFieldTypeDouble",
+     "alias": "X_COORD",
+     "domain": null
+    },
+    {
+     "name": "Y_COORD",
+     "type": "esriFieldTypeDouble",
+     "alias": "Y_COORD",
+     "domain": null
+    },
+    {
+     "name": "EDITDATE",
+     "type": "esriFieldTypeDate",
+     "alias": "EDITDATE",
+     "domain": null
+    },
+    {
+     "name": "ObjectId2",
+     "type": "esriFieldTypeOID",
+     "alias": "ObjectId2",
+     "domain": null
+    },
+    {
+     "name": "GlobalID",
+     "type": "esriFieldTypeGlobalID",
+     "alias": "GlobalID",
+     "domain": null
+    }
+   ],
+   "count": 190,
+   "extent": {
+    "xmin": -97.43328315000001,
+    "ymin": 32.40052150999999,
+    "xmax": -96.55212499,
+    "ymax": 33.184695899999994,
+    "spatialReference": {
+     "wkid": 4326,
+     "latestWkid": 4326
+    }
+   },
+   "sample": [
+    {
+     "attributes": {
+      "OBJECTID": 603,
+      "CORRIDOR": "PGBT",
+      "ROADWAY_TYPE": "ML",
+      "ROADWAY_DESC": "PRESIDENT GEORGE BUSH TURNPIKE EAST",
+      "STATUS": 1,
+      "TYPE": "MLG",
+      "TOLLED_LANES": 6,
+      "CLASS_2AVI": 1.31,
+      "CLASS_2CASH": 1.97,
+      "X_COORD": -96.66732303,
+      "Y_COORD": 32.98941505,
+      "EDITDATE": 1569458940000,
+      "ObjectId2": 1,
+      "GlobalID": "c82949ca-824e-430c-9ece-cdba38a6839e"
+     },
+     "geometry": {
+      "x": -96.66732303,
+      "y": 32.98941505
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 604,
+      "CORRIDOR": "PGBT",
+      "ROADWAY_TYPE": "ML",
+      "ROADWAY_DESC": "PRESIDENT GEORGE BUSH TURNPIKE EAST",
+      "STATUS": 1,
+      "TYPE": "MLG",
+      "TOLLED_LANES": 9,
+      "CLASS_2AVI": 1.41,
+      "CLASS_2CASH": 2.12,
+      "X_COORD": -96.77639341,
+      "Y_COORD": 33.0024139,
+      "EDITDATE": 1569458940000,
+      "ObjectId2": 2,
+      "GlobalID": "b516253c-7d60-4559-9d79-2b0495d20c6e"
+     },
+     "geometry": {
+      "x": -96.77639341000001,
+      "y": 33.00241389999999
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 605,
+      "CORRIDOR": "PGBT",
+      "ROADWAY_TYPE": "ML",
+      "ROADWAY_DESC": "PRESIDENT GEORGE BUSH TURNPIKE EAST",
+      "STATUS": 1,
+      "TYPE": "MLG",
+      "TOLLED_LANES": 8,
+      "CLASS_2AVI": 1.31,
+      "CLASS_2CASH": 1.97,
+      "X_COORD": -96.86235318,
+      "Y_COORD": 32.99263583,
+      "EDITDATE": 1569458940000,
+      "ObjectId2": 3,
+      "GlobalID": "43113ca6-447b-413a-a300-16c85fa7db7d"
+     },
+     "geometry": {
+      "x": -96.86235318,
+      "y": 32.99263582999999
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 606,
+      "CORRIDOR": "PGBT",
+      "ROADWAY_TYPE": "ML",
+      "ROADWAY_DESC": "PRESIDENT GEORGE BUSH TURNPIKE WEST",
+      "STATUS": 1,
+      "TYPE": "MLG",
+      "TOLLED_LANES": 9,
+      "CLASS_2AVI": 1.04,
+      "CLASS_2CASH": 1.56,
+      "X_COORD": -96.92946028,
+      "Y_COORD": 32.95902854,
+      "EDITDATE": 1569458940000,
+      "ObjectId2": 4,
+      "GlobalID": "1f7e8fe9-d550-4239-8374-5d7c2b4f9abe"
+     },
+     "geometry": {
+      "x": -96.92946028,
+      "y": 32.959028540000006
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 607,
+      "CORRIDOR": "AATT",
+      "ROADWAY_TYPE": "ML",
+      "ROADWAY_DESC": "ADDISON AIRPORT TOLL TUNNEL",
+      "STATUS": 1,
+      "TYPE": "MLG",
+      "TOLLED_LANES": 4,
+      "CLASS_2AVI": 0.66,
+      "CLASS_2CASH": 0.99,
+      "X_COORD": -96.8409199,
+      "Y_COORD": 32.96895414,
+      "EDITDATE": 1569458940000,
+      "ObjectId2": 5,
+      "GlobalID": "97722da4-27e1-4525-848a-216cffad6145"
+     },
+     "geometry": {
+      "x": -96.8409199,
+      "y": 32.96895414
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 608,
+      "CORRIDOR": "DNT",
+      "ROADWAY_TYPE": "ML",
+      "ROADWAY_DESC": "DALLAS NORTH TOLLWAY",
+      "STATUS": 1,
+      "TYPE": "MLG",
+      "TOLLED_LANES": 10,
+      "CLASS_2AVI": 1.85,
+      "CLASS_2CASH": 2.78,
+      "X_COORD": -96.83999736,
+      "Y_COORD": 33.1639413,
+      "EDITDATE": 1569458940000,
+      "ObjectId2": 6,
+      "GlobalID": "61ec4c88-a920-4205-980b-e9a58ac8143c"
+     },
+     "geometry": {
+      "x": -96.83999735999998,
+      "y": 33.16394129999999
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 609,
+      "CORRIDOR": "DNT",
+      "ROADWAY_TYPE": "RAMP",
+      "ROADWAY_DESC": "DNT NB TO BELT LINE ROAD OFF RAMP",
+      "STATUS": 1,
+      "TYPE": "OFF_RAMP",
+      "TOLLED_LANES": 3,
+      "CLASS_2AVI": 0.38,
+      "CLASS_2CASH": 0.65,
+      "X_COORD": -96.8230611,
+      "Y_COORD": 32.95085675,
+      "EDITDATE": 1569458940000,
+      "ObjectId2": 7,
+      "GlobalID": "6d713869-554d-488c-8ac6-9a24109d7312"
+     },
+     "geometry": {
+      "x": -96.8230611,
+      "y": 32.95085674999999
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 610,
+      "CORRIDOR": "DNT",
+      "ROADWAY_TYPE": "RAMP",
+      "ROADWAY_DESC": "DNT SB FROM BELT LINE ROAD ON RAMP",
+      "STATUS": 1,
+      "TYPE": "ON_RAMP",
+      "TOLLED_LANES": 3,
+      "CLASS_2AVI": 0.38,
+      "CLASS_2CASH": 0.65,
+      "X_COORD": -96.82317387,
+      "Y_COORD": 32.95182684,
+      "EDITDATE": 1569458940000,
+      "ObjectId2": 8,
+      "GlobalID": "3747c134-72cd-478d-aec6-90f0067e57a0"
+     },
+     "geometry": {
+      "x": -96.82317387,
+      "y": 32.951826839999995
+     }
+    }
+   ]
+  },
+  {
+   "why": "search: TCAL_RDWY_Gantry_Tollrates_PROD (nttagis)",
+   "url": "https://services.arcgis.com/pS2RA6RqB5M3sZIg/arcgis/rest/services/TCAL_RDWY_Gantry_Tollrates_PROD/FeatureServer",
+   "serviceLayers": [
+    {
+     "id": 0,
+     "name": "TCAL_RDWY_Gantry_Tollrates_PROD",
+     "geometryType": "esriGeometryPoint"
+    }
+   ]
+  },
+  {
+   "why": "search: TCAL_RDWY_Gantry_Tollrates_PROD (nttagis) / TCAL_RDWY_Gantry_Tollrates_PROD",
+   "url": "https://services.arcgis.com/pS2RA6RqB5M3sZIg/arcgis/rest/services/TCAL_RDWY_Gantry_Tollrates_PROD/FeatureServer/0",
+   "name": "TCAL_RDWY_Gantry_Tollrates_PROD",
+   "geometryType": "esriGeometryPoint",
+   "description": "AttributeJoin",
+   "copyright": "",
+   "editingInfo": {
+    "lastEditDate": 1788376363402,
+    "schemaLastEditDate": 1767812995233,
+    "dataLastEditDate": 1767812845247
+   },
+   "fields": [
+    {
+     "name": "CORRIDOR",
+     "type": "esriFieldTypeString",
+     "alias": "NTTA Corridor",
+     "domain": [
+      "Addison Airport Toll Tunnel",
+      "Chisholm Trail Parkway",
+      "Dallas North Tollway",
+      "Lewisville Lake Toll Bridge",
+      "Mountain Creek Lake Bridge",
+      "President George Bush Turnpike",
+      "Sam Rayburn Tollway",
+      "360 Tollway",
+      "161T"
+     ]
+    },
+    {
+     "name": "ROADWAY_TYPE",
+     "type": "esriFieldTypeString",
+     "alias": "Roadway Type",
+     "domain": [
+      "Cross Street",
+      "Mainlane",
+      "Ramp",
+      "Service Road",
+      "U Turn",
+      "Tollway",
+      "TEXpress Lanes"
+     ]
+    },
+    {
+     "name": "ROADWAY_DESC",
+     "type": "esriFieldTypeString",
+     "alias": "Roadway Description",
+     "domain": null
+    },
+    {
+     "name": "NAME",
+     "type": "esriFieldTypeString",
+     "alias": "Toll Location Name",
+     "domain": null
+    },
+    {
+     "name": "Gantry",
+     "type": "esriFieldTypeString",
+     "alias": "RITE Name",
+     "domain": null
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString",
+     "alias": "Toll Location Type",
+     "domain": [
+      "---",
+      "Mainlane Gantry",
+      "On Ramp Gantry",
+      "Off Ramp Gantry"
+     ]
+    },
+    {
+     "name": "X_COORD",
+     "type": "esriFieldTypeDouble",
+     "alias": "X Coordinate",
+     "domain": null
+    },
+    {
+     "name": "Y_COORD",
+     "type": "esriFieldTypeDouble",
+     "alias": "Y Coordinate",
+     "domain": null
+    },
+    {
+     "name": "GlobalID",
+     "type": "esriFieldTypeGlobalID",
+     "alias": "GlobalID",
+     "domain": null
+    },
+    {
+     "name": "PLAZA_SORT_ORDER",
+     "type": "esriFieldTypeInteger",
+     "alias": "PLAZA_SORT_ORDER",
+     "domain": null
+    },
+    {
+     "name": "Lane_Direction",
+     "type": "esriFieldTypeString",
+     "alias": "Lane_Direction",
+     "domain": null
+    },
+    {
+     "name": "created_user",
+     "type": "esriFieldTypeString",
+     "alias": "created_user",
+     "domain": null
+    },
+    {
+     "name": "created_date",
+     "type": "esriFieldTypeDate",
+     "alias": "created_date",
+     "domain": null
+    },
+    {
+     "name": "last_edited_user",
+     "type": "esriFieldTypeString",
+     "alias": "last_edited_user",
+     "domain": null
+    },
+    {
+     "name": "last_edited_date",
+     "type": "esriFieldTypeDate",
+     "alias": "last_edited_date",
+     "domain": null
+    },
+    {
+     "name": "PlazaDirectionID",
+     "type": "esriFieldTypeString",
+     "alias": "PlazaDirectionID",
+     "domain": null
+    },
+    {
+     "name": "RITE_PlazaName",
+     "type": "esriFieldTypeString",
+     "alias": "RITE_PlazaName",
+     "domain": null
+    },
+    {
+     "name": "RITE_PlazaDescription",
+     "type": "esriFieldTypeString",
+     "alias": "RITE_PlazaDescription",
+     "domain": null
+    },
+    {
+     "name": "TRIPS_PlazaName",
+     "type": "esriFieldTypeString",
+     "alias": "TRIPS_PlazaName",
+     "domain": null
+    },
+    {
+     "name": "TRIPS_PlazaDescription",
+     "type": "esriFieldTypeString",
+     "alias": "TRIPS_PlazaDescription",
+     "domain": null
+    },
+    {
+     "name": "PLAZA_ID",
+     "type": "esriFieldTypeInteger",
+     "alias": "PLAZA_ID",
+     "domain": null
+    },
+    {
+     "name": "PlazaID",
+     "type": "esriFieldTypeInteger",
+     "alias": "PlazaID",
+     "domain": null
+    },
+    {
+     "name": "PlazaCode",
+     "type": "esriFieldTypeString",
+     "alias": "PlazaCode",
+     "domain": null
+    },
+    {
+     "name": "PlazaName",
+     "type": "esriFieldTypeString",
+     "alias": "PlazaName",
+     "domain": null
+    },
+    {
+     "name": "StartEffectiveDate",
+     "type": "esriFieldTypeDate",
+     "alias": "StartEffectiveDate",
+     "domain": null
+    },
+    {
+     "name": "EndEffectiveDate",
+     "type": "esriFieldTypeDate",
+     "alias": "EndEffectiveDate",
+     "domain": null
+    },
+    {
+     "name": "VehicleClass",
+     "type": "esriFieldTypeString",
+     "alias": "VehicleClass",
+     "domain": null
+    },
+    {
+     "name": "ScheduleType",
+     "type": "esriFieldTypeString",
+     "alias": "ScheduleType",
+     "domain": null
+    },
+    {
+     "name": "FromTime",
+     "type": "esriFieldTypeDouble",
+     "alias": "FromTime",
+     "domain": null
+    },
+    {
+     "name": "ToTime",
+     "type": "esriFieldTypeDouble",
+     "alias": "ToTime",
+     "domain": null
+    },
+    {
+     "name": "TagFare",
+     "type": "esriFieldTypeDouble",
+     "alias": "TagFare",
+     "domain": null
+    },
+    {
+     "name": "PlateFare",
+     "type": "esriFieldTypeDouble",
+     "alias": "PlateFare",
+     "domain": null
+    },
+    {
+     "name": "ObjectId",
+     "type": "esriFieldTypeOID",
+     "alias": "ObjectId",
+     "domain": null
+    }
+   ],
+   "count": 214,
+   "extent": {
+    "xmin": -97.43521236037363,
+    "ymin": 32.39004332717791,
+    "xmax": -96.54561385898897,
+    "ymax": 33.23190533231552,
+    "spatialReference": {
+     "wkid": 4326,
+     "latestWkid": 4326
+    }
+   },
+   "sample": [
+    {
+     "attributes": {
+      "CORRIDOR": "AATT",
+      "ROADWAY_TYPE": "ML",
+      "ROADWAY_DESC": "ADDISON AIRPORT TOLL TUNNEL",
+      "NAME": "Addison Airport Toll Tunnel (AATT)",
+      "Gantry": "AATT",
+      "TYPE": "MLG",
+      "X_COORD": -96.8409913,
+      "Y_COORD": 32.96903,
+      "GlobalID": "55caa65f-aa26-45b3-93e6-aecad81be6d2",
+      "PLAZA_SORT_ORDER": 88,
+      "Lane_Direction": "West",
+      "created_user": "SDEADMIN",
+      "created_date": 1596723850000,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1631826813000,
+      "PlazaDirectionID": "AATT-AATT-W",
+      "RITE_PlazaName": "AATT",
+      "RITE_PlazaDescription": "Addison Airport Toll Tunnel (AATT) West",
+      "TRIPS_PlazaName": "Addison Airport Toll Tunnel",
+      "TRIPS_PlazaDescription": "Addison Airport Toll Tunnel",
+      "PLAZA_ID": 16,
+      "PlazaID": 16,
+      "PlazaCode": "AATT",
+      "PlazaName": "Addison Airport Toll Tunnel",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 0.78,
+      "PlateFare": 1.56,
+      "ObjectId": 1
+     },
+     "geometry": {
+      "x": -96.840990774851,
+      "y": 32.969035770567395
+     }
+    },
+    {
+     "attributes": {
+      "CORRIDOR": "360T",
+      "ROADWAY_TYPE": "ML",
+      "ROADWAY_DESC": "360 TOLLWAY",
+      "NAME": "NEW YORK MAINLANE GANTRY (MLG14)",
+      "Gantry": "MLG14",
+      "TYPE": "MLG",
+      "X_COORD": -97.06906,
+      "Y_COORD": 32.62699,
+      "GlobalID": "2284acd7-507b-4c2e-b349-356aa9725fed",
+      "PLAZA_SORT_ORDER": 303,
+      "Lane_Direction": "North",
+      "created_user": "SDEADMIN",
+      "created_date": 1596723850000,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1631826118000,
+      "PlazaDirectionID": "360-MLG14-N",
+      "RITE_PlazaName": "MLG14",
+      "RITE_PlazaDescription": "NEW YORK MAINLANE GANTRY (MLG14) North",
+      "TRIPS_PlazaName": "NEW YORK MAINLANE GANTRY",
+      "TRIPS_PlazaDescription": "NEW YORK MAINLANE GANTRY (MLG14)",
+      "PLAZA_ID": 9001,
+      "PlazaID": 9001,
+      "PlazaCode": "MLG14",
+      "PlazaName": "NEW YORK MAINLANE GANTRY",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 1.38,
+      "PlateFare": 2.76,
+      "ObjectId": 2
+     },
+     "geometry": {
+      "x": -97.06905384708962,
+      "y": 32.62699351069009
+     }
+    },
+    {
+     "attributes": {
+      "CORRIDOR": "CTP",
+      "ROADWAY_TYPE": "RAMP",
+      "ROADWAY_DESC": "CHISHOLM TRAIL PARKWAY",
+      "NAME": "Arborlawn Drive (ARBDR)",
+      "Gantry": "ARBDR",
+      "TYPE": "ON_RAMP",
+      "X_COORD": -97.40493417,
+      "Y_COORD": 32.69062677,
+      "GlobalID": "474adc2f-2ebe-4a4f-9850-d8a574c8e073",
+      "PLAZA_SORT_ORDER": 202,
+      "Lane_Direction": "South",
+      "created_user": "SDEADMIN",
+      "created_date": 1596723850000,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1631826345000,
+      "PlazaDirectionID": "CTP-ARBDR-S",
+      "RITE_PlazaName": "ARBDR",
+      "RITE_PlazaDescription": "Arborlawn Drive (ARBDR) South",
+      "TRIPS_PlazaName": "Arborlawn Drive",
+      "TRIPS_PlazaDescription": "Arborlawn Drive",
+      "PLAZA_ID": 2146,
+      "PlazaID": 2146,
+      "PlazaCode": "ARBDR",
+      "PlazaName": "Arborlawn Drive",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 0.43,
+      "PlateFare": 0.86,
+      "ObjectId": 3
+     },
+     "geometry": {
+      "x": -97.40493499857888,
+      "y": 32.69059923978129
+     }
+    },
+    {
+     "attributes": {
+      "CORRIDOR": "CTP",
+      "ROADWAY_TYPE": "RAMP",
+      "ROADWAY_DESC": "CHISHOLM TRAIL PARKWAY",
+      "NAME": "Sparks Rd (SPARD)",
+      "Gantry": "SPARD",
+      "TYPE": "ON_RAMP",
+      "X_COORD": -97.41744454,
+      "Y_COORD": 32.40073397,
+      "GlobalID": "257c9afa-215c-4178-9dcd-16fb16db35ab",
+      "PLAZA_SORT_ORDER": 190,
+      "Lane_Direction": "South",
+      "created_user": "SDEADMIN",
+      "created_date": 1596723850000,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1631826627000,
+      "PlazaDirectionID": "CTP-SPARD-S",
+      "RITE_PlazaName": "SPARD",
+      "RITE_PlazaDescription": "Sparks Rd (SPARD) South",
+      "TRIPS_PlazaName": "Sparks Rd",
+      "TRIPS_PlazaDescription": "Sparks Rd",
+      "PLAZA_ID": 2158,
+      "PlazaID": 2158,
+      "PlazaCode": "SPARD",
+      "PlazaName": "Sparks Rd",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 0.38,
+      "PlateFare": 0.76,
+      "ObjectId": 4
+     },
+     "geometry": {
+      "x": -97.41740178494089,
+      "y": 32.40076635631923
+     }
+    },
+    {
+     "attributes": {
+      "CORRIDOR": "360T",
+      "ROADWAY_TYPE": "ML",
+      "ROADWAY_DESC": "360 TOLLWAY",
+      "NAME": "Lone Star Mainlane Gantry (MLG15)",
+      "Gantry": "MLG15",
+      "TYPE": "MLG",
+      "X_COORD": -97.08586,
+      "Y_COORD": 32.55189,
+      "GlobalID": "8845cf1b-9be5-408a-a2e0-226a6c56cdca",
+      "PLAZA_SORT_ORDER": 306,
+      "Lane_Direction": "South",
+      "created_user": "SDEADMIN",
+      "created_date": 1596723850000,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1631826183000,
+      "PlazaDirectionID": "360-MLG15-S",
+      "RITE_PlazaName": "MLG15",
+      "RITE_PlazaDescription": "MAINLANE NB AND SB (MLG15) South",
+      "TRIPS_PlazaName": "LONE STAR MAINLANE GANTRY",
+      "TRIPS_PlazaDescription": "LONE STAR MAINLANE GANTRY (MLG15)",
+      "PLAZA_ID": 9004,
+      "PlazaID": 9004,
+      "PlazaCode": "MLG15",
+      "PlazaName": "LONE STAR MAINLANE GANTRY",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 0.64,
+      "PlateFare": 1.28,
+      "ObjectId": 5
+     },
+     "geometry": {
+      "x": -97.08628455925583,
+      "y": 32.554180310620076
+     }
+    },
+    {
+     "attributes": {
+      "CORRIDOR": "360T",
+      "ROADWAY_TYPE": "RAMP",
+      "ROADWAY_DESC": "360T NB TO New York Ave OFF RAMP",
+      "NAME": "New York Ave (NYAV)",
+      "Gantry": "NYAV",
+      "TYPE": "OFF_RAMP",
+      "X_COORD": -97.07618,
+      "Y_COORD": 32.6134,
+      "GlobalID": "198ea5fb-18e4-4aa3-9de6-dd348cc66266",
+      "PLAZA_SORT_ORDER": 302,
+      "Lane_Direction": "North",
+      "created_user": "SDEADMIN",
+      "created_date": 1596723850000,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1631826130000,
+      "PlazaDirectionID": "360-NYAVE-N",
+      "RITE_PlazaName": "NYAV",
+      "RITE_PlazaDescription": "New York Ave (NYAV) North",
+      "TRIPS_PlazaName": "NEW YORK AVENUE",
+      "TRIPS_PlazaDescription": "NEW YORK AVENUE (NYAVE)",
+      "PLAZA_ID": 9002,
+      "PlazaID": 9002,
+      "PlazaCode": "NYAVE",
+      "PlazaName": "NEW YORK AVENUE",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 0.92,
+      "PlateFare": 1.84,
+      "ObjectId": 6
+     },
+     "geometry": {
+      "x": -97.07616019995999,
+      "y": 32.61339852279113
+     }
+    },
+    {
+     "attributes": {
+      "CORRIDOR": "CTP",
+      "ROADWAY_TYPE": "RAMP",
+      "ROADWAY_DESC": "CHISHOLM TRAIL PARKWAY",
+      "NAME": "County Road 913 (CR913)",
+      "Gantry": "CR913",
+      "TYPE": "ON_RAMP",
+      "X_COORD": -97.42331481,
+      "Y_COORD": 32.48900367,
+      "GlobalID": "e69322ec-3c80-4269-aecd-e1652a5409b5",
+      "PLAZA_SORT_ORDER": 185,
+      "Lane_Direction": "North",
+      "created_user": "SDEADMIN",
+      "created_date": 1596723850000,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1631826538000,
+      "PlazaDirectionID": "CTP-CR913-N",
+      "RITE_PlazaName": "CR913",
+      "RITE_PlazaDescription": "County Road 913 (CR913) North",
+      "TRIPS_PlazaName": "County Rd 913",
+      "TRIPS_PlazaDescription": "County Rd 913",
+      "PLAZA_ID": 2154,
+      "PlazaID": 2154,
+      "PlazaCode": "CR913",
+      "PlazaName": "County Rd 913",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 0.48,
+      "PlateFare": 0.96,
+      "ObjectId": 7
+     },
+     "geometry": {
+      "x": -97.4233171111669,
+      "y": 32.48902007843865
+     }
+    },
+    {
+     "attributes": {
+      "CORRIDOR": "360T",
+      "ROADWAY_TYPE": "ML",
+      "ROADWAY_DESC": "360 TOLLWAY",
+      "NAME": "NEW YORK MAINLANE GANTRY (MLG14)",
+      "Gantry": "MLG14",
+      "TYPE": "MLG",
+      "X_COORD": -97.06869,
+      "Y_COORD": 32.62812,
+      "GlobalID": "f298b083-420e-4609-a73f-2f615c4e9d2a",
+      "PLAZA_SORT_ORDER": 308,
+      "Lane_Direction": "South",
+      "created_user": "SDEADMIN",
+      "created_date": 1596723850000,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1631826115000,
+      "PlazaDirectionID": "360-MLG14-S",
+      "RITE_PlazaName": "MLG14",
+      "RITE_PlazaDescription": "NEW YORK MAINLANE GANTRY (MLG14) South",
+      "TRIPS_PlazaName": "NEW YORK MAINLANE GANTRY",
+      "TRIPS_PlazaDescription": "NEW YORK MAINLANE GANTRY (MLG14)",
+      "PLAZA_ID": 9001,
+      "PlazaID": 9001,
+      "PlazaCode": "MLG14",
+      "PlazaName": "NEW YORK MAINLANE GANTRY",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 1.38,
+      "PlateFare": 2.76,
+      "ObjectId": 8
+     },
+     "geometry": {
+      "x": -97.06861114299548,
+      "y": 32.62813402265925
+     }
+    }
+   ]
+  },
+  {
+   "why": "hub: NY State Thruway Toll Gantries",
+   "url": "https://services2.arcgis.com/gubH6kG9JCAsMX2M/arcgis/rest/services/NY_State_Thruway_Toll_Gantries/FeatureServer/0",
+   "name": "NY State Thruway Toll Gantries",
+   "geometryType": "esriGeometryPoint",
+   "description": "This dataset provides information about the locations where toll gantries cross over the Thruway Authority's Roadways. A single record is provided for at each location, even if there are two gantries (e.g., one over the westbound direction of travel, and one over the eastbound). The gantries are used to determine tolls for vehicles that pass under them. They contain E-ZPass tag readers and cameras and sensors to bill non-E-ZPass users via Cashless Tolling.",
+   "copyright": "",
+   "editingInfo": {
+    "lastEditDate": 1677868189413,
+    "schemaLastEditDate": 1677682363788,
+    "dataLastEditDate": 1675957211164
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID",
+     "alias": "OBJECTID",
+     "domain": null
+    },
+    {
+     "name": "NAME",
+     "type": "esriFieldTypeString",
+     "alias": "NAME",
+     "domain": null
+    },
+    {
+     "name": "LOCATION",
+     "type": "esriFieldTypeString",
+     "alias": "LOCATION_TYPE",
+     "domain": null
+    },
+    {
+     "name": "ROAD",
+     "type": "esriFieldTypeString",
+     "alias": "ROAD",
+     "domain": null
+    },
+    {
+     "name": "MILEPOST",
+     "type": "esriFieldTypeDouble",
+     "alias": "MILEPOST",
+     "domain": null
+    },
+    {
+     "name": "LATITUDE",
+     "type": "esriFieldTypeDouble",
+     "alias": "LATITUDE",
+     "domain": null
+    },
+    {
+     "name": "LONGITUDE",
+     "type": "esriFieldTypeDouble",
+     "alias": "LONGITUDE",
+     "domain": null
+    },
+    {
+     "name": "TOLL_TYPE",
+     "type": "esriFieldTypeString",
+     "alias": "TOLL_TYPE",
+     "domain": null
+    }
+   ],
+   "count": 70,
+   "extent": {
+    "xmin": -79.69015230425754,
+    "ymin": 40.8458313473636,
+    "xmax": -73.48368798901774,
+    "ymax": 43.118047727214666,
+    "spatialReference": {
+     "wkid": 4326,
+     "latestWkid": 4326
+    }
+   },
+   "sample": [
+    {
+     "attributes": {
+      "OBJECTID": 1,
+      "NAME": "Yonkers Barrier",
+      "LOCATION": "Highway",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 5.8,
+      "LATITUDE": 40.979537,
+      "LONGITUDE": -73.855534,
+      "TOLL_TYPE": "Barrier Fixed Toll"
+     },
+     "geometry": {
+      "x": -73.85520282231934,
+      "y": 40.98010823834465
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 2,
+      "NAME": "Governor Mario M. Cuomo Bridge Entry Ramp",
+      "LOCATION": "Ramp",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 16.7,
+      "LATITUDE": 41.0802,
+      "LONGITUDE": -73.922862,
+      "TOLL_TYPE": "Barrier Fixed Toll"
+     },
+     "geometry": {
+      "x": -73.92286344430288,
+      "y": 41.08020833100371
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 3,
+      "NAME": "Governor Mario M. Cuomo Bridge Barrier",
+      "LOCATION": "Highway",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 16.7,
+      "LATITUDE": 41.081283,
+      "LONGITUDE": -73.92286,
+      "TOLL_TYPE": "Barrier Fixed Toll"
+     },
+     "geometry": {
+      "x": -73.92286144436899,
+      "y": 41.08129133121409
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 4,
+      "NAME": "Spring Valley Barrier",
+      "LOCATION": "Highway",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 24.3,
+      "LATITUDE": 41.098372,
+      "LONGITUDE": -74.054562,
+      "TOLL_TYPE": "Barrier Fixed Toll"
+     },
+     "geometry": {
+      "x": -74.05456348772141,
+      "y": 41.09838032986928
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 5,
+      "NAME": "Harriman Barrier SB Ramp",
+      "LOCATION": "Ramp",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 45,
+      "LATITUDE": 41.310046,
+      "LONGITUDE": -74.124945,
+      "TOLL_TYPE": "Barrier Fixed Toll"
+     },
+     "geometry": {
+      "x": -74.12494652356469,
+      "y": 41.310054368311036
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 6,
+      "NAME": "Woodbury Barrier",
+      "LOCATION": "Highway",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 45.25,
+      "LATITUDE": 41.311403,
+      "LONGITUDE": -74.121587,
+      "TOLL_TYPE": "Highway Start/End Segment"
+     },
+     "geometry": {
+      "x": -74.12158852257046,
+      "y": 41.31141136869299
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 7,
+      "NAME": "Harriman Barrier NB Ramp",
+      "LOCATION": "Ramp",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 45.4,
+      "LATITUDE": 41.31241,
+      "LONGITUDE": -74.12484,
+      "TOLL_TYPE": "Barrier Fixed Toll"
+     },
+     "geometry": {
+      "x": -74.12484152367975,
+      "y": 41.31241836877082
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 8,
+      "NAME": "Interchange 16 NB Entry Ramp",
+      "LOCATION": "Ramp",
+      "ROAD": "I-87 - NYS Thruway",
+      "MILEPOST": 45.4,
+      "LATITUDE": 41.31236,
+      "LONGITUDE": -74.12491,
+      "TOLL_TYPE": "Ramp Exit/Entry"
+     },
+     "geometry": {
+      "x": -74.12491152369911,
+      "y": 41.31236836875867
+     }
+    }
+   ]
+  },
+  {
+   "why": "hub: Toll Plazas and Gantries",
+   "url": "https://services1.arcgis.com/O1JpcwDW8sjYuddV/arcgis/rest/services/TurnpikeBaseData/FeatureServer/10",
+   "name": "Toll Plazas and Gantries",
+   "geometryType": "esriGeometryPoint",
+   "description": "",
+   "copyright": "",
+   "editingInfo": {
+    "lastEditDate": 1792442677207,
+    "schemaLastEditDate": 1792442677207,
+    "dataLastEditDate": 1792442677207
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID",
+     "alias": "OBJECTID",
+     "domain": null
+    },
+    {
+     "name": "FACILITY",
+     "type": "esriFieldTypeString",
+     "alias": "FACILITY",
+     "domain": null
+    },
+    {
+     "name": "MILE_MRK",
+     "type": "esriFieldTypeDouble",
+     "alias": "MILE_MRK",
+     "domain": null
+    },
+    {
+     "name": "TOLL",
+     "type": "esriFieldTypeString",
+     "alias": "TOLL",
+     "domain": null
+    },
+    {
+     "name": "LABEL",
+     "type": "esriFieldTypeString",
+     "alias": "LABEL",
+     "domain": null
+    },
+    {
+     "name": "FINDER",
+     "type": "esriFieldTypeString",
+     "alias": "FINDER",
+     "domain": null
+    },
+    {
+     "name": "AET",
+     "type": "esriFieldTypeString",
+     "alias": "AET",
+     "domain": null
+    },
+    {
+     "name": "TOLL_VENDOR",
+     "type": "esriFieldTypeString",
+     "alias": "TOLL_VENDOR",
+     "domain": null
+    },
+    {
+     "name": "DIRECTION",
+     "type": "esriFieldTypeString",
+     "alias": "DIRECTION",
+     "domain": null
+    },
+    {
+     "name": "SYMB_ROTATE",
+     "type": "esriFieldTypeDouble",
+     "alias": "SYMB_ROTATE",
+     "domain": null
+    },
+    {
+     "name": "FAC_TYPE",
+     "type": "esriFieldTypeString",
+     "alias": "FAC_TYPE",
+     "domain": null
+    },
+    {
+     "name": "STATUS",
+     "type": "esriFieldTypeString",
+     "alias": "STATUS",
+     "domain": null
+    },
+    {
+     "name": "LAT",
+     "type": "esriFieldTypeDouble",
+     "alias": "LAT",
+     "domain": null
+    },
+    {
+     "name": "LONG",
+     "type": "esriFieldTypeDouble",
+     "alias": "LONG",
+     "domain": null
+    },
+    {
+     "name": "METADATA",
+     "type": "esriFieldTypeString",
+     "alias": "METADATA",
+     "domain": null
+    }
+   ],
+   "count": 64,
+   "extent": {
+    "xmin": -87.0952677567576,
+    "ymin": 25.437015194187754,
+    "xmax": -80.09870918766148,
+    "ymax": 30.595434954993486,
+    "spatialReference": {
+     "wkid": 4326,
+     "latestWkid": 4326
+    }
+   },
+   "sample": [
+    {
+     "attributes": {
+      "OBJECTID": 1,
+      "FACILITY": "Beachline West Expressway",
+      "MILE_MRK": 2,
+      "TOLL": "Orangewood Plaza",
+      "LABEL": "2 Orangewood Plaza",
+      "FINDER": "Beachline West Expressway: 2 Orangewood Plaza",
+      "AET": "Yes",
+      "TOLL_VENDOR": "Raytheon",
+      "DIRECTION": "Both",
+      "SYMB_ROTATE": 90,
+      "FAC_TYPE": "Turnpike",
+      "STATUS": "Active",
+      "LAT": 28.42106535,
+      "LONG": -81.45088299,
+      "METADATA": "Updated on 07/29/2026"
+     },
+     "geometry": {
+      "x": -81.45088611727513,
+      "y": 28.421070657478865
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 2,
+      "FACILITY": "Beachline West Expressway",
+      "MILE_MRK": 6,
+      "TOLL": "Beachline West Plaza",
+      "LABEL": "6 Beachline West Plaza",
+      "FINDER": "Beachline West Expressway: 6 Beachline West Plaza",
+      "AET": "Yes",
+      "TOLL_VENDOR": "Raytheon/Xerox",
+      "DIRECTION": "Both",
+      "SYMB_ROTATE": 75,
+      "FAC_TYPE": "Turnpike",
+      "STATUS": "Active",
+      "LAT": 28.44480617,
+      "LONG": -81.38177119,
+      "METADATA": "Updated on 07/29/2026"
+     },
+     "geometry": {
+      "x": -81.38177429908544,
+      "y": 28.44481148969187
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 3,
+      "FACILITY": "First Coast Expressway",
+      "MILE_MRK": 13,
+      "TOLL": "Green Cove Plaza",
+      "LABEL": "13 Green Cove Plaza",
+      "FINDER": "First Coast Expressway: 13 Green Cove Plaza",
+      "AET": "Yes",
+      "TOLL_VENDOR": "Xerox",
+      "DIRECTION": "Both",
+      "SYMB_ROTATE": 5,
+      "FAC_TYPE": "Turnpike",
+      "STATUS": "Active",
+      "LAT": 29.961403,
+      "LONG": -81.661773,
+      "METADATA": "Updated on 07/29/2026"
+     },
+     "geometry": {
+      "x": -81.66165010199366,
+      "y": 29.961534915849096
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 4,
+      "FACILITY": "First Coast Expressway",
+      "MILE_MRK": 24,
+      "TOLL": "Sandridge Plaza",
+      "LABEL": "24 Sandridge Plaza",
+      "FINDER": "First Coast Expressway: 24 Sandridge Plaza",
+      "AET": "Yes",
+      "TOLL_VENDOR": "TransCore TEC",
+      "DIRECTION": "Both",
+      "SYMB_ROTATE": 0,
+      "FAC_TYPE": "Turnpike",
+      "STATUS": "Active",
+      "LAT": 30.05080479,
+      "LONG": -81.78074093,
+      "METADATA": "Updated on 07/29/2026"
+     },
+     "geometry": {
+      "x": -81.78057499911885,
+      "y": 30.030175000504162
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 5,
+      "FACILITY": "First Coast Expressway",
+      "MILE_MRK": 33,
+      "TOLL": "Trail Ridge Plaza",
+      "LABEL": "33 Trail Ridge Plaza",
+      "FINDER": "First Coast Expressway: 33 Trail Ridge Plaza",
+      "AET": "Yes",
+      "TOLL_VENDOR": "Infinity",
+      "DIRECTION": "Both",
+      "SYMB_ROTATE": 0,
+      "FAC_TYPE": "Turnpike",
+      "STATUS": "Active",
+      "LAT": 30.13032426,
+      "LONG": -81.83058933,
+      "METADATA": "Updated on 07/29/2026"
+     },
+     "geometry": {
+      "x": -81.83061429970888,
+      "y": 30.130329903057
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 6,
+      "FACILITY": "First Coast Expressway",
+      "MILE_MRK": 36,
+      "TOLL": "Plantation Plaza",
+      "LABEL": "36 Plantation Plaza",
+      "FINDER": "First Coast Expressway: 36 Plantation Plaza",
+      "AET": "Yes",
+      "TOLL_VENDOR": "Infinity",
+      "DIRECTION": "Both",
+      "SYMB_ROTATE": 155,
+      "FAC_TYPE": "Turnpike",
+      "STATUS": "Active",
+      "LAT": 30.17994987,
+      "LONG": -81.83383905,
+      "METADATA": "Updated on 07/29/2026"
+     },
+     "geometry": {
+      "x": -81.83386337025208,
+      "y": 30.17993985208425
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 7,
+      "FACILITY": "First Coast Expressway",
+      "MILE_MRK": 38,
+      "TOLL": "Argyle Forest Plaza",
+      "LABEL": "38 Argyle Forest Plaza",
+      "FINDER": "First Coast Expressway: 38 Argyle Forest Plaza",
+      "AET": "Yes",
+      "TOLL_VENDOR": "Infinity",
+      "DIRECTION": "Both",
+      "SYMB_ROTATE": 0,
+      "FAC_TYPE": "Turnpike",
+      "STATUS": "Active",
+      "LAT": 30.20984054,
+      "LONG": -81.83741388,
+      "METADATA": "Updated on 07/29/2026"
+     },
+     "geometry": {
+      "x": -81.83742499924823,
+      "y": 30.209850738589385
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 8,
+      "FACILITY": "First Coast Expressway",
+      "MILE_MRK": 42,
+      "TOLL": "Normandy NB Plaza",
+      "LABEL": "42 Normandy NB Plaza",
+      "FINDER": "First Coast Expressway: 42 Normandy NB Plaza",
+      "AET": "Yes",
+      "TOLL_VENDOR": "Infinity",
+      "DIRECTION": "Northbound",
+      "SYMB_ROTATE": 130,
+      "FAC_TYPE": "Turnpike",
+      "STATUS": "Active",
+      "LAT": 30.25290396,
+      "LONG": -81.85037919,
+      "METADATA": "Updated on 07/29/2026"
+     },
+     "geometry": {
+      "x": -81.85050852187557,
+      "y": 30.252789527107385
+     }
+    }
+   ]
+  },
+  {
+   "why": "hub: Toll Booths",
+   "url": "https://services1.arcgis.com/NWUiNpFLGIf9gkGi/arcgis/rest/services/Toll_Booths/FeatureServer/0",
+   "name": "Toll Booths",
+   "geometryType": "esriGeometryPoint",
+   "description": "",
+   "copyright": "",
+   "editingInfo": {
+    "lastEditDate": 1582300714748,
+    "schemaLastEditDate": 1582300714748,
+    "dataLastEditDate": 1582300714748
+   },
+   "fields": [
+    {
+     "name": "FID",
+     "type": "esriFieldTypeOID",
+     "alias": "FID",
+     "domain": null
+    },
+    {
+     "name": "PARCELNAME",
+     "type": "esriFieldTypeString",
+     "alias": "PARCELNAME",
+     "domain": null
+    },
+    {
+     "name": "TOWN",
+     "type": "esriFieldTypeString",
+     "alias": "TOWN",
+     "domain": null
+    }
+   ],
+   "count": 2,
+   "extent": {
+    "xmin": -70.96306360319977,
+    "ymin": 43.13671672940598,
+    "xmax": -70.84147907158511,
+    "ymax": 43.2735913991147,
+    "spatialReference": {
+     "wkid": 4326,
+     "latestWkid": 4326
+    }
+   },
+   "sample": [
+    {
+     "attributes": {
+      "FID": 1,
+      "PARCELNAME": "Spaulding Turnpike Toll",
+      "TOWN": "Rochester"
+     },
+     "geometry": {
+      "x": -70.96306360319977,
+      "y": 43.2735913991147
+     }
+    },
+    {
+     "attributes": {
+      "FID": 2,
+      "PARCELNAME": "Spaulding Turnpike Toll",
+      "TOWN": "Dover"
+     },
+     "geometry": {
+      "x": -70.84147907158511,
+      "y": 43.13671672940598
+     }
+    }
+   ]
+  },
+  {
+   "why": "hub: Delaware Toll Booths 2.0",
+   "url": "https://enterprise.firstmap.delaware.gov/arcgis/rest/services/Transportation/DE_Boundary_and_Point/FeatureServer/23",
+   "name": "TOLL BOOTHS",
+   "geometryType": "esriGeometryPolyline",
+   "description": "Toll Booths",
+   "copyright": "DelDOT",
+   "editingInfo": null,
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID",
+     "alias": "OBJECTID",
+     "domain": null
+    },
+    {
+     "name": "NAME",
+     "type": "esriFieldTypeString",
+     "alias": "Name",
+     "domain": null
+    },
+    {
+     "name": "RDWAY_ID",
+     "type": "esriFieldTypeDouble",
+     "alias": "RDWAY_ID",
+     "domain": null
+    },
+    {
+     "name": "MILEPOINT",
+     "type": "esriFieldTypeDouble",
+     "alias": "MILEPOINT",
+     "domain": null
+    }
+   ],
+   "count": 17,
+   "extent": {
+    "xmin": -75.76478317676268,
+    "ymin": 39.18465550627521,
+    "xmax": -75.51439903377589,
+    "ymax": 39.69665936519967,
+    "spatialReference": {
+     "wkid": 4326,
+     "latestWkid": 4326
+    }
+   },
+   "sample": [
+    {
+     "attributes": {
+      "OBJECTID": 1,
+      "NAME": "Newark HSL",
+      "RDWAY_ID": 85.0,
+      "MILEPOINT": 1.32
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -75.76348628886846,
+         39.64552788206985
+        ],
+        [
+         -75.76334749736043,
+         39.645263848091304
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 2,
+      "NAME": "DMB",
+      "RDWAY_ID": 100085.0,
+      "MILEPOINT": 18.4
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -75.54531309721146,
+         39.69665936519967
+        ],
+        [
+         -75.54544874371767,
+         39.6960189054617
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 3,
+      "NAME": "Biddles HSL",
+      "RDWAY_ID": 11519.0,
+      "MILEPOINT": 7.06
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -75.65096759685197,
+         39.52540556564442
+        ],
+        [
+         -75.65054720146867,
+         39.525353451266795
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 4,
+      "NAME": "BoydsNB",
+      "RDWAY_ID": 11497.0,
+      "MILEPOINT": 0.18
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -75.64472894003589,
+         39.499245215754854
+        ],
+        [
+         -75.64450742806325,
+         39.49919361618438
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 5,
+      "NAME": "SmyrnaNB",
+      "RDWAY_ID": 10210.0,
+      "MILEPOINT": 0.02
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -75.58845906442505,
+         39.28299551637625
+        ],
+        [
+         -75.58839251543218,
+         39.28285182738272
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 6,
+      "NAME": "Dover HSL",
+      "RDWAY_ID": 9516.0,
+      "MILEPOINT": 5.29
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -75.51474242557302,
+         39.18511009312052
+        ],
+        [
+         -75.51495155696442,
+         39.18493347703926
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 7,
+      "NAME": "DennysWB1",
+      "RDWAY_ID": 10204.0,
+      "MILEPOINT": 0.3
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -75.54794993284472,
+         39.205048424610965
+        ],
+        [
+         -75.54781943997328,
+         39.204948978399266
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 8,
+      "NAME": "DennysEB",
+      "RDWAY_ID": 10206.0,
+      "MILEPOINT": 0.01
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -75.54755492744462,
+         39.20474599737321
+        ],
+        [
+         -75.54743532484936,
+         39.20465331820194
+        ]
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "why": "NTTA web map: NTTA Ramps",
+   "url": "https://services.arcgis.com/pS2RA6RqB5M3sZIg/arcgis/rest/services/ENGR_LRSRoadway_PROD/FeatureServer/0",
+   "name": "DBO.ENGR_LRSRoadway",
+   "geometryType": "esriGeometryPolyline",
+   "description": "",
+   "copyright": "",
+   "editingInfo": {
+    "lastEditDate": 1741122023535,
+    "schemaLastEditDate": 1741122023535,
+    "dataLastEditDate": 1740418770012
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID",
+     "alias": "OBJECTID",
+     "domain": null
+    },
+    {
+     "name": "SEGMENT_ID",
+     "type": "esriFieldTypeString",
+     "alias": "Segment ID (AssetWorks)",
+     "domain": null
+    },
+    {
+     "name": "FROM_STATION",
+     "type": "esriFieldTypeDouble",
+     "alias": "From Station",
+     "domain": null
+    },
+    {
+     "name": "TO_STATION",
+     "type": "esriFieldTypeDouble",
+     "alias": "To Station",
+     "domain": null
+    },
+    {
+     "name": "CORRIDOR",
+     "type": "esriFieldTypeString",
+     "alias": "NTTA Corridor",
+     "domain": [
+      "---",
+      "161T",
+      "Addison Airport Toll Tunnel",
+      "Chisholm Trail Parkway",
+      "Dallas North Tollway",
+      "Lewisville Lake Toll Bridge",
+      "Mountain Creek Lake Bridge",
+      "President George Bush Turnpike",
+      "Sam Rayburn Tollway",
+      "Southwest Parkway",
+      "Trinity Parkway",
+      "All",
+      "SH 170",
+      "East Branch - SH 190",
+      "360 Tollway"
+     ]
+    },
+    {
+     "name": "ROADWAY_NAME",
+     "type": "esriFieldTypeString",
+     "alias": "Roadway Name",
+     "domain": null
+    },
+    {
+     "name": "ROADWAY_TYPE",
+     "type": "esriFieldTypeString",
+     "alias": "Roadway Type",
+     "domain": [
+      "Cross Street",
+      "Mainlane",
+      "Ramp",
+      "Service Road",
+      "U Turn",
+      "Tollway",
+      "TEXpress Lanes"
+     ]
+    },
+    {
+     "name": "ROADWAY_DESC",
+     "type": "esriFieldTypeString",
+     "alias": "Roadway Description",
+     "domain": null
+    },
+    {
+     "name": "NAME_CLASS",
+     "type": "esriFieldTypeSmallInteger",
+     "alias": "Name Class",
+     "domain": [
+      "---",
+      "Mainlane",
+      "Ramps",
+      "Cross Streets",
+      "Service Roads With A Short Name",
+      "Service Roads With A Long Name",
+      "U Turns",
+      "Mainlane (Flipped)",
+      "Ramps (Flipped)",
+      "Cross Streets (Flipped)",
+      "Service Roads With A Short Name (Flipped)",
+      "Service Roads With a Long Name (Flipped)",
+      "U Turns (Flipped)"
+     ]
+    },
+    {
+     "name": "MILES",
+     "type": "esriFieldTypeDouble",
+     "alias": "Miles",
+     "domain": null
+    },
+    {
+     "name": "LAT_START",
+     "type": "esriFieldTypeDouble",
+     "alias": "Latitude Start",
+     "domain": null
+    },
+    {
+     "name": "LONG_START",
+     "type": "esriFieldTypeDouble",
+     "alias": "Longitude Start",
+     "domain": null
+    },
+    {
+     "name": "LAT_END",
+     "type": "esriFieldTypeDouble",
+     "alias": "Latitude End",
+     "domain": null
+    },
+    {
+     "name": "LONG_END",
+     "type": "esriFieldTypeDouble",
+     "alias": "Longitude End",
+     "domain": null
+    },
+    {
+     "name": "SOURCE",
+     "type": "esriFieldTypeString",
+     "alias": "Source",
+     "domain": null
+    },
+    {
+     "name": "SOURCE_DATE",
+     "type": "esriFieldTypeDate",
+     "alias": "Source Date",
+     "domain": null
+    },
+    {
+     "name": "COMMENTS",
+     "type": "esriFieldTypeString",
+     "alias": "Comments",
+     "domain": null
+    },
+    {
+     "name": "CREATEBY",
+     "type": "esriFieldTypeString",
+     "alias": "Created By",
+     "domain": null
+    },
+    {
+     "name": "CREATEDATE",
+     "type": "esriFieldTypeDate",
+     "alias": "Created Date",
+     "domain": null
+    },
+    {
+     "name": "EDITBY",
+     "type": "esriFieldTypeString",
+     "alias": "Edited By",
+     "domain": null
+    },
+    {
+     "name": "EDITDATE",
+     "type": "esriFieldTypeDate",
+     "alias": "Last Edit Date",
+     "domain": null
+    },
+    {
+     "name": "GlobalID",
+     "type": "esriFieldTypeGlobalID",
+     "alias": "GlobalID",
+     "domain": null
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble",
+     "alias": "Shape__Length",
+     "domain": null
+    }
+   ],
+   "count": 702,
+   "extent": {
+    "xmin": -97.43641790841822,
+    "ymin": 32.36523274822274,
+    "xmax": -96.53549847697754,
+    "ymax": 33.253776369885315,
+    "spatialReference": {
+     "wkid": 4326,
+     "latestWkid": 4326
+    }
+   },
+   "sample": [
+    {
+     "attributes": {
+      "OBJECTID": 699,
+      "SEGMENT_ID": "1",
+      "FROM_STATION": 1.33,
+      "TO_STATION": 14.66,
+      "CORRIDOR": "DNT",
+      "ROADWAY_NAME": "DNT-LEGDR-N-F",
+      "ROADWAY_TYPE": "RAMP",
+      "ROADWAY_DESC": "DNT NB TO LEGACY DRIVE OFF RAMP",
+      "NAME_CLASS": 2,
+      "MILES": 0.25232914,
+      "LAT_START": 33.07279872,
+      "LONG_START": -96.8243572,
+      "LAT_END": 33.07644474,
+      "LONG_END": -96.82402985,
+      "SOURCE": "NTTA_GDB.'NTTA\\DRIDDLE'.DNT",
+      "SOURCE_DATE": -2209161600000,
+      "COMMENTS": "Moved alignment to the approximate centerline based on Aerometric imagery.",
+      "CREATEBY": "JPearson@ntta.org_nttagis",
+      "CREATEDATE": 1740418768903,
+      "EDITBY": "JPearson@ntta.org_nttagis",
+      "EDITDATE": 1740418768903,
+      "GlobalID": "01d7b6fb-7753-44a4-bec5-62e1adee9377",
+      "Shape__Length": 1332.297906408077
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -96.8243572963983,
+         33.0727987209956
+        ],
+        [
+         -96.8243466995038,
+         33.0729827819477
+        ],
+        [
+         -96.824323565268,
+         33.0732559946944
+        ],
+        [
+         -96.8243004048363,
+         33.073530582466
+        ],
+        [
+         -96.8242772442777,
+         33.073805169319
+        ],
+        [
+         -96.8242549245883,
+         33.0740783938632
+        ],
+        [
+         -96.8242325797948,
+         33.0743529925449
+        ],
+        [
+         -96.8242102348795,
+         33.0746275903084
+        ],
+        [
+         -96.8241870737367,
+         33.0749021779958
+        ],
+        [
+         -96.8241647795475,
+         33.0751740274324
+        ],
+        [
+         -96.8241416191915,
+         33.0754486151007
+        ],
+        [
+         -96.8241184576207,
+         33.0757232027376
+        ],
+        [
+         -96.8240920576359,
+         33.07599637147
+        ],
+        [
+         -96.824060760965,
+         33.0762694753147
+        ],
+        [
+         -96.824037402325,
+         33.0764505381869
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 700,
+      "SEGMENT_ID": "2",
+      "FROM_STATION": 1.77,
+      "TO_STATION": 11.7,
+      "CORRIDOR": "DNT",
+      "ROADWAY_NAME": "DNT-SPCPY-N-O",
+      "ROADWAY_TYPE": "RAMP",
+      "ROADWAY_DESC": "DNT NB FROM SPRING CREEK PARKWAY ON RAMP",
+      "NAME_CLASS": 2,
+      "MILES": 0.18797449,
+      "LAT_START": 33.06759046,
+      "LONG_START": -96.82416052,
+      "LAT_END": 33.07030282,
+      "LONG_END": -96.82438311,
+      "SOURCE": "NTTA_GDB.'NTTA\\DRIDDLE'.DNT",
+      "SOURCE_DATE": -2209161600000,
+      "COMMENTS": "---",
+      "CREATEBY": "JPearson@ntta.org_nttagis",
+      "CREATEDATE": 1740418768903,
+      "EDITBY": "JPearson@ntta.org_nttagis",
+      "EDITDATE": 1740418768903,
+      "GlobalID": "484795c4-4a58-443b-b55d-35c4e2878259",
+      "Shape__Length": 992.5053336375817
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -96.8241606221822,
+         33.0675904585179
+        ],
+        [
+         -96.8241677468879,
+         33.0676530692119
+        ],
+        [
+         -96.8242099201003,
+         33.0679257858176
+        ],
+        [
+         -96.8242529095996,
+         33.0681985124556
+        ],
+        [
+         -96.8242730510001,
+         33.0684709330765
+        ],
+        [
+         -96.8242730249652,
+         33.0684723072176
+        ],
+        [
+         -96.8242759781241,
+         33.0687472450346
+        ],
+        [
+         -96.8242707711095,
+         33.069022074136
+        ],
+        [
+         -96.8242925187576,
+         33.0692958907785
+        ],
+        [
+         -96.8243192147616,
+         33.0695670239826
+        ],
+        [
+         -96.8243199787152,
+         33.0695697832245
+        ],
+        [
+         -96.8243524130783,
+         33.0698396198912
+        ],
+        [
+         -96.8243523870442,
+         33.069840994032
+        ],
+        [
+         -96.8243523349761,
+         33.0698437423136
+        ],
+        [
+         -96.8243798473564,
+         33.07011488644
+        ],
+        [
+         -96.8243806373503,
+         33.0701162715405
+        ],
+        [
+         -96.8243806113337,
+         33.0701176447797
+        ],
+        [
+         -96.8243906614358,
+         33.0703086201698
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 701,
+      "SEGMENT_ID": "3",
+      "FROM_STATION": 3,
+      "TO_STATION": 14.24,
+      "CORRIDOR": "DNT",
+      "ROADWAY_NAME": "DNT-SPCPY-N-F",
+      "ROADWAY_TYPE": "RAMP",
+      "ROADWAY_DESC": "DNT NB TO SPRING CREEK PARKWAY OFF RAMP",
+      "NAME_CLASS": 2,
+      "MILES": 0.21290427,
+      "LAT_START": 33.06088056,
+      "LONG_START": -96.82710353,
+      "LAT_END": 33.06344041,
+      "LONG_END": -96.82505712,
+      "SOURCE": "NTTA_GDB.'NTTA\\DRIDDLE'.DNT",
+      "SOURCE_DATE": -2209161600000,
+      "COMMENTS": "Moved alignment to the approximate centerline based on Aerometric imagery.",
+      "CREATEBY": "JPearson@ntta.org_nttagis",
+      "CREATEDATE": 1740418768903,
+      "EDITBY": "JPearson@ntta.org_nttagis",
+      "EDITDATE": 1740418768903,
+      "GlobalID": "4ffd5bde-d805-4f4a-a238-cd0e1d5f7bd8",
+      "Shape__Length": 1124.1345713927121
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -96.8271036324974,
+         33.0608805584646
+        ],
+        [
+         -96.8269093061252,
+         33.0611006200413
+        ],
+        [
+         -96.8267157697918,
+         33.0613220673112
+        ],
+        [
+         -96.8265230484552,
+         33.061543524317
+        ],
+        [
+         -96.8263278782843,
+         33.0617649490776
+        ],
+        [
+         -96.8261367598425,
+         33.0619878014933
+        ],
+        [
+         -96.825958566752,
+         33.0622176995292
+        ],
+        [
+         -96.8257827945796,
+         33.0624490051982
+        ],
+        [
+         -96.8256118630764,
+         33.062683124578
+        ],
+        [
+         -96.8254425387346,
+         33.06291863889
+        ],
+        [
+         -96.8252708186903,
+         33.0631513727323
+        ],
+        [
+         -96.825102307456,
+         33.0633868966024
+        ],
+        [
+         -96.8250646708081,
+         33.0634462051319
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 702,
+      "SEGMENT_ID": "4",
+      "FROM_STATION": 6.32,
+      "TO_STATION": 14.06,
+      "CORRIDOR": "DNT",
+      "ROADWAY_NAME": "DNT-WINPY-N-F",
+      "ROADWAY_TYPE": "RAMP",
+      "ROADWAY_DESC": "DNT NB TO WINDHAVEN PARKWAY OFF RAMP",
+      "NAME_CLASS": 2,
+      "MILES": 0.14645831,
+      "LAT_START": 33.05120386,
+      "LONG_START": -96.8297295,
+      "LAT_END": 33.05331641,
+      "LONG_END": -96.82952038,
+      "SOURCE": "NTTA_GDB.'NTTA\\DRIDDLE'.DNT",
+      "SOURCE_DATE": -2209161600000,
+      "COMMENTS": "Moved alignment to the approximate centerline based on Aerometric imagery.",
+      "CREATEBY": "JPearson@ntta.org_nttagis",
+      "CREATEDATE": 1740418768903,
+      "EDITBY": "JPearson@ntta.org_nttagis",
+      "EDITDATE": 1740418768903,
+      "GlobalID": "bb65b6fb-5c57-4f53-9c10-bd80707d0030",
+      "Shape__Length": 773.299910846708
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -96.8297295990676,
+         33.0512038544455
+        ],
+        [
+         -96.8297216481261,
+         33.0513903093145
+        ],
+        [
+         -96.8296985101897,
+         33.0516648981699
+        ],
+        [
+         -96.829672950474,
+         33.0519380800874
+        ],
+        [
+         -96.8296481804828,
+         33.0522126488622
+        ],
+        [
+         -96.8296226204705,
+         33.0524858298436
+        ],
+        [
+         -96.8295954025825,
+         33.0527603649055
+        ],
+        [
+         -96.8295673946029,
+         33.0530335148777
+        ],
+        [
+         -96.8295458011991,
+         33.0531830454555
+        ],
+        [
+         -96.8295295959723,
+         33.0533065337184
+        ],
+        [
+         -96.8295279336131,
+         33.0533221981742
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 703,
+      "SEGMENT_ID": "5",
+      "FROM_STATION": 6.93,
+      "TO_STATION": 17.75,
+      "CORRIDOR": "DNT",
+      "ROADWAY_NAME": "DNT-PARRD-N-O",
+      "ROADWAY_TYPE": "RAMP",
+      "ROADWAY_DESC": "DNT NB FROM PARKER ROAD ON RAMP",
+      "NAME_CLASS": 2,
+      "MILES": 0.20493069,
+      "LAT_START": 33.04693033,
+      "LONG_START": -96.82929766,
+      "LAT_END": 33.04987957,
+      "LONG_END": -96.82963296,
+      "SOURCE": "NTTA_GDB.'NTTA\\DRIDDLE'.DNT",
+      "SOURCE_DATE": -2209161600000,
+      "COMMENTS": "Moved alignment to the approximate centerline based on Aerometric imagery.",
+      "CREATEBY": "JPearson@ntta.org_nttagis",
+      "CREATEDATE": 1740418768903,
+      "EDITBY": "JPearson@ntta.org_nttagis",
+      "EDITDATE": 1740418768903,
+      "GlobalID": "97c48297-10f6-4e3d-977d-7bde058a17e9",
+      "Shape__Length": 1082.0340496051647
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -96.8292977630564,
+         33.0469303274291
+        ],
+        [
+         -96.8292999335515,
+         33.046950639316
+        ],
+        [
+         -96.8293050992952,
+         33.0469795728951
+        ],
+        [
+         -96.8293182528663,
+         33.0470608460637
+        ],
+        [
+         -96.8293289331137,
+         33.0471434578894
+        ],
+        [
+         -96.8293387975301,
+         33.0472260605889
+        ],
+        [
+         -96.8293416196501,
+         33.0472494647956
+        ],
+        [
+         -96.8293482208349,
+         33.0473320228819
+        ],
+        [
+         -96.8293540062131,
+         33.0474145700394
+        ],
+        [
+         -96.829358159946,
+         33.0474970962427
+        ],
+        [
+         -96.8293692864451,
+         33.0477721432469
+        ],
+        [
+         -96.8293779654882,
+         33.0480471601618
+        ],
+        [
+         -96.8293923813762,
+         33.0483208767017
+        ],
+        [
+         -96.8294051397106,
+         33.0485959473241
+        ],
+        [
+         -96.8294383458284,
+         33.0488685428102
+        ],
+        [
+         -96.8294911592036,
+         33.0491400263786
+        ],
+        [
+         -96.8295521561691,
+         33.0494102441107
+        ],
+        [
+         -96.8296082325052,
+         33.0496817712956
+        ],
+        [
+         -96.8296405118835,
+         33.0498853589953
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 704,
+      "SEGMENT_ID": "6",
+      "FROM_STATION": 7.79,
+      "TO_STATION": 15.14,
+      "CORRIDOR": "DNT",
+      "ROADWAY_NAME": "DNT-PARRD-N-F",
+      "ROADWAY_TYPE": "RAMP",
+      "ROADWAY_DESC": "DNT NB TO PARKER ROAD OFF RAMP",
+      "NAME_CLASS": 2,
+      "MILES": 0.13916419,
+      "LAT_START": 33.04123559,
+      "LONG_START": -96.82935234,
+      "LAT_END": 33.04324817,
+      "LONG_END": -96.82929604,
+      "SOURCE": "NTTA_GDB.'NTTA\\DRIDDLE'.DNT",
+      "SOURCE_DATE": -2209161600000,
+      "COMMENTS": "Moved alignment to the approximate centerline based on Aerometric imagery.",
+      "CREATEBY": "JPearson@ntta.org_nttagis",
+      "CREATEDATE": 1740418768903,
+      "EDITBY": "JPearson@ntta.org_nttagis",
+      "EDITDATE": 1740418768903,
+      "GlobalID": "89b40ec1-b24b-43bb-a9f7-560da80b1419",
+      "Shape__Length": 734.7869632930378
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -96.8293524452955,
+         33.0412355875604
+        ],
+        [
+         -96.8293525530551,
+         33.0412924303566
+        ],
+        [
+         -96.8293514422319,
+         33.0415673164274
+        ],
+        [
+         -96.8293503314188,
+         33.0418422015846
+        ],
+        [
+         -96.8293500363859,
+         33.0421170967556
+        ],
+        [
+         -96.829351372896,
+         33.0423920137693
+        ],
+        [
+         -96.8293486305223,
+         33.0426668770361
+        ],
+        [
+         -96.8293375519282,
+         33.0428646568837
+        ],
+        [
+         -96.8293320199129,
+         33.0429415545251
+        ],
+        [
+         -96.8293152567577,
+         33.0431378828204
+        ],
+        [
+         -96.8293072513995,
+         33.0432161227241
+        ],
+        [
+         -96.8293035984599,
+         33.0432539608002
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 705,
+      "SEGMENT_ID": "7",
+      "FROM_STATION": 7,
+      "TO_STATION": 16.3,
+      "CORRIDOR": "DNT",
+      "ROADWAY_NAME": "DNT-PARBD-N-O",
+      "ROADWAY_TYPE": "RAMP",
+      "ROADWAY_DESC": "DNT NB FROM PARK BOULEVARD ON RAMP",
+      "NAME_CLASS": 2,
+      "MILES": 0.17603043,
+      "LAT_START": 33.02970453,
+      "LONG_START": -96.82887684,
+      "LAT_END": 33.03224781,
+      "LONG_END": -96.82904801,
+      "SOURCE": "NTTA_GDB.'NTTA\\DRIDDLE'.DNT",
+      "SOURCE_DATE": -2209161600000,
+      "COMMENTS": "Moved alignment to the approximate centerline based on Aerometric imagery.",
+      "CREATEBY": "JPearson@ntta.org_nttagis",
+      "CREATEDATE": 1740418768903,
+      "EDITBY": "JPearson@ntta.org_nttagis",
+      "EDITDATE": 1740418768903,
+      "GlobalID": "a3bbda61-0239-4dfd-88c1-323c875154f4",
+      "Shape__Length": 929.4406927190028
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -96.8288769390919,
+         33.0297045242254
+        ],
+        [
+         -96.8288907608326,
+         33.0298366612863
+        ],
+        [
+         -96.8289085052118,
+         33.0299770969957
+        ],
+        [
+         -96.8289091391919,
+         33.0299867278812
+        ],
+        [
+         -96.8289269690041,
+         33.0302522458714
+        ],
+        [
+         -96.8289276289565,
+         33.0302605017042
+        ],
+        [
+         -96.8289397233038,
+         33.0305273164191
+        ],
+        [
+         -96.8289483993376,
+         33.0308023332058
+        ],
+        [
+         -96.8289570754255,
+         33.0310773499801
+        ],
+        [
+         -96.828966593223,
+         33.0313510017185
+        ],
+        [
+         -96.828982610463,
+         33.031626117738
+        ],
+        [
+         -96.8290133359506,
+         33.0319000545231
+        ],
+        [
+         -96.8290481659528,
+         33.0321726726873
+        ],
+        [
+         -96.8290555588519,
+         33.0322536019545
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "attributes": {
+      "OBJECTID": 706,
+      "SEGMENT_ID": "8",
+      "FROM_STATION": 455.91,
+      "TO_STATION": 476.26,
+      "CORRIDOR": "PGBT",
+      "ROADWAY_NAME": "PGBT-PRERD-O-O",
+      "ROADWAY_TYPE": "RAMP",
+      "ROADWAY_DESC": "PGBT OUTSIDE FROM PRESTON ROAD ON RAMP",
+      "NAME_CLASS": 52,
+      "MILES": 0.38536337,
+      "LAT_START": 33.01282025,
+      "LONG_START": -96.80219985,
+      "LAT_END": 33.01266246,
+      "LONG_END": -96.79557517,
+      "SOURCE": "NTTA_GDB.'NTTA\\DRIDDLE'.PGBT",
+      "SOURCE_DATE": -2209161600000,
+      "COMMENTS": "Moved alignment to the approximate centerline based on Aerometric imagery.",
+      "CREATEBY": "JPearson@ntta.org_nttagis",
+      "CREATEDATE": 1740418768903,
+      "EDITBY": "JPearson@ntta.org_nttagis",
+      "EDITDATE": 1740418768903,
+      "GlobalID": "fcf8ffeb-f1e1-4f3a-a9ae-9d9d6a0ae707",
+      "Shape__Length": 2034.7185972499205
+     },
+     "geometry": {
+      "paths": [
+       [
+        [
+         -96.8021999460941,
+         33.0128202495963
+        ],
+        [
+         -96.8021720254121,
+         33.0128204321763
+        ],
+        [
+         -96.8018455367858,
+         33.0128311044272
+        ],
+        [
+         -96.8015198361183,
+         33.0128431619682
+        ],
+        [
+         -96.801193347295,
+         33.0128538343148
+        ],
+        [
+         -96.8008676464722,
+         33.0128658892504
+        ],
+        [
+         -96.8005419719304,
+         33.0128765700888
+        ],
+        [
+         -96.8002162719709,
+         33.0128886251409
+        ],
+        [
+         -96.7998897553727,
+         33.0129006673058
+        ],
+        [
+         -96.7995640816552,
+         33.0129113456046
+        ],
+        [
+         -96.799238380399,
+         33.0129233962844
+        ],
+        [
+         -96.7989119163468,
+         33.0129326884947
+        ],
+        [
+         -96.7985856118176,
+         33.0129337340771
+        ],
+        [
+         -96.7982595175897,
+         33.01292378561
+        ],
+        [
+         -96.797934398567,
+         33.0129056025521
+        ],
+        [
+         -96.7976094372025,
+         33.012879173747
+        ],
+        [
+         -96.7972845024869,
+         33.0128513690457
+        ],
+        [
+         -96.796960384507,
+         33.0128235764547
+        ],
+        [
+         -96.7966363450378,
+         33.0127916587612
+        ],
+        [
+         -96.7963132281433,
+         33.0127542565979
+        ],
+        [
+         -96.7959901104864,
+         33.0127168517791
+        ],
+        [
+         -96.7956670195479,
+         33.0126780728773
+        ],
+        [
+         -96.7955827112202,
+         33.0126682440058
+        ]
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "why": "NTTA web map: Ramp Gantries",
+   "url": "https://services.arcgis.com/pS2RA6RqB5M3sZIg/arcgis/rest/services/NTTA_TollLocation_TollRates_View_PROD/FeatureServer/0",
+   "name": "NTTA_TollLocation_TollRates_View_PROD",
+   "geometryType": "esriGeometryPoint",
+   "description": "AttributeJoin",
+   "copyright": "",
+   "editingInfo": {
+    "lastEditDate": 1783699771793,
+    "schemaLastEditDate": 1767840927928,
+    "dataLastEditDate": 1767840812767
+   },
+   "fields": [
+    {
+     "name": "CORRIDOR",
+     "type": "esriFieldTypeString",
+     "alias": "NTTA Corridor",
+     "domain": [
+      "Addison Airport Toll Tunnel",
+      "Chisholm Trail Parkway",
+      "Dallas North Tollway",
+      "Lewisville Lake Toll Bridge",
+      "Mountain Creek Lake Bridge",
+      "President George Bush Turnpike",
+      "Sam Rayburn Tollway",
+      "360 Tollway",
+      "161T"
+     ]
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString",
+     "alias": "Toll Location Type",
+     "domain": [
+      "---",
+      "Mainlane Gantry",
+      "On Ramp Gantry",
+      "Off Ramp Gantry"
+     ]
+    },
+    {
+     "name": "X_COORD",
+     "type": "esriFieldTypeDouble",
+     "alias": "X Coordinate",
+     "domain": null
+    },
+    {
+     "name": "Y_COORD",
+     "type": "esriFieldTypeDouble",
+     "alias": "Y Coordinate",
+     "domain": null
+    },
+    {
+     "name": "GlobalID",
+     "type": "esriFieldTypeGlobalID",
+     "alias": "GlobalID",
+     "domain": null
+    },
+    {
+     "name": "created_user",
+     "type": "esriFieldTypeString",
+     "alias": "created_user",
+     "domain": null
+    },
+    {
+     "name": "created_date",
+     "type": "esriFieldTypeDate",
+     "alias": "created_date",
+     "domain": null
+    },
+    {
+     "name": "last_edited_user",
+     "type": "esriFieldTypeString",
+     "alias": "last_edited_user",
+     "domain": null
+    },
+    {
+     "name": "last_edited_date",
+     "type": "esriFieldTypeDate",
+     "alias": "last_edited_date",
+     "domain": null
+    },
+    {
+     "name": "PLAZA_ID",
+     "type": "esriFieldTypeInteger",
+     "alias": "PLAZA_ID",
+     "domain": null
+    },
+    {
+     "name": "RITE_PlazaName",
+     "type": "esriFieldTypeString",
+     "alias": "RITE_PlazaName",
+     "domain": null
+    },
+    {
+     "name": "RITE_PlazaDescription",
+     "type": "esriFieldTypeString",
+     "alias": "RITE_PlazaDescription",
+     "domain": null
+    },
+    {
+     "name": "TRIPS_PlazaName",
+     "type": "esriFieldTypeString",
+     "alias": "TRIPS_PlazaName",
+     "domain": null
+    },
+    {
+     "name": "TRIPS_PlazaDescription",
+     "type": "esriFieldTypeString",
+     "alias": "TRIPS_PlazaDescription",
+     "domain": null
+    },
+    {
+     "name": "PlazaID",
+     "type": "esriFieldTypeInteger",
+     "alias": "PlazaID",
+     "domain": null
+    },
+    {
+     "name": "PlazaCode",
+     "type": "esriFieldTypeString",
+     "alias": "PlazaCode",
+     "domain": null
+    },
+    {
+     "name": "PlazaName",
+     "type": "esriFieldTypeString",
+     "alias": "PlazaName",
+     "domain": null
+    },
+    {
+     "name": "StartEffectiveDate",
+     "type": "esriFieldTypeDate",
+     "alias": "StartEffectiveDate",
+     "domain": null
+    },
+    {
+     "name": "EndEffectiveDate",
+     "type": "esriFieldTypeDate",
+     "alias": "EndEffectiveDate",
+     "domain": null
+    },
+    {
+     "name": "VehicleClass",
+     "type": "esriFieldTypeString",
+     "alias": "VehicleClass",
+     "domain": null
+    },
+    {
+     "name": "ScheduleType",
+     "type": "esriFieldTypeString",
+     "alias": "ScheduleType",
+     "domain": null
+    },
+    {
+     "name": "FromTime",
+     "type": "esriFieldTypeDouble",
+     "alias": "FromTime",
+     "domain": null
+    },
+    {
+     "name": "ToTime",
+     "type": "esriFieldTypeDouble",
+     "alias": "ToTime",
+     "domain": null
+    },
+    {
+     "name": "TagFare",
+     "type": "esriFieldTypeDouble",
+     "alias": "TagFare",
+     "domain": null
+    },
+    {
+     "name": "PlateFare",
+     "type": "esriFieldTypeDouble",
+     "alias": "PlateFare",
+     "domain": null
+    },
+    {
+     "name": "ObjectId",
+     "type": "esriFieldTypeOID",
+     "alias": "ObjectId",
+     "domain": null
+    }
+   ],
+   "count": 194,
+   "extent": {
+    "xmin": -97.43521552385786,
+    "ymin": 32.39012959376866,
+    "xmax": -96.54561360347144,
+    "ymax": 33.23189733361088,
+    "spatialReference": {
+     "wkid": 4326,
+     "latestWkid": 4326
+    }
+   },
+   "sample": [
+    {
+     "attributes": {
+      "CORRIDOR": "CTP",
+      "TYPE": "ON_RAMP",
+      "X_COORD": -97.42197015,
+      "Y_COORD": 32.46329172,
+      "GlobalID": "74cf33b5-1132-4072-b5b8-06c9172e8a9c",
+      "created_user": null,
+      "created_date": null,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1713976414000,
+      "PLAZA_ID": 2155,
+      "RITE_PlazaName": "FM917",
+      "RITE_PlazaDescription": "Farm to Market 917 (FM917)",
+      "TRIPS_PlazaName": "Farm Market 917",
+      "TRIPS_PlazaDescription": "Farm Market 917",
+      "PlazaID": 2155,
+      "PlazaCode": "FM917",
+      "PlazaName": "Farm Market 917",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 0.87,
+      "PlateFare": 1.74,
+      "ObjectId": 1
+     },
+     "geometry": {
+      "x": -97.42197781762489,
+      "y": 32.463297370280756
+     }
+    },
+    {
+     "attributes": {
+      "CORRIDOR": "PGBT",
+      "TYPE": "ON_RAMP",
+      "X_COORD": -97.01796864,
+      "Y_COORD": 32.80721518,
+      "GlobalID": "b42ccb33-2e65-4c79-a7a8-c3c262c6b869",
+      "created_user": null,
+      "created_date": null,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1713976414000,
+      "PLAZA_ID": 2116,
+      "RITE_PlazaName": "SHGRD",
+      "RITE_PlazaDescription": "Shady Grove Road (SHGRD)",
+      "TRIPS_PlazaName": "Shady Grove Road (PGBW)",
+      "TRIPS_PlazaDescription": "Shady Grove Road (PGBW)",
+      "PlazaID": 2116,
+      "PlazaCode": "SHGRD",
+      "PlazaName": "Shady Grove Road (PGBW)",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 0.57,
+      "PlateFare": 1.14,
+      "ObjectId": 2
+     },
+     "geometry": {
+      "x": -97.01797622053913,
+      "y": 32.80722091469419
+     }
+    },
+    {
+     "attributes": {
+      "CORRIDOR": "CTP",
+      "TYPE": "ON_RAMP",
+      "X_COORD": -97.41221289,
+      "Y_COORD": 32.6089284,
+      "GlobalID": "49321b9b-8b51-473a-832d-cc4b6d187ba6",
+      "created_user": null,
+      "created_date": null,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1713976414000,
+      "PLAZA_ID": 2150,
+      "RITE_PlazaName": "MCPBD",
+      "RITE_PlazaDescription": "McPherson Blvd (MCPBD)",
+      "TRIPS_PlazaName": "McPherson Blvd",
+      "TRIPS_PlazaDescription": "McPherson Blvd",
+      "PlazaID": 2150,
+      "PlazaCode": "MCPBD",
+      "PlazaName": "McPherson Blvd",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 1.38,
+      "PlateFare": 2.76,
+      "ObjectId": 3
+     },
+     "geometry": {
+      "x": -97.41222056042362,
+      "y": 32.60893407704497
+     }
+    },
+    {
+     "attributes": {
+      "CORRIDOR": "DNT",
+      "TYPE": "OFF_RAMP",
+      "X_COORD": -96.83826217,
+      "Y_COORD": 33.14099314,
+      "GlobalID": "7bf36658-4ff9-45dc-af14-0b57028e7fe5",
+      "created_user": null,
+      "created_date": null,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1713976414000,
+      "PLAZA_ID": 2087,
+      "RITE_PlazaName": "MAIST",
+      "RITE_PlazaDescription": "Main Street (MAIST)",
+      "TRIPS_PlazaName": "Main Street",
+      "TRIPS_PlazaDescription": "Main Street",
+      "PlazaID": 2087,
+      "PlazaCode": "MAIST",
+      "PlazaName": "Main Street",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 1.05,
+      "PlateFare": 2.1,
+      "ObjectId": 4
+     },
+     "geometry": {
+      "x": -96.83826972251278,
+      "y": 33.1409989392883
+     }
+    },
+    {
+     "attributes": {
+      "CORRIDOR": "SRT",
+      "TYPE": "ON_RAMP",
+      "X_COORD": -96.8985837,
+      "Y_COORD": 33.06172273,
+      "GlobalID": "1ff94b58-6807-4f25-946c-0b2672a92e2a",
+      "created_user": null,
+      "created_date": null,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1713976414000,
+      "PLAZA_ID": 2077,
+      "RITE_PlazaName": "SJOLN",
+      "RITE_PlazaDescription": "Josey Lane - South (SJOLN)",
+      "TRIPS_PlazaName": "South Josey Lane (SRT)",
+      "TRIPS_PlazaDescription": "South Josey Lane (SRT)",
+      "PlazaID": 2077,
+      "PlazaCode": "SJOLN",
+      "PlazaName": "South Josey Lane (SRT)",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 1.02,
+      "PlateFare": 2.04,
+      "ObjectId": 5
+     },
+     "geometry": {
+      "x": -96.89859126778192,
+      "y": 33.061728511435
+     }
+    },
+    {
+     "attributes": {
+      "CORRIDOR": "PGBT",
+      "TYPE": "ON_RAMP",
+      "X_COORD": -96.98443171,
+      "Y_COORD": 32.88562353,
+      "GlobalID": "61335e5d-07b6-4a0f-87d9-9e018c612b82",
+      "created_user": null,
+      "created_date": null,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1713976414000,
+      "PLAZA_ID": 119,
+      "RITE_PlazaName": "SBERD",
+      "RITE_PlazaDescription": "Belt Line Road (SBERD)",
+      "TRIPS_PlazaName": "South Beltline Road Plaza",
+      "TRIPS_PlazaDescription": "South Beltline Road Plaza",
+      "PlazaID": 119,
+      "PlazaCode": "SBERD",
+      "PlazaName": "South Beltline Road Plaza",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 0.74,
+      "PlateFare": 1.48,
+      "ObjectId": 6
+     },
+     "geometry": {
+      "x": -96.98443928956496,
+      "y": 32.88562928190481
+     }
+    },
+    {
+     "attributes": {
+      "CORRIDOR": "DNT",
+      "TYPE": "OFF_RAMP",
+      "X_COORD": -96.82325373,
+      "Y_COORD": 33.12773785,
+      "GlobalID": "e15e1ef5-4ed8-4c24-b6c7-08b83048008b",
+      "created_user": null,
+      "created_date": null,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1713976414000,
+      "PLAZA_ID": 2052,
+      "RITE_PlazaName": "STOPY",
+      "RITE_PlazaDescription": "Stonebrook Parkway (STOPY)",
+      "TRIPS_PlazaName": "Stonebrook Parkway",
+      "TRIPS_PlazaDescription": "Stonebrook Parkway",
+      "PlazaID": 2052,
+      "PlazaCode": "STOPY",
+      "PlazaName": "Stonebrook Parkway",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 0.64,
+      "PlateFare": 1.28,
+      "ObjectId": 7
+     },
+     "geometry": {
+      "x": -96.82326127926704,
+      "y": 33.127743652962806
+     }
+    },
+    {
+     "attributes": {
+      "CORRIDOR": "SRT",
+      "TYPE": "ON_RAMP",
+      "X_COORD": -96.85844981,
+      "Y_COORD": 33.07941894,
+      "GlobalID": "e60b9ae4-07d1-4ad7-8da3-a6852c20ec3c",
+      "created_user": null,
+      "created_date": null,
+      "last_edited_user": "SDEADMIN",
+      "last_edited_date": 1713976414000,
+      "PLAZA_ID": 2081,
+      "RITE_PlazaName": "PLAPY",
+      "RITE_PlazaDescription": "Plano Parkway (PLAPY)",
+      "TRIPS_PlazaName": "Plano Parkway (SRT)",
+      "TRIPS_PlazaDescription": "Plano Parkway (SRT)",
+      "PlazaID": 2081,
+      "PlazaCode": "PLAPY",
+      "PlazaName": "Plano Parkway (SRT)",
+      "StartEffectiveDate": 1748149200000,
+      "EndEffectiveDate": 253402236000000,
+      "VehicleClass": "2",
+      "ScheduleType": "STANDARD",
+      "FromTime": 0,
+      "ToTime": 24,
+      "TagFare": 0.7,
+      "PlateFare": 1.4,
+      "ObjectId": 8
+     },
+     "geometry": {
+      "x": -96.85845736945613,
+      "y": 33.07942473308224
+     }
+    }
+   ]
+  }
+ ],
+ "hub": [
+  {
+   "id": "29741aecf75847ca99b746411879276a_6",
+   "name": "Toll Gantries",
+   "url": "https://geospatial.nctcog.org/map/rest/services/Transportation/DFWMaps_Roadway/MapServer/6",
+   "source": "North Central Texas Council of Governments",
+   "records": 303
+  },
+  {
+   "id": "2158c1f093a24a5ca45ae26c30a08d6b_0",
+   "name": "NY State Thruway Toll Gantries",
+   "url": "https://services2.arcgis.com/gubH6kG9JCAsMX2M/arcgis/rest/services/NY_State_Thruway_Toll_Gantries/FeatureServer/0",
+   "source": "NY State Thruway Authority",
+   "records": 70
+  },
+  {
+   "id": "bd85a61789264f038a2dcdc5869952a4_10",
+   "name": "Toll Plazas and Gantries",
+   "url": "https://services1.arcgis.com/O1JpcwDW8sjYuddV/arcgis/rest/services/TurnpikeBaseData/FeatureServer/10",
+   "source": "Florida Department of Transportation",
+   "records": 64
+  },
+  {
+   "id": "c3935817944b41a9916630efaaba42e5",
+   "name": "Gantries & High Lighting Masts",
+   "url": "https://tii-gis.maps.arcgis.com/apps/Viewer/index.html?appid=c3935817944b41a9916630efaaba42e5",
+   "source": "Transport Infrastructure Ireland (TII)",
+   "records": null
+  },
+  {
+   "id": "fb13f911193b41c5bff8c4279745628e_0",
+   "name": "Toll Booths",
+   "url": "https://services1.arcgis.com/NWUiNpFLGIf9gkGi/arcgis/rest/services/Toll_Booths/FeatureServer/0",
+   "source": "Strafford Regional Planning Commission",
+   "records": 2
+  },
+  {
+   "id": "4e4db6bffc2b4e2ca90772e212d740bc",
+   "name": "Miscellaneous structures (NYCMAP)",
+   "url": "https://nyco365.sharepoint.com/sites/NYCPLANNING/the-guide/Shared%20Documents/_Data_cards/NYCMAP_MISC_STRUCTURE_POLY.pdf?CT=1607540222979&OR=ItemsView",
+   "source": "NYC DCP Mapping Portal",
+   "records": null
+  },
+  {
+   "id": "16dc73304c9041e98ed698724f5f1e7f_23",
+   "name": "Delaware Toll Booths 2.0",
+   "url": "https://enterprise.firstmap.delaware.gov/arcgis/rest/services/Transportation/DE_Boundary_and_Point/FeatureServer/23",
+   "source": "State of Delaware",
+   "records": 17
+  },
+  {
+   "id": "36b563e76e144d8282a2c0199bbb44bb",
+   "name": "Toll Booth Revenue 2021-VS",
+   "url": null,
+   "source": "899047_LRH_lrhgis",
+   "records": null
+  },
+  {
+   "id": "9c1ba367024844f4822277fdb102c0d5",
+   "name": "Toll booth revenues for 2021-- AG",
+   "url": null,
+   "source": "1059498_LRH_lrhgis",
+   "records": null
+  },
+  {
+   "id": "f29dd08d26b848e69137dcb71b48a92d",
+   "name": "BB Toll Gantry",
+   "url": null,
+   "source": "ArcGIS Online for Maryland",
+   "records": null
+  }
+ ],
+ "nttaWebMapItem": {
+  "title": "Toll Rates Web Map - NTTA.org",
+  "owner": "nttagis",
+  "type": "Web Map",
+  "modified": 1767841897000,
+  "description": "<strong>NTTA Toll Rates Web Map used on the NTTA.org page (</strong><b>https://www.ntta.org/roadsprojects/rates/Pages/Toll-Rates.aspx)</b><div><p style='color: rgb(103, 103, 103); font-family: Georgia, serif; font-size: 14px; line-height: 20px; background-color: rgb(247, 246, 243); '>TollTag rates are 15.3 cents per mile effective July 1, 2011 as part of a\u00a0the NTTA\u00a0toll rate setting\u00a0policy\u00a0adopted\u00a0in 2009. ZipCash rates are 50 percent more than the TollTag rates, reflecting the higher costs of collection. This policy follows a schedule that requires toll rates to be increased every other July at a compounded annual rate of 2.75 percent. NTTA rates are consistent with the toll rate structure recommended by the Regional Transportation Council.</p><p style='color: rgb(103, 103, 103); font-family: Georgia, serif; font-size: 14px; line-height: 20px; background-color: rgb(247, 246, 243); '><br />\u00a0<strong><em>Helpful\u00a0Links and Information</em></strong><em>\u00a0</em></p><ul><li><div style='color: rgb(139, 0, 0); font-size: 10pt; '><span style='color: rgb(89, 89, 89); '><a href='https://www.ntta.org/roadsprojects/rates/Documents/TollRateChart122011.pdf' style='color: rgb(246, 137, 50); text-decoration: none; ' rel='nofollow ugc'>Toll Rates\u00a0</a>- Individual ramp and main lane gantry toll rates for each road.</span></div></li><li><span style='color: rgb(89, 89, 89); '><a href='https://www.ntta.org/roadsprojects/rates/Documents/TripCalculatorCharts_122011.pdf' style='color: rgb(246, 137, 50); text-decoration: none; ' rel='nofollow ugc'>Trip Calculator Charts</a>\u00a0- Determine the total cost of your trip from entrance to exit.</span></li><span style='font-family: Georgia; font-size: 10pt; color: rgb(89, 89, 89); '><span><li><span><span><font color='#595959'><a href='https://www.ntta.org/whatwedo/tollcollrates/Pages/Toll-Collection-FAQs.aspx' style='color: rgb(246, 137, 50); text-decoration: none; ' rel='nofollow ugc'>Toll Rate FAQs</a>\u00a0- Find answers to frequently asked questions about toll rates.</font></span></span></li><li><span><span><font color='#595959'><a href='https://www.ntta.org/roadsprojects/rates/Documents/WhereTollsGo.pdf' style='color: rgb(246, 137, 50); text-decoration: none; ' rel='nofollow ugc'>Where Do My Tolls Go?\u00a0</a>- Discover the impact\u00a0 your toll dollars\u00a0have on North Texas</font></span></span></li><li><a href='https://www.ntta.org/custinfo/Pages/default.aspx' style='color: rgb(246, 137, 50); text-decoration: none; ' rel='nofollow ugc'>Customer Information</a>\u00a0- Two ways to pay your tolls with cashless tolling.</li><li><a href='https://www.ntta.org/custinfo/Pages/Billing-and-Payment.aspx' style='color: rgb(246, 137, 50); text-decoration: none; ' rel='nofollow ugc'>Billing &amp; Payment</a></li></span></span></ul></div>",
+  "snippet": "NTTA Toll Rates - https://maps.ntta.org/waap1/rest/services/Toll_Rates/MapServer"
+ },
+ "nttaWebMapLayers": [
+  {
+   "title": "NTTA Ramps",
+   "url": "https://services.arcgis.com/pS2RA6RqB5M3sZIg/arcgis/rest/services/ENGR_LRSRoadway_PROD/FeatureServer/0",
+   "itemId": "dcd9c8e5a1834fc1a211ced7633f96c3"
+  },
+  {
+   "title": "NTTA Roadway",
+   "url": "https://services.arcgis.com/pS2RA6RqB5M3sZIg/arcgis/rest/services/ENGR_LRSRoadway_PROD/FeatureServer/0",
+   "itemId": "dcd9c8e5a1834fc1a211ced7633f96c3"
+  },
+  {
+   "title": "Ramp Gantries",
+   "url": "https://services.arcgis.com/pS2RA6RqB5M3sZIg/arcgis/rest/services/NTTA_TollLocation_TollRates_View_PROD/FeatureServer/0",
+   "itemId": "a5ba7b2f992846bf9431772be494eec1"
+  },
+  {
+   "title": "Mainlane Gantries",
+   "url": "https://services.arcgis.com/pS2RA6RqB5M3sZIg/arcgis/rest/services/NTTA_TollLocation_TollRates_View_PROD/FeatureServer/0",
+   "itemId": "a5ba7b2f992846bf9431772be494eec1"
+  }
+ ]
+}

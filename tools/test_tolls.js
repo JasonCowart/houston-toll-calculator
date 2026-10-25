@@ -245,7 +245,7 @@ test("points not yet checked count as unverified", () => {
 });
 test("data sanity: every point has a 2-axle rate (or a time-of-day schedule) and coordinates in Texas", () => {
   pts.forEach((p) => {
-    assert(p.lon > -99 && p.lon < -93 && p.lat > 28 && p.lat < 32, "bad coords " + p.id);
+    assert(p.lon > -106.7 && p.lon < -93.5 && p.lat > 25.8 && p.lat < 36.5, "bad coords (outside Texas) " + p.id);
     if (p.status === "timed") {
       for (const ax of [2, 5]) for (const pay of ["eztag", "notag"]) {
         const r = T.timedRate(p, ax, pay, new Date("2026-10-21T13:00:00Z"));
@@ -522,6 +522,17 @@ test("Austin: TxDOT truck caps, SH 130 south by class, and the Nov 11, 2026 rate
   assert(T.rateFor(blue, 2, "eztag", new Date("2026-11-11T08:00:00-06:00")) === 7.58, "Bluebonnet from Nov 11: $7.58");
   assert(T.rateFor(blue, 2, "notag", new Date("2026-11-12T08:00:00-06:00")) === 10.08, "Bluebonnet mail from Nov 11: $10.08");
   assert(pts.filter(p => p.lon > -98.2 && p.lon < -97.2).every(p => p.status === "verified"), "every Austin point checked");
+});
+
+test("Dallas-Fort Worth: NTTA fares, axles and ZipCash", () => {
+  const pts = require("../data/toll-points.json").points.filter(p => p.owner === "NTTA");
+  assert(pts.length > 200, "NTTA points loaded: " + pts.length);
+  const wyc = pts.find(p => /Wycliff/.test(p.name) && p.dir === "N");
+  assert(T.rateFor(wyc, 2, "eztag") === 1.94 && T.rateFor(wyc, 2, "notag") === 3.88, "DNT Wycliff $1.94 / ZipCash $3.88");
+  assert(T.rateFor(wyc, 5, "tag") === 7.76 && T.rateFor(wyc, 8, "tag") === 9.7, "5 axles x4, 6+ axles x5");
+  const mains = pts.filter(p => p.kind === "main");
+  assert(mains.every(p => p.dir), "every NTTA mainline gantry has a direction");
+  assert(pts.every(p => p.notag[0] === Math.round(p.ez2 * 200) / 100), "ZipCash is twice the TollTag rate");
 });
 
 console.log(passed + " tests passed");

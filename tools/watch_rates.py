@@ -48,6 +48,9 @@ SOURCES = [
     {"id": "sh130-south", "name": "SH 130 segments 5-6 rates (SH 130 Concession Co.)", "kind": "page",
      "url": "https://mysh130.com/traveler-info/toll-rates/",
      "covers": "SH 130 from Mustang Ridge to Seguin (by vehicle class)"},
+    {"id": "ntta", "name": "NTTA toll rate tables (PDF, July 2025 - June 2027)", "kind": "file",
+     "url": "https://www.ntta.org/sites/default/files/2025-06/NTTAS_2025-2027_Toll%20Rate%20Tables.pdf",
+     "covers": "Dallas North Tollway, Bush Turnpike, Sam Rayburn, Chisholm Trail, 360 Tollway, bridges and tunnel"},
 ]
 
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 hctra-toll-calculator-rate-watch"

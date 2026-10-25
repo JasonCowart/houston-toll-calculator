@@ -149,6 +149,15 @@ require([
     ["Georgetown (courthouse square)", -97.6773, 30.6372, "austin"],
     ["Pflugerville (downtown)", -97.6200, 30.4394, "austin"],
     ["San Marcos (downtown)", -97.9414, 29.8833, "austin"],
+    // Dallas-Fort Worth area
+    ["DFW Airport", -97.0403, 32.8998, "dfw"],
+    ["Dallas Love Field (DAL)", -96.8518, 32.8471, "dfw"],
+    ["Downtown Dallas (City Hall)", -96.7970, 32.7767, "dfw"],
+    ["Downtown Fort Worth (Sundance Square)", -97.3308, 32.7555, "dfw"],
+    ["Plano (Legacy West)", -96.8270, 33.0806, "dfw"],
+    ["Frisco (The Star)", -96.8336, 33.1098, "dfw"],
+    ["Arlington (AT&T Stadium)", -97.0929, 32.7473, "dfw"],
+    ["Cleburne (downtown)", -97.3867, 32.3477, "dfw"],
   ];
   function loadList(name) { try { return JSON.parse(localStorage.getItem("htc-" + name) || "[]"); } catch (e) { return []; } }
   function saveList(name, list) { try { localStorage.setItem("htc-" + name, JSON.stringify(list)); } catch (e) { /* not kept */ } }
@@ -174,7 +183,7 @@ require([
       group(L("My places"), saved, "s");
       group(L("Recent"), recent, "r");
       // Common places by area; the option values keep their place in COMMON ("c" + index).
-      [["houston", "Houston area"], ["austin", "Austin area"]].forEach(function (a) {
+      [["houston", "Houston area"], ["austin", "Austin area"], ["dfw", "Dallas-Fort Worth area"]].forEach(function (a) {
         var items = COMMON.map(function (c, i) { return { label: c[0], i: i, area: c[3] || "houston" }; }).filter(function (c) { return c.area === a[0]; });
         if (!items.length) return;
         html += '<optgroup label="' + esc(L(a[1])) + '">' + items.map(function (c) { return '<option value="c' + c.i + '">' + esc(c.label) + "</option>"; }).join("") + "</optgroup>";
@@ -1242,7 +1251,7 @@ require([
   // Toll point card: our own panel at the bottom of the map in place of Esri's popup.
   var AGENCY = { HCTRA: "Harris County Toll Road Authority", TxDOT: "TxDOT", FBCTRA: "Fort Bend County Toll Road Authority",
     MCTRA: "Montgomery County Toll Road Authority", BCTRA: "Brazoria County Toll Road Authority",
-    SH130CC: "SH 130 Concession Company (SH 130 south of Mustang Ridge)" };
+    SH130CC: "SH 130 Concession Company (SH 130 south of Mustang Ridge)", NTTA: "North Texas Tollway Authority" };
   var KIND = { main: "Mainline", on: "Entrance ramp", off: "Exit ramp" };
   var DIRS = { N: "Northbound", S: "Southbound", E: "Eastbound", W: "Westbound" };
   var PAY = [["eztag", "EZ TAG"], ["tag", "Other tag"], ["notag", "No tag"]];

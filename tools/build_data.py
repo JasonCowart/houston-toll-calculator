@@ -12,7 +12,8 @@ Rate check (Oct 20, 2026) results applied here:
   were checked against their 2026 schedules on Oct 21, 2026 -> "verified".
 - Everything else (SH 130, SH 45, Loop 1 near Austin; BCTRA) -> "unverified".
 Then run tools/austin_rates.py on the output: it applies the Austin rates checked Oct 24, 2026
-(TxDOT Central Texas Turnpike System; SH 130 segments 5-6 by vehicle class, with the Nov 11, 2026 change).
+(TxDOT Central Texas Turnpike System; SH 130 segments 5-6 by vehicle class, with the Nov 11, 2026 change),
+then tools/ntta_points.py: adds the Dallas-Fort Worth (NTTA) points from data/sources/.
 """
 import json, sys
 

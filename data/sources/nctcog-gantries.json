@@ -1,0 +1,6065 @@
+{
+"source": "https://geospatial.nctcog.org/map/rest/services/Transportation/DFWMaps_Roadway/MapServer/6",
+"rows": [
+{
+"a": {
+"OBJECTID": 1787,
+"Corridor": "I35W",
+"Location": "US 287 NB ramp to 35W Express NB",
+"Ramp_Type": "Entrance",
+"Address": "NB Interstate 35W Fort Worth, TX 76102",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 305,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.317383,
+"y": 32.756446
+},
+{
+"a": {
+"OBJECTID": 1788,
+"Corridor": "I35E",
+"Location": "Southwest of Reeder Rd & Forest Ln",
+"Ramp_Type": "Mainlane",
+"Address": "SB I35E Express Dallas, TX 75229",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 268,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.897788,
+"y": 32.904952
+},
+{
+"a": {
+"OBJECTID": 1789,
+"Corridor": "I35E",
+"Location": "West of Reeder Rd & Forest Ln",
+"Ramp_Type": "Mainlane",
+"Address": "SB I35E Express Dallas, TX 75229",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 267,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.897569,
+"y": 32.905635
+},
+{
+"a": {
+"OBJECTID": 1790,
+"Corridor": "DFW Int'l Airport",
+"Location": "DFW International Airport South",
+"Ramp_Type": "Mainlane",
+"Address": "SB International Pkwy Euless, TX 76039",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 257,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "DFW Int'l Airport",
+"Status": "Operational"
+},
+"x": -97.041286,
+"y": 32.865773
+},
+{
+"a": {
+"OBJECTID": 1791,
+"Corridor": "360",
+"Location": "Main Lane Gantry NB",
+"Ramp_Type": "Mainlane",
+"Address": "698 S Hwy 360 Grand Prairie, TX 76063",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 209,
+"NTTA_Gantry_ID": "MLG15",
+"NTTA_Corridor_ID": "360T",
+"Fixed_Toll_Tag": 0.64,
+"Fixed_Toll_ZipCash": 1.28,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.085585,
+"y": 32.552161
+},
+{
+"a": {
+"OBJECTID": 1792,
+"Corridor": "I820",
+"Location": "Entrance to EB SH183 Express from I820 NB",
+"Ramp_Type": "Entrance",
+"Address": "I820 & Pipeline Rd./Glenview Dr.",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 304,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.205476,
+"y": 32.825237
+},
+{
+"a": {
+"OBJECTID": 1793,
+"Corridor": "I30",
+"Location": "Southeast of Terre Colony Ct",
+"Ramp_Type": "Mainlane",
+"Address": "E/WB I30 TEXpress Dallas, TX 75212",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 303,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.867468,
+"y": 32.767255
+},
+{
+"a": {
+"OBJECTID": 1794,
+"Corridor": "I30",
+"Location": "East of N Cockrell Hill Rd",
+"Ramp_Type": "Mainlane",
+"Address": "E/WB I30 TEXpress Dallas, TX 75211",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 302,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.895018,
+"y": 32.766778
+},
+{
+"a": {
+"OBJECTID": 1795,
+"Corridor": "I30",
+"Location": "Northeast of Grand Lakes Blvd",
+"Ramp_Type": "Mainlane",
+"Address": "E/WB I30 TEXpress Grand Prairie, TX 75050",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 301,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.944619,
+"y": 32.762735
+},
+{
+"a": {
+"OBJECTID": 1796,
+"Corridor": "I30",
+"Location": "South of E Palace Pkwy",
+"Ramp_Type": "Mainlane",
+"Address": "E/WB I30 TEXpress Grand Prairie, TX 75050",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 300,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -97.006125,
+"y": 32.759428
+},
+{
+"a": {
+"OBJECTID": 1797,
+"Corridor": "I35E",
+"Location": "South of N Garden Ridge Blvd",
+"Ramp_Type": "Mainlane",
+"Address": "SB I35E Lewisville, TX 75077",
+"County": "Denton",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 299,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -97.026603,
+"y": 33.082074
+},
+{
+"a": {
+"OBJECTID": 1798,
+"Corridor": "I35E",
+"Location": "Southeast of Fox Ave",
+"Ramp_Type": "Mainlane",
+"Address": "NB I35E Lewisville, TX 75067",
+"County": "Denton",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 298,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -97.001578,
+"y": 33.037813
+},
+{
+"a": {
+"OBJECTID": 1799,
+"Corridor": "I35E",
+"Location": "SRT on",
+"Ramp_Type": "Entrance",
+"Address": "SB I35E Lewisville, TX 75067",
+"County": "Denton",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 296,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.96866,
+"y": 33.004651
+},
+{
+"a": {
+"OBJECTID": 1800,
+"Corridor": "I35E",
+"Location": "SRT off",
+"Ramp_Type": "Exit",
+"Address": "NB I35E Lewisville, TX 75067",
+"County": "Denton",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 295,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.967195,
+"y": 33.004579
+},
+{
+"a": {
+"OBJECTID": 1801,
+"Corridor": "I35E",
+"Location": "South of W Frankford Rd",
+"Ramp_Type": "Mainlane",
+"Address": "SB I35E Express Carrollton, TX 75007",
+"County": "Denton",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 294,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.942302,
+"y": 32.990316
+},
+{
+"a": {
+"OBJECTID": 1802,
+"Corridor": "I35E",
+"Location": "West of Roberts Dr",
+"Ramp_Type": "Mainlane",
+"Address": "SB I35E Express Carrollton, TX 75006",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 293,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.907259,
+"y": 32.94851
+},
+{
+"a": {
+"OBJECTID": 1803,
+"Corridor": "I35E",
+"Location": "South of Valley View Ln",
+"Ramp_Type": "Mainlane",
+"Address": "SB I35E Express Farmers Branch, TX 75234",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 292,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.899603,
+"y": 32.921519
+},
+{
+"a": {
+"OBJECTID": 1804,
+"Corridor": "I35E",
+"Location": "Southwest of Farmers Branch Ln",
+"Ramp_Type": "Entrance",
+"Address": "SB I35E Express Farmers Branch, TX 75234",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 291,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.89837,
+"y": 32.916985
+},
+{
+"a": {
+"OBJECTID": 1805,
+"Corridor": "I35E",
+"Location": "South of Farmers Branch Ln",
+"Ramp_Type": "Entrance",
+"Address": "SB I35E Express Farmers Branch, TX 75234",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 290,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.896824,
+"y": 32.914494
+},
+{
+"a": {
+"OBJECTID": 1806,
+"Corridor": "I35E",
+"Location": "South of Morgan Pkwy",
+"Ramp_Type": "Exit",
+"Address": "SB I35E Express Dallas, TX 75229",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 289,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.89954,
+"y": 32.910724
+},
+{
+"a": {
+"OBJECTID": 1807,
+"Corridor": "I35E",
+"Location": "North of I635 & I35E exchange",
+"Ramp_Type": "Entrance",
+"Address": "NB I35E Express Dallas, TX 75229",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 288,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.897796,
+"y": 32.911562
+},
+{
+"a": {
+"OBJECTID": 1808,
+"Corridor": "I635",
+"Location": "TI Blvd",
+"Ramp_Type": "Exit",
+"Address": "West of TI Blvd Dallas, TX 75243",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 281,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.751501,
+"y": 32.922496
+},
+{
+"a": {
+"OBJECTID": 1809,
+"Corridor": "I635",
+"Location": "TI Blvd",
+"Ramp_Type": "Entrance",
+"Address": "West of TI Blvd Dallas, TX 75243",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 280,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.751346,
+"y": 32.922694
+},
+{
+"a": {
+"OBJECTID": 1810,
+"Corridor": "I635",
+"Location": "South of Drive N",
+"Ramp_Type": "Mainlane",
+"Address": "WB I635 TEXpress Dallas, TX 75243",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 279,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.758166,
+"y": 32.923869
+},
+{
+"a": {
+"OBJECTID": 1811,
+"Corridor": "I635",
+"Location": "Southwest of Meandering Way",
+"Ramp_Type": "Entrance",
+"Address": "WB I635 TEXpress Dallas, TX 75240",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 277,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "LBJ Infrastructure Group",
+"Status": "Operational"
+},
+"x": -96.776372,
+"y": 32.924201
+},
+{
+"a": {
+"OBJECTID": 1812,
+"Corridor": "I635",
+"Location": "Northwest of Hillcrest Plaza Dr",
+"Ramp_Type": "Entrance",
+"Address": "WB I635 TEXpress Dallas, TX 75240",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 276,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "LBJ Infrastructure Group",
+"Status": "Operational"
+},
+"x": -96.793133,
+"y": 32.925381
+},
+{
+"a": {
+"OBJECTID": 1813,
+"Corridor": "I635",
+"Location": "Northwest of Hillcrest Plaza Dr",
+"Ramp_Type": "Mainlane",
+"Address": "WB I635 TEXpress Dallas, TX 75240",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 275,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "LBJ Infrastructure Group",
+"Status": "Operational"
+},
+"x": -96.793002,
+"y": 32.925024
+},
+{
+"a": {
+"OBJECTID": 1814,
+"Corridor": "I635",
+"Location": "Preston Rd",
+"Ramp_Type": "Entrance",
+"Address": "EB I635 TEXpress Dallas, TX 75240",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 274,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "LBJ Infrastructure Group",
+"Status": "Operational"
+},
+"x": -96.793615,
+"y": 32.924525
+},
+{
+"a": {
+"OBJECTID": 1815,
+"Corridor": "I635",
+"Location": "West of Midway Rd",
+"Ramp_Type": "Mainlane",
+"Address": "EB I635 TEXpress Dallas, TX 75244",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 273,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "LBJ Infrastructure Group",
+"Status": "Operational"
+},
+"x": -96.840154,
+"y": 32.924531
+},
+{
+"a": {
+"OBJECTID": 1816,
+"Corridor": "I635",
+"Location": "Midway Rd",
+"Ramp_Type": "Entrance",
+"Address": "WB I635 TEXpress Dallas, TX 75244",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 272,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "LBJ Infrastructure Group",
+"Status": "Operational"
+},
+"x": -96.848005,
+"y": 32.921573
+},
+{
+"a": {
+"OBJECTID": 1817,
+"Corridor": "I635",
+"Location": "Webb Chapel Rd",
+"Ramp_Type": "Entrance",
+"Address": "EB I635 TEXpress Dallas, TX 75234",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 271,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "LBJ Infrastructure Group",
+"Status": "Operational"
+},
+"x": -96.85656,
+"y": 32.917415
+},
+{
+"a": {
+"OBJECTID": 1818,
+"Corridor": "I635",
+"Location": "Northeast of Grissom Ln",
+"Ramp_Type": "Entrance",
+"Address": "EB I635 TEXpress Dallas, TX 75234",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 270,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "LBJ Infrastructure Group",
+"Status": "Operational"
+},
+"x": -96.885822,
+"y": 32.909799
+},
+{
+"a": {
+"OBJECTID": 1819,
+"Corridor": "I635",
+"Location": "North of I635 Srv Rd & Goodnight Ln",
+"Ramp_Type": "Entrance",
+"Address": "EB I635 TEXpress Dallas, TX 75229",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 269,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "LBJ Infrastructure Group",
+"Status": "Operational"
+},
+"x": -96.902047,
+"y": 32.907728
+},
+{
+"a": {
+"OBJECTID": 1820,
+"Corridor": "I35E",
+"Location": "Southeast of Lu Field Rd",
+"Ramp_Type": "Entrance",
+"Address": "SB I35E Express Dallas, TX 75229",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 266,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "LBJ Infrastructure Group",
+"Status": "Operational"
+},
+"x": -96.898732,
+"y": 32.905142
+},
+{
+"a": {
+"OBJECTID": 1821,
+"Corridor": "I35E",
+"Location": "Southwell Rd",
+"Ramp_Type": "Mainlane",
+"Address": "NB I35E TEXpress Dallas, TX 75229",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 265,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.897519,
+"y": 32.886208
+},
+{
+"a": {
+"OBJECTID": 1822,
+"Corridor": "Loop 12",
+"Location": "North of Lombardy Ln",
+"Ramp_Type": "Entrance",
+"Address": "NB Loop 12 Dallas, TX 75220",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 264,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.898649,
+"y": 32.867126
+},
+{
+"a": {
+"OBJECTID": 1823,
+"Corridor": "Loop 12",
+"Location": "Loop 12 North of SH 114",
+"Ramp_Type": "Exit",
+"Address": "SB Loop 12 Irving, TX 75039",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 263,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.908009,
+"y": 32.851023
+},
+{
+"a": {
+"OBJECTID": 1824,
+"Corridor": "Loop 12",
+"Location": "Loop 12 North of SH 114",
+"Ramp_Type": "Entrance",
+"Address": "NB Loop 12 Irving, TX 75039",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 262,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.907958,
+"y": 32.850999
+},
+{
+"a": {
+"OBJECTID": 1825,
+"Corridor": "I35E",
+"Location": "South of Vantex Dr",
+"Ramp_Type": "Entrance",
+"Address": "NB Interstate 35 East Dallas, TX 75220",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 261,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "LBJ Infrastructure Group",
+"Status": "Operational"
+},
+"x": -96.89266,
+"y": 32.861448
+},
+{
+"a": {
+"OBJECTID": 1826,
+"Corridor": "I30",
+"Location": "Southwest of Horton Cir",
+"Ramp_Type": "Mainlane",
+"Address": "WB Interstate 30 Arlington, TX 76011",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 259,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -97.091675,
+"y": 32.759727
+},
+{
+"a": {
+"OBJECTID": 1827,
+"Corridor": "I30",
+"Location": "Southwest of Horton Cir",
+"Ramp_Type": "Mainlane",
+"Address": "EB Interstate 30 Arlington, TX 76011",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 258,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -97.091664,
+"y": 32.759623
+},
+{
+"a": {
+"OBJECTID": 1828,
+"Corridor": "SH 114",
+"Location": "East of Texan Tr",
+"Ramp_Type": "Mainlane",
+"Address": "WB SH 114 Grapevine, TX 76051",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 253,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -97.054985,
+"y": 32.926355
+},
+{
+"a": {
+"OBJECTID": 1829,
+"Corridor": "DFW Int'l Airport",
+"Location": "DFW International Airport North",
+"Ramp_Type": "Mainlane",
+"Address": "SB International Pkwy Grapevine, TX 75063",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 255,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "DFW Int'l Airport",
+"Status": "Operational"
+},
+"x": -97.040862,
+"y": 32.922267
+},
+{
+"a": {
+"OBJECTID": 1830,
+"Corridor": "DFW Int'l Airport",
+"Location": "DFW International Airport South",
+"Ramp_Type": "Mainlane",
+"Address": "NB International Pkwy Euless, TX 75038",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 256,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "DFW Int'l Airport",
+"Status": "Operational"
+},
+"x": -97.04005,
+"y": 32.86634
+},
+{
+"a": {
+"OBJECTID": 1831,
+"Corridor": "SH 114",
+"Location": "East of Texan Tr",
+"Ramp_Type": "Mainlane",
+"Address": "EB SH 114 Grapevine, TX 76051",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 252,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -97.054578,
+"y": 32.926351
+},
+{
+"a": {
+"OBJECTID": 1832,
+"Corridor": "SH 114",
+"Location": "West of Esters Blvd",
+"Ramp_Type": "Mainlane",
+"Address": "WB SH 114 ",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 251,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -97.01185,
+"y": 32.917139
+},
+{
+"a": {
+"OBJECTID": 1833,
+"Corridor": "SH 114",
+"Location": "East of MacArthur Blvd",
+"Ramp_Type": "Entrance",
+"Address": "EB SH 114 Irving, TX 75039",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 250,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.959381,
+"y": 32.888679
+},
+{
+"a": {
+"OBJECTID": 1834,
+"Corridor": "SH 114",
+"Location": "East of W Walnut Hill Ln",
+"Ramp_Type": "Mainlane",
+"Address": "EB SH 114 Irving, TX 75039",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 248,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.95128,
+"y": 32.884038
+},
+{
+"a": {
+"OBJECTID": 1835,
+"Corridor": "SH 114",
+"Location": "East of W Walnut Hill Ln",
+"Ramp_Type": "Mainlane",
+"Address": "WB SH 114 Irving, TX 75039",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 247,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.951242,
+"y": 32.884075
+},
+{
+"a": {
+"OBJECTID": 1836,
+"Corridor": "SH 114",
+"Location": "West of SH 183 / Loop 12 / SH 114 / Spur 482 Interchange",
+"Ramp_Type": "Mainlane",
+"Address": "EB SH 114 Irving, TX 75062",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 246,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.906929,
+"y": 32.840581
+},
+{
+"a": {
+"OBJECTID": 1837,
+"Corridor": "SH 114",
+"Location": "West of SH 183 / Loop 12 / SH 114 / Spur 482 Interchange",
+"Ramp_Type": "Mainlane",
+"Address": "WB SH 114 Irving, TX 75062",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 245,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.906888,
+"y": 32.840612
+},
+{
+"a": {
+"OBJECTID": 1838,
+"Corridor": "SH 183",
+"Location": "East of Profit Dr",
+"Ramp_Type": "Entrance",
+"Address": "WB SH 183 Dallas, TX 75247",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 244,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.879353,
+"y": 32.823201
+},
+{
+"a": {
+"OBJECTID": 1839,
+"Corridor": "SH 183",
+"Location": "East of Profit Dr",
+"Ramp_Type": "Exit",
+"Address": "EB SH 183 Dallas, TX 75247",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 243,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.879431,
+"y": 32.823122
+},
+{
+"a": {
+"OBJECTID": 1840,
+"Corridor": "SH 183",
+"Location": "West of Carl Rd",
+"Ramp_Type": "Entrance",
+"Address": "WB SH 183 Irving, TX 75062",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 242,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.932083,
+"y": 32.837128
+},
+{
+"a": {
+"OBJECTID": 1841,
+"Corridor": "SH 183",
+"Location": "East of O'Connor Rd",
+"Ramp_Type": "Entrance",
+"Address": "EB SH 183 Irving, TX 75061",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 241,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.94137,
+"y": 32.837183
+},
+{
+"a": {
+"OBJECTID": 1842,
+"Corridor": "SH 183",
+"Location": "East of Esters Rd",
+"Ramp_Type": "Entrance",
+"Address": "EB SH 183 Irving, TX 75062",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 240,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -97.00268,
+"y": 32.836972
+},
+{
+"a": {
+"OBJECTID": 1843,
+"Corridor": "DFW Int'l Airport",
+"Location": "DFW International Airport North",
+"Ramp_Type": "Mainlane",
+"Address": "NB International Pkwy Grapevine, TX 75063",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 254,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "DFW Int'l Airport",
+"Status": "Operational"
+},
+"x": -97.039584,
+"y": 32.922817
+},
+{
+"a": {
+"OBJECTID": 1844,
+"Corridor": "SH 183",
+"Location": "West of County Line Rd",
+"Ramp_Type": "Mainlane",
+"Address": "WB SH 183 Irving, TX 75061",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 239,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -97.030901,
+"y": 32.83704
+},
+{
+"a": {
+"OBJECTID": 1845,
+"Corridor": "SH 183",
+"Location": "West of County Line Rd",
+"Ramp_Type": "Mainlane",
+"Address": "EB SH 183 Irving, TX 75061",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 238,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -97.030903,
+"y": 32.836982
+},
+{
+"a": {
+"OBJECTID": 1846,
+"Corridor": "SH 121",
+"Location": "East of Ector Dr",
+"Ramp_Type": "Exit",
+"Address": "EB SH 121 Euless, TX 76040",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 237,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -97.086378,
+"y": 32.838158
+},
+{
+"a": {
+"OBJECTID": 1847,
+"Corridor": "SH 183",
+"Location": "East of Central Dr",
+"Ramp_Type": "Entrance",
+"Address": "WB SH 183 Bedford, TX 76021",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 236,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.129782,
+"y": 32.83692
+},
+{
+"a": {
+"OBJECTID": 1848,
+"Corridor": "SH 183",
+"Location": "Brown Tr",
+"Ramp_Type": "Entrance",
+"Address": "NB Brown Tr & EB SH 183 Bedford, TX 76022",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 235,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.150033,
+"y": 32.83866
+},
+{
+"a": {
+"OBJECTID": 1849,
+"Corridor": "SH 183",
+"Location": "West of Norwood Dr",
+"Ramp_Type": "Entrance",
+"Address": "EB SH 183 Hurst, TX 76054",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 233,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.172388,
+"y": 32.839872
+},
+{
+"a": {
+"OBJECTID": 1850,
+"Corridor": "SH 183",
+"Location": "West of Precinct Line Dr",
+"Ramp_Type": "Entrance",
+"Address": "EB SH 183 Hurst, TX 76053",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 232,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.190486,
+"y": 32.838418
+},
+{
+"a": {
+"OBJECTID": 1851,
+"Corridor": "I820",
+"Location": "East of Holiday Ln",
+"Ramp_Type": "Mainlane",
+"Address": "EB I820 North Richland Hills, TX 76180",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 231,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.225476,
+"y": 32.837418
+},
+{
+"a": {
+"OBJECTID": 1852,
+"Corridor": "I820",
+"Location": "East of Holiday Ln",
+"Ramp_Type": "Mainlane",
+"Address": "EB I820 North Richland Hills, TX 76180",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 230,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.225946,
+"y": 32.837567
+},
+{
+"a": {
+"OBJECTID": 1853,
+"Corridor": "I820",
+"Location": "West of Rufe Snow Dr",
+"Ramp_Type": "Entrance",
+"Address": "WB I820 North Richland Hills, TX 76180",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 229,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.243956,
+"y": 32.840215
+},
+{
+"a": {
+"OBJECTID": 1854,
+"Corridor": "I820",
+"Location": "Iron Horse Blvd",
+"Ramp_Type": "Entrance",
+"Address": "NB Iron Hore Blvd & EB I820 North Richland Hills, TX 76180",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 228,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.248116,
+"y": 32.840032
+},
+{
+"a": {
+"OBJECTID": 1855,
+"Corridor": "I820",
+"Location": "US 377 ",
+"Ramp_Type": "Entrance",
+"Address": "NB US 377 & EB I820 Haltom City, TX 76117",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 227,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.25642,
+"y": 32.839926
+},
+{
+"a": {
+"OBJECTID": 1856,
+"Corridor": "I820",
+"Location": "Haltom Rd",
+"Ramp_Type": "Entrance",
+"Address": "SB Haltom Rd & WB Interstate 820 Haltom City, TX 76137",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 226,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.283955,
+"y": 32.839713
+},
+{
+"a": {
+"OBJECTID": 1857,
+"Corridor": "I820",
+"Location": "East of N Beach St",
+"Ramp_Type": "Mainlane",
+"Address": "EB Interstate 820 Haltom City, TX 76117",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 225,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.292531,
+"y": 32.839472
+},
+{
+"a": {
+"OBJECTID": 1858,
+"Corridor": "I35W",
+"Location": "North of Basswood Blvd",
+"Ramp_Type": "Entrance",
+"Address": "SB Interstate 35W Fort Worth, TX 76131",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 223,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.317138,
+"y": 32.874181
+},
+{
+"a": {
+"OBJECTID": 1859,
+"Corridor": "I35W",
+"Location": "Basswood Blvd",
+"Ramp_Type": "Entrance",
+"Address": "SB Interstate 35W Fort Worth, TX 76131",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 222,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.316699,
+"y": 32.868484
+},
+{
+"a": {
+"OBJECTID": 1860,
+"Corridor": "I35W",
+"Location": "West of Sandshell Dr",
+"Ramp_Type": "Entrance",
+"Address": "NB Interstate 35W Fort Worth, TX 76135",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 221,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.31377,
+"y": 32.858138
+},
+{
+"a": {
+"OBJECTID": 1861,
+"Corridor": "I35W",
+"Location": "East of Gemini Pl",
+"Ramp_Type": "Entrance",
+"Address": "SB Interstate 35W Fort Worth, TX 76137",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 220,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.312921,
+"y": 32.826957
+},
+{
+"a": {
+"OBJECTID": 1862,
+"Corridor": "I35W",
+"Location": "Southwest of Southern Cross Dr",
+"Ramp_Type": "Entrance",
+"Address": "SB Interstate 35W Fort Worth, TX 76106",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 219,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.314118,
+"y": 32.813776
+},
+{
+"a": {
+"OBJECTID": 1863,
+"Corridor": "I35W",
+"Location": "West of Highcrest Ave",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd SH 183 & Interstate 35 W, Fort Worth, TX 76111",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 218,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.320367,
+"y": 32.799699
+},
+{
+"a": {
+"OBJECTID": 1864,
+"Corridor": "I35W",
+"Location": "East of Warwick Ave",
+"Ramp_Type": "Entrance",
+"Address": "NB Interstate 35W Fort Worth, TX 76106",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 217,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.321877,
+"y": 32.793261
+},
+{
+"a": {
+"OBJECTID": 1865,
+"Corridor": "I35W",
+"Location": "East of Mony St",
+"Ramp_Type": "Entrance",
+"Address": "NB Interstate 35W Fort Worth, TX 76102",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 215,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.318733,
+"y": 32.770867
+},
+{
+"a": {
+"OBJECTID": 1866,
+"Corridor": "I35W",
+"Location": "North of Spur 280",
+"Ramp_Type": "Entrance",
+"Address": "NB Interstate 35W Fort Worth, TX 76102",
+"County": "Tarrant",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 214,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTE Mobility Partners",
+"Status": "Operational"
+},
+"x": -97.318877,
+"y": 32.757337
+},
+{
+"a": {
+"OBJECTID": 1867,
+"Corridor": "AATT",
+"Location": "Addison Airport Toll Tunnel WB",
+"Ramp_Type": "Mainlane",
+"Address": "4140 Keller Springs Road Addison, TX 75001",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 212,
+"NTTA_Gantry_ID": "AATT",
+"NTTA_Corridor_ID": "AATT",
+"Fixed_Toll_Tag": 0.78,
+"Fixed_Toll_ZipCash": 1.56,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.84098,
+"y": 32.969055
+},
+{
+"a": {
+"OBJECTID": 1868,
+"Corridor": "CTP",
+"Location": "NB Main Lane Gantry",
+"Ramp_Type": "Mainlane",
+"Address": "5450 Chisholm Trail Parkway Cleburne, TX 76058",
+"County": "Johnson",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 213,
+"NTTA_Gantry_ID": "MLG3",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 2.15,
+"Fixed_Toll_ZipCash": 4.3,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.414065,
+"y": 32.422048
+},
+{
+"a": {
+"OBJECTID": 1869,
+"Corridor": "CTP",
+"Location": "Sparks Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "3501 Chisholm Trail Parkway Cleburne, TX 76058",
+"County": "Johnson",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 195,
+"NTTA_Gantry_ID": "SPARD",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.38,
+"Fixed_Toll_ZipCash": 0.76,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.41742,
+"y": 32.400746
+},
+{
+"a": {
+"OBJECTID": 1870,
+"Corridor": "CTP",
+"Location": "Sparks Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "3500 Chisholm Trail Parkway Cleburne, TX 76058",
+"County": "Johnson",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 196,
+"NTTA_Gantry_ID": "SPARD",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.38,
+"Fixed_Toll_ZipCash": 0.76,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.416394,
+"y": 32.400449
+},
+{
+"a": {
+"OBJECTID": 1871,
+"Corridor": "360",
+"Location": "Main Lane Gantry 14 SB",
+"Ramp_Type": "Mainlane",
+"Address": "5790 S Hwy 360 Grand Prairie, TX 75052",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 197,
+"NTTA_Gantry_ID": "MLG14",
+"NTTA_Corridor_ID": "360T",
+"Fixed_Toll_Tag": 1.38,
+"Fixed_Toll_ZipCash": 2.76,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.068648,
+"y": 32.628147
+},
+{
+"a": {
+"OBJECTID": 1872,
+"Corridor": "360",
+"Location": "Webb Lynn Road 1/2",
+"Ramp_Type": "Entrance",
+"Address": "5224 S Hwy 360 Grand Prairie, TX 75052",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 198,
+"NTTA_Gantry_ID": "WEBRD",
+"NTTA_Corridor_ID": "360T-WEBRD-N-O",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.061981,
+"y": 32.646296
+},
+{
+"a": {
+"OBJECTID": 1873,
+"Corridor": "360",
+"Location": "Webb Lynn Road 3/4",
+"Ramp_Type": "Exit",
+"Address": "5215 S Hwy 360 Grand Prairie, TX 75052",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 199,
+"NTTA_Gantry_ID": "WEBRD",
+"NTTA_Corridor_ID": "360T-WEBRD-S-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.062772,
+"y": 32.647356
+},
+{
+"a": {
+"OBJECTID": 1874,
+"Corridor": "360",
+"Location": "New York Avenue 1/2",
+"Ramp_Type": "Entrance",
+"Address": "6480 S Hwy 360 Grand Prairie, TX 75052",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 200,
+"NTTA_Gantry_ID": "NYAV",
+"NTTA_Corridor_ID": "360T-NYAV-S-O",
+"Fixed_Toll_Tag": 0.92,
+"Fixed_Toll_ZipCash": 1.84,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.077087,
+"y": 32.611982
+},
+{
+"a": {
+"OBJECTID": 1875,
+"Corridor": "360",
+"Location": "New York Avenue 3/4",
+"Ramp_Type": "Exit",
+"Address": "6495 S Hwy 360 Grand Prairie, TX 75052",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 201,
+"NTTA_Gantry_ID": "NYAV",
+"NTTA_Corridor_ID": "360T-NYAV-N-F",
+"Fixed_Toll_Tag": 0.92,
+"Fixed_Toll_ZipCash": 1.84,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.076174,
+"y": 32.6134
+},
+{
+"a": {
+"OBJECTID": 1876,
+"Corridor": "360",
+"Location": "Debbie Lane 1/2",
+"Ramp_Type": "Entrance",
+"Address": "7200 S Hwy 360 Grand Prairie, TX 75052",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 202,
+"NTTA_Gantry_ID": "DEBLN",
+"NTTA_Corridor_ID": "360T-DEBLN-S-O",
+"Fixed_Toll_Tag": 0.64,
+"Fixed_Toll_ZipCash": 1.28,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.078158,
+"y": 32.592897
+},
+{
+"a": {
+"OBJECTID": 1877,
+"Corridor": "360",
+"Location": "Debbie Lane 3/4",
+"Ramp_Type": "Exit",
+"Address": "7215 S Hwy 360 Grand Prairie, TX 75052",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 203,
+"NTTA_Gantry_ID": "DEBLN",
+"NTTA_Corridor_ID": "360T-DEBLN-N-F",
+"Fixed_Toll_Tag": 0.64,
+"Fixed_Toll_ZipCash": 1.28,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.077378,
+"y": 32.593122
+},
+{
+"a": {
+"OBJECTID": 1878,
+"Corridor": "360",
+"Location": "Main Lane Gantry 15 SB",
+"Ramp_Type": "Mainlane",
+"Address": "698 S Hwy 360 Grand Prairie, TX 76063",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 204,
+"NTTA_Gantry_ID": "MLG15",
+"NTTA_Corridor_ID": "360T",
+"Fixed_Toll_Tag": 0.64,
+"Fixed_Toll_ZipCash": 1.28,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.085835,
+"y": 32.551917
+},
+{
+"a": {
+"OBJECTID": 1879,
+"Corridor": "PGBTEE",
+"Location": "Main Lane Plaza 5 WB",
+"Ramp_Type": "Mainlane",
+"Address": "President George Bush Turnpike Main Lane Plaza 5",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 205,
+"NTTA_Gantry_ID": "MLG5",
+"NTTA_Corridor_ID": "PGBTE",
+"Fixed_Toll_Tag": 2.23,
+"Fixed_Toll_ZipCash": 4.46,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.558537,
+"y": 32.944554
+},
+{
+"a": {
+"OBJECTID": 1880,
+"Corridor": "LLTB",
+"Location": "Lake Lewisville Toll Bridge EB",
+"Ramp_Type": "Mainlane",
+"Address": "501 Lake Lewisville Toll Bridge Lake Dallas, TX 75065",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 206,
+"NTTA_Gantry_ID": "LLTB",
+"NTTA_Corridor_ID": "LLTB",
+"Fixed_Toll_Tag": 1.55,
+"Fixed_Toll_ZipCash": 3.1,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.01931,
+"y": 33.136079
+},
+{
+"a": {
+"OBJECTID": 1881,
+"Corridor": "MCLB",
+"Location": "Mountain Creek Lake Bridge WB",
+"Ramp_Type": "Mainlane",
+"Address": "1701 East Spur 303 Grand Prairie, TX 75051",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 207,
+"NTTA_Gantry_ID": "MLP1",
+"NTTA_Corridor_ID": "MCLB",
+"Fixed_Toll_Tag": 0.78,
+"Fixed_Toll_ZipCash": 1.56,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.98242,
+"y": 32.705613
+},
+{
+"a": {
+"OBJECTID": 1882,
+"Corridor": "360",
+"Location": "Main Lane Gantry NB",
+"Ramp_Type": "Mainlane",
+"Address": "5790 S Hwy 360 Grand Prairie, TX 75052",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 208,
+"NTTA_Gantry_ID": "MLG14",
+"NTTA_Corridor_ID": "360T",
+"Fixed_Toll_Tag": 1.38,
+"Fixed_Toll_ZipCash": 2.76,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.069084,
+"y": 32.627002
+},
+{
+"a": {
+"OBJECTID": 1883,
+"Corridor": "CTP",
+"Location": "Main Lane Gantry NB",
+"Ramp_Type": "Mainlane",
+"Address": "2450 Chisholm Trail Parkway Fort Worth, TX 76185",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 210,
+"NTTA_Gantry_ID": "MLG1",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 1.78,
+"Fixed_Toll_ZipCash": 3.56,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.377264,
+"y": 32.725676
+},
+{
+"a": {
+"OBJECTID": 1884,
+"Corridor": "CTP",
+"Location": "Main Lane Gantry NB",
+"Ramp_Type": "Mainlane",
+"Address": "NB South of McPherson Blvd, Chisholm Trail Parkway Fort Worth, TX 76123",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 211,
+"NTTA_Gantry_ID": "MLG2",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 2.88,
+"Fixed_Toll_ZipCash": 5.76,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.419717,
+"y": 32.591462
+},
+{
+"a": {
+"OBJECTID": 1885,
+"Corridor": "PGBT",
+"Location": "Mainlane Plaza 8 WB",
+"Ramp_Type": "Mainlane",
+"Address": "2779 Old Mill Rd Dallas, TX 75287",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 129,
+"NTTA_Gantry_ID": "MLP8",
+"NTTA_Corridor_ID": "PGBTE",
+"Fixed_Toll_Tag": 1.55,
+"Fixed_Toll_ZipCash": 3.1,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.862454,
+"y": 32.992669
+},
+{
+"a": {
+"OBJECTID": 1886,
+"Corridor": "PGBT",
+"Location": "Mainlane Plaza 8 EB",
+"Ramp_Type": "Mainlane",
+"Address": "2779 Old Mill Rd Dallas, TX 75287",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 130,
+"NTTA_Gantry_ID": "MLP8",
+"NTTA_Corridor_ID": "PGBTE",
+"Fixed_Toll_Tag": 1.55,
+"Fixed_Toll_ZipCash": 3.1,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.862251,
+"y": 32.99257
+},
+{
+"a": {
+"OBJECTID": 1887,
+"Corridor": "PGBT",
+"Location": "Kelly Bvld 1/2",
+"Ramp_Type": "Entrance",
+"Address": "2391 PGBT Carrollton, TX 75007",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 131,
+"NTTA_Gantry_ID": "KELBD",
+"NTTA_Corridor_ID": "PGBT-KELBD-O-O",
+"Fixed_Toll_Tag": 0.81,
+"Fixed_Toll_ZipCash": 1.62,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.873293,
+"y": 32.986025
+},
+{
+"a": {
+"OBJECTID": 1888,
+"Corridor": "PGBT",
+"Location": "Kelly Bvld 3/4",
+"Ramp_Type": "Exit",
+"Address": "2390 PGBT Carrollton, TX 75007",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 132,
+"NTTA_Gantry_ID": "KELBD",
+"NTTA_Corridor_ID": "PGBT-KELBD-I-F",
+"Fixed_Toll_Tag": 0.81,
+"Fixed_Toll_ZipCash": 1.62,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.873797,
+"y": 32.985386
+},
+{
+"a": {
+"OBJECTID": 1889,
+"Corridor": "PGBT",
+"Location": "Josey Ln 1/2",
+"Ramp_Type": "Entrance",
+"Address": "1689 PGBT Carrollton, TX 75007",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 133,
+"NTTA_Gantry_ID": "JOSLN",
+"NTTA_Corridor_ID": "PGBT-JOSLN-O-O",
+"Fixed_Toll_Tag": 0.53,
+"Fixed_Toll_ZipCash": 1.06,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.896036,
+"y": 32.985067
+},
+{
+"a": {
+"OBJECTID": 1890,
+"Corridor": "PGBT",
+"Location": "Josey LN 3/4",
+"Ramp_Type": "Exit",
+"Address": "1690 PGBT Carrollton, TX 75007",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 134,
+"NTTA_Gantry_ID": "JOSLN",
+"NTTA_Corridor_ID": "PGBT-JOSLN-I-F",
+"Fixed_Toll_Tag": 0.53,
+"Fixed_Toll_ZipCash": 1.06,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.895148,
+"y": 32.984412
+},
+{
+"a": {
+"OBJECTID": 1891,
+"Corridor": "PGBT",
+"Location": "Mainlane Plaza 9 WB",
+"Ramp_Type": "Mainlane",
+"Address": "1400 North PGBT Carrollton, TX 75006",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 135,
+"NTTA_Gantry_ID": "MLP9",
+"NTTA_Corridor_ID": "PGBTW",
+"Fixed_Toll_Tag": 1.21,
+"Fixed_Toll_ZipCash": 2.42,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.92943,
+"y": 32.959118
+},
+{
+"a": {
+"OBJECTID": 1892,
+"Corridor": "PGBT",
+"Location": "Mainlane Plaza 9 EB",
+"Ramp_Type": "Mainlane",
+"Address": "1400 North PGBT Carrollton, TX 75006",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 136,
+"NTTA_Gantry_ID": "MLP9",
+"NTTA_Corridor_ID": "PGBTW",
+"Fixed_Toll_Tag": 1.21,
+"Fixed_Toll_ZipCash": 2.42,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.929567,
+"y": 32.959028
+},
+{
+"a": {
+"OBJECTID": 1893,
+"Corridor": "PGBT",
+"Location": "North Beltline Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "1102 South PGBT Carrollton, TX 75006",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 137,
+"NTTA_Gantry_ID": "NBERD",
+"NTTA_Corridor_ID": "PGBT-NBERD-O-O",
+"Fixed_Toll_Tag": 0.71,
+"Fixed_Toll_ZipCash": 1.42,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.926974,
+"y": 32.949864
+},
+{
+"a": {
+"OBJECTID": 1894,
+"Corridor": "PGBT",
+"Location": "North Beltline Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "1203 South PGBT Carrollton, TX 75006",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 138,
+"NTTA_Gantry_ID": "NBERD",
+"NTTA_Corridor_ID": "PGBT-NBERD-I-F",
+"Fixed_Toll_Tag": 0.71,
+"Fixed_Toll_ZipCash": 1.42,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.926249,
+"y": 32.947782
+},
+{
+"a": {
+"OBJECTID": 1895,
+"Corridor": "PGBT",
+"Location": "Royal Ln 1/2",
+"Ramp_Type": "Exit",
+"Address": "7015 N State Highway 161 Irving, TX 75063",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 139,
+"NTTA_Gantry_ID": "ROYLN",
+"NTTA_Corridor_ID": "PGBT-ROYLN-O-F",
+"Fixed_Toll_Tag": 0.4,
+"Fixed_Toll_ZipCash": 0.8,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.963898,
+"y": 32.901407
+},
+{
+"a": {
+"OBJECTID": 1896,
+"Corridor": "PGBT",
+"Location": "Royal Ln 3/4",
+"Ramp_Type": "Entrance",
+"Address": "7120 N State Highway 161 Irving, TX 75093",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 140,
+"NTTA_Gantry_ID": "ROYLN",
+"NTTA_Corridor_ID": "PGBT-ROYLN-I-O",
+"Fixed_Toll_Tag": 0.4,
+"Fixed_Toll_ZipCash": 0.8,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.962587,
+"y": 32.901614
+},
+{
+"a": {
+"OBJECTID": 1897,
+"Corridor": "PGBT",
+"Location": "South Beltline Rd 1/2",
+"Ramp_Type": "Exit",
+"Address": "5825 N State Highway 161 Irving, TX 75063",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 141,
+"NTTA_Gantry_ID": "SBERD",
+"NTTA_Corridor_ID": "PGBT-SBERD-O-F",
+"Fixed_Toll_Tag": 0.74,
+"Fixed_Toll_ZipCash": 1.48,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.98497,
+"y": 32.886094
+},
+{
+"a": {
+"OBJECTID": 1898,
+"Corridor": "PGBT",
+"Location": "South Beltline Rd 3/4",
+"Ramp_Type": "Entrance",
+"Address": "5824 N State Highway 161 Irving, TX 75038",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 142,
+"NTTA_Gantry_ID": "SBERD",
+"NTTA_Corridor_ID": "PGBT-SBERD-I-O",
+"Fixed_Toll_Tag": 0.74,
+"Fixed_Toll_ZipCash": 1.48,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.984473,
+"y": 32.885609
+},
+{
+"a": {
+"OBJECTID": 1899,
+"Corridor": "PGBT",
+"Location": "Mainlane Plaza 10 SB",
+"Ramp_Type": "Mainlane",
+"Address": "5555 N State Highway 161 Irving, TX 75038",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 143,
+"NTTA_Gantry_ID": "MLP10",
+"NTTA_Corridor_ID": "PGBTW",
+"Fixed_Toll_Tag": 0.74,
+"Fixed_Toll_ZipCash": 1.48,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.987184,
+"y": 32.882985
+},
+{
+"a": {
+"OBJECTID": 1900,
+"Corridor": "PGBT",
+"Location": "Mainlane Plaza 10 NB",
+"Ramp_Type": "Mainlane",
+"Address": "5555 N State Highway 161 Irving, TX 75038",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 144,
+"NTTA_Gantry_ID": "MLP10",
+"NTTA_Corridor_ID": "PGBTW",
+"Fixed_Toll_Tag": 0.74,
+"Fixed_Toll_ZipCash": 1.48,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.987001,
+"y": 32.882876
+},
+{
+"a": {
+"OBJECTID": 1901,
+"Corridor": "MCLB",
+"Location": "Mountain Creek Lake Bridge EB",
+"Ramp_Type": "Mainlane",
+"Address": "1701 East Spur 303 Grand Prairie, TX 75051",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 145,
+"NTTA_Gantry_ID": "MLP1",
+"NTTA_Corridor_ID": "MCLB",
+"Fixed_Toll_Tag": 0.78,
+"Fixed_Toll_ZipCash": 1.56,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.982561,
+"y": 32.705509
+},
+{
+"a": {
+"OBJECTID": 1902,
+"Corridor": "PGBW",
+"Location": "Conflans Rd 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd Conflans Rd & N. State Highway 161 Irving, TX 75061",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 146,
+"NTTA_Gantry_ID": "CONRD",
+"NTTA_Corridor_ID": "PGBT-CCONRD-S-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.01787,
+"y": 32.824545
+},
+{
+"a": {
+"OBJECTID": 1903,
+"Corridor": "PGBW",
+"Location": "Conflans Rd 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd Conflans Rd & N. State Highway 161 Irving, TX 75061",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 147,
+"NTTA_Gantry_ID": "CONRD",
+"NTTA_Corridor_ID": "PGBT-CCONRD-N-O",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.016964,
+"y": 32.824489
+},
+{
+"a": {
+"OBJECTID": 1904,
+"Corridor": "PGBW",
+"Location": "Shady Grove Rd 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd Shady Grove Rd & N. State Highway 161 Grand Prairie, TX 75050",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 148,
+"NTTA_Gantry_ID": "SHGRD",
+"NTTA_Corridor_ID": "PGBT-CSHGRD-S-F",
+"Fixed_Toll_Tag": 0.57,
+"Fixed_Toll_ZipCash": 1.14,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.018733,
+"y": 32.806952
+},
+{
+"a": {
+"OBJECTID": 1905,
+"Corridor": "PGBW",
+"Location": "Shady Grove Rd 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd Shady Grove Rd & N. State Highway 161 Grand Prairie, TX 75050",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 149,
+"NTTA_Gantry_ID": "SHGRD",
+"NTTA_Corridor_ID": "PGBT-CSHGRD-N-O",
+"Fixed_Toll_Tag": 0.57,
+"Fixed_Toll_ZipCash": 1.14,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.017971,
+"y": 32.807227
+},
+{
+"a": {
+"OBJECTID": 1906,
+"Corridor": "PGBW",
+"Location": "North Lower Tarrant Rd 2/3",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd North Lower Tarrant Rd & N. State Highway 161 Grand Prairie, TX 75050",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 150,
+"NTTA_Gantry_ID": "NLTRD",
+"NTTA_Corridor_ID": "PGBT-CLOTRD-S-F",
+"Fixed_Toll_Tag": 0.59,
+"Fixed_Toll_ZipCash": 1.18,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.026161,
+"y": 32.779212
+},
+{
+"a": {
+"OBJECTID": 1907,
+"Corridor": "PGBW",
+"Location": "North Lower Tarrant Rd 4/5",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd North Lower Tarrant Rd & N. State Highway 161 Grand Prairie, TX 75050",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 151,
+"NTTA_Gantry_ID": "NLTRD",
+"NTTA_Corridor_ID": "PGBT-CLOTRD-N-O",
+"Fixed_Toll_Tag": 0.59,
+"Fixed_Toll_ZipCash": 1.18,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.024916,
+"y": 32.779067
+},
+{
+"a": {
+"OBJECTID": 1908,
+"Corridor": "PGBW",
+"Location": "Main Lane Gantry SB",
+"Ramp_Type": "Mainlane",
+"Address": "SB PGBT Grand Prairie, TX 75050",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 152,
+"NTTA_Gantry_ID": "MLG11",
+"NTTA_Corridor_ID": "PGBTW",
+"Fixed_Toll_Tag": 1.29,
+"Fixed_Toll_ZipCash": 2.58,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.027323,
+"y": 32.776131
+},
+{
+"a": {
+"OBJECTID": 1909,
+"Corridor": "PGBW",
+"Location": "Main Lane Gantry NB",
+"Ramp_Type": "Mainlane",
+"Address": "NB PGBT Grand Prairie, TX 75050",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 153,
+"NTTA_Gantry_ID": "MLG11",
+"NTTA_Corridor_ID": "PGBTW",
+"Fixed_Toll_Tag": 1.29,
+"Fixed_Toll_ZipCash": 2.58,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.027059,
+"y": 32.775894
+},
+{
+"a": {
+"OBJECTID": 1910,
+"Corridor": "PGBW",
+"Location": "South Lower Tarrant Rd 1/2",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd South Lower Tarrant Rd & N. State Highway 161 Grand Prairie, TX 75050",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 154,
+"NTTA_Gantry_ID": "SLTRD",
+"NTTA_Corridor_ID": "PGBT-CLOTRD-N-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.027026,
+"y": 32.774783
+},
+{
+"a": {
+"OBJECTID": 1911,
+"Corridor": "PGBW",
+"Location": "South Lower Tarrant Rd 3/4",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd South Lower Tarrant Rd & N. State Highway 161 Grand Prairie, TX 75050",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 155,
+"NTTA_Gantry_ID": "SLTRD",
+"NTTA_Corridor_ID": "PGBT-CLOTRD-S-O",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.027734,
+"y": 32.774707
+},
+{
+"a": {
+"OBJECTID": 1912,
+"Corridor": "PGBW",
+"Location": "Dalworth St 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd Dalworth St & State Highway 161 Grand Prairie, TX 75050",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 156,
+"NTTA_Gantry_ID": "DALST",
+"NTTA_Corridor_ID": "PGBT-CDALST-S-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.024067,
+"y": 32.746402
+},
+{
+"a": {
+"OBJECTID": 1913,
+"Corridor": "PGBW",
+"Location": "Dalworth St 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd Dalworth St & State Highway 161 Grand Prairie, TX 75050",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 157,
+"NTTA_Gantry_ID": "DALST",
+"NTTA_Corridor_ID": "PGBT-CDALST-N-O",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.023556,
+"y": 32.746732
+},
+{
+"a": {
+"OBJECTID": 1914,
+"Corridor": "PGBW",
+"Location": "W Marshall Dr 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd Marshall Dr & State Highway 161 Grand Prairie, TX 75051",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 158,
+"NTTA_Gantry_ID": "MARDR",
+"NTTA_Corridor_ID": "PGBT-CMARDR-S-F",
+"Fixed_Toll_Tag": 0.65,
+"Fixed_Toll_ZipCash": 1.3,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.021352,
+"y": 32.724673
+},
+{
+"a": {
+"OBJECTID": 1915,
+"Corridor": "PGBW",
+"Location": "W Marshall Dr 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd Marshall Dr & State Highway 161 Grand Prairie, TX 75051",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 159,
+"NTTA_Gantry_ID": "MARDR",
+"NTTA_Corridor_ID": "PGBT-CMARDR-N-O",
+"Fixed_Toll_Tag": 0.65,
+"Fixed_Toll_ZipCash": 1.3,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.020715,
+"y": 32.724421
+},
+{
+"a": {
+"OBJECTID": 1916,
+"Corridor": "PGBW",
+"Location": "W Pioneer Pkwy 1/2 SB",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd W. Pioneer Pkwy & State Highway 161 Grand Prairie, TX 75051",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 160,
+"NTTA_Gantry_ID": "PIOPY",
+"NTTA_Corridor_ID": "PGBT-CPIOPY-S-F",
+"Fixed_Toll_Tag": 0.83,
+"Fixed_Toll_ZipCash": 1.66,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.023708,
+"y": 32.719515
+},
+{
+"a": {
+"OBJECTID": 1917,
+"Corridor": "PGBW",
+"Location": "W Pioneer Pkwy 3/4 NB",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd W. Pioneer Pkwy & State Highway 161 Grand Prairie, TX 75051",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 161,
+"NTTA_Gantry_ID": "PIOPY",
+"NTTA_Corridor_ID": "PGBT-CPIOPY-N-O",
+"Fixed_Toll_Tag": 0.83,
+"Fixed_Toll_ZipCash": 1.66,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.023643,
+"y": 32.717614
+},
+{
+"a": {
+"OBJECTID": 1918,
+"Corridor": "PGBW",
+"Location": "Main Lane Gantry 2",
+"Ramp_Type": "Mainlane",
+"Address": "SB PGBT Grand Prairie, TX 75052",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 162,
+"NTTA_Gantry_ID": "MLG12",
+"NTTA_Corridor_ID": "PGBTW",
+"Fixed_Toll_Tag": 1.35,
+"Fixed_Toll_ZipCash": 2.7,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.024834,
+"y": 32.70283
+},
+{
+"a": {
+"OBJECTID": 1919,
+"Corridor": "PGBW",
+"Location": "Main Lane Gantry 3",
+"Ramp_Type": "Mainlane",
+"Address": "NB PGBT Grand Prairie, TX 75052",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 163,
+"NTTA_Gantry_ID": "MLG12",
+"NTTA_Corridor_ID": "PGBTW",
+"Fixed_Toll_Tag": 1.35,
+"Fixed_Toll_ZipCash": 2.7,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.024518,
+"y": 32.702564
+},
+{
+"a": {
+"OBJECTID": 1920,
+"Corridor": "PGBW",
+"Location": "Arkansas Ln 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Arkansas Ln & State Highway 161 Grand Prairie, TX 75052",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 166,
+"NTTA_Gantry_ID": "ARKLN",
+"NTTA_Corridor_ID": "PGBT-CARKLN-S-O",
+"Fixed_Toll_Tag": 0.46,
+"Fixed_Toll_ZipCash": 0.92,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.025041,
+"y": 32.7024
+},
+{
+"a": {
+"OBJECTID": 1921,
+"Corridor": "PGBW",
+"Location": "Arkansas Ln 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Arkansas Ln & State Highway 161 Grand Prairie, TX 75052",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 167,
+"NTTA_Gantry_ID": "ARKLN",
+"NTTA_Corridor_ID": "PGBT-CARKLN-N-F",
+"Fixed_Toll_Tag": 0.46,
+"Fixed_Toll_ZipCash": 0.92,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.024328,
+"y": 32.702251
+},
+{
+"a": {
+"OBJECTID": 1922,
+"Corridor": "PGBW",
+"Location": "Mayfield Rd 1/2 SB On",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Mayfield Rd & State Highway 161 Grand Prairie, TX 75052",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 168,
+"NTTA_Gantry_ID": "MAYRD",
+"NTTA_Corridor_ID": "PGBT-CMAYRD-S-O",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.024683,
+"y": 32.688763
+},
+{
+"a": {
+"OBJECTID": 1923,
+"Corridor": "PGBW",
+"Location": "Mayfield Rd 3/4 NB off",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Mayfield Rd & State Highway 161 Grand Prairie, TX 75052",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 169,
+"NTTA_Gantry_ID": "MAYRD",
+"NTTA_Corridor_ID": "PGBT-CMAYRD-N-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.023868,
+"y": 32.68776
+},
+{
+"a": {
+"OBJECTID": 1924,
+"Corridor": "CTP",
+"Location": "Main Lane Gantry 1 SB",
+"Ramp_Type": "Mainlane",
+"Address": "2450 Chisholm Trail Parkway Fort Worth, TX 76185",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 170,
+"NTTA_Gantry_ID": "MLG1",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 1.78,
+"Fixed_Toll_ZipCash": 3.56,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.377373,
+"y": 32.725812
+},
+{
+"a": {
+"OBJECTID": 1925,
+"Corridor": "CTP",
+"Location": "Edwards Ranch Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "2960 Edwards Rach Rd Fort Worth, TX 76185",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 171,
+"NTTA_Gantry_ID": "EDWRD",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.75,
+"Fixed_Toll_ZipCash": 1.5,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.400456,
+"y": 32.712045
+},
+{
+"a": {
+"OBJECTID": 1926,
+"Corridor": "CTP",
+"Location": "Edwards Ranch Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "2961 Edwards Rach Rd Fort Worth, TX 76185",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 172,
+"NTTA_Gantry_ID": "EDWRD",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.75,
+"Fixed_Toll_ZipCash": 1.5,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.401108,
+"y": 32.710679
+},
+{
+"a": {
+"OBJECTID": 1927,
+"Corridor": "CTP",
+"Location": "Arborlawn Drive 1/2",
+"Ramp_Type": "Exit",
+"Address": "3601 Chisholm Trail Parkway Fort Worth, TX 76109",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 173,
+"NTTA_Gantry_ID": "ARBDR",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.43,
+"Fixed_Toll_ZipCash": 0.86,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.404673,
+"y": 32.687467
+},
+{
+"a": {
+"OBJECTID": 1928,
+"Corridor": "CTP",
+"Location": "Arborlawn Drive 3/4",
+"Ramp_Type": "Entrance",
+"Address": "3900 Chisholm Trail Parkway Fort Worth, TX 76109",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 174,
+"NTTA_Gantry_ID": "ARBDR",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.43,
+"Fixed_Toll_ZipCash": 0.86,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.404932,
+"y": 32.690614
+},
+{
+"a": {
+"OBJECTID": 1929,
+"Corridor": "CTP",
+"Location": "Oakmont Blvd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "5900 Chisholm Trail Parkway Fort Worth, TX 76132",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 175,
+"NTTA_Gantry_ID": "OAKBD",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.63,
+"Fixed_Toll_ZipCash": 1.26,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.413661,
+"y": 32.665216
+},
+{
+"a": {
+"OBJECTID": 1930,
+"Corridor": "CTP",
+"Location": "Oakmont Blvd 3/4",
+"Ramp_Type": "Exit",
+"Address": "5901 Chisholm Trail Parkway Fort Worth, TX 76132",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 176,
+"NTTA_Gantry_ID": "OAKBD",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.63,
+"Fixed_Toll_ZipCash": 1.26,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.413797,
+"y": 32.666071
+},
+{
+"a": {
+"OBJECTID": 1931,
+"Corridor": "CTP",
+"Location": "Altamesa Blvd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "7000 Chisholm Trail Parkway Fort Worth, TX 76162",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 177,
+"NTTA_Gantry_ID": "ALTBD",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.98,
+"Fixed_Toll_ZipCash": 1.96,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.415461,
+"y": 32.648666
+},
+{
+"a": {
+"OBJECTID": 1932,
+"Corridor": "CTP",
+"Location": "Altamesa Blvd 3/4",
+"Ramp_Type": "Exit",
+"Address": "7001 Chisholm Trail Parkway Fort Worth, TX 76162",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 178,
+"NTTA_Gantry_ID": "ALTBD",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.98,
+"Fixed_Toll_ZipCash": 1.96,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.416218,
+"y": 32.648328
+},
+{
+"a": {
+"OBJECTID": 1933,
+"Corridor": "CTP",
+"Location": "Sycamore School Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "7800 Chisholm Trail Parkway Fort Worth, TX 76123",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 179,
+"NTTA_Gantry_ID": "SYCRD",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 1.02,
+"Fixed_Toll_ZipCash": 2.04,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.412996,
+"y": 32.631399
+},
+{
+"a": {
+"OBJECTID": 1934,
+"Corridor": "CTP",
+"Location": "Sycamore School Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "7801 Chisholm Trail Parkway Fort Worth, TX 76123",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 180,
+"NTTA_Gantry_ID": "SYCRD",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 1.02,
+"Fixed_Toll_ZipCash": 2.04,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.414357,
+"y": 32.632314
+},
+{
+"a": {
+"OBJECTID": 1935,
+"Corridor": "CTP",
+"Location": "McPherson Blvd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "9100 Chisholm Trail Parkway Fort Worth, TX 76123",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 181,
+"NTTA_Gantry_ID": "MCPBD",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 1.38,
+"Fixed_Toll_ZipCash": 2.76,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.412235,
+"y": 32.608794
+},
+{
+"a": {
+"OBJECTID": 1936,
+"Corridor": "CTP",
+"Location": "McPherson Blvd 3/4",
+"Ramp_Type": "Exit",
+"Address": "9101 Chisholm Trail Parkway Fort Worth, TX 76123",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 182,
+"NTTA_Gantry_ID": "MCPBD",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 1.38,
+"Fixed_Toll_ZipCash": 2.76,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.412924,
+"y": 32.610851
+},
+{
+"a": {
+"OBJECTID": 1937,
+"Corridor": "CTP",
+"Location": "Mainlane 2 SB",
+"Ramp_Type": "Mainlane",
+"Address": "South of McPherson Blvd, Chisholm Trail Parkway Fort Worth, TX 76123",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 183,
+"NTTA_Gantry_ID": "MLG2",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 2.88,
+"Fixed_Toll_ZipCash": 5.76,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.419923,
+"y": 32.591665
+},
+{
+"a": {
+"OBJECTID": 1938,
+"Corridor": "CTP",
+"Location": "Farm Market 1187 1/2",
+"Ramp_Type": "Entrance",
+"Address": "14701 Chisholm Trail Parkway Crowley, TX 76036",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 184,
+"NTTA_Gantry_ID": "F1187",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.79,
+"Fixed_Toll_ZipCash": 1.58,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.433297,
+"y": 32.561581
+},
+{
+"a": {
+"OBJECTID": 1939,
+"Corridor": "CTP",
+"Location": "Farm Market 1187 3/4",
+"Ramp_Type": "Exit",
+"Address": "14700 Chisholm Trail Parkway Crowley, TX 76036",
+"County": "Tarrant",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 185,
+"NTTA_Gantry_ID": "F1187",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.79,
+"Fixed_Toll_ZipCash": 1.58,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.432533,
+"y": 32.561333
+},
+{
+"a": {
+"OBJECTID": 1940,
+"Corridor": "CTP",
+"Location": "Country Rd 920 1/2",
+"Ramp_Type": "Entrance",
+"Address": "13701 Chisholm Trail Parkway Crowley, TX 76036",
+"County": "Johnson",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 186,
+"NTTA_Gantry_ID": "CR920",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.47,
+"Fixed_Toll_ZipCash": 0.94,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.431968,
+"y": 32.542345
+},
+{
+"a": {
+"OBJECTID": 1941,
+"Corridor": "CTP",
+"Location": "Country Rd 920 3/4",
+"Ramp_Type": "Exit",
+"Address": "13700 Chisholm Trail Parkway Crowley, TX 76036",
+"County": "Johnson",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 187,
+"NTTA_Gantry_ID": "CR920",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.47,
+"Fixed_Toll_ZipCash": 0.94,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.431158,
+"y": 32.543378
+},
+{
+"a": {
+"OBJECTID": 1942,
+"Corridor": "CTP",
+"Location": "Country Rd 913 1/2",
+"Ramp_Type": "Entrance",
+"Address": "10001 Chisholm Trail Parkway Burleson, TX 76036",
+"County": "Johnson",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 188,
+"NTTA_Gantry_ID": "CR913",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.48,
+"Fixed_Toll_ZipCash": 0.96,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.423336,
+"y": 32.488998
+},
+{
+"a": {
+"OBJECTID": 1943,
+"Corridor": "CTP",
+"Location": "Country Rd 913 3/4",
+"Ramp_Type": "Exit",
+"Address": "10000 Chisholm Trail Parkway Burleson, TX 76036",
+"County": "Johnson",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 189,
+"NTTA_Gantry_ID": "CR913",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.48,
+"Fixed_Toll_ZipCash": 0.96,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.424293,
+"y": 32.489046
+},
+{
+"a": {
+"OBJECTID": 1944,
+"Corridor": "CTP",
+"Location": "Farm Market 917 1/2",
+"Ramp_Type": "Entrance",
+"Address": "9373 Chisholm Trail Parkway Burleson, TX 76058",
+"County": "Johnson",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 190,
+"NTTA_Gantry_ID": "FM917",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.87,
+"Fixed_Toll_ZipCash": 1.74,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.421982,
+"y": 32.463252
+},
+{
+"a": {
+"OBJECTID": 1945,
+"Corridor": "CTP",
+"Location": "Farm Market 917 3/4",
+"Ramp_Type": "Exit",
+"Address": "9372 Chisholm Trail Parkway Burleson, TX 76058",
+"County": "Johnson",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 191,
+"NTTA_Gantry_ID": "FM917",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 0.87,
+"Fixed_Toll_ZipCash": 1.74,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.423032,
+"y": 32.46355
+},
+{
+"a": {
+"OBJECTID": 1946,
+"Corridor": "CTP",
+"Location": "Country Rd 904 1/2",
+"Ramp_Type": "Entrance",
+"Address": "6501 Chisholm Trail Parkway Cleburne, TX 76058",
+"County": "Johnson",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 192,
+"NTTA_Gantry_ID": "CR904",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 1.31,
+"Fixed_Toll_ZipCash": 2.62,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.416101,
+"y": 32.434542
+},
+{
+"a": {
+"OBJECTID": 1947,
+"Corridor": "CTP",
+"Location": "Country Rd 904 3/4",
+"Ramp_Type": "Exit",
+"Address": "6500 Chisholm Trail Parkway Cleburne, TX 76058",
+"County": "Johnson",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 193,
+"NTTA_Gantry_ID": "CR904",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 1.31,
+"Fixed_Toll_ZipCash": 2.62,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.41714,
+"y": 32.434839
+},
+{
+"a": {
+"OBJECTID": 1948,
+"Corridor": "CTP",
+"Location": "Main Lane Gantry 3 SB",
+"Ramp_Type": "Mainlane",
+"Address": "5450 Chisholm Trail Parkway Cleburne, TX 76058",
+"County": "Johnson",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 194,
+"NTTA_Gantry_ID": "MLG3",
+"NTTA_Corridor_ID": "CTP",
+"Fixed_Toll_Tag": 2.15,
+"Fixed_Toll_ZipCash": 4.3,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.414125,
+"y": 32.422038
+},
+{
+"a": {
+"OBJECTID": 1949,
+"Corridor": "DNT",
+"Location": "Mainlane Plaza 1 SB",
+"Ramp_Type": "Mainlane",
+"Address": "Wycliff Ave & Dallas North Tollway Dallas, TX 75219",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 1,
+"NTTA_Gantry_ID": "MLP1",
+"NTTA_Corridor_ID": "DNT",
+"Fixed_Toll_Tag": 1.94,
+"Fixed_Toll_ZipCash": 3.88,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.817801,
+"y": 32.814157
+},
+{
+"a": {
+"OBJECTID": 1950,
+"Corridor": "DNT",
+"Location": "Mainlane Plaza 1 NB",
+"Ramp_Type": "Mainlane",
+"Address": "Wycliff Ave & Dallas North Tollway Dallas, TX 75219",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 2,
+"NTTA_Gantry_ID": "MLP1",
+"NTTA_Corridor_ID": "DNT",
+"Fixed_Toll_Tag": 1.94,
+"Fixed_Toll_ZipCash": 3.88,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.817654,
+"y": 32.813955
+},
+{
+"a": {
+"OBJECTID": 1951,
+"Corridor": "DNT",
+"Location": "Mockingbird 1",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd Mockingbird Lane & Dallas North Tollway Exit Ramp, Dallas TX, 75209",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 3,
+"NTTA_Gantry_ID": "MOCLN",
+"NTTA_Corridor_ID": "DNT-MOCLN-S-F",
+"Fixed_Toll_Tag": 1.41,
+"Fixed_Toll_ZipCash": 2.82,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.81506,
+"y": 32.837852
+},
+{
+"a": {
+"OBJECTID": 1952,
+"Corridor": "DNT",
+"Location": "Mockingbird 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd Mockingbird Lane & Dallas North Tollway Entrance Ramp, Dallas TX, 75205",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 4,
+"NTTA_Gantry_ID": "MOCLN",
+"NTTA_Corridor_ID": "DNT-MOCLN-N-O",
+"Fixed_Toll_Tag": 1.41,
+"Fixed_Toll_ZipCash": 2.82,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.814604,
+"y": 32.837969
+},
+{
+"a": {
+"OBJECTID": 1953,
+"Corridor": "DNT",
+"Location": "Northwest Hwy ",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd Northwest Hwy & Dallas North Tollway Exit Ramp, Dallas TX, 75220",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 5,
+"NTTA_Gantry_ID": "NORHY",
+"NTTA_Corridor_ID": "DNT-NORHY-S-F",
+"Fixed_Toll_Tag": 0.96,
+"Fixed_Toll_ZipCash": 1.92,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.81145,
+"y": 32.86781
+},
+{
+"a": {
+"OBJECTID": 1954,
+"Corridor": "DNT",
+"Location": "Northwest Hwy 3,4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd Northwest Hwy & Dallas North Tollway Entrance Ramp, Dallas TX, 75225",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 6,
+"NTTA_Gantry_ID": "NORHY",
+"NTTA_Corridor_ID": "DNT-NORHY-N-O",
+"Fixed_Toll_Tag": 0.96,
+"Fixed_Toll_ZipCash": 1.92,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.811103,
+"y": 32.866571
+},
+{
+"a": {
+"OBJECTID": 1955,
+"Corridor": "DNT",
+"Location": "Royal Lane",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd Royal Ln & Dallas North Tollway Exit Ramp Dallas, TX 75229",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 7,
+"NTTA_Gantry_ID": "ROYLN",
+"NTTA_Corridor_ID": "DNT-ROYLN-S-F",
+"Fixed_Toll_Tag": 0.51,
+"Fixed_Toll_ZipCash": 1.02,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.809923,
+"y": 32.895767
+},
+{
+"a": {
+"OBJECTID": 1956,
+"Corridor": "DNT",
+"Location": "Royal Lane 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd Royal Lane & Dallas North Tollway Entrance Ramp, Dallas TX, 75229",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 8,
+"NTTA_Gantry_ID": "ROYLN",
+"NTTA_Corridor_ID": "DNT-ROYLN-N-O",
+"Fixed_Toll_Tag": 0.51,
+"Fixed_Toll_ZipCash": 1.02,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.809543,
+"y": 32.89612
+},
+{
+"a": {
+"OBJECTID": 1957,
+"Corridor": "DNT",
+"Location": "Spring Valley Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Spring Valley Rd & Dallas North Tollway Entrance Ramp, Dallas TX, 75240",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 9,
+"NTTA_Gantry_ID": "SPVRD",
+"NTTA_Corridor_ID": "DNT-SPVRD-S-O",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.822258,
+"y": 32.934623
+},
+{
+"a": {
+"OBJECTID": 1958,
+"Corridor": "DNT",
+"Location": "Spring Valley Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Spring Valley Rd & Dallas North Tollway Exit Ramp, Dallas TX, 75240",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 10,
+"NTTA_Gantry_ID": "SPVRD",
+"NTTA_Corridor_ID": "DNT-SPVRD-N-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.821791,
+"y": 32.933988
+},
+{
+"a": {
+"OBJECTID": 1959,
+"Corridor": "DNT",
+"Location": "Beltline Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Beltline Rd & Dallas North Tollway Entrance Ramp, Dallas TX, 75245",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 11,
+"NTTA_Gantry_ID": "BELRD",
+"NTTA_Corridor_ID": "DNT-BELRD-S-O",
+"Fixed_Toll_Tag": 0.45,
+"Fixed_Toll_ZipCash": 0.9,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.82275,
+"y": 32.952465
+},
+{
+"a": {
+"OBJECTID": 1960,
+"Corridor": "DNT",
+"Location": "Beltline Rd 5/6",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Beltline Rd & Dallas North Tollway Exit Ramp, Dallas TX, 75254",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 12,
+"NTTA_Gantry_ID": "BELRD",
+"NTTA_Corridor_ID": "DNT-BELRD-N-F",
+"Fixed_Toll_Tag": 0.45,
+"Fixed_Toll_ZipCash": 0.9,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.823178,
+"y": 32.950061
+},
+{
+"a": {
+"OBJECTID": 1961,
+"Corridor": "DNT",
+"Location": "Keller Springs Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv RD Keller Springs Rd & Dallas North Tollway Entrance Ramp, Dallas TX, 75001",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 13,
+"NTTA_Gantry_ID": "KESRD",
+"NTTA_Corridor_ID": "DNT-KESRD-S-F",
+"Fixed_Toll_Tag": 0.67,
+"Fixed_Toll_ZipCash": 1.34,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.821837,
+"y": 32.966182
+},
+{
+"a": {
+"OBJECTID": 1962,
+"Corridor": "DNT",
+"Location": "Keller Springs Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "15950 Dallas Pkwy Dallas, TX 75248",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 14,
+"NTTA_Gantry_ID": "KESRD",
+"NTTA_Corridor_ID": "DNT-KESRD-N-O",
+"Fixed_Toll_Tag": 0.67,
+"Fixed_Toll_ZipCash": 1.34,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.821174,
+"y": 32.96597
+},
+{
+"a": {
+"OBJECTID": 1963,
+"Corridor": "DNT",
+"Location": "Mainlane Plaza 2 SB",
+"Ramp_Type": "Mainlane",
+"Address": "17099 Dallas Pkwy Addison TX, 75001",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 15,
+"NTTA_Gantry_ID": "MLP2",
+"NTTA_Corridor_ID": "DNT",
+"Fixed_Toll_Tag": 1.39,
+"Fixed_Toll_ZipCash": 2.78,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.828651,
+"y": 32.985076
+},
+{
+"a": {
+"OBJECTID": 1964,
+"Corridor": "DNT",
+"Location": "Mainlane Plaza 2 NB",
+"Ramp_Type": "Mainlane",
+"Address": "17241 Dallas Pkwy Dallas, TX 75248",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 16,
+"NTTA_Gantry_ID": "MLP2",
+"NTTA_Corridor_ID": "DNT",
+"Fixed_Toll_Tag": 1.39,
+"Fixed_Toll_ZipCash": 2.78,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.828491,
+"y": 32.984846
+},
+{
+"a": {
+"OBJECTID": 1965,
+"Corridor": "DNT",
+"Location": "Frankford Rd 1/2",
+"Ramp_Type": "Exit",
+"Address": "18481 Dallas Parkway Dallas, TX 75287",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 17,
+"NTTA_Gantry_ID": "FRARD",
+"NTTA_Corridor_ID": "DNT-FRARD-S-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.829432,
+"y": 33.001642
+},
+{
+"a": {
+"OBJECTID": 1966,
+"Corridor": "DNT",
+"Location": "Frankford Rd 3/4",
+"Ramp_Type": "Entrance",
+"Address": "18469 Dallas Parkway Dallas, TX 75287",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 18,
+"NTTA_Gantry_ID": "FRARD",
+"NTTA_Corridor_ID": "DNT-FRARD-N-O",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.829057,
+"y": 32.999706
+},
+{
+"a": {
+"OBJECTID": 1967,
+"Corridor": "DNT",
+"Location": "Park Blvd ",
+"Ramp_Type": "Entrance",
+"Address": "1927 Dallas Parkway Plano, TX 75093",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 19,
+"NTTA_Gantry_ID": "PARBD",
+"NTTA_Corridor_ID": "DNT-PARBD-S-O",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.830166,
+"y": 33.02508
+},
+{
+"a": {
+"OBJECTID": 1968,
+"Corridor": "DNT",
+"Location": "Park Blvd",
+"Ramp_Type": "Exit",
+"Address": "1924 Dallas Parkway Plano, TX 75093",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 20,
+"NTTA_Gantry_ID": "PARBD",
+"NTTA_Corridor_ID": "DNT-PARBD-N-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.829484,
+"y": 33.023078
+},
+{
+"a": {
+"OBJECTID": 1969,
+"Corridor": "DNT",
+"Location": "Park Blvd",
+"Ramp_Type": "Exit",
+"Address": "1924 Dallas Parkway Plano, TX 75093",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 21,
+"NTTA_Gantry_ID": "PARBD",
+"NTTA_Corridor_ID": "DNT-PARBD-N-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.829233,
+"y": 33.021425
+},
+{
+"a": {
+"OBJECTID": 1970,
+"Corridor": "DNT",
+"Location": "Mainlane Plaza 3 SB",
+"Ramp_Type": "Mainlane",
+"Address": "2803 Dallas Parkway Dallas, TX 75093",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 22,
+"NTTA_Gantry_ID": "MLP3",
+"NTTA_Corridor_ID": "DNT",
+"Fixed_Toll_Tag": 1.23,
+"Fixed_Toll_ZipCash": 2.46,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.829765,
+"y": 33.038096
+},
+{
+"a": {
+"OBJECTID": 1971,
+"Corridor": "DNT",
+"Location": "Mainlane Plaza 3 NB",
+"Ramp_Type": "Mainlane",
+"Address": "2803 Dallas Parkway Dallas, TX 75093",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 23,
+"NTTA_Gantry_ID": "MLP3",
+"NTTA_Corridor_ID": "DNT",
+"Fixed_Toll_Tag": 1.23,
+"Fixed_Toll_ZipCash": 2.46,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.82955,
+"y": 33.037909
+},
+{
+"a": {
+"OBJECTID": 1972,
+"Corridor": "DNT",
+"Location": "Parker Rd",
+"Ramp_Type": "Exit",
+"Address": "3615 Dallas Parkway Plano, TX 75093",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 24,
+"NTTA_Gantry_ID": "PARRD",
+"NTTA_Corridor_ID": "DNT-PARRD-S-F",
+"Fixed_Toll_Tag": 0.73,
+"Fixed_Toll_ZipCash": 1.46,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.830154,
+"y": 33.052688
+},
+{
+"a": {
+"OBJECTID": 1973,
+"Corridor": "DNT",
+"Location": "Parker Rd",
+"Ramp_Type": "Entrance ",
+"Address": "3610 Dallas Parkway Plano, TX 75093",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 25,
+"NTTA_Gantry_ID": "PARRD",
+"NTTA_Corridor_ID": "DNT-PARRD-N-O",
+"Fixed_Toll_Tag": 0.73,
+"Fixed_Toll_ZipCash": 1.46,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.829604,
+"y": 33.051811
+},
+{
+"a": {
+"OBJECTID": 1974,
+"Corridor": "DNT",
+"Location": "Windhaven Pkwy",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd Windhaven Entrance Ramp &  Dallas Pkwy Plano TX, 75024",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 26,
+"NTTA_Gantry_ID": "WINPY",
+"NTTA_Corridor_ID": "DNT-WINPY-02",
+"Fixed_Toll_Tag": 0.58,
+"Fixed_Toll_ZipCash": 1.16,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.829661,
+"y": 33.057678
+},
+{
+"a": {
+"OBJECTID": 1975,
+"Corridor": "DNT",
+"Location": "Windhaven Pkwy",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd Windhaven Exit Ramp &  Dallas Pkwy Plano TX, 75024",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 27,
+"NTTA_Gantry_ID": "WINPY",
+"NTTA_Corridor_ID": "DNT-WINPY-03",
+"Fixed_Toll_Tag": 0.58,
+"Fixed_Toll_ZipCash": 1.16,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.829346,
+"y": 33.056878
+},
+{
+"a": {
+"OBJECTID": 1976,
+"Corridor": "DNT",
+"Location": "Spring Creek Pkwy",
+"Ramp_Type": "Exit",
+"Address": "6837 Dallas Pkwy Plano TX, 75024",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 28,
+"NTTA_Gantry_ID": "SPCPY",
+"NTTA_Corridor_ID": "DNT-SPCPY-S-F",
+"Fixed_Toll_Tag": 0.4,
+"Fixed_Toll_ZipCash": 0.8,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.824798,
+"y": 33.068893
+},
+{
+"a": {
+"OBJECTID": 1977,
+"Corridor": "DNT",
+"Location": "Spring Creek Pkwy",
+"Ramp_Type": "Entrance",
+"Address": "6836 Dallas Pkwy Plano TX, 75024",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 29,
+"NTTA_Gantry_ID": "SPCPY",
+"NTTA_Corridor_ID": "DNT-SPCPY-N-O",
+"Fixed_Toll_Tag": 0.4,
+"Fixed_Toll_ZipCash": 0.8,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.824251,
+"y": 33.068383
+},
+{
+"a": {
+"OBJECTID": 1978,
+"Corridor": "DNT",
+"Location": "Legacy Dr 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd Legacy Dr Exit Ramp & Dallas North Tollway Exit Ramp Plano, TX 75024",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 30,
+"NTTA_Gantry_ID": "LEGDR",
+"NTTA_Corridor_ID": "DNT-LEGDR-S-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.824696,
+"y": 33.082418
+},
+{
+"a": {
+"OBJECTID": 1979,
+"Corridor": "DNT",
+"Location": "Headquarters 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd Headquarters Dr & Dallas North Tollway Entrance Ramp Plano, TX 75024",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 31,
+"NTTA_Gantry_ID": "LEGDR",
+"NTTA_Corridor_ID": "DNT-LEGDR-S-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.822628,
+"y": 33.087839
+},
+{
+"a": {
+"OBJECTID": 1980,
+"Corridor": "DNT",
+"Location": "Gaylord Pkwy 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Gaylord Pkwy & Dallas North Tollway Entrance Ramp Frisco TX, 75034",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 32,
+"NTTA_Gantry_ID": "GAYPY",
+"NTTA_Corridor_ID": "DNT-GAYPY-S-O",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.823105,
+"y": 33.094566
+},
+{
+"a": {
+"OBJECTID": 1981,
+"Corridor": "DNT",
+"Location": "Gaylord Pkwy 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Gaylord Pkwy & Dallas North Tollway Exit Ramp Frisco, TX 75034",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 33,
+"NTTA_Gantry_ID": "GAYPY",
+"NTTA_Corridor_ID": "DNT-GAYPY-N-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.822592,
+"y": 33.094112
+},
+{
+"a": {
+"OBJECTID": 1982,
+"Corridor": "DNT",
+"Location": "Lebanon Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Lebanon Rd & Dallas North Tollway Entrance Ramp Frisco, TX 75034",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 34,
+"NTTA_Gantry_ID": "LEBRD",
+"NTTA_Corridor_ID": "DNT-JOHRD-S-O",
+"Fixed_Toll_Tag": 0.51,
+"Fixed_Toll_ZipCash": 1.02,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.823842,
+"y": 33.11054
+},
+{
+"a": {
+"OBJECTID": 1983,
+"Corridor": "DNT",
+"Location": "Lebanon Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Lebanon Rd & Dallas North Tollway Exit Ramp Frisco, TX 75034",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 35,
+"NTTA_Gantry_ID": "LEBRD",
+"NTTA_Corridor_ID": "DNT-JOHRD-N-F",
+"Fixed_Toll_Tag": 0.51,
+"Fixed_Toll_ZipCash": 1.02,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.823224,
+"y": 33.110275
+},
+{
+"a": {
+"OBJECTID": 1984,
+"Corridor": "DNT",
+"Location": "Stonbrook Pkwy 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Stonebrook Pkwy & Dallas North Tollway Entrance Ramp Frisco, TX 75034",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 36,
+"NTTA_Gantry_ID": "STOPY",
+"NTTA_Corridor_ID": "DNT-STOPY-S-O",
+"Fixed_Toll_Tag": 0.64,
+"Fixed_Toll_ZipCash": 1.28,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.823992,
+"y": 33.128191
+},
+{
+"a": {
+"OBJECTID": 1985,
+"Corridor": "DNT",
+"Location": "Stonebrook Pkwy 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Stonebrook Pkwy & Dallas North Tollway Exit Ramp Frisco, TX 75034",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 37,
+"NTTA_Gantry_ID": "STOPY",
+"NTTA_Corridor_ID": "DNT-STOPY-N-F",
+"Fixed_Toll_Tag": 0.64,
+"Fixed_Toll_ZipCash": 1.28,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.823269,
+"y": 33.127759
+},
+{
+"a": {
+"OBJECTID": 1986,
+"Corridor": "DNT",
+"Location": "Main Street 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Main St & Dallas North Tollway Exit Ramp Frisco, TX 75034",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 38,
+"NTTA_Gantry_ID": "MAIST",
+"NTTA_Corridor_ID": "DNT-COGRD-S-O",
+"Fixed_Toll_Tag": 1.05,
+"Fixed_Toll_ZipCash": 2.1,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.838793,
+"y": 33.140689
+},
+{
+"a": {
+"OBJECTID": 1987,
+"Corridor": "DNT",
+"Location": "Main Street 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Main St & Dallas North Tollway Entrance Ramp Frisco, TX 75034",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 39,
+"NTTA_Gantry_ID": "MAIST",
+"NTTA_Corridor_ID": "DNT-COGRD-N-F",
+"Fixed_Toll_Tag": 1.05,
+"Fixed_Toll_ZipCash": 2.1,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.838278,
+"y": 33.141
+},
+{
+"a": {
+"OBJECTID": 1988,
+"Corridor": "DNT",
+"Location": "Mainlane Plaza 4 SB",
+"Ramp_Type": "Mainlane",
+"Address": "10350 Dallas Pkwy Frisco, TX 75034",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 40,
+"NTTA_Gantry_ID": "MLP4",
+"NTTA_Corridor_ID": "DNT",
+"Fixed_Toll_Tag": 2.19,
+"Fixed_Toll_ZipCash": 4.38,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.840081,
+"y": 33.163991
+},
+{
+"a": {
+"OBJECTID": 1989,
+"Corridor": "DNT",
+"Location": "Mainlane Plaza 4 NB",
+"Ramp_Type": "Mainlane",
+"Address": "10350 Dallas Pkwy Frisco, TX 75034",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 41,
+"NTTA_Gantry_ID": "MLP4",
+"NTTA_Corridor_ID": "DNT",
+"Fixed_Toll_Tag": 2.19,
+"Fixed_Toll_ZipCash": 4.38,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.839889,
+"y": 33.163987
+},
+{
+"a": {
+"OBJECTID": 1990,
+"Corridor": "DNT",
+"Location": "Eldorado Pkwy 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd Eldorado Pkwy & Dallas North Tollway Exit Ramp Frisco, TX 75034",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 42,
+"NTTA_Gantry_ID": "ELDPY",
+"NTTA_Corridor_ID": "DNT-ELDPY-S-F",
+"Fixed_Toll_Tag": 0.79,
+"Fixed_Toll_ZipCash": 1.58,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.839545,
+"y": 33.184687
+},
+{
+"a": {
+"OBJECTID": 1991,
+"Corridor": "DNT",
+"Location": "Eldorado Pkwy 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd Eldorado Pkwy & Dallas North Tollway Entrance Ramp Frisco, TX 75034",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 43,
+"NTTA_Gantry_ID": "ELDPY",
+"NTTA_Corridor_ID": "DNT-ELDPY-N-O",
+"Fixed_Toll_Tag": 0.79,
+"Fixed_Toll_ZipCash": 1.58,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.838943,
+"y": 33.184314
+},
+{
+"a": {
+"OBJECTID": 1992,
+"Corridor": "AATT",
+"Location": "Addison Airport Toll Tunnel EB",
+"Ramp_Type": "Mainlane",
+"Address": "4140 Keller Springs Road Addison, TX 75001",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 44,
+"NTTA_Gantry_ID": "AATT",
+"NTTA_Corridor_ID": "AATT",
+"Fixed_Toll_Tag": 0.78,
+"Fixed_Toll_ZipCash": 1.56,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.840996,
+"y": 32.968901
+},
+{
+"a": {
+"OBJECTID": 1993,
+"Corridor": "SRT",
+"Location": "Mainlane Gantry 1 SB",
+"Ramp_Type": "Mainlane",
+"Address": "Sam Rayburn Tollway Mainlane Gantry Lewisville, TX 75019",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 45,
+"NTTA_Gantry_ID": "MLG1",
+"NTTA_Corridor_ID": "SRT",
+"Fixed_Toll_Tag": 0.74,
+"Fixed_Toll_ZipCash": 1.48,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.982888,
+"y": 32.988187
+},
+{
+"a": {
+"OBJECTID": 1994,
+"Corridor": "SRT",
+"Location": "Mainlane Gantry 1 NB",
+"Ramp_Type": "Mainlane",
+"Address": "Sam Rayburn Tollway Mainlane Gantry Lewisville, TX 75019",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 46,
+"NTTA_Gantry_ID": "MLG1",
+"NTTA_Corridor_ID": "SRT",
+"Fixed_Toll_Tag": 0.74,
+"Fixed_Toll_ZipCash": 1.48,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.98295,
+"y": 32.987831
+},
+{
+"a": {
+"OBJECTID": 1995,
+"Corridor": "SRT",
+"Location": "MacAurthur Blvd 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd MacAuthur Blvd & Sam Rayburn Tollway Exit Ramp Lewisville, TX 75067",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 47,
+"NTTA_Gantry_ID": "MACBD",
+"NTTA_Corridor_ID": "SRT-AMACBD-S-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.970006,
+"y": 32.993775
+},
+{
+"a": {
+"OBJECTID": 1996,
+"Corridor": "SRT",
+"Location": "MacAurthur Blvd 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd MacAuthur Blvd & Sam Rayburn Tollway Entrance Ramp Lewisville, TX 75069",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 48,
+"NTTA_Gantry_ID": "MACBD",
+"NTTA_Corridor_ID": "SRT-AMACBD-N-O",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.970222,
+"y": 32.99319
+},
+{
+"a": {
+"OBJECTID": 1997,
+"Corridor": "SRT",
+"Location": "Carrollton Pkwy 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Carrollton Pkwy & Sam Rayburn Tollway Entrance Ramp Carrollton, TX 75010",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 49,
+"NTTA_Gantry_ID": "CARPY",
+"NTTA_Corridor_ID": "SRT-ACARPY-S-O",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.92648,
+"y": 33.033932
+},
+{
+"a": {
+"OBJECTID": 1998,
+"Corridor": "SRT",
+"Location": "Carrollton Pkwy 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Carrollton Pkwy & Sam Rayburn Tollway Exit Ramp Carrollton, TX 75010",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 50,
+"NTTA_Gantry_ID": "CARPY",
+"NTTA_Corridor_ID": "SRT-ACARPY-N-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.931997,
+"y": 33.025032
+},
+{
+"a": {
+"OBJECTID": 1999,
+"Corridor": "SRT",
+"Location": "FM544/Parker Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Parker Rd & Sam Rayburn Tollway Entrance Ramp Carrollton TX, 75010",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 51,
+"NTTA_Gantry_ID": "PARRD",
+"NTTA_Corridor_ID": "SRT-APARRD-S-0",
+"Fixed_Toll_Tag": 0.48,
+"Fixed_Toll_ZipCash": 0.96,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.923522,
+"y": 33.038779
+},
+{
+"a": {
+"OBJECTID": 2000,
+"Corridor": "SRT",
+"Location": "FM544/Parker Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Parker Rd & Sam Rayburn Tollway Exit Ramp Carrollton TX, 75010",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 52,
+"NTTA_Gantry_ID": "PARRD",
+"NTTA_Corridor_ID": "SRT-APARRD-N-F",
+"Fixed_Toll_Tag": 0.48,
+"Fixed_Toll_ZipCash": 0.96,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.923396,
+"y": 33.03712
+},
+{
+"a": {
+"OBJECTID": 2001,
+"Corridor": "SRT",
+"Location": "FM2281/Old Denton Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Old Denton Rd & Sam Rayburn Tollway Entrance Ramp Lewisville TX, 75056",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 53,
+"NTTA_Gantry_ID": "OLDRD",
+"NTTA_Corridor_ID": "SRT-AOLDRD-S-O",
+"Fixed_Toll_Tag": 0.55,
+"Fixed_Toll_ZipCash": 1.1,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.921928,
+"y": 33.049319
+},
+{
+"a": {
+"OBJECTID": 2002,
+"Corridor": "SRT",
+"Location": "FM2281/Old Denton Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Old Denton Rd & Sam Rayburn Tollway Exit Ramp Lewisville TX, 75056",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 54,
+"NTTA_Gantry_ID": "OLDRD",
+"NTTA_Corridor_ID": "SRT-AOLDRD-N-F",
+"Fixed_Toll_Tag": 0.55,
+"Fixed_Toll_ZipCash": 1.1,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.921915,
+"y": 33.047639
+},
+{
+"a": {
+"OBJECTID": 2003,
+"Corridor": "SRT",
+"Location": "South Standridge Dr 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd South Standridge Dr & Sam Rayburn Tollway Entrance Ramp Lewisville TX, 75056",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 55,
+"NTTA_Gantry_ID": "SSTDR",
+"NTTA_Corridor_ID": "SRT-ASTADR-S-O",
+"Fixed_Toll_Tag": 0.84,
+"Fixed_Toll_ZipCash": 1.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.910343,
+"y": 33.056371
+},
+{
+"a": {
+"OBJECTID": 2004,
+"Corridor": "SRT",
+"Location": "South Standridge Dr 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd South Standridge Dr & Sam Rayburn Tollway Exit Ramp Lewisville TX, 75056",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 56,
+"NTTA_Gantry_ID": "SSTDR",
+"NTTA_Corridor_ID": "SRT-ASTADR-N-F",
+"Fixed_Toll_Tag": 0.84,
+"Fixed_Toll_ZipCash": 1.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.904782,
+"y": 33.058115
+},
+{
+"a": {
+"OBJECTID": 2005,
+"Corridor": "SRT",
+"Location": "South Josey Ln 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd South Josey Ln & Sam Rayburn Tollway Entrance Ramp The Colony, TX 75056",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 57,
+"NTTA_Gantry_ID": "SJOLN",
+"NTTA_Corridor_ID": "SRT SB FROM N JOSEY LANE/MAIN ",
+"Fixed_Toll_Tag": 1.02,
+"Fixed_Toll_ZipCash": 2.04,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.898627,
+"y": 33.061701
+},
+{
+"a": {
+"OBJECTID": 2006,
+"Corridor": "SRT",
+"Location": "South Josey Ln 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd South Josey Ln & Sam Rayburn Tollway Exit Ramp The Colony, TX 75056",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 58,
+"NTTA_Gantry_ID": "SJOLN",
+"NTTA_Corridor_ID": "SRT-ANJOLN-N-F",
+"Fixed_Toll_Tag": 1.02,
+"Fixed_Toll_ZipCash": 2.04,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.899756,
+"y": 33.060474
+},
+{
+"a": {
+"OBJECTID": 2007,
+"Corridor": "SRT",
+"Location": "Mainlane Gantry 2 SB",
+"Ramp_Type": "Mainlane",
+"Address": "Sam Rayburn Tollway Mainlane Gantry Lewisville, TX 75056",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 59,
+"NTTA_Gantry_ID": "MLG2",
+"NTTA_Corridor_ID": "SRT",
+"Fixed_Toll_Tag": 1.91,
+"Fixed_Toll_ZipCash": 3.82,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.897325,
+"y": 33.062106
+},
+{
+"a": {
+"OBJECTID": 2008,
+"Corridor": "SRT",
+"Location": "Mainlane Gantry 2 NB",
+"Ramp_Type": "Mainlane",
+"Address": "Sam Rayburn Tollway Mainlane Gantry Lewisville, TX 75056",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 60,
+"NTTA_Gantry_ID": "MLG2",
+"NTTA_Corridor_ID": "SRT",
+"Fixed_Toll_Tag": 1.91,
+"Fixed_Toll_ZipCash": 3.82,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.897426,
+"y": 33.061709
+},
+{
+"a": {
+"OBJECTID": 2009,
+"Corridor": "SRT",
+"Location": "North Standridge Dr 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd North Standridge Dr & Sam Rayburn Tollway Exit Ramp The Colony, TX 75056",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 61,
+"NTTA_Gantry_ID": "NSTDR",
+"NTTA_Corridor_ID": "SRT-ASTADR-S-F",
+"Fixed_Toll_Tag": 1.08,
+"Fixed_Toll_ZipCash": 2.16,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.893894,
+"y": 33.063876
+},
+{
+"a": {
+"OBJECTID": 2010,
+"Corridor": "SRT",
+"Location": "North Standridge Dr 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd North Standridge Dr & Sam Rayburn Tollway Entrance Ramp Lewisville, TX 75056",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 62,
+"NTTA_Gantry_ID": "NSTDR",
+"NTTA_Corridor_ID": "SRT-ASTADR-N-O",
+"Fixed_Toll_Tag": 1.08,
+"Fixed_Toll_ZipCash": 2.16,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.894237,
+"y": 33.063006
+},
+{
+"a": {
+"OBJECTID": 2011,
+"Corridor": "SRT",
+"Location": "North Josey Ln 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd North Josey Ln & Sam Rayburn Tollway Exit Ramp The Colony, TX 75056",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 63,
+"NTTA_Gantry_ID": "NJOLN",
+"NTTA_Corridor_ID": "SRT-ANJOLN-S-F",
+"Fixed_Toll_Tag": 0.89,
+"Fixed_Toll_ZipCash": 1.78,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.87953,
+"y": 33.07042
+},
+{
+"a": {
+"OBJECTID": 2012,
+"Corridor": "SRT",
+"Location": "North Josey Ln 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd North Josey Ln & Sam Rayburn Tollway Entrance Ramp Lewisville, TX 75056",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 64,
+"NTTA_Gantry_ID": "NJOLN",
+"NTTA_Corridor_ID": "SRT-ANJOLN-N-O",
+"Fixed_Toll_Tag": 0.89,
+"Fixed_Toll_ZipCash": 1.78,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.880184,
+"y": 33.069491
+},
+{
+"a": {
+"OBJECTID": 2013,
+"Corridor": "SRT",
+"Location": "Plano Pkwy 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd Plano Pkwy & Sam Rayburn Tollway Exit Ramp The Colony, TX 75056",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 65,
+"NTTA_Gantry_ID": "PLAPY",
+"NTTA_Corridor_ID": "SRT-APLAPY-S-F",
+"Fixed_Toll_Tag": 0.7,
+"Fixed_Toll_ZipCash": 1.4,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.858687,
+"y": 33.079896
+},
+{
+"a": {
+"OBJECTID": 2014,
+"Corridor": "SRT",
+"Location": "Plano Pkwy 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd Plano Pkwy & Sam Rayburn Tollway Entrance Ramp The Colony, TX 75056",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 66,
+"NTTA_Gantry_ID": "PLAPY",
+"NTTA_Corridor_ID": "SRT-APLAPY-N-O",
+"Fixed_Toll_Tag": 0.7,
+"Fixed_Toll_ZipCash": 1.4,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.858447,
+"y": 33.079453
+},
+{
+"a": {
+"OBJECTID": 2015,
+"Corridor": "SRT",
+"Location": "Spring Creek Pkwy 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd Spring Creek Pkwy & Sam Rayburn Tollway Exit Ramp Frisco, TX 75034",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 67,
+"NTTA_Gantry_ID": "SPCPY",
+"NTTA_Corridor_ID": "SRT-ASPCPY-S-F",
+"Fixed_Toll_Tag": 0.35,
+"Fixed_Toll_ZipCash": 0.7,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.842903,
+"y": 33.085924
+},
+{
+"a": {
+"OBJECTID": 2016,
+"Corridor": "SRT",
+"Location": "Spring Creek Pkwy 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd Spring Creek Pkwy & Sam Rayburn Tollway Entrance Ramp Frisco, TX 75024",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 68,
+"NTTA_Gantry_ID": "SPCPY",
+"NTTA_Corridor_ID": "SRT-ASPCPY-N-O",
+"Fixed_Toll_Tag": 0.35,
+"Fixed_Toll_ZipCash": 0.7,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.841561,
+"y": 33.085516
+},
+{
+"a": {
+"OBJECTID": 2017,
+"Corridor": "SRT",
+"Location": "Preston Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Preston Rd & Sam Rayburn Tollway Entrance Ramp Frisco, TX 75034",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 69,
+"NTTA_Gantry_ID": "PRERD",
+"NTTA_Corridor_ID": "SRT-DNT-S-S-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.811719,
+"y": 33.094831
+},
+{
+"a": {
+"OBJECTID": 2018,
+"Corridor": "SRT",
+"Location": "Preston Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Preston Rd & Sam Rayburn Tollway Exit Ramp Plano, TX 75024",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 70,
+"NTTA_Gantry_ID": "PRERD",
+"NTTA_Corridor_ID": "SRT-APRERD-N-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.810164,
+"y": 33.094583
+},
+{
+"a": {
+"OBJECTID": 2019,
+"Corridor": "SRT",
+"Location": "Hillcrest Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Hillcrest Rd & Sam Rayburn Tollway Entrance Ramp Frisco, TX 75034",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 71,
+"NTTA_Gantry_ID": "HILRD",
+"NTTA_Corridor_ID": "SRT-AOHIDR-S-O",
+"Fixed_Toll_Tag": 0.35,
+"Fixed_Toll_ZipCash": 0.7,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.800806,
+"y": 33.099402
+},
+{
+"a": {
+"OBJECTID": 2020,
+"Corridor": "SRT",
+"Location": "Hillcrest Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Hillcrest Rd & Sam Rayburn Tollway Exit Ramp Plano, TX 75025",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 72,
+"NTTA_Gantry_ID": "HILRD",
+"NTTA_Corridor_ID": "SRT-AOHIDR-N-F",
+"Fixed_Toll_Tag": 0.35,
+"Fixed_Toll_ZipCash": 0.7,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.801017,
+"y": 33.098587
+},
+{
+"a": {
+"OBJECTID": 2021,
+"Corridor": "SRT",
+"Location": "Coit Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Coit Rd & Sam Rayburn Tollway Entrance Ramp Frisco, TX 75035",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 73,
+"NTTA_Gantry_ID": "COIRD",
+"NTTA_Corridor_ID": "SRT-ACOIRD-S-O",
+"Fixed_Toll_Tag": 0.78,
+"Fixed_Toll_ZipCash": 1.56,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.782191,
+"y": 33.106899
+},
+{
+"a": {
+"OBJECTID": 2022,
+"Corridor": "SRT",
+"Location": "Coit Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Coit Rd & Sam Rayburn Tollway Exit Ramp Plano, TX 75025",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 74,
+"NTTA_Gantry_ID": "COIRD",
+"NTTA_Corridor_ID": "SRT-ACOIRD-N-F",
+"Fixed_Toll_Tag": 0.78,
+"Fixed_Toll_ZipCash": 1.56,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.78186,
+"y": 33.106361
+},
+{
+"a": {
+"OBJECTID": 2023,
+"Corridor": "SRT",
+"Location": "Independence Pkwy 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Independence Pkwy & Sam Rayburn Tollway Entrance Ramp Frisco, TX 75035",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 75,
+"NTTA_Gantry_ID": "INDPY",
+"NTTA_Corridor_ID": "SRT-AINDPY-S-O",
+"Fixed_Toll_Tag": 1.02,
+"Fixed_Toll_ZipCash": 2.04,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.76297,
+"y": 33.11469
+},
+{
+"a": {
+"OBJECTID": 2024,
+"Corridor": "SRT",
+"Location": "Independence Pkwy 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Independence Pkwy & Sam Rayburn Tollway Exit Ramp Plano, TX 75025",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 76,
+"NTTA_Gantry_ID": "INDPY",
+"NTTA_Corridor_ID": "SRT-AINDPY-N-F",
+"Fixed_Toll_Tag": 1.02,
+"Fixed_Toll_ZipCash": 2.04,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.764128,
+"y": 33.113548
+},
+{
+"a": {
+"OBJECTID": 2025,
+"Corridor": "SRT",
+"Location": "Custer Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Custer Rd & Sam Rayburn Tollway Entrance Ramp Frisco, TX 75035",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 77,
+"NTTA_Gantry_ID": "CUSRD",
+"NTTA_Corridor_ID": "SRT-ACUSRD-S-O",
+"Fixed_Toll_Tag": 1.28,
+"Fixed_Toll_ZipCash": 2.56,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.746371,
+"y": 33.120948
+},
+{
+"a": {
+"OBJECTID": 2026,
+"Corridor": "SRT",
+"Location": "Custer Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Custer Rd & Sam Rayburn Tollway Exit Ramp Plano, TX 75025",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 78,
+"NTTA_Gantry_ID": "CUSRD",
+"NTTA_Corridor_ID": "SRT-ACUSRD-N-F",
+"Fixed_Toll_Tag": 1.28,
+"Fixed_Toll_ZipCash": 2.56,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.745337,
+"y": 33.120609
+},
+{
+"a": {
+"OBJECTID": 2027,
+"Corridor": "SRT",
+"Location": "Mainlane Gantry 3 SB",
+"Ramp_Type": "Mainlane",
+"Address": "Sam Rayburn Tollway Gantry Allen TX, 75013",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 79,
+"NTTA_Gantry_ID": "MLG3",
+"NTTA_Corridor_ID": "SRT",
+"Fixed_Toll_Tag": 2.64,
+"Fixed_Toll_ZipCash": 5.28,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.73139,
+"y": 33.125848
+},
+{
+"a": {
+"OBJECTID": 2028,
+"Corridor": "SRT",
+"Location": "Mainlane Gantry 3 NB",
+"Ramp_Type": "Mainlane",
+"Address": "Sam Rayburn Tollway Mainlane Gantry Allen, TX 75013",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 80,
+"NTTA_Gantry_ID": "MLG3",
+"NTTA_Corridor_ID": "SRT",
+"Fixed_Toll_Tag": 2.64,
+"Fixed_Toll_ZipCash": 5.28,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.731589,
+"y": 33.125429
+},
+{
+"a": {
+"OBJECTID": 2029,
+"Corridor": "SRT",
+"Location": "South Alma Dr 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd South Alma Dr & Sam Rayburn Tollway Exit Ramp McKinney, TX 75070",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 81,
+"NTTA_Gantry_ID": "SALDR",
+"NTTA_Corridor_ID": "SRT-AEXCPY-S-F",
+"Fixed_Toll_Tag": 1.37,
+"Fixed_Toll_ZipCash": 2.74,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.711805,
+"y": 33.132823
+},
+{
+"a": {
+"OBJECTID": 2030,
+"Corridor": "SRT",
+"Location": "South Alma Dr 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd South Alma Dr & Sam Rayburn Tollway Entrance Ramp Allen, TX 75013",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 82,
+"NTTA_Gantry_ID": "SALDR",
+"NTTA_Corridor_ID": "SRT-AEXCPY-N-O",
+"Fixed_Toll_Tag": 1.37,
+"Fixed_Toll_ZipCash": 2.74,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.713258,
+"y": 33.13164
+},
+{
+"a": {
+"OBJECTID": 2031,
+"Corridor": "SRT",
+"Location": "North Alma Dr 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd North Alma Dr & Sam Rayburn Tollway Exit Ramp McKinney, TX 75070",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 83,
+"NTTA_Gantry_ID": "NALDR",
+"NTTA_Corridor_ID": "SRT-AALMDR-S-F",
+"Fixed_Toll_Tag": 1.0,
+"Fixed_Toll_ZipCash": 2.0,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.695553,
+"y": 33.138834
+},
+{
+"a": {
+"OBJECTID": 2032,
+"Corridor": "SRT",
+"Location": "North Alma Dr 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd North Alma Dr & Sam Rayburn Tollway Entrance Ramp Allen, TX 75013",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 84,
+"NTTA_Gantry_ID": "NALDR",
+"NTTA_Corridor_ID": "SRT-AALMDR-N-O",
+"Fixed_Toll_Tag": 1.0,
+"Fixed_Toll_ZipCash": 2.0,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.696729,
+"y": 33.137674
+},
+{
+"a": {
+"OBJECTID": 2033,
+"Corridor": "SRT",
+"Location": "Stacy Rd 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd Stacy Rd & Sam Rayburn Tollway Exit Ramp McKinney, TX 75070",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 85,
+"NTTA_Gantry_ID": "STARD",
+"NTTA_Corridor_ID": "SRT-ASTARD-S-F",
+"Fixed_Toll_Tag": 0.78,
+"Fixed_Toll_ZipCash": 1.56,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.681823,
+"y": 33.14404
+},
+{
+"a": {
+"OBJECTID": 2034,
+"Corridor": "SRT",
+"Location": "Stacy Rd 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd Stacy Rd & Sam Rayburn Tollway Entrance Ramp Allen, TX 75013",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 86,
+"NTTA_Gantry_ID": "STARD",
+"NTTA_Corridor_ID": "SRT-ASTARD-N-O",
+"Fixed_Toll_Tag": 0.78,
+"Fixed_Toll_ZipCash": 1.56,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.682152,
+"y": 33.143219
+},
+{
+"a": {
+"OBJECTID": 2035,
+"Corridor": "SRT",
+"Location": "Lake Forest Dr 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd Lake Forest Dr & Sam Rayburn Tollway Exit Ramp McKinney, TX 75070",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 87,
+"NTTA_Gantry_ID": "LAFDR",
+"NTTA_Corridor_ID": "SRT-ALAFDR-S-F",
+"Fixed_Toll_Tag": 0.61,
+"Fixed_Toll_ZipCash": 1.22,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.669337,
+"y": 33.148794
+},
+{
+"a": {
+"OBJECTID": 2036,
+"Corridor": "SRT",
+"Location": "Lake Forest Dr 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd Lake Forest Dr & Sam Rayburn Tollway Entrance Ramp Allen, TX 75013",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 88,
+"NTTA_Gantry_ID": "LAFDR",
+"NTTA_Corridor_ID": "SRT-AWATRD-N-O",
+"Fixed_Toll_Tag": 0.61,
+"Fixed_Toll_ZipCash": 1.22,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.668371,
+"y": 33.148517
+},
+{
+"a": {
+"OBJECTID": 2037,
+"Corridor": "SRT",
+"Location": "Hardin Blvd 1/2",
+"Ramp_Type": "Exit",
+"Address": "SB Srv Rd Hardin Blvd & Sam Rayburn Tollway Exit Ramp McKinney, TX 75070",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 89,
+"NTTA_Gantry_ID": "HARBD",
+"NTTA_Corridor_ID": "SRT-AHARBD-S-F",
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.657542,
+"y": 33.153363
+},
+{
+"a": {
+"OBJECTID": 2038,
+"Corridor": "SRT",
+"Location": "Hardin Blvd 3/4",
+"Ramp_Type": "Entrance",
+"Address": "NB Srv Rd Hardin Blvd & Sam Rayburn Tollway Entrance Ramp Allen, TX 75013",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 90,
+"NTTA_Gantry_ID": "HARBD",
+"NTTA_Corridor_ID": "SRT-AHARBD-N-O",
+"Fixed_Toll_Tag": 0.39,
+"Fixed_Toll_ZipCash": 0.78,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.661428,
+"y": 33.150992
+},
+{
+"a": {
+"OBJECTID": 2039,
+"Corridor": "LLTB",
+"Location": "Lake Lewisville Toll Bridge WB",
+"Ramp_Type": "Mainlane",
+"Address": "501 Lake Lewisville Toll Bridge Lake Dallas, TX 75065",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 91,
+"NTTA_Gantry_ID": "LLTB",
+"NTTA_Corridor_ID": "LLTB",
+"Fixed_Toll_Tag": 1.55,
+"Fixed_Toll_ZipCash": 3.1,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -97.019377,
+"y": 33.136148
+},
+{
+"a": {
+"OBJECTID": 2040,
+"Corridor": "PGBTEE",
+"Location": "Miller Rd 1/2",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Miller Rd & President George Bush Turnpike Exit Ramp Rowlett, TX",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 92,
+"NTTA_Gantry_ID": "MLRRD",
+"NTTA_Corridor_ID": "PGBT-KIRRD-O-F",
+"Fixed_Toll_Tag": 0.56,
+"Fixed_Toll_ZipCash": 1.12,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.55339,
+"y": 32.878806
+},
+{
+"a": {
+"OBJECTID": 2041,
+"Corridor": "PGBTEE",
+"Location": "Miller Rd 3/4",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Miller Rd & President George Bush Turnpike Entrance Ramp Rowlett, TX",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 93,
+"NTTA_Gantry_ID": "MLRRD",
+"NTTA_Corridor_ID": "PGBT-KIRRD-I-O",
+"Fixed_Toll_Tag": 0.56,
+"Fixed_Toll_ZipCash": 1.12,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.553911,
+"y": 32.87826
+},
+{
+"a": {
+"OBJECTID": 2042,
+"Corridor": "PGBTEE",
+"Location": "Lakeview Pkwy 1/2",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Lakeview Parkway & President George Bush Turnpike Entrance Ramp Rowlett, TX",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 94,
+"NTTA_Gantry_ID": "LAKPY",
+"NTTA_Corridor_ID": "PGBT-SH66-I-O",
+"Fixed_Toll_Tag": 0.74,
+"Fixed_Toll_ZipCash": 1.48,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.556438,
+"y": 32.895074
+},
+{
+"a": {
+"OBJECTID": 2043,
+"Corridor": "PGBTEE",
+"Location": "Lakeview Pkwy 3/4",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Lakeview Parkway & President George Bush Turnpike Exit Ramp Rowlett, TX",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 95,
+"NTTA_Gantry_ID": "LAKPY",
+"NTTA_Corridor_ID": "PGBT-SH66-O-F",
+"Fixed_Toll_Tag": 0.74,
+"Fixed_Toll_ZipCash": 1.48,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.555731,
+"y": 32.894729
+},
+{
+"a": {
+"OBJECTID": 2044,
+"Corridor": "PGBTEE",
+"Location": "Merritt Rd 1/2",
+"Ramp_Type": "Exit",
+"Address": "NB Srv Rd Merritt Rd & President George Bush Turnpike Exit Ramp Rowlett, TX",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 96,
+"NTTA_Gantry_ID": "MERLG",
+"NTTA_Corridor_ID": "PGBT-SMERD-O-F",
+"Fixed_Toll_Tag": 1.18,
+"Fixed_Toll_ZipCash": 2.36,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.552085,
+"y": 32.928422
+},
+{
+"a": {
+"OBJECTID": 2045,
+"Corridor": "PGBTEE",
+"Location": "Merritt Rd 3/4",
+"Ramp_Type": "Entrance",
+"Address": "SB Srv Rd Merritt Rd & President George Bush Turnpike Entrance Ramp Rowlett, TX",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 97,
+"NTTA_Gantry_ID": "MERLG",
+"NTTA_Corridor_ID": "PGBT-SMERD-I-O",
+"Fixed_Toll_Tag": 1.18,
+"Fixed_Toll_ZipCash": 2.36,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.55276,
+"y": 32.929445
+},
+{
+"a": {
+"OBJECTID": 2046,
+"Corridor": "PGBTEE",
+"Location": "Main Lane Plaza 5 EB",
+"Ramp_Type": "Mainlane",
+"Address": "President George Bush Turnpike Main Lane Plaza 5",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 98,
+"NTTA_Gantry_ID": "MLG5",
+"NTTA_Corridor_ID": "PGBTE",
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.559096,
+"y": 32.944631
+},
+{
+"a": {
+"OBJECTID": 2047,
+"Corridor": "PGBTEE",
+"Location": "Miles Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "WB Srv Rd Miles Rd & President George Bush Turnpike Entrance Ramp Sachse, TX",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 99,
+"NTTA_Gantry_ID": "MLSRD",
+"NTTA_Corridor_ID": "PGBT-MILRD-O-O",
+"Fixed_Toll_Tag": 0.47,
+"Fixed_Toll_ZipCash": 0.94,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.585988,
+"y": 32.95098
+},
+{
+"a": {
+"OBJECTID": 2048,
+"Corridor": "PGBTEE",
+"Location": "Miles Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "EB Srv Rd Miles Rd & President George Bush Turnpike Exit Ramp Sachse, TX",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 100,
+"NTTA_Gantry_ID": "MLSRD",
+"NTTA_Corridor_ID": "PGBT-MILRD-I-F",
+"Fixed_Toll_Tag": 0.47,
+"Fixed_Toll_ZipCash": 0.94,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.587663,
+"y": 32.949937
+},
+{
+"a": {
+"OBJECTID": 2049,
+"Corridor": "PGBTEE",
+"Location": "Firewheel Pkwy 1/2",
+"Ramp_Type": "Entrance",
+"Address": "WB Srv Rd Firewheel Pkwy & President George Bush Turnpike Entrance Ramp Garland, TX",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 101,
+"NTTA_Gantry_ID": "FIRPY",
+"NTTA_Corridor_ID": "PGBT-FIRPY-O-O",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.614995,
+"y": 32.948544
+},
+{
+"a": {
+"OBJECTID": 2050,
+"Corridor": "PGBTEE",
+"Location": "Firewheel Pkwy 3/4",
+"Ramp_Type": "Exit",
+"Address": "EB Srv Rd Firewheel Pkwy & President George Bush Turnpike Exit Ramp Garland, TX",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 102,
+"NTTA_Gantry_ID": "FIRPY",
+"NTTA_Corridor_ID": "PGBT-FIRPY-I-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.614919,
+"y": 32.947599
+},
+{
+"a": {
+"OBJECTID": 2051,
+"Corridor": "PGBTEE",
+"Location": "Crist Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "WB Srv Rd Crist Road & President Geroge Bush Turnpike Entrance Ramp Garland, TX ",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 103,
+"NTTA_Gantry_ID": "CRIRD",
+"NTTA_Corridor_ID": "PGBT-CRIRD-O-O",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.616591,
+"y": 32.949572
+},
+{
+"a": {
+"OBJECTID": 2052,
+"Corridor": "PGBTEE",
+"Location": "Crist Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "EB Srv Rd Crist Road & President Geroge Bush Turnpike Exit Ramp Garland, TX",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 104,
+"NTTA_Gantry_ID": "CRIRD",
+"NTTA_Corridor_ID": "PGBT-CRIRD-I-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.617395,
+"y": 32.949041
+},
+{
+"a": {
+"OBJECTID": 2053,
+"Corridor": "PGBT",
+"Location": "Garland Rd 1/2",
+"Ramp_Type": "Exit",
+"Address": "4798 E PGBT Garland, TX 75044",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 105,
+"NTTA_Gantry_ID": "GARRD",
+"NTTA_Corridor_ID": "PGBT-NGAAV-O-F",
+"Fixed_Toll_Tag": 0.39,
+"Fixed_Toll_ZipCash": 0.78,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.638189,
+"y": 32.963461
+},
+{
+"a": {
+"OBJECTID": 2054,
+"Corridor": "PGBT",
+"Location": "Garland RD 3/4",
+"Ramp_Type": "Entrance",
+"Address": "4799 E PGBT Garland, TX 75044",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 106,
+"NTTA_Gantry_ID": "GARRD",
+"NTTA_Corridor_ID": "PGBT-NGAAV-I-O",
+"Fixed_Toll_Tag": 0.39,
+"Fixed_Toll_ZipCash": 0.78,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.638457,
+"y": 32.96274
+},
+{
+"a": {
+"OBJECTID": 2055,
+"Corridor": "PGBT",
+"Location": "Campbell Rd 1/2",
+"Ramp_Type": "Exit",
+"Address": "6299 E PGBT Garland, TX 75044",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 107,
+"NTTA_Gantry_ID": "CAMRD",
+"NTTA_Corridor_ID": "PGBT-CAMRD-O-F",
+"Fixed_Toll_Tag": 0.63,
+"Fixed_Toll_ZipCash": 1.26,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.652335,
+"y": 32.97278
+},
+{
+"a": {
+"OBJECTID": 2056,
+"Corridor": "PGBT",
+"Location": "Campbell RD 3/4",
+"Ramp_Type": "Entrance",
+"Address": "6298 E PGBT Garland, TX 75044",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 108,
+"NTTA_Gantry_ID": "CAMRD",
+"NTTA_Corridor_ID": "PGBT-CAMRD-I-O",
+"Fixed_Toll_Tag": 0.63,
+"Fixed_Toll_ZipCash": 1.26,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.654453,
+"y": 32.973215
+},
+{
+"a": {
+"OBJECTID": 2057,
+"Corridor": "PGBT",
+"Location": "E Renner Rd 1/2",
+"Ramp_Type": "Exit",
+"Address": "2298 E PGBT Plano, TX 75074",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 109,
+"NTTA_Gantry_ID": "ERERD",
+"NTTA_Corridor_ID": "PGBT-ERERD-O-F",
+"Fixed_Toll_Tag": 1.03,
+"Fixed_Toll_ZipCash": 2.06,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.66562,
+"y": 32.985557
+},
+{
+"a": {
+"OBJECTID": 2058,
+"Corridor": "PGBT",
+"Location": "E Renner Rd 3/4",
+"Ramp_Type": "Entrance",
+"Address": "2706 E PGBT Richardson, TX 75074",
+"County": "Dallas",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 110,
+"NTTA_Gantry_ID": "ERERD",
+"NTTA_Corridor_ID": "PGBT-ERERD-I-O",
+"Fixed_Toll_Tag": 1.03,
+"Fixed_Toll_ZipCash": 2.06,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.666329,
+"y": 32.984755
+},
+{
+"a": {
+"OBJECTID": 2059,
+"Corridor": "PGBT",
+"Location": "Mainlane Plaza 6 SB",
+"Ramp_Type": "Mainlane",
+"Address": "3251 E PGBT Richardson, TX 75082",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 111,
+"NTTA_Gantry_ID": "MLP6",
+"NTTA_Corridor_ID": "PGBTE",
+"Fixed_Toll_Tag": 1.54,
+"Fixed_Toll_ZipCash": 3.08,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.667416,
+"y": 32.989383
+},
+{
+"a": {
+"OBJECTID": 2060,
+"Corridor": "PGBT",
+"Location": "Mainlane Plaza 6 NB",
+"Ramp_Type": "Mainlane",
+"Address": "3251 E PGBT Richardson, TX 75082",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 112,
+"NTTA_Gantry_ID": "MLP6",
+"NTTA_Corridor_ID": "PGBTE",
+"Fixed_Toll_Tag": 1.54,
+"Fixed_Toll_ZipCash": 3.08,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.667223,
+"y": 32.989425
+},
+{
+"a": {
+"OBJECTID": 2061,
+"Corridor": "PGBT",
+"Location": "Shiloh Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "3098 E PGBT Richardson, TX 75082",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 113,
+"NTTA_Gantry_ID": "SHIRD",
+"NTTA_Corridor_ID": "PGBT-SHIRD-O-O",
+"Fixed_Toll_Tag": 0.79,
+"Fixed_Toll_ZipCash": 1.58,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.667982,
+"y": 32.993356
+},
+{
+"a": {
+"OBJECTID": 2062,
+"Corridor": "PGBT",
+"Location": "Shiloh Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "3099 E PGBT Richardson, TX 75082",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 114,
+"NTTA_Gantry_ID": "SHIRD",
+"NTTA_Corridor_ID": "PGBT INSIDE TO SHILOH ROAD/LOO",
+"Fixed_Toll_Tag": 0.79,
+"Fixed_Toll_ZipCash": 1.58,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.669168,
+"y": 32.993667
+},
+{
+"a": {
+"OBJECTID": 2063,
+"Corridor": "PGBT",
+"Location": "W Renner Rd 1/2",
+"Ramp_Type": "Entrance",
+"Address": "2298 E PGBT Richardson, TX 75074",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 115,
+"NTTA_Gantry_ID": "WRERD",
+"NTTA_Corridor_ID": "PGBT OUTSIDE FROM E RENNER ROA",
+"Fixed_Toll_Tag": 0.52,
+"Fixed_Toll_ZipCash": 1.04,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.677737,
+"y": 33.001916
+},
+{
+"a": {
+"OBJECTID": 2064,
+"Corridor": "PGBT",
+"Location": "W Renner Rd 3/4",
+"Ramp_Type": "Exit",
+"Address": "2706 E PGBT Plano, TX 75074",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 116,
+"NTTA_Gantry_ID": "WRERD",
+"NTTA_Corridor_ID": "PGBT-ERERD-I-F",
+"Fixed_Toll_Tag": 0.52,
+"Fixed_Toll_ZipCash": 1.04,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.678706,
+"y": 33.001577
+},
+{
+"a": {
+"OBJECTID": 2065,
+"Corridor": "PGBT",
+"Location": "Independence Pkwy 1/2",
+"Ramp_Type": "Exit",
+"Address": "500 PGBT Richardson, TX 75080",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 117,
+"NTTA_Gantry_ID": "INDPY",
+"NTTA_Corridor_ID": "PGBT-INDPY-O-F",
+"Fixed_Toll_Tag": 0.53,
+"Fixed_Toll_ZipCash": 1.06,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.737428,
+"y": 33.00416
+},
+{
+"a": {
+"OBJECTID": 2066,
+"Corridor": "PGBT",
+"Location": "Independence Pkwy 3/4",
+"Ramp_Type": "Entrance",
+"Address": "2303 PGBT Plano, TX 75075",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 118,
+"NTTA_Gantry_ID": "INDPY",
+"NTTA_Corridor_ID": "PGBT-INDPY-I-O",
+"Fixed_Toll_Tag": 0.53,
+"Fixed_Toll_ZipCash": 1.06,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.737245,
+"y": 33.003512
+},
+{
+"a": {
+"OBJECTID": 2067,
+"Corridor": "PGBT",
+"Location": "Coit Rd 1/2",
+"Ramp_Type": "Exit",
+"Address": "3318 PGBT Dallas, TX 75075",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 119,
+"NTTA_Gantry_ID": "COIRD",
+"NTTA_Corridor_ID": "PGBT-COIRD-O-F",
+"Fixed_Toll_Tag": 0.79,
+"Fixed_Toll_ZipCash": 1.58,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.756528,
+"y": 33.000678
+},
+{
+"a": {
+"OBJECTID": 2068,
+"Corridor": "PGBT",
+"Location": "Coit Rd 3/4",
+"Ramp_Type": "Entrance",
+"Address": "3255 PGBT Plano, TX 75075",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 120,
+"NTTA_Gantry_ID": "COIRD",
+"NTTA_Corridor_ID": "PGBT-COIRD-I-O",
+"Fixed_Toll_Tag": 0.79,
+"Fixed_Toll_ZipCash": 1.58,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.757011,
+"y": 32.999898
+},
+{
+"a": {
+"OBJECTID": 2069,
+"Corridor": "PGBT",
+"Location": "Mainlane Plaza 7 WB",
+"Ramp_Type": "Mainlane",
+"Address": "4001 PGBT Plano, TX 75093",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 121,
+"NTTA_Gantry_ID": "MLP7",
+"NTTA_Corridor_ID": "PGBTE",
+"Fixed_Toll_Tag": 1.65,
+"Fixed_Toll_ZipCash": 3.3,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.776334,
+"y": 33.002477
+},
+{
+"a": {
+"OBJECTID": 2070,
+"Corridor": "PGBT",
+"Location": "Mainlane Plaza 7 EB",
+"Ramp_Type": "Mainlane",
+"Address": "4001 PGBT Plano, TX 75093",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 122,
+"NTTA_Gantry_ID": "MLP7",
+"NTTA_Corridor_ID": "PGBTE",
+"Fixed_Toll_Tag": 1.65,
+"Fixed_Toll_ZipCash": 3.3,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.776446,
+"y": 33.002337
+},
+{
+"a": {
+"OBJECTID": 2071,
+"Corridor": "PGBT",
+"Location": "Preston Rd",
+"Ramp_Type": "Entrance",
+"Address": "19421 Preston Rd Dallas, TX 75252",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 123,
+"NTTA_Gantry_ID": "PRERD",
+"NTTA_Corridor_ID": "PGBT-PRERD-O-O",
+"Fixed_Toll_Tag": 0.44,
+"Fixed_Toll_ZipCash": 0.88,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.797532,
+"y": 33.012843
+},
+{
+"a": {
+"OBJECTID": 2072,
+"Corridor": "PGBT",
+"Location": "Preston Rd",
+"Ramp_Type": "Exit",
+"Address": "19421 Preston Rd Dallas, TX 75252",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 124,
+"NTTA_Gantry_ID": "PRERD",
+"NTTA_Corridor_ID": "PGBT-PRERD-I-F",
+"Fixed_Toll_Tag": 0.44,
+"Fixed_Toll_ZipCash": 0.88,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.797625,
+"y": 33.01203
+},
+{
+"a": {
+"OBJECTID": 2073,
+"Corridor": "PGBT",
+"Location": "Midway Rd",
+"Ramp_Type": "Exit",
+"Address": "19198 Midway Rd Dallas, TX 75287",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 125,
+"NTTA_Gantry_ID": "MIDRD",
+"NTTA_Corridor_ID": "PGBT-MIDRD-O-F",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.841927,
+"y": 33.01327
+},
+{
+"a": {
+"OBJECTID": 2074,
+"Corridor": "PGBT",
+"Location": "Midway Rd ",
+"Ramp_Type": "Entrance",
+"Address": "19198 Midway Rd Dallas, TX 75287",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 126,
+"NTTA_Gantry_ID": "MIDRD",
+"NTTA_Corridor_ID": "PGBT-MIDRD-I-O",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.842146,
+"y": 33.012183
+},
+{
+"a": {
+"OBJECTID": 2075,
+"Corridor": "PGBT",
+"Location": "Marsh Ln 1/2",
+"Ramp_Type": "Exit",
+"Address": "18550 Marsh Ln Dallas, TX 75287",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 127,
+"NTTA_Gantry_ID": "MARLN",
+"NTTA_Corridor_ID": "PGBT-MARLN-O-F",
+"Fixed_Toll_Tag": 0.45,
+"Fixed_Toll_ZipCash": 0.9,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.855678,
+"y": 33.00345
+},
+{
+"a": {
+"OBJECTID": 2076,
+"Corridor": "PGBT",
+"Location": "Marsh Ln 3/4",
+"Ramp_Type": "Entrance",
+"Address": "18460 Marsh Ln Dallas, TX 75287",
+"County": "Denton",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 128,
+"NTTA_Gantry_ID": "MARLN",
+"NTTA_Corridor_ID": "PGBT-MARLN-I-O",
+"Fixed_Toll_Tag": 0.45,
+"Fixed_Toll_ZipCash": 0.9,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.85533,
+"y": 33.002038
+},
+{
+"a": {
+"OBJECTID": 2077,
+"Corridor": "DNT",
+"Location": "Dallas Pkwy",
+"Ramp_Type": "Entrance",
+"Address": "15201 Pleasant Rdg Wy, TX 75033",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 312,
+"NTTA_Gantry_ID": "FLSPY",
+"NTTA_Corridor_ID": "DNT",
+"Fixed_Toll_Tag": 0.44,
+"Fixed_Toll_ZipCash": 0.88,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.824324,
+"y": 33.20242
+},
+{
+"a": {
+"OBJECTID": 2078,
+"Corridor": "DNT",
+"Location": "Dallas Pkwy",
+"Ramp_Type": "Exit",
+"Address": "15201 Pleasant Rdg Wy, TX 75033",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 313,
+"NTTA_Gantry_ID": "FLSPY",
+"NTTA_Corridor_ID": "DNT",
+"Fixed_Toll_Tag": 0.44,
+"Fixed_Toll_ZipCash": 0.88,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.824339,
+"y": 33.203058
+},
+{
+"a": {
+"OBJECTID": 2079,
+"Corridor": "DNT",
+"Location": "Dallas Pkwy",
+"Ramp_Type": "Exit",
+"Address": "1363 S Dallas Pkwy, TX 75078",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 314,
+"NTTA_Gantry_ID": "FIRST",
+"NTTA_Corridor_ID": "DNT",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.819688,
+"y": 33.223846
+},
+{
+"a": {
+"OBJECTID": 2080,
+"Corridor": "DNT",
+"Location": "Dallas Pkwy",
+"Ramp_Type": "Entrance",
+"Address": "952 S Dallas Pkwy, TX 75078",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 315,
+"NTTA_Gantry_ID": "FIRST",
+"NTTA_Corridor_ID": "DNT",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.820218,
+"y": 33.224234
+},
+{
+"a": {
+"OBJECTID": 2081,
+"Corridor": "DNT",
+"Location": "Dallas Pkwy",
+"Ramp_Type": "Exit",
+"Address": "1700 Dallas Pkwy, Plano, TX 75093",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 317,
+"NTTA_Gantry_ID": "PARBD",
+"NTTA_Corridor_ID": "DNT",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.82959,
+"y": 33.024508
+},
+{
+"a": {
+"OBJECTID": 2082,
+"Corridor": "DNT",
+"Location": "Dallas Pkwy",
+"Ramp_Type": "Entrance",
+"Address": "1701 Dallas Pkwy, Plano, TX 75093",
+"County": "Collin",
+"Toll_Type": "Fixed",
+"NCTCOG_Gantry_ID": 316,
+"NTTA_Gantry_ID": "PARBD",
+"NTTA_Corridor_ID": "DNT",
+"Fixed_Toll_Tag": 0.34,
+"Fixed_Toll_ZipCash": 0.68,
+"Maintaining_Authority": "NTTA",
+"Status": "Operational"
+},
+"x": -96.830105,
+"y": 33.024455
+},
+{
+"a": {
+"OBJECTID": 2083,
+"Corridor": "I635",
+"Location": "South of Royal Ln",
+"Ramp_Type": "Entrance",
+"Address": "SB I635 Dallas, TX 75238",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 308,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.710974,
+"y": 32.893405
+},
+{
+"a": {
+"OBJECTID": 2084,
+"Corridor": "I635",
+"Location": "West of Jupiter RD",
+"Ramp_Type": "Entrance",
+"Address": "NB I635 Dallas, TX 75041",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 309,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.685136,
+"y": 32.87655
+},
+{
+"a": {
+"OBJECTID": 2085,
+"Corridor": "I635",
+"Location": "East of Jupiter Rd",
+"Ramp_Type": "Mainlane",
+"Address": "SB I635 Dallas,TX 75238",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 310,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.678649,
+"y": 32.871798
+},
+{
+"a": {
+"OBJECTID": 2086,
+"Corridor": "I635",
+"Location": "East of Jupiter Rd",
+"Ramp_Type": "Mainlane",
+"Address": "NB I635 Dallas,TX 75238",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 311,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.67862,
+"y": 32.871835
+},
+{
+"a": {
+"OBJECTID": 2087,
+"Corridor": "I635",
+"Location": "South of Forest Ln",
+"Ramp_Type": "Mainlane",
+"Address": "NB I635 Dallas, TX 75243",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 306,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.731166,
+"y": 32.908554
+},
+{
+"a": {
+"OBJECTID": 2088,
+"Corridor": "I635",
+"Location": "South of Forest Ln",
+"Ramp_Type": "Mainlane",
+"Address": "SB I635 Dallas, TX 75243",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 307,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.731207,
+"y": 32.908513
+},
+{
+"a": {
+"OBJECTID": 2089,
+"Corridor": "I635",
+"Location": "West of Centerville Rd",
+"Ramp_Type": "Mainlane",
+"Address": "13601 Lyndon B Johnson Fwy, Garland, TX 75041",
+"County": "Dallas",
+"Toll_Type": "Variable",
+"NCTCOG_Gantry_ID": 318,
+"NTTA_Gantry_ID": null,
+"NTTA_Corridor_ID": null,
+"Fixed_Toll_Tag": null,
+"Fixed_Toll_ZipCash": null,
+"Maintaining_Authority": "TxDOT",
+"Status": "Operational"
+},
+"x": -96.653742,
+"y": 32.859429
+}
+]
+}

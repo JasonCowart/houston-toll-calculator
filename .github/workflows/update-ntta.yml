@@ -1,0 +1,26 @@
+# Downloads the public DFW toll gantry layers (NTTA rates, NCTCOG gantries) into data/sources/.
+# Run from Actions > Update NTTA data > Run workflow.
+name: Update NTTA data
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [tools/fetch_ntta.py, .github/workflows/update-ntta.yml]
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the layers
+        run: python3 tools/fetch_ntta.py
+      - name: Save them
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/sources
+          git diff --cached --quiet && exit 0
+          git commit -m "NTTA / NCTCOG gantry data"
+          git pull --rebase -X theirs -q origin main
+          git push

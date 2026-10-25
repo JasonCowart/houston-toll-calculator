@@ -103,7 +103,7 @@ require([
     copyright: "TxDOT",
     popupEnabled: false,
     // Neutral light gray, not HCTRA purple: most of these roads belong to other agencies.
-    renderer: { type: "simple", symbol: { type: "simple-line", color: [150, 150, 156, 0.5], width: 4, cap: "round", join: "round" } },
+    renderer: { type: "simple", symbol: { type: "simple-line", color: [171, 171, 176, 0.5], width: 2.5, cap: "round", join: "round" } },
   });
   map.add(tollRoadsLayer, 0);
   tollRoadsLayer.load().catch(function (e) { console.warn("Toll roads layer unavailable", e); });
@@ -1066,10 +1066,10 @@ require([
       fields: [{ name: "oid", type: "oid" }, { name: "kind", type: "string" }, { name: "label", type: "string" }],
       title: "Toll points",
       // Neutral dark gray, not HCTRA purple: most of these belong to other agencies.
-      renderer: { type: "unique-value", field: "kind", defaultSymbol: dot(6, [70, 70, 74, 0.85]),
-        uniqueValueInfos: [{ value: "main", symbol: dot(7, [55, 55, 60, 0.9]) }, { value: "on", symbol: dot(5, [105, 105, 110, 0.85]) }, { value: "off", symbol: dot(5, [105, 105, 110, 0.85]) }] },
+      renderer: { type: "unique-value", field: "kind", defaultSymbol: dot(6, [107, 107, 110, 0.85]),
+        uniqueValueInfos: [{ value: "main", symbol: dot(7, [95, 95, 99, 0.9]) }, { value: "on", symbol: dot(5, [135, 135, 139, 0.85]) }, { value: "off", symbol: dot(5, [135, 135, 139, 0.85]) }] },
       labelingInfo: [{ labelExpressionInfo: { expression: "$feature.label" }, labelPlacement: "center-right", minScale: 40000,
-        symbol: { type: "text", color: [60, 60, 64], haloColor: [255, 255, 255], haloSize: 1, font: { size: 9 } } }],
+        symbol: { type: "text", color: [99, 99, 102], haloColor: [255, 255, 255], haloSize: 1, font: { size: 9 } } }],
       popupEnabled: false, visible: showTollMapNow(),
     });
     map.add(allPointsLayer, map.layers.indexOf(tollRoadsLayer) + 1); // over the road lines, under the routes

@@ -16,25 +16,37 @@ def get(url, params):
     with urllib.request.urlopen(urllib.request.Request(url + "?" + urllib.parse.urlencode(params), headers=UA), timeout=120) as r:
         return json.loads(r.read().decode("utf-8"))
 
+def note(msg):
+    print("::notice::" + msg.replace("\n", " ")[:900])
+
 item = get("https://www.arcgis.com/sharing/rest/content/items/" + ITEM, {"f": "json"})
 url = item["url"].rstrip("/")
-print("Item:", item.get("title"), "|", item.get("owner"), "|", url)
+note("Item: %s | %s | %s | %s" % (item.get("title"), item.get("owner"), item.get("type"), url))
 svc = get(url, {"f": "json"})
-layers = [url] if "fields" in svc else [url + "/" + str(l["id"]) for l in svc.get("layers", []) if "Line" in (l.get("geometryType") or "")]
+if "fields" in svc: layers = [url]
+else: layers = [url + "/" + str(l["id"]) for l in svc.get("layers", [])]
+note("Layers: %s" % [(l.get("id"), l.get("name"), l.get("geometryType")) for l in svc.get("layers", [])])
 feats = []
 for lu in layers:
     meta = get(lu, {"f": "json"})
-    print("Layer:", meta.get("name"), "| fields:", [f["name"] for f in meta.get("fields", [])])
+    if "Polyline" not in (meta.get("geometryType") or ""): continue
+    note("Layer %s: %s | fields %s" % (lu, meta.get("name"), [f["name"] for f in meta.get("fields", [])]))
     offset = 0
     while True:
-        page = get(lu + "/query", {"where": "1=1", "outFields": "*", "outSR": "4326", "f": "geojson",
+        page = get(lu + "/query", {"where": "1=1", "outFields": "*", "outSR": "4326", "f": "json",
                                    "maxAllowableOffset": "0.00015", "geometryPrecision": "5",
                                    "resultOffset": offset, "resultRecordCount": 1000})
+        if "error" in page: note("query error: %s" % json.dumps(page["error"])[:400]); break
         got = page.get("features") or []
-        feats += [f for f in got if f.get("geometry")]
-        if not got or not (page.get("exceededTransferLimit") or (page.get("properties") or {}).get("exceededTransferLimit")): break
+        for f in got:
+            g = f.get("geometry") or {}
+            if not g.get("paths"): continue
+            feats.append({"type": "Feature", "properties": f.get("attributes") or {},
+                          "geometry": {"type": "MultiLineString", "coordinates": g["paths"]}})
+        if not got or not page.get("exceededTransferLimit"): break
         offset += len(got)
-print("Features:", len(feats))
-if feats: print("Sample properties:", json.dumps(feats[0].get("properties"))[:800])
+note("Features: %d" % len(feats))
+if feats: note("Sample properties: " + json.dumps(feats[0]["properties"])[:700])
+if not feats: sys.exit("No toll road lines downloaded")
 json.dump({"type": "FeatureCollection", "source": "TxDOT Texas Toll Roads (arcgis.com item " + ITEM + ")", "features": feats},
           open(sys.argv[1], "w"), separators=(",", ":"))

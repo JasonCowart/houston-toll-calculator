@@ -574,6 +574,7 @@ require([
     freeGraphic = null;
     freeTraffic = [];
     if (tollLayer) { map.remove(tollLayer); tollLayer = null; }
+    tollFallback.removeAll();
     drawStops();
     lastTrip = null;
     shownItems = [];
@@ -1039,8 +1040,30 @@ require([
 
   // Toll points as a client-side feature layer, so the map can label each one and
   // hide labels that would overlap (they come back as you zoom in).
+  // Fallback when the toll point layer doesn't draw: the same dots and labels as plain map
+  // graphics (no hiding of overlapping labels), like the highlight ring, which always draws.
+  var tollFallback = new GraphicsLayer();
+  map.add(tollFallback, map.layers.indexOf(routesLayer) + 1);
+  var tollLayerStatus = "";
+  function drawCrossingGraphics(items) {
+    tollFallback.removeAll();
+    items.forEach(function (it) {
+      var p = it.point, pt = new Point({ longitude: p.lon, latitude: p.lat }), color = it.rate == null ? COLORS.missing : COLORS.toll;
+      tollFallback.add(new Graphic({ geometry: pt, symbol: { type: "simple-marker", size: 9, color: color, outline: { color: [255, 255, 255], width: 1.5 } } }));
+      tollFallback.add(new Graphic({ geometry: pt, symbol: { type: "text", text: shortName(p.name) + " " + (it.rate == null ? "n/a" : fmtMoney(it.rate)),
+        color: [47, 26, 80], haloColor: [255, 255, 255], haloSize: 1.5, xoffset: 8, yoffset: -4, horizontalAlignment: "left",
+        font: { size: 11, weight: "bold" } } }));
+    });
+  }
+  function noteLayerStatus(msg) {
+    tollLayerStatus = msg;
+    var el = document.getElementById("dbg-layer");
+    if (el) el.textContent = "Toll point layer: " + msg;
+  }
   function drawCrossings(items) {
     if (tollLayer) { map.remove(tollLayer); tollLayer = null; }
+    tollFallback.removeAll();
+    noteLayerStatus(items.length ? "drawing…" : "no toll points");
     if (!items.length) return;
     var source = items.map(function (it, i) {
       var p = it.point;
@@ -1073,6 +1096,32 @@ require([
       popupEnabled: false, // tapping a point opens our own card (showCard)
     });
     map.add(tollLayer, map.layers.indexOf(routesLayer) + 1); // above the routes, below the highlight and pins
+    // If the layer fails or hasn't drawn in 8 seconds, draw the dots as plain graphics instead.
+    var layer = tollLayer, settledFlag = false;
+    function fallback(why) {
+      if (settledFlag || layer !== tollLayer) return;
+      settledFlag = true;
+      noteLayerStatus(why + "; showing plain dots instead");
+      console.warn("toll point layer:", why);
+      try { layer.visible = false; } catch (e) { /* ok */ }
+      drawCrossingGraphics(items);
+    }
+    if (!layer.when || !view.whenLayerView) return;
+    layer.when(function () {
+      return view.whenLayerView(layer);
+    }).then(function (lv) {
+      if (settledFlag || layer !== tollLayer) return;
+      var t0 = Date.now();
+      (function check() { // drawn when the layer view has finished updating with features in it
+        if (layer !== tollLayer || settledFlag) return;
+        if (!lv.updating) {
+          settledFlag = true;
+          noteLayerStatus("ok, " + items.length + " points in layer " + map.layers.indexOf(layer) + " of " + map.layers.length);
+        } else if (Date.now() - t0 > 8000) fallback("still drawing after 8 s");
+        else setTimeout(check, 200);
+      })();
+    }).catch(function (e) { fallback("failed (" + (e && (e.message || e.name) || e) + ")"); });
+    setTimeout(function () { fallback("no answer after 10 s"); }, 10000);
   }
 
   function trafficProbeNote(tp) {
@@ -1121,6 +1170,7 @@ require([
         return "<tr><td>" + secs(e.start) + "</td><td>" + (e.ms == null ? "…" : secs(e.ms)) + (e.ok === false ? " (failed)" : "") + "</td><td>" + esc(e.what) + "</td></tr>";
       }).join("") + "</table>";
     box.innerHTML = "<h3>Debug</h3><p><button type='button' id='save-trip' class='go small'>Save trip for testing</button></p>" + timing + base + "<p>Toll route: " + esc(tollRoute.modeNote || "") + "<br>Toll-free route: " + esc((window.__freeNote || "")) + "</p><p>Traffic probe: " + esc(trafficProbeNote(tollRoute.trafficProbe)) + "</p><p>Ramp zones: " + (rampZones ? rampZones.length : "none (no directions geometry)") + "</p>" +
+      "<p id='dbg-layer'>Toll point layer: " + esc(tollLayerStatus) + "</p>" +
       (tollRoute.stopStatus ? "<p>Stops (Esri status): " + esc(tollRoute.stopStatus.map(function (st) { return (st.name || "?") + " = " + st.status; }).join("; ")) + "</p>" : "") +
       "<table class='breakdown'><thead><tr><th>ID</th><th>Toll point within 60 m</th><th>Kind</th><th class='num'>Offset</th><th class='num'>Zone</th><th>Counted</th></tr></thead><tbody>" +
       html + "</tbody></table><details><summary>Maneuvers (" + (tollRoute.steps || []).length + ")</summary><ol>" + steps + "</ol></details>";
@@ -1985,6 +2035,7 @@ require([
     var saved = view.viewpoint ? view.viewpoint.clone() : null, area = null, finished = false;
     // The map's own labels drop some when toll points are close; the picture gets numbered dots instead.
     if (tollLayer) tollLayer.labelsVisible = false;
+    tollFallback.visible = false;
     var ext = lastTrip.tollRoute.geometry.extent.clone();
     if (lastTrip.freeRoute && $("show-free").checked) ext = ext.union(lastTrip.freeRoute.geometry.extent);
     function quiet(e) { console.warn("map picture step", e); window.__shotError = String(e && e.message || e); }
@@ -2034,6 +2085,7 @@ require([
     return Promise.race([work, late]).then(function (shot) {
       finished = true;
       if (tollLayer) tollLayer.labelsVisible = true;
+      tollFallback.visible = true;
       if (saved) view.goTo(saved, { animate: false }).catch(function () {});
       return shot;
     });

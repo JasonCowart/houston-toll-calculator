@@ -64,7 +64,8 @@ jobs:
           TOMTOM_API_KEY: ${{ secrets.TOMTOM_API_KEY }}
           # Where "Report a wrong toll" emails go (a repo variable, Settings > Secrets and variables > Actions > Variables).
           # It ends up visible in the site's config.js, as any mailto address would, so use a shared team inbox.
-          REPORT_EMAIL: ${{ vars.REPORT_EMAIL }}
+          # Temporary inbox until HCTRA sets a shared one in the REPORT_EMAIL variable (which takes priority).
+          REPORT_EMAIL: ${{ vars.REPORT_EMAIL || 'jascow@gmail.com' }}
           # Anonymous usage counts (goatcounter.com): the site code, e.g. "hctra-tolls" for hctra-tolls.goatcounter.com.
           GOATCOUNTER_CODE: ${{ vars.GOATCOUNTER_CODE }}
         run: |

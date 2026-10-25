@@ -1064,10 +1064,11 @@ require([
       source: src, objectIdField: "oid", geometryType: "point", spatialReference: { wkid: 4326 },
       fields: [{ name: "oid", type: "oid" }, { name: "kind", type: "string" }, { name: "label", type: "string" }],
       title: "Toll points",
-      renderer: { type: "unique-value", field: "kind", defaultSymbol: dot(6, [102, 45, 145, 0.85]),
-        uniqueValueInfos: [{ value: "main", symbol: dot(7, [102, 45, 145, 0.9]) }, { value: "on", symbol: dot(5, [140, 92, 255, 0.85]) }, { value: "off", symbol: dot(5, [140, 92, 255, 0.85]) }] },
+      // Neutral dark gray, not HCTRA purple: most of these belong to other agencies.
+      renderer: { type: "unique-value", field: "kind", defaultSymbol: dot(6, [70, 70, 74, 0.85]),
+        uniqueValueInfos: [{ value: "main", symbol: dot(7, [55, 55, 60, 0.9]) }, { value: "on", symbol: dot(5, [105, 105, 110, 0.85]) }, { value: "off", symbol: dot(5, [105, 105, 110, 0.85]) }] },
       labelingInfo: [{ labelExpressionInfo: { expression: "$feature.label" }, labelPlacement: "center-right", minScale: 40000,
-        symbol: { type: "text", color: [74, 42, 118], haloColor: [255, 255, 255], haloSize: 1, font: { size: 9 } } }],
+        symbol: { type: "text", color: [60, 60, 64], haloColor: [255, 255, 255], haloSize: 1, font: { size: 9 } } }],
       popupEnabled: false, visible: showTollMapNow(),
     });
     map.add(allPointsLayer, map.layers.indexOf(tollRoadsLayer) + 1); // over the road lines, under the routes

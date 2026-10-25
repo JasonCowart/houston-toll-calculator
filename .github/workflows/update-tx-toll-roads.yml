@@ -1,0 +1,33 @@
+# Copies TxDOT's statewide "Texas Toll Roads" layer into data/toll-roads.geojson (the toll road
+# lines on the map) and redeploys the site. Runs by hand (Actions > Update Texas toll roads),
+# when the script changes, and on the 1st of each month.
+name: Update Texas toll roads
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 12 1 * *"
+  push:
+    branches: [main]
+    paths: [tools/fetch_tx_toll_roads.py, .github/workflows/update-tx-toll-roads.yml]
+permissions:
+  contents: write
+  actions: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch layer
+        run: python3 tools/fetch_tx_toll_roads.py data/toll-roads.geojson
+      - name: Commit if changed, then redeploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add data/toll-roads.geojson
+          git diff --cached --quiet && { echo "No change."; exit 0; }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update Texas toll roads (TxDOT)"
+          git pull --rebase -X theirs -q origin main
+          git push
+          gh workflow run deploy.yml --ref main

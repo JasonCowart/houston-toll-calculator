@@ -17,7 +17,8 @@ def get(url, params):
     with urllib.request.urlopen(urllib.request.Request(url + "?" + urllib.parse.urlencode(params), headers=UA), timeout=90) as r:
         return json.loads(r.read().decode("utf-8"))
 
-import sys
+import sys, os
+os.makedirs("data/sources", exist_ok=True)
 failed = 0
 for name, url in SOURCES.items():
     rows, offset = [], 0

@@ -1,8 +1,8 @@
 {
- "lastRun": "2026-10-25",
+ "lastRun": "2026-10-26",
  "sources": {
   "bctra": {
-   "checked": "2026-10-25",
+   "checked": "2026-10-26",
    "failures": 0,
    "fingerprint": {
     "amounts": [
@@ -21,7 +21,7 @@
    "url": "https://www.bctra-tx.com/page/rates"
   },
   "fbctra": {
-   "checked": "2026-10-25",
+   "checked": "2026-10-26",
    "failures": 0,
    "fingerprint": {
     "links": [
@@ -40,7 +40,7 @@
    "url": "https://www.fbctra.com/wp-json/wp/v2/posts?search=toll%20rate&per_page=20&_fields=id,date,link,title"
   },
   "fbctra-roads": {
-   "checked": "2026-10-25",
+   "checked": "2026-10-26",
    "failures": 0,
    "fingerprint": {
     "amounts": [
@@ -296,8 +296,8 @@
    "url": "https://www.fbctra.com/toll-roads/"
   },
   "hctra": {
-   "checked": "2026-10-25",
-   "failures": 1,
+   "checked": "2026-10-26",
+   "failures": 0,
    "fingerprint": {
     "rows": [
      "Ft. Bend Extension | North | Fort Bend Parkway | PASS THROUGH | $1.35 | $1.50 | $3.50 | $5.25 | $7.00 | $8.75 | $10.50 | $12.25",
@@ -422,23 +422,21 @@
      "Westpark Tollway | West | Wilcrest West Mainlane | PASS THROUGH | $1.35 | $1.50 | $3.50 | $5.25 | $7.00 | $8.75 | $10.50 | $12.25"
     ]
    },
-   "lastError": "Error: Page.goto: net::ERR_CONNECTION_RESET at https://www.hctra.org/TollRates\nCall log:\nnavigating to \"https://www.hctra.org/TollRates\", waiting until \"load\"\n",
    "name": "HCTRA toll rates",
    "url": "https://www.hctra.org/TollRates"
   },
   "hctra-katy": {
-   "checked": "2026-10-25",
-   "failures": 1,
+   "checked": "2026-10-26",
+   "failures": 0,
    "fingerprint": {
     "bytes": 118102,
     "sha256": "10e952d217a8e207faba3a1db4bf8372b28e76f3c0aca85bc6277b29dc2dee79"
    },
-   "lastError": "URLError: <urlopen error [Errno 104] Connection reset by peer>",
    "name": "HCTRA Katy Managed Lanes schedule (PDF)",
    "url": "https://www.hctra.org/Content/hctra3rdPartyPages/katymanagedlanes/media/Katy_Toll_Sched.pdf"
   },
   "ntta": {
-   "checked": "2026-10-25",
+   "checked": "2026-10-26",
    "failures": 0,
    "fingerprint": {
     "bytes": 128380,
@@ -449,7 +447,7 @@
   },
   "sh130-south": {
    "checked": "2026-10-25",
-   "failures": 1,
+   "failures": 2,
    "fingerprint": {
     "amounts": [
      "$10.47",
@@ -617,7 +615,7 @@
    "url": "https://mysh130.com/traveler-info/toll-rates/"
   },
   "txdot-ctts": {
-   "checked": "2026-10-25",
+   "checked": "2026-10-26",
    "failures": 0,
    "fingerprint": {
     "amounts": [
@@ -1001,7 +999,7 @@
    "url": "https://www.txdot.gov/discover/toll-roads-managed-lanes/txdot-toll-roads/central-texas-turnpike-system-toll-rates.html"
   },
   "txdot-sh249": {
-   "checked": "2026-10-25",
+   "checked": "2026-10-26",
    "failures": 0,
    "fingerprint": {
     "amounts": [
@@ -1055,7 +1053,7 @@
    "url": "https://www.txdot.gov/discover/toll-roads-managed-lanes/txdot-toll-roads/sh249-project-toll-rates.html"
   },
   "txdot-sh288": {
-   "checked": "2026-10-25",
+   "checked": "2026-10-26",
    "failures": 0,
    "fingerprint": {
     "amounts": [
@@ -6446,7 +6444,7 @@
    "url": "https://www.txdot.gov/discover/toll-roads-managed-lanes/managed-lanes/sh288-toll/sh288-managed-lanes-project-toll-rates.html"
   },
   "txdot-sh99": {
-   "checked": "2026-10-25",
+   "checked": "2026-10-26",
    "failures": 0,
    "fingerprint": {
     "amounts": [

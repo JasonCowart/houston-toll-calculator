@@ -474,6 +474,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .fuel-line > .fuel-basis { display: none; }
 @media print {
   .fuel-line > .fuel-basis { display: block; color: var(--ink-soft); font-size: 8.5px; }
+  .cards { grid-template-columns: 1fr !important; row-gap: 1.5mm !important; } /* toll route above toll-free, easy to compare */
   .fuel-line > span + span { margin-top: 1mm; }
   .fuel-line { padding-bottom: 2.5mm; margin-bottom: 2.5mm !important; border-bottom: 1px solid #ddd; }
   .commute-grid { row-gap: 1.2mm; }

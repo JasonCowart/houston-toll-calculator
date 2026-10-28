@@ -2351,17 +2351,20 @@ require([
     d.text(M + 10, y + 17, big, { size: 13, bold: true, color: neutral ? "#1c1b1d" : "#ffffff" });
     if (small) d.text(M + 10, y + 30, small, { size: 8.5, color: neutral ? GRAY : "#ffffff" });
     y += hh + 6;
-    // Route cards.
-    var cw = (R - M - 10) / 2;
-    [[L("Toll route"), textOf($("toll-price")), textOf($("toll-meta"))], [L("Toll-free route"), "$0.00", textOf($("free-meta"))]].forEach(function (c, i) {
-      var x = M + i * (cw + 10);
-      d.rect(x, y, cw, 24, { stroke: LINE });
-      d.text(x + 8, y + 15.5, c[0], { size: 8.5, bold: true, color: GRAY });
-      var lx = x + 14 + P.width(c[0], 8.5, true);
-      d.text(lx, y + 16, c[1], { size: 12, bold: true, color: i ? FAINT : PURPLE });
-      d.text(lx + P.width(c[1], 12, true) + 8, y + 15.5, c[2], { size: 8.5, color: GRAY });
+    // Route cards: one box, toll route above toll-free, with the prices and times lined up in
+    // columns so the two are easy to compare.
+    var rowsC = [[L("Toll route"), textOf($("toll-price")), textOf($("toll-meta"))], [L("Toll-free route"), "$0.00", textOf($("free-meta"))]];
+    var labW = Math.max.apply(null, rowsC.map(function (c) { return P.width(c[0], 8.5, true); }));
+    var priW = Math.max.apply(null, rowsC.map(function (c) { return P.width(c[1], 12, true); }));
+    d.rect(M, y, R - M, 44, { stroke: LINE });
+    d.line(M + 8, y + 22, R - 8, y + 22, { color: LINE });
+    rowsC.forEach(function (c, i) {
+      var ry0 = y + i * 22;
+      d.text(M + 10, ry0 + 14.5, c[0], { size: 8.5, bold: true, color: GRAY });
+      d.text(M + 22 + labW + priW, ry0 + 15, c[1], { size: 12, bold: true, color: i ? FAINT : PURPLE, align: "right" });
+      d.text(M + 34 + labW + priW, ry0 + 14.5, c[2], { size: 8.5, color: GRAY });
     });
-    y += 32;
+    y += 52;
     // Notes (managed lanes, time-of-day pricing, etc.).
     Array.prototype.forEach.call(document.querySelectorAll("#flags .notice"), function (n) {
       var lines = P.wrap(textOf(n), 7.5, false, R - M - 14);
@@ -2409,6 +2412,26 @@ require([
       ly += h;
     });
     d.line(lx0, ly, lx0 + colW, ly, { color: LINE });
+    // Where to check each agency's rates: tappable links right under the toll list, wrapped
+    // to stay in this column.
+    var srcs = [];
+    shownItems.forEach(function (it) {
+      var s = window.TollCalc.rateSource(it.point), a = window.TollCalc.agencyInfo(it.point.owner);
+      if (s && !srcs.some(function (x) { return x.url === s.url; })) srcs.push({ url: s.url, label: a.short + " (" + s.site + ")" });
+    });
+    if (srcs.length) {
+      ly += 6;
+      var head = L("Check the agencies' rates:") + " ", fx = lx0;
+      d.text(fx, ly + 7, head, { size: 7, bold: true, color: GRAY }); fx += P.width(head, 7, true);
+      srcs.forEach(function (sr, k) {
+        var t = sr.label + (k < srcs.length - 1 ? "," : ""), wdt = P.width(t, 7, false);
+        if (fx + wdt > lx0 + colW) { fx = lx0; ly += 9; }
+        d.text(fx, ly + 7, t, { size: 7, color: PURPLE });
+        d.link(fx, ly - 1, wdt, 10, sr.url);
+        fx += wdt + 5;
+      });
+      ly += 10;
+    }
     d.text(rx0, ry + 10, L("Gas and commute cost"), { size: 10, bold: true, color: PURPLE }); ry += 18;
     // Gas for this trip: a heading, one row per route with its gas cost, the difference, and
     // the mpg and price it's based on. Then a rule, the trip back, and the commute table.
@@ -2443,25 +2466,6 @@ require([
     var hint = textOf(document.querySelector("#commute-out .hint"));
     if (hint) ry = d.para(rx0, ry + 3, hint, colW, { size: 6.5, color: FAINT });
     y = Math.max(ly, ry) + 12;
-    // Where to check each agency's rates: one line of tappable links at the bottom.
-    var srcs = [];
-    shownItems.forEach(function (it) {
-      var s = window.TollCalc.rateSource(it.point), a = window.TollCalc.agencyInfo(it.point.owner);
-      if (s && !srcs.some(function (x) { return x.url === s.url; })) srcs.push({ url: s.url, label: a.short + " (" + s.site + ")" });
-    });
-    if (srcs.length) {
-      y = Math.min(y, 792 - M - 34);
-      var head = L("Check the agencies' rates:") + " ", fx = M;
-      d.text(fx, y + 7, head, { size: 7, bold: true, color: GRAY }); fx += P.width(head, 7, true);
-      srcs.forEach(function (sr, k) {
-        var t = sr.label + (k < srcs.length - 1 ? "," : ""), wdt = P.width(t, 7, false);
-        if (fx + wdt > R) { fx = M; y += 9; }
-        d.text(fx, y + 7, t, { size: 7, color: PURPLE });
-        d.link(fx, y - 1, wdt, 10, sr.url);
-        fx += wdt + 5;
-      });
-      y += 14;
-    }
     var asof = textOf($("rates-asof"));
     if (asof) d.para(M, Math.min(y, 792 - M - 10), asof, R - M, { size: 6.5, color: FAINT });
     return d.bytes();

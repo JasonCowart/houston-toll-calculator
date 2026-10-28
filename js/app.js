@@ -2409,26 +2409,39 @@ require([
       ly += h;
     });
     d.line(lx0, ly, lx0 + colW, ly, { color: LINE });
-    d.text(rx0, ry + 10, L("Gas and commute cost"), { size: 10, bold: true, color: PURPLE }); ry += 16;
-    // Gas: a small heading, both routes' gas, then the difference, as on screen.
-    Array.prototype.forEach.call($("fuel-line").children, function (el) {
-      var bold = el.classList.contains("fuel-h"), basis = el.classList.contains("fuel-basis");
-      ry = d.para(rx0, ry, textOf(el), colW, basis ? { size: 7, lineHeight: 9, color: FAINT } : { size: 8, lineHeight: 10, bold: bold }) + (bold ? 0 : 1);
-    });
-    if ($("fuel-line").children.length) ry += 3;
+    d.text(rx0, ry + 10, L("Gas and commute cost"), { size: 10, bold: true, color: PURPLE }); ry += 18;
+    // Gas for this trip: a heading, one row per route with its gas cost, the difference, and
+    // the mpg and price it's based on. Then a rule, the trip back, and the commute table.
+    var fl = $("fuel-line"), fh = fl.querySelector(".fuel-h");
+    if (fh) {
+      d.text(rx0, ry + 8, textOf(fh), { size: 8.5, bold: true, color: "#1c1b1d" }); ry += 13;
+      var amts = fl.querySelectorAll(".fuel-both b");
+      [[L("Toll route"), amts[0]], [L("Toll-free route"), amts[1]]].forEach(function (r) {
+        d.text(rx0, ry + 8, r[0], { size: 8 });
+        d.text(rx0 + colW, ry + 8, textOf(r[1]), { size: 8, align: "right" });
+        ry += 11;
+      });
+      ry += 1;
+      ry = d.para(rx0, ry, textOf(fl.querySelector(".fuel-diff")), colW, { size: 7.5, lineHeight: 9.5, color: GRAY }) + 2;
+      var basisEl = fl.querySelector(".fuel-basis");
+      if (basisEl) ry = d.para(rx0, ry, textOf(basisEl), colW, { size: 7, lineHeight: 9, color: FAINT });
+      ry += 6; d.line(rx0, ry, rx0 + colW, ry, { color: LINE }); ry += 7;
+    }
     var back = textOf($("back-out"));
-    if (back && !$("back-trip").hidden) ry = d.para(rx0, ry, back, colW, { size: 8, lineHeight: 10 }) + 4;
+    if (back && !$("back-trip").hidden) ry = d.para(rx0, ry, back, colW, { size: 7.5, lineHeight: 9.5, color: GRAY }) + 6;
     var cells = document.querySelectorAll("#commute-out .commute-grid > span");
     for (var i = 0; i + 2 < cells.length; i += 3) {
       var head = i === 0, bold = !!cells[i].querySelector("strong");
-      var o = { size: head ? 7.5 : 8, bold: bold, color: head ? FAINT : bold ? PURPLE : "#1c1b1d" };
+      if (bold) { d.line(rx0, ry + 1, rx0 + colW, ry + 1, { color: LINE }); ry += 3; }
+      var o = { size: 8, bold: head || bold, color: head ? "#1c1b1d" : bold ? PURPLE : "#1c1b1d" };
+      var oc = head ? { size: 7.5, color: FAINT } : o;
       d.text(rx0, ry + 9, textOf(cells[i]), o);
-      d.text(rx0 + colW - 52, ry + 9, textOf(cells[i + 1]), Object.assign({ align: "right" }, o));
-      d.text(rx0 + colW, ry + 9, textOf(cells[i + 2]), Object.assign({ align: "right" }, o));
-      ry += 12;
+      d.text(rx0 + colW - 56, ry + 9, textOf(cells[i + 1]), Object.assign({ align: "right" }, oc));
+      d.text(rx0 + colW, ry + 9, textOf(cells[i + 2]), Object.assign({ align: "right" }, oc));
+      ry += head ? 14 : 12.5;
     }
     var hint = textOf(document.querySelector("#commute-out .hint"));
-    if (hint) ry = d.para(rx0, ry + 2, hint, colW, { size: 6.5, color: FAINT });
+    if (hint) ry = d.para(rx0, ry + 3, hint, colW, { size: 6.5, color: FAINT });
     y = Math.max(ly, ry) + 12;
     // Where to check each agency's rates: one line of tappable links at the bottom.
     var srcs = [];

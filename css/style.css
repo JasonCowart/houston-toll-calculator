@@ -39,10 +39,15 @@ html, body { margin: 0; height: 100%; background: var(--surface); color: var(--i
 .panel { width: 390px; flex: none; overflow-y: auto; padding: 18px 18px 24px; background: var(--white);
   border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 14px; }
 .map { flex: 1; min-height: 300px; }
-/* Desktop: drag the edge between the panel and the map to widen the panel (kept per browser). */
-.panel-resizer { flex: none; width: 8px; margin: 0 -4px; position: relative; z-index: 5; cursor: col-resize; touch-action: none; }
-.panel-resizer::after { content: ""; position: absolute; top: 0; bottom: 0; left: 3px; width: 2px; background: transparent; transition: background .15s; }
+/* Desktop: drag the edge between the panel and the map to widen the panel (kept per browser).
+   A grip tab in the middle of the edge shows where to grab; the whole edge is draggable. */
+.panel-resizer { flex: none; width: 12px; margin: 0 -6px; position: relative; z-index: 5; cursor: col-resize; touch-action: none; }
+.panel-resizer::after { content: ""; position: absolute; top: 0; bottom: 0; left: 5px; width: 2px; background: transparent; transition: background .15s; }
+.panel-resizer::before { content: ""; position: absolute; top: 50%; left: 0; width: 12px; height: 48px; margin-top: -24px; border-radius: 6px;
+  background: var(--white) radial-gradient(circle, var(--ink-soft) 1.2px, transparent 1.6px) center / 6px 8px;
+  border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(28, 27, 29, .18); box-sizing: border-box; z-index: 1; }
 .panel-resizer:hover::after, .panel-resizer:focus-visible::after, .panel-resizer.dragging::after { background: var(--purple); }
+.panel-resizer:hover::before, .panel-resizer:focus-visible::before, .panel-resizer.dragging::before { border-color: var(--purple); }
 .panel-resizer:focus-visible { outline: none; }
 body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; }
 

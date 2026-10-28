@@ -2369,9 +2369,8 @@ require([
     d.text(roadX, ly + 7, L("Road"), { size: 7.5, bold: true, color: GRAY });
     d.text(lx0 + colW - 3, ly + 7, L("Toll"), { size: 7.5, bold: true, color: GRAY, align: "right" });
     ly += 10; d.line(lx0, ly, lx0 + colW, ly, { color: LINE });
-    // Grouped by agency, as on screen: an agency line (name, subtotal, tappable rates link),
-    // then its toll points, numbered to match the map.
-    var stripeK = 0;
+    // Grouped by agency, as on screen: an agency banner (name, subtotal), then its toll points,
+    // numbered to match the map. The agencies' rate pages are listed once at the bottom.
     Array.prototype.forEach.call(document.querySelectorAll("#breakdown tr"), function (tr) {
       var td = tr.querySelectorAll("td");
       if (ly > 792 - M - 20) { d.addPage(); ly = M; ry = Math.max(ry, M); }
@@ -2385,22 +2384,12 @@ require([
         var sub = textOf(tr.querySelector(".ag-total"));
         if (sub) d.text(lx0 + colW - 4, ly + 8.6, sub, { size: 7.5, bold: true, color: PURPLE, align: "right" });
         ly += 15;
-        var link = tr.querySelector(".ag-link");
-        if (link) {
-          var u = link.getAttribute("href"), txt = L("Rates:") + " " + u.replace(/^https?:\/\/(www\.)?/, "");
-          var lines = P.wrap(txt, 6.5, false, colW);
-          lines.forEach(function (ln, j) { d.text(lx0, ly + 6 + j * 8, ln, { size: 6.5, color: PURPLE }); });
-          d.link(lx0, ly, colW, lines.length * 8 + 1, u);
-          ly += lines.length * 8 + 2;
-        }
         return;
       }
       if (td.length < 3) { ly = d.para(lx0, ly + 2, textOf(td[0]), colW, { size: 8 }); return; }
       var k = +tr.getAttribute("data-i");
-      // Rows alternate white and light purple.
       var n = Math.max(P.wrap(textOf(td[0]), 8, false, colW * 0.56 - 18).length, P.wrap(textOf(td[1]), 8, false, colW * 0.3).length);
       var h = n * 9.5 + 5;
-      if (stripeK++ % 2 === 1) d.rect(lx0, ly, colW, h, { fill: "#f3eef8" });
       d.circle(lx0 + 8, ly + 7.5, 5, { fill: shownItems[k] && shownItems[k].rate == null ? "#f5a920" : PURPLE });
       var nl = String(k + 1);
       d.text(lx0 + 8 - P.width(nl, 6, true) / 2, ly + 9.7, nl, { size: 6, bold: true, color: "#ffffff" });
@@ -2427,6 +2416,25 @@ require([
     var hint = textOf(document.querySelector("#commute-out .hint"));
     if (hint) ry = d.para(rx0, ry + 2, hint, colW, { size: 6.5, color: FAINT });
     y = Math.max(ly, ry) + 12;
+    // Where to check each agency's rates: one line of tappable links at the bottom.
+    var srcs = [];
+    shownItems.forEach(function (it) {
+      var s = window.TollCalc.rateSource(it.point), a = window.TollCalc.agencyInfo(it.point.owner);
+      if (s && !srcs.some(function (x) { return x.url === s.url; })) srcs.push({ url: s.url, label: a.short + " (" + s.site + ")" });
+    });
+    if (srcs.length) {
+      y = Math.min(y, 792 - M - 34);
+      var head = L("Check the agencies' rates:") + " ", fx = M;
+      d.text(fx, y + 7, head, { size: 7, bold: true, color: GRAY }); fx += P.width(head, 7, true);
+      srcs.forEach(function (sr, k) {
+        var t = sr.label + (k < srcs.length - 1 ? "," : ""), wdt = P.width(t, 7, false);
+        if (fx + wdt > R) { fx = M; y += 9; }
+        d.text(fx, y + 7, t, { size: 7, color: PURPLE });
+        d.link(fx, y - 1, wdt, 10, sr.url);
+        fx += wdt + 5;
+      });
+      y += 14;
+    }
     var asof = textOf($("rates-asof"));
     if (asof) d.para(M, Math.min(y, 792 - M - 10), asof, R - M, { size: 6.5, color: FAINT });
     return d.bytes();

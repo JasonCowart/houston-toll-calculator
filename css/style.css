@@ -174,10 +174,10 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 /* Paint the whole row, not each cell: on phones the row is a grid with a gap
    between cells, and painting cells left white stripes. Hover only on mice,
    so a tapped row doesn't stay tinted on phones. */
-/* Hover: neutral gray. Picked: light gray with a violet outline, matching the violet ring on the map and
+/* Hover: neutral gray. Picked: a rounded violet outline (no fill), matching the violet ring on the map and
    the violet dot on the trip chart, and unlike the lavender agency banners. */
 @media (hover: hover) { #breakdown tr.pickable:hover { background: #f3f3f5; } }
-#breakdown tr.selected, #breakdown tr.selected:hover { background: #ebebee; box-shadow: inset 0 0 0 2px var(--violet-screen); }
+#breakdown tr.selected, #breakdown tr.selected:hover { background: transparent; box-shadow: inset 0 0 0 2px var(--violet-screen); border-radius: 6px; }
 #breakdown tr.pickable td:first-child { color: var(--purple); font-weight: 600; }
 
 /* Basemap switcher on the map */
@@ -392,7 +392,6 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
   .breakdown { margin: 0; font-size: 9.5px; }
   .breakdown th, .breakdown td { padding: 1px 3px; }
   .breakdown tr { break-inside: avoid; }
-  .breakdown tbody tr.stripe td { background: #f3eef8; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .ph-mapwrap { position: relative; }
   .ph-mark { position: absolute; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: var(--purple); border: 1px solid #fff;
     color: #fff; font-size: 7px; font-weight: 700; display: flex; align-items: center; justify-content: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }

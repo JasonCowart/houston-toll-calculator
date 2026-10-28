@@ -979,7 +979,68 @@
       .map(function (f) { return { name: f.name, meters: f.meters, at: f.at }; });
   }
 
-  var api = { unpricedRoads: unpricedRoads, unpricedOnRoute: unpricedOnRoute, pathsDiffer: pathsDiffer, googleWaypoints: googleWaypoints, pointAt: pointAt, viaPlazas: viaPlazas, speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  // ---- Who charges each toll, and where to check the rate ----
+  // Each agency's full and short name, and the page that publishes the rate for a toll point
+  // (the same pages the weekly rate watch reads, tools/watch_rates.py).
+  var AGENCIES = {
+    HCTRA: { name: "Harris County Toll Road Authority", short: "HCTRA", rates: "https://www.hctra.org/TollRates" },
+    MCTRA: { name: "Montgomery County Toll Road Authority", short: "MCTRA", rates: "https://www.hctra.org/TollRates" },
+    FBCTRA: { name: "Fort Bend County Toll Road Authority", short: "FBCTRA", rates: "https://www.fbctra.com/toll-roads/" },
+    BCTRA: { name: "Brazoria County Toll Road Authority", short: "BCTRA", rates: "https://www.bctra-tx.com/page/rates" },
+    TxDOT: { name: "Texas Department of Transportation", short: "TxDOT", rates: "https://www.txdot.gov/discover/toll-roads-managed-lanes.html" },
+    SH130CC: { name: "SH 130 Concession Company", short: "SH 130", rates: "https://mysh130.com/traveler-info/toll-rates/" },
+    NTTA: { name: "North Texas Tollway Authority", short: "NTTA", rates: "https://www.ntta.org/sites/default/files/2025-06/NTTAS_2025-2027_Toll%20Rate%20Tables.pdf" },
+  };
+  var TXDOT_PAGES = [
+    [/Grand Parkway/i, "https://www.txdot.gov/discover/toll-roads-managed-lanes/txdot-toll-roads/sh99-grand-parkway-system-toll-rates.html"],
+    [/SH 249/i, "https://www.txdot.gov/discover/toll-roads-managed-lanes/txdot-toll-roads/sh249-project-toll-rates.html"],
+    [/SH 288/i, "https://www.txdot.gov/discover/toll-roads-managed-lanes/managed-lanes/sh288-toll/sh288-managed-lanes-project-toll-rates.html"],
+    [/SH 130|SH 45|Loop ?1|MoPac/i, "https://www.txdot.gov/discover/toll-roads-managed-lanes/txdot-toll-roads/central-texas-turnpike-system-toll-rates.html"],
+  ];
+  var KATY_PDF = "https://www.hctra.org/Content/hctra3rdPartyPages/katymanagedlanes/media/Katy_Toll_Sched.pdf";
+  function agencyInfo(owner) {
+    var a = AGENCIES[owner];
+    return a ? { code: owner, name: a.name, short: a.short, rates: a.rates } : { code: owner, name: owner, short: owner, rates: null };
+  }
+  // The page that publishes this toll point's rate: { url, site } (site = its domain, for the link text).
+  function rateSource(pt) {
+    if (!pt) return null;
+    var url = agencyInfo(pt.owner).rates;
+    if (pt.owner === "TxDOT") TXDOT_PAGES.some(function (r) { if (r[0].test(pt.road || "")) { url = r[1]; return true; } return false; });
+    if (pt.owner === "HCTRA" && /Katy/i.test(pt.road || "")) url = KATY_PDF;
+    if (!url) return null;
+    var site = url.replace(/^https?:\/\/(www\.)?/, "").split("/")[0];
+    return { url: url, site: site };
+  }
+  // Tolls on a trip grouped by agency, in the order the route meets them:
+  // [{ code, name, short, rates, total, count, missing, timed, roads: [..] }].
+  function agencyTotals(items) {
+    var out = [], by = {};
+    (items || []).forEach(function (it) {
+      var p = it.point || {}, code = p.owner || "?";
+      var a = by[code];
+      if (!a) { a = by[code] = agencyInfo(code); a.total = 0; a.count = 0; a.missing = 0; a.timed = 0; a.roads = []; out.push(a); }
+      a.count++;
+      if (it.rate == null) a.missing++; else a.total = Math.round((a.total + it.rate) * 100) / 100;
+      if (p.status === "timed") a.timed++;
+      if (p.road && a.roads.indexOf(p.road) === -1) a.roads.push(p.road);
+    });
+    return out;
+  }
+  // Stretches of the route each agency charges on, for the trip chart: runs of consecutive toll
+  // points with the same agency, as fractions along the route ({ code, short, from, to }).
+  function agencyRuns(items, routeMeters) {
+    var runs = [];
+    (items || []).forEach(function (it, i) {
+      var frac = routeMeters && it.along != null ? Math.min(1, Math.max(0, it.along / routeMeters)) : (i + 1) / (items.length + 1);
+      var code = it.point && it.point.owner || "?", last = runs[runs.length - 1];
+      if (last && last.code === code) last.to = frac;
+      else runs.push({ code: code, short: agencyInfo(code).short, from: frac, to: frac });
+    });
+    return runs;
+  }
+
+  var api = { agencyInfo: agencyInfo, rateSource: rateSource, agencyTotals: agencyTotals, agencyRuns: agencyRuns, unpricedRoads: unpricedRoads, unpricedOnRoute: unpricedOnRoute, pathsDiffer: pathsDiffer, googleWaypoints: googleWaypoints, pointAt: pointAt, viaPlazas: viaPlazas, speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

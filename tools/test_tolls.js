@@ -552,4 +552,22 @@ test("Toll roads without rates: Toll 49 and 183A are flagged, priced roads and e
   assert(clean, "no saved Houston, Austin or DFW trip is flagged");
 });
 
+test("Agencies: every toll point links to its agency's rates; totals and chart stretches by agency", () => {
+  const pts = require("../data/toll-points.json").points;
+  assert(pts.every(p => { const s = T.rateSource(p); return s && /^https:\/\//.test(s.url) && s.site; }), "every toll point has an https rate page");
+  const gp = pts.find(p => p.owner === "TxDOT" && p.road === "Grand Parkway"), katy = pts.find(p => /Katy/.test(p.road));
+  assert(/sh99-grand-parkway/.test(T.rateSource(gp).url), "TxDOT Grand Parkway links to the SH 99 page");
+  assert(/Katy_Toll_Sched/.test(T.rateSource(katy).url), "Katy Managed Lanes link to the Katy schedule");
+  const items = [
+    { point: { owner: "HCTRA", road: "Westpark Tollway" }, rate: 1.35, along: 1000 },
+    { point: { owner: "HCTRA", road: "Westpark Tollway" }, rate: 1.0, along: 3000 },
+    { point: { owner: "FBCTRA", road: "Westpark Tollway Extension" }, rate: null, along: 6000 },
+    { point: { owner: "HCTRA", road: "Sam Houston" }, rate: 2.1, along: 9000 },
+  ];
+  const ag = T.agencyTotals(items);
+  assert(ag.length === 2 && ag[0].code === "HCTRA" && ag[0].total === 4.45 && ag[0].count === 3 && ag[1].missing === 1, "HCTRA $4.45 over 3 points, FBCTRA 1 missing");
+  const runs = T.agencyRuns(items, 10000);
+  assert(runs.length === 3 && runs[0].from === 0.1 && runs[0].to === 0.3 && runs[1].short === "FBCTRA", "three stretches: HCTRA, FBCTRA, HCTRA");
+});
+
 console.log(passed + " tests passed");

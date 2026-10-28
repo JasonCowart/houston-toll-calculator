@@ -1348,6 +1348,8 @@ require([
       '<div class="pay-grid">' + rates + "</div>" +
       '<p class="map-card-note">' + status + "</p>" +
       '<p class="map-card-agency">' + esc(AGENCY[p.owner] || p.owner) + "</p>" +
+      (function () { var src = window.TollCalc.rateSource(p); return src ? '<p class="map-card-rate"><a href="' + esc(src.url) + '" target="_blank" rel="noopener">' +
+        L("Check this rate on {site}", { site: esc(src.site) }) + "</a></p>" : ""; })() +
       (REPORT_TO ? '<p class="map-card-report"><a href="' + esc(reportMailto(i)) + '">' + L("Report this toll") + "</a></p>" : "");
     card.hidden = false;
   }
@@ -1563,12 +1565,14 @@ require([
   }
 
   $("breakdown").addEventListener("click", function (e) {
+    if (e.target.closest("a")) return; // a rate link: open it, don't pick the row
     var row = e.target.closest("tr.pickable");
     if (row) highlightItem(+row.getAttribute("data-i"), row);
   });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") clearHighlight(); });
   $("breakdown").addEventListener("keydown", function (e) {
     var row = e.target.closest("tr.pickable");
+    if (e.target.closest("a")) return;
     if (row && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); highlightItem(+row.getAttribute("data-i"), row); }
   });
 
@@ -1579,13 +1583,18 @@ require([
   function drawTripChart(t, f, priced, routeMeters) {
     var box = $("trip-chart");
     if (t.minutes == null || f.minutes == null) { box.innerHTML = ""; box.hidden = true; return; }
-    var W = 340, X0 = 18, X1 = W - 18, yT = 62, yF = 128;
+    var W = 340, X0 = 18, X1 = W - 18, yT = 62;
+    // Two or more agencies: a bracket under the toll line for each one's stretch, with room for it.
+    var runs = window.TollCalc.agencyRuns(priced.items, routeMeters);
+    var multi = runs.some(function (r) { return r.code !== runs[0].code; });
+    var lanesHere = window.TollCalc.laneRanges(priced.items, routeMeters).length > 0;
+    var off = multi ? (lanesHere ? 52 : 40) : 0, yF = 128 + off, H0 = 146 + off;
     function ends(y) {
       return '<circle cx="' + X0 + '" cy="' + y + '" r="7" class="tc-s"/><text x="' + X0 + '" y="' + (y + 3) + '" class="tc-l">S</text>' +
         '<circle cx="' + X1 + '" cy="' + y + '" r="7" class="tc-e"/><text x="' + X1 + '" y="' + (y + 3) + '" class="tc-l">E</text>';
     }
     var tr = window.I18N.t;
-    var svg = '<svg viewBox="0 0 ' + W + ' 146" role="img" aria-label="' + esc(tr("Trip chart: toll route {tt}, {price}; toll-free route {ft}", { tt: fmtTime(t.minutes), price: fmtMoney(priced.total), ft: fmtTime(f.minutes) })) + '">';
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H0 + '" role="img" aria-label="' + esc(tr("Trip chart: toll route {tt}, {price}; toll-free route {ft}", { tt: fmtTime(t.minutes), price: fmtMoney(priced.total), ft: fmtTime(f.minutes) })) + '">';
     svg += '<text x="' + X0 + '" y="14" class="tc-h">' + esc(tr("Toll route · {time} · {price}", { time: fmtTime(t.minutes), price: fmtMoney(priced.total) })) + "</text>";
     svg += '<line x1="' + X0 + '" y1="' + yT + '" x2="' + X1 + '" y2="' + yT + '" class="tc-toll-edge"/>';
     svg += '<line x1="' + X0 + '" y1="' + yT + '" x2="' + X1 + '" y2="' + yT + '" class="tc-toll"/>';
@@ -1619,6 +1628,24 @@ require([
         '<circle cx="' + x.toFixed(1) + '" cy="' + yT + '" r="5.5" class="' + (it.rate == null ? "tc-pt missing" : "tc-pt") + '"/>' +
         (tier >= 0 ? '<text x="' + x.toFixed(1) + '" y="' + tiers[tier] + '" class="tc-p">' + label + "</text>" : "") + "</g>";
     });
+    if (multi) {
+      // Brackets never overlap their neighbors; a label that would run into the one before
+      // drops to a second row (and a third), so every agency is named.
+      var by = yT + (lanesHere ? 44 : 32), rowsRight = [-99, -99, -99], prevB = -99;
+      runs.forEach(function (r, k) {
+        var xa = X0 + 14 + (X1 - X0 - 28) * r.from, xb = X0 + 14 + (X1 - X0 - 28) * r.to;
+        var nx = k + 1 < runs.length ? X0 + 14 + (X1 - X0 - 28) * runs[k + 1].from : 1e9;
+        var a = Math.max(xa - 7, prevB + 3, X0), b = Math.min(xb + 7, (xb + nx) / 2 - 1.5, X1);
+        if (b - a < 6) { a = (xa + xb) / 2 - 3; b = a + 6; }
+        prevB = b;
+        var mid = (a + b) / 2, half = r.short.length * 3.3;
+        svg += '<path d="M' + a.toFixed(1) + " " + (by - 5) + " V" + by + " H" + b.toFixed(1) + " V" + (by - 5) + '" class="tc-ag"><title>' + esc(window.TollCalc.agencyInfo(r.code).name) + "</title></path>";
+        var row = 0;
+        while (row < 2 && mid - half <= rowsRight[row] + 4) row++;
+        svg += '<text x="' + Math.max(X0 + half, Math.min(X1 - half, mid)).toFixed(1) + '" y="' + (by + 12 + row * 11) + '" class="tc-k tc-mid tc-agl">' + esc(r.short) + "</text>";
+        rowsRight[row] = mid + half;
+      });
+    }
     svg += ends(yT) + dots;
     svg += '<text x="' + X0 + '" y="' + (yF - 16) + '" class="tc-h">' + esc(tr("Toll-free · {time} · $0.00", { time: fmtTime(f.minutes) })) + "</text>";
     // Toll-free: traffic bands as wide as the toll line's, with the dashed line on top.
@@ -1635,10 +1662,10 @@ require([
       });
     });
     var any = tSegs.concat(fSegs).some(function (sg) { return sg.level; });
-    var legendH = 146;
+    var legendH = H0;
     if (any) {
-      var lx = X0, ly = 162;
-      legendH = 170;
+      var lx = X0, ly = 162 + off;
+      legendH = 170 + off;
       svg += '<text x="' + lx + '" y="' + ly + '" class="tc-k">' + tr("Highway traffic:") + "</text>";
       lx += 84;
       [["moderate", "Moderate"], ["slow", "Slow"], ["heavy", "Heavy"]].forEach(function (k) {
@@ -1648,13 +1675,13 @@ require([
       });
     }
     if (incs.length) {
-      var iy = any ? 180 : 162;
+      var iy = (any ? 180 : 162) + off;
       svg += crashMark(X0 + 6, iy - 4, 13) + '<text x="' + (X0 + 16) + '" y="' + iy + '" class="tc-k">Crash</text>' +
         diamondMark(X0 + 62, iy - 4, "#d93025", 4) + '<text x="' + (X0 + 71) + '" y="' + iy + '" class="tc-k">Road closure</text>' +
         diamondMark(X0 + 152, iy - 4, "#f57c00", 4) + '<text x="' + (X0 + 161) + '" y="' + iy + '" class="tc-k">Other \u00b7 tap any for details</text>';
       legendH = iy + 8;
     }
-    svg = svg.replace('viewBox="0 0 ' + W + ' 146"', 'viewBox="0 0 ' + W + " " + legendH + '"');
+    svg = svg.replace('viewBox="0 0 ' + W + ' ' + H0 + '"', 'viewBox="0 0 ' + W + " " + legendH + '"');
     svg += "</svg>";
     // Long stretches with no turn get one average speed from Esri: say why they aren't colored.
     if (useTT) svg += '<p class="tc-note">Traffic colors: TomTom live speeds, compared with each road\'s usual speed (debug test). Traffic \u00a9 TomTom.</p>';
@@ -2211,7 +2238,7 @@ require([
     if (!lastTrip) return;
     var btn = this; btn.disabled = true;
     // Breakdown and commute cost print opened; put them back after.
-    printOpened = ["breakdown-wrap", "commute-wrap"].filter(function (id) { return !$(id).open; });
+    printOpened = ["breakdown-wrap", "agency-wrap", "commute-wrap"].filter(function (id) { return !$(id).open; });
     printOpened.forEach(function (id) { $(id).open = true; });
     mapShot().then(function (shot) {
       $("print-head").innerHTML = printHead(shot);
@@ -2314,18 +2341,42 @@ require([
       if (ly > 792 - M - 20) { d.addPage(); ly = M; ry = Math.max(ry, M); }
       if (td.length < 3) { ly = d.para(lx0, ly + 2, textOf(td[0]), colW, { size: 8 }); return; }
       // Rows alternate white and light purple.
-      var n = Math.max(P.wrap(textOf(td[0]), 8, false, colW * 0.56 - 18).length, P.wrap(textOf(td[1]), 8, false, colW * 0.3).length);
+      var road = shownItems[k] ? shownItems[k].point.road : textOf(td[1]); // the road alone, without the agency rate link
+      var n = Math.max(P.wrap(textOf(td[0]), 8, false, colW * 0.56 - 18).length, P.wrap(road, 8, false, colW * 0.3).length);
       var h = n * 9.5 + 5;
       if (k % 2 === 1) d.rect(lx0, ly, colW, h, { fill: "#f3eef8" });
       d.circle(lx0 + 8, ly + 7.5, 5, { fill: shownItems[k] && shownItems[k].rate == null ? "#f5a920" : PURPLE });
       var nl = String(k + 1);
       d.text(lx0 + 8 - P.width(nl, 6, true) / 2, ly + 9.7, nl, { size: 6, bold: true, color: "#ffffff" });
       d.para(lx0 + 17, ly + 2, textOf(td[0]), colW * 0.56 - 18, { size: 8, lineHeight: 9.5 });
-      d.para(roadX, ly + 2, textOf(td[1]), colW * 0.3, { size: 8, lineHeight: 9.5 });
+      d.para(roadX, ly + 2, road, colW * 0.3, { size: 8, lineHeight: 9.5 });
       d.text(lx0 + colW - 3, ly + 10, textOf(td[2]), { size: 8, align: "right" });
       ly += h;
     });
     d.line(lx0, ly, lx0 + colW, ly, { color: LINE });
+    // Who charges these tolls, with a tappable link to each agency's published rates.
+    var agencies = window.TollCalc.agencyTotals(shownItems);
+    if (agencies.length) {
+      ly += 8;
+      if (ly > 792 - M - 40) { d.addPage(); ly = M; ry = Math.max(ry, M); }
+      d.text(lx0, ly + 10, L("Toll agencies on this route"), { size: 10, bold: true, color: PURPLE }); ly += 16;
+      agencies.forEach(function (a) {
+        if (ly > 792 - M - 24) { d.addPage(); ly = M; ry = Math.max(ry, M); }
+        d.text(lx0, ly + 8, a.name, { size: 8, bold: true });
+        d.text(lx0 + colW - 3, ly + 8, fmtMoney(a.total) + (a.missing ? "+" : ""), { size: 8, bold: true, align: "right" });
+        ly += 11;
+        var srcs = [];
+        shownItems.forEach(function (it) { if (it.point && it.point.owner === a.code) { var s = window.TollCalc.rateSource(it.point); if (s && srcs.indexOf(s.url) === -1) srcs.push(s.url); } });
+        srcs.forEach(function (u) {
+          var txt = L("Rates:") + " " + u.replace(/^https?:\/\/(www\.)?/, "");
+          var lines = P.wrap(txt, 7, false, colW);
+          lines.forEach(function (ln, j) { d.text(lx0, ly + 7 + j * 8.5, ln, { size: 7, color: PURPLE }); });
+          d.link(lx0, ly, colW, lines.length * 8.5 + 1, u);
+          ly += lines.length * 8.5 + 1;
+        });
+        ly += 3;
+      });
+    }
     d.text(rx0, ry + 10, L("Gas and commute cost"), { size: 10, bold: true, color: PURPLE }); ry += 16;
     var gas = textOf($("fuel-line"));
     if (gas) ry = d.para(rx0, ry, gas, colW, { size: 8, lineHeight: 10 }) + 4;
@@ -2455,6 +2506,42 @@ require([
     });
     return out;
   }
+  // Link to the agency's published rates for a toll point (opens in a new tab). The arrow is
+  // drawn by CSS so it stays out of the PDF and print text.
+  function rateLink(p, cls) {
+    var src = window.TollCalc.rateSource(p);
+    if (!src) return "";
+    var a = window.TollCalc.agencyInfo(p.owner);
+    return ' <a class="' + cls + '" href="' + esc(src.url) + '" target="_blank" rel="noopener" title="' +
+      esc(L("{agency} rates on {site}", { agency: a.short, site: src.site })) + '">' + esc(a.short) + "</a>";
+  }
+  // "Toll agencies on this route": who charges the tolls, their share of the total, and where
+  // to check their rates.
+  function renderAgencies(items) {
+    var T = window.TollCalc, list = T.agencyTotals(items);
+    $("agency-wrap").hidden = !list.length;
+    $("agency-list").innerHTML = list.map(function (a) {
+      var srcs = [];
+      items.forEach(function (it) {
+        if ((it.point && it.point.owner) !== a.code) return;
+        var s = T.rateSource(it.point);
+        if (!s) return;
+        var have = srcs.filter(function (x) { return x.url === s.url; })[0];
+        if (have) { if (have.roads.indexOf(it.point.road) === -1) have.roads.push(it.point.road); }
+        else srcs.push({ url: s.url, site: s.site, roads: [it.point.road] });
+      });
+      var links = srcs.map(function (s) {
+        var label = srcs.length > 1 ? L("{roads} rates", { roads: s.roads.join(", ") }) : L("Check their rates");
+        return '<a class="ag-link" href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(label) + ' <span class="ag-site">' + esc(s.site) + "</span></a>";
+      }).join("");
+      var meta = L(a.count === 1 ? "1 toll point" : "{n} toll points", { n: a.count }) + " · " + a.roads.map(esc).join(", ");
+      return '<li class="agency"><span class="ag-badge" aria-hidden="true">' + esc(a.short) + "</span>" +
+        '<div class="ag-main"><div class="ag-top"><strong class="ag-name">' + esc(a.name) + '</strong><span class="ag-total">' +
+        fmtMoney(a.total) + (a.missing ? "+" : "") + "</span></div>" +
+        '<p class="ag-meta">' + meta + "</p>" + (a.timed ? '<p class="ag-meta">' + L("Priced by time of day") + "</p>" : "") +
+        '<div class="ag-links">' + links + "</div></div></li>";
+    }).join("");
+  }
   function showResults(tollRoute, freeRoute, priced, savings) {
     var t = routeStats(tollRoute), f = routeStats(freeRoute);
     var unpriced = unpricedOnTrip();
@@ -2545,9 +2632,10 @@ require([
       var p = it.point;
       var when = it.when ? ' <span class="tag-unverified">(' + fmtClock(it.when) + (it.note ? ", " + esc(it.note) : "") + ")</span>" : "";
       return '<tr class="pickable" tabindex="0" data-i="' + priced.items.indexOf(it) + '" title="' + L("Show on map") + '"><td class="bd-name">' + esc(p.name) + (p.status === "unverified" ? ' <span class="tag-unverified">' + L("(unverified)") + "</span>" : "") + when +
-        '</td><td class="bd-road">' + esc(p.road) + '</td><td class="num">' + (it.rate == null ? "n/a" : fmtMoney(it.rate)) + "</td></tr>";
+        '</td><td class="bd-road">' + esc(p.road) + rateLink(p, "bd-rate") + '</td><td class="num">' + (it.rate == null ? "n/a" : fmtMoney(it.rate)) + "</td></tr>";
     }).join("") || '<tr><td colspan="3">' + L("No toll points crossed.") + "</td></tr>";
     $("breakdown-wrap").hidden = !priced.items.length;
+    renderAgencies(priced.items);
     drawTripChart(t, f, priced, lastTrip ? window.TollCalc.pathMeters(lastTrip.trip.tollPath) : null);
     shownItems = priced.items;
     clearHighlight();

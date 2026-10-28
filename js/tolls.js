@@ -719,6 +719,28 @@
       .sort(function (a, b) { return a.at - b.at; }).map(function (x) { return x.p; });
   }
 
+  // The toll road a point sits on (within maxMeters of its line), from the statewide toll road
+  // lines, or null. Express, managed and HOV lanes are left out: they run in the middle of free
+  // highways, so a point on the free lanes would look like it's on them.
+  function tollRoadAt(features, pt, maxMeters) {
+    maxMeters = maxMeters || 35;
+    if (!features || !pt) return null;
+    var pad = maxMeters / 90000, proj = projector(pt[1]), q = proj(pt[0], pt[1]), best = null;
+    features.forEach(function (f) {
+      var n = f && f.properties && f.properties.name, g = f && f.geometry;
+      if (!n || !g || LANE_RE.test(n)) return;
+      var lines = g.type === "LineString" ? [g.coordinates] : g.type === "MultiLineString" ? g.coordinates : [];
+      lines.forEach(function (l) {
+        if (!l || l.length < 2) return;
+        var near = l.some(function (c) { return Math.abs(c[0] - pt[0]) < 0.05 && Math.abs(c[1] - pt[1]) < 0.05; });
+        if (!near) return;
+        var d = nearestOnPath(l.map(function (c) { return proj(c[0], c[1]); }), q[0], q[1]).dist;
+        if (d <= maxMeters + (pad * 0) && (!best || d < best.d)) best = { d: d, name: n };
+      });
+    });
+    return best ? best.name : null;
+  }
+
   // ---- Trip extras ----
   // Fuel defaults by vehicle class: gas for 2-3 axles, diesel for 4+. Houston-area prices,
   // Oct 2026 (regular about $3.76, diesel $5.67); users can change them.
@@ -1060,7 +1082,7 @@
     return runs;
   }
 
-  var api = { orderAlong: orderAlong, agencyInfo: agencyInfo, rateSource: rateSource, agencyTotals: agencyTotals, agencyRuns: agencyRuns, unpricedRoads: unpricedRoads, unpricedOnRoute: unpricedOnRoute, pathsDiffer: pathsDiffer, googleWaypoints: googleWaypoints, pointAt: pointAt, viaPlazas: viaPlazas, speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { tollRoadAt: tollRoadAt, orderAlong: orderAlong, agencyInfo: agencyInfo, rateSource: rateSource, agencyTotals: agencyTotals, agencyRuns: agencyRuns, unpricedRoads: unpricedRoads, unpricedOnRoute: unpricedOnRoute, pathsDiffer: pathsDiffer, googleWaypoints: googleWaypoints, pointAt: pointAt, viaPlazas: viaPlazas, speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

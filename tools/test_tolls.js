@@ -593,4 +593,10 @@ test("off at one ramp and straight back on via the tollway's own frontage road c
   assert(hops.length === 1 && hops[0].road === "Sam Houston", "the frontage weave is a hop: " + JSON.stringify(hops));
 });
 
+test("a stop dropped on a toll road is recognized (so the toll-free route can skip it)", () => {
+  const f = JSON.parse(require("fs").readFileSync(__dirname + "/../data/toll-roads.geojson")).features;
+  assert(T.tollRoadAt(f, [-95.564053, 29.855926]) === "Sam Houston Tollway", "a stop on the Sam Houston near US 290");
+  assert(T.tollRoadAt(f, [-95.508625, 29.856987]) === null, "a street address isn't on a toll road");
+});
+
 console.log(passed + " tests passed");

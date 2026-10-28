@@ -407,11 +407,16 @@ require([
 
   // Texas toll roads we don't have rates for yet (no toll points near them, e.g. Toll 49 in Tyler
   // or CTRMA's roads in Austin). A route that drives on one gets a warning instead of a silent $0.
-  var unpricedRoadList = null;
+  var unpricedRoadList = null, tollRoadFeatures = null;
+  // A stop dropped right on a toll road is a way of saying "take this toll road": the toll
+  // route goes through it, the toll-free route doesn't (it can't drive there).
+  function stopTollRoad(m) { return m && tollRoadFeatures ? window.TollCalc.tollRoadAt(tollRoadFeatures, [m.longitude, m.latitude], 35) : null; }
+  function freeMids() { return midPoints().filter(function (m) { return !stopTollRoad(m); }); }
   function loadUnpriced() {
     fetch("data/toll-roads.geojson")
       .then(function (r) { return r.json(); })
       .then(function (g) {
+        tollRoadFeatures = g.features;
         unpricedRoadList = window.TollCalc.unpricedRoads(g.features, tollPoints);
         if (lastTrip && !$("results").hidden) showResults(lastTrip.tollRoute, lastTrip.freeRoute, lastTrip.priced, lastTrip.savings);
       })
@@ -745,7 +750,8 @@ require([
     // first one's coordinate system, so a mix left the odd one "not located" and skipped.
     function ll(g) { return g ? new Point({ longitude: g.longitude, latitude: g.latitude }) : g; }
     var ends0 = swapEnds || stops, ends = { from: ll(ends0.from), to: ll(ends0.to) };
-    var mids = (swapEnds ? swapEnds.mids : midPoints()).map(ll);
+    var isFree = /PROHIBITED/.test(mode.__note || "");
+    var mids = (swapEnds ? swapEnds.mids : midPoints()).filter(function (m) { return !(isFree && stopTollRoad(m)); }).map(ll);
     var middle = (via || []).map(function (v) {
       // A third number is the direction of travel there (degrees from north): Esri then places
       // the point on the lanes going that way, within 30 degrees.
@@ -1883,7 +1889,7 @@ require([
     out.dataset.busy = "1";
     out.innerHTML = '<span class="busy-line">' + spinner() + esc(L("Routing the trip back…")) + "</span>";
     function live() { if (run !== backRun) throw new Error("stale"); }
-    var backMids = midPoints().slice().reverse(), saveOrder = orderPath, backOrder = null;
+    var backMids = midPoints().filter(function (m) { return !stopTollRoad(m); }).reverse(), saveOrder = orderPath, backOrder = null; // a stop on a toll road steers one way only
     function begin() { live(); swapEnds = { from: stops.to, to: stops.from, mids: backMids }; departure = at; orderPath = backOrder; } // set again before each step, in case another lookup ran between
     begin();
     loadTravelModes().then(function (modes) {
@@ -2014,7 +2020,7 @@ require([
   function routeWaypoints(route, kind) {
     var path = [].concat.apply([], route.geometry.paths);
     var tolls = kind === "toll" && lastTrip ? lastTrip.priced.items.map(function (it) { return [it.point.lon, it.point.lat]; }) : [];
-    var mids = midPoints().map(function (m) { return [m.longitude, m.latitude]; });
+    var mids = (kind === "toll" ? midPoints() : freeMids()).map(function (m) { return [m.longitude, m.latitude]; });
     return window.TollCalc.googleWaypoints(path, tolls, mids, 9);
   }
   // Choose a toll road: send the toll route through a plaza on a road the driver picks
@@ -2595,7 +2601,7 @@ require([
       if (!stops[k]) return;
       n++;
       var p = [stops[k].longitude, stops[k].latitude];
-      var far = T.distanceToPath(lastTrip.trip.tollPath, p) > 300 || T.distanceToPath(lastTrip.trip.freePath, p) > 300;
+      var far = T.distanceToPath(lastTrip.trip.tollPath, p) > 300 || (!stopTollRoad(stops[k]) && T.distanceToPath(lastTrip.trip.freePath, p) > 300);
       var bad = (lastTrip.tollRoute.stopStatus || []).some(function (st) { return st.name === "Stop " + n && st.status && st.status !== "ok" && st.status !== 0; });
       if (far || bad) out.push({ n: n, label: searchesTerm(k) || lonLat(stops[k]).join(", ") });
     });
@@ -2677,6 +2683,13 @@ require([
       warns.push(L("The toll route uses {roads}. This calculator doesn't have toll rates for {them} yet, so the total leaves {them} out.", { roads: roadList(unpriced.toll), them: L(unpriced.toll.length > 1 ? "those roads" : "that road") }));
     if (unpriced.free.length)
       warns.push(L("The toll-free route uses {roads}, which charges a toll. This calculator doesn't have that rate yet.", { roads: roadList(unpriced.free) }));
+    var sn = 0;
+    midKeys.forEach(function (k) {
+      if (!stops[k]) return;
+      sn++;
+      var road = stopTollRoad(stops[k]);
+      if (road) flags.push(L("Stop {n} is on the {road}, so the toll-free route doesn't go there.", { n: sn, road: road }));
+    });
     unreachedStops().forEach(function (u) {
       flags.push(L("The route doesn't go to Stop {n} ({place}): the map couldn't put that spot on a road it can drive to. Pick an address or a spot right on a street nearby, then compare again.", { n: u.n, place: u.label }));
     });

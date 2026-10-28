@@ -747,7 +747,11 @@ require([
     var ends0 = swapEnds || stops, ends = { from: ll(ends0.from), to: ll(ends0.to) };
     var mids = (swapEnds ? swapEnds.mids : midPoints()).map(ll);
     var middle = (via || []).map(function (v) {
-      return { lonlat: v, g: new Graphic({ geometry: new Point({ longitude: v[0], latitude: v[1] }), attributes: { LocationType: 1, CurbApproach: 0 } }) };
+      // A third number is the direction of travel there (degrees from north): Esri then places
+      // the point on the lanes going that way, within 30 degrees.
+      var at = { LocationType: 1, CurbApproach: 0 };
+      if (v[2] != null) { at.Bearing = v[2]; at.BearingTol = 30; }
+      return { lonlat: [v[0], v[1]], g: new Graphic({ geometry: new Point({ longitude: v[0], latitude: v[1] }), attributes: at }) };
     });
     if (mids.length) {
       // Your stops, plus any route-shaping points, in the order they come along the trip.
@@ -2875,17 +2879,20 @@ require([
       if (barriers.length) tollRoute.barriers = barriers.slice(); // reused for other departure times
       return Promise.resolve(tollRoute);
     }
-    hops.forEach(function (h) { barriers.push(h.barrier); if (roads.indexOf(h.road) === -1) roads.push(h.road); });
+    var calmLine = calmSteps ? [].concat.apply([], calmSteps.map(function (st) { return st.path || []; })) : null;
+    hops.forEach(function (h) {
+      // A barrier right beside the tollway can land on the tollway's own lanes and push the
+      // route off it, so those are skipped (the tollway points below do the work there).
+      if (!calmLine || T.distanceToPath(calmLine, h.barrier) > 80) barriers.push(h.barrier);
+      if (roads.indexOf(h.road) === -1) roads.push(h.road);
+    });
     // A side-street barrier alone often isn't enough in a street grid (Esri finds the next
     // street over), so also route through points on the tollway's own lanes where this hop
     // is, from the no-traffic route, in order with the points already used.
     if (calmSteps) {
       var more = T.tollwayAnchors(calmSteps, tollRoute.steps, hops).map(function (a) { return a.lonlat; })
         .filter(function (p) { return !(via || []).some(function (q) { return Math.hypot((p[0] - q[0]) * 96500, (p[1] - q[1]) * 111000) < 100; }); });
-      if (more.length) {
-        var calmLine = [].concat.apply([], calmSteps.map(function (st) { return st.path || []; }));
-        via = T.orderAlong(calmLine, (via || []).concat(more));
-      }
+      if (more.length) via = T.orderAlong(calmLine, (via || []).concat(more));
     }
     return solve(tollRoute.mode, true, DEBUG, via, barriers.slice()).then(function (g) {
       g.originalMinutes = tollRoute.originalMinutes;

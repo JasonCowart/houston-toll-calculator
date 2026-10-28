@@ -360,6 +360,9 @@ test("routing points that keep a traffic route on the tollway sit on the tollway
   const lat = a[0].lonlat[1], left = hopper.toll.steps[hops[0].fromStep - 1].path.slice(-1)[0][1], back = hopper.toll.steps[hops[0].toStep].path[0][1];
   assert(lat < left && lat > back, "anchor between exit (" + left + ") and re-entry (" + back + "): " + lat);
   assert(T.tollwayAnchors(calm.toll.steps, hopper.toll.steps, []).length === 0, "no hops, no anchors");
+  // Each point carries the direction of travel (southbound here), so Esri puts it on the
+  // southbound lanes and not across the median on the northbound ones.
+  assert(a.every((x) => x.lonlat[2] > 135 && x.lonlat[2] < 225), "bearing southbound: " + a.map((x) => x.lonlat[2]).join());
   // The calm route must run the same way: a northbound route gives no points for a southbound hop.
   const nb = load("2026-10-22-1751-bw8-nb-little-york-hop.json");
   assert(T.tollwayAnchors(nb.toll.steps, hopper.toll.steps, hops).length === 0, "opposite direction gives no anchors");

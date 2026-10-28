@@ -644,7 +644,7 @@
   // returns vertices of the calm route's own tollway line between where the traffic route
   // left and where it got back on, so a waypoint there sits exactly on Esri's main lanes and
   // can't snap to the frontage road beside them. [] if the calm route doesn't cover the hop.
-  var ANCHOR_SPACING_METERS = 1500, ANCHOR_END_METERS = 150, ANCHOR_MATCH_METERS = 300;
+  var ANCHOR_SPACING_METERS = 700, ANCHOR_END_METERS = 150, ANCHOR_MATCH_METERS = 300;
   function tollwayAnchors(calmSteps, trafficSteps, hops) {
     var out = [];
     if (!calmSteps || !trafficSteps || !hops || !hops.length) return out;
@@ -694,7 +694,11 @@
         var best = null;
         picks.forEach(function (c) { if (!best || Math.abs(c.at - target) < Math.abs(best.at - target)) best = c; });
         var key = best.v.lonlat.join(",");
-        if (!used[key]) { used[key] = true; out.push({ lonlat: best.v.lonlat, road: h.road, at: best.at }); }
+        // With the direction of travel there, so Esri puts the point on the lanes going the
+        // route's way, not the opposite side of the tollway (which made it loop back).
+        var k = verts.indexOf(best.v), a = line[Math.max(0, k - 1)], b = line[Math.min(line.length - 1, k + 1)];
+        var brg = Math.round(bearing(a[0], a[1], b[0], b[1]));
+        if (!used[key]) { used[key] = true; out.push({ lonlat: [best.v.lonlat[0], best.v.lonlat[1], brg], road: h.road, at: best.at }); }
       });
     });
     out.sort(function (a, b) { return a.at - b.at; });

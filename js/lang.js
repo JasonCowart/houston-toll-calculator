@@ -258,6 +258,8 @@
     "{roads} rates": "Tarifas de {roads}",
     "Check their rates": "Ver sus tarifas",
     "Website": "Sitio web",
+    "Rates": "Tarifas",
+    "Rates {n}": "Tarifas {n}",
     "Tolls by agency:": "Peajes por agencia:",
     "1 toll point": "1 punto de peaje",
     "{n} toll points": "{n} puntos de peaje",

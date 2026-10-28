@@ -2328,8 +2328,9 @@ require([
       if (tr.classList.contains("bd-agency")) {
         var code = tr.getAttribute("data-agency"), a = window.TollCalc.agencyInfo(code);
         ly += 3;
-        d.text(lx0, ly + 9, a.short + "  " + a.name, { size: 8, bold: true, color: GRAY });
-        d.text(lx0 + colW - 3, ly + 9, textOf(tr.querySelector(".ag-total")), { size: 8, bold: true, color: GRAY, align: "right" });
+        d.text(lx0, ly + 9, a.short + " \u00b7 " + a.name, { size: 7.5, bold: true, color: GRAY });
+        var sub = textOf(tr.querySelector(".ag-total"));
+        if (sub) d.text(lx0 + colW - 3, ly + 9, sub, { size: 7.5, bold: true, color: GRAY, align: "right" });
         ly += 12;
         var link = tr.querySelector(".ag-link");
         if (link) {
@@ -2485,25 +2486,22 @@ require([
     });
     return out;
   }
-  // An agency's header row in the toll breakdown: its name, its subtotal for these toll points,
-  // and links to the page(s) that publish their rates and to its website (new tab).
+  // An agency's label row in the toll breakdown: one small line with its short name (full name
+  // on hover), a link to the page that publishes its rates, and its subtotal when it has more
+  // than one toll here. Kept light so the toll rows stay the easy-to-read part.
   function agencyHeader(code, its) {
     var T = window.TollCalc, a = T.agencyInfo(code), total = 0, missing = 0, srcs = [];
     its.forEach(function (it) {
       if (it.rate == null) missing++; else total = Math.round((total + it.rate) * 100) / 100;
       var s = T.rateSource(it.point);
-      if (!s) return;
-      var have = srcs.filter(function (x) { return x.url === s.url; })[0];
-      if (have) { if (have.roads.indexOf(it.point.road) === -1) have.roads.push(it.point.road); }
-      else srcs.push({ url: s.url, roads: [it.point.road] });
+      if (s && srcs.indexOf(s.url) === -1) srcs.push(s.url);
     });
-    var links = srcs.map(function (s) {
-      var label = srcs.length > 1 ? L("{roads} rates", { roads: s.roads.join(", ") }) : L("Check their rates");
-      return '<a class="ag-link" href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(label) + "</a>";
-    }).join("") + (a.web ? '<a class="ag-link" href="' + esc(a.web) + '" target="_blank" rel="noopener">' + L("Website") + "</a>" : "");
-    return '<tr class="bd-agency" data-agency="' + esc(code) + '"><td colspan="3"><div class="ag-top"><span class="ag-who"><span class="ag-badge">' + esc(a.short) +
-      '</span> <span class="ag-name">' + esc(a.name) + '</span></span><span class="ag-total">' + fmtMoney(total) + (missing ? "+" : "") + "</span></div>" +
-      '<div class="ag-links">' + links + "</div></td></tr>";
+    var links = srcs.map(function (u, k) {
+      return '<a class="ag-link" href="' + esc(u) + '" target="_blank" rel="noopener">' + L(srcs.length > 1 ? "Rates {n}" : "Rates", { n: k + 1 }) + "</a>";
+    }).join(" ");
+    return '<tr class="bd-agency" data-agency="' + esc(code) + '"><td colspan="3"><div class="ag-top"><span class="ag-who" title="' + esc(a.name) + '"><span class="ag-short">' + esc(a.short) + "</span>" +
+      (links ? ' <span class="ag-dot" aria-hidden="true">\u00b7</span> ' + links : "") + "</span>" +
+      (its.length > 1 ? '<span class="ag-total">' + fmtMoney(total) + (missing ? "+" : "") + "</span>" : "") + "</div></td></tr>";
   }
   function showResults(tollRoute, freeRoute, priced, savings) {
     var t = routeStats(tollRoute), f = routeStats(freeRoute);

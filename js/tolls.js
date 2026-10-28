@@ -984,7 +984,7 @@
   // (the same pages the weekly rate watch reads, tools/watch_rates.py).
   var AGENCIES = {
     HCTRA: { name: "Harris County Toll Road Authority", short: "HCTRA", rates: "https://www.hctra.org/TollRates" },
-    MCTRA: { name: "Montgomery County Toll Road Authority", short: "MCTRA", rates: "https://www.hctra.org/TollRates" },
+    MCTRA: { name: "Montgomery County Toll Road Authority", short: "MCTRA", rates: "https://www.hctra.org/TollRates?tollRoad=Other+HCTRA-Managed+Toll+Roads" },
     FBCTRA: { name: "Fort Bend County Toll Road Authority", short: "FBCTRA", rates: "https://www.fbctra.com/toll-roads/" },
     BCTRA: { name: "Brazoria County Toll Road Authority", short: "BCTRA", rates: "https://www.bctra-tx.com/page/rates" },
     TxDOT: { name: "Texas Department of Transportation", short: "TxDOT", rates: "https://www.txdot.gov/discover/toll-roads-managed-lanes.html" },

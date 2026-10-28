@@ -23,6 +23,9 @@ from datetime import datetime, timezone
 SOURCES = [
     {"id": "hctra", "name": "HCTRA toll rates", "url": "https://www.hctra.org/TollRates", "kind": "hctra",
      "covers": "Sam Houston, Hardy, Westpark, Tomball, Fort Bend Westpark plazas run by HCTRA, MCTRA SH 249"},
+    {"id": "hctra-other", "name": "HCTRA rates for other HCTRA-managed toll roads", "kind": "hctra",
+     "url": "https://www.hctra.org/TollRates?tollRoad=Other+HCTRA-Managed+Toll+Roads",
+     "covers": "Montgomery County (MCTRA) Tomball Tollway and SH 249 plazas run by HCTRA"},
     {"id": "hctra-katy", "name": "HCTRA Katy Managed Lanes schedule (PDF)", "kind": "file",
      "url": "https://www.hctra.org/Content/hctra3rdPartyPages/katymanagedlanes/media/Katy_Toll_Sched.pdf",
      "covers": "Katy Managed Lanes time-of-day rates"},
@@ -126,6 +129,13 @@ def hctra_rows(url):
                     read(road, d)
         finally:
             browser.close()
+    if "tollRoad=" in url:
+        # A link to one toll road group (e.g. "Other HCTRA-Managed Toll Roads"): the rows it
+        # opens on are the ones this source watches.
+        loaded = [r for r in rows[:first] if r.startswith("(as loaded)")]
+        if not loaded:
+            raise RuntimeError("HCTRA page gave no rate rows for " + url + ": " + json.dumps(debug)[:900])
+        return sorted(set(loaded))
     if len(rows) <= first:
         raise RuntimeError("HCTRA menus gave no rate rows: " + json.dumps(debug)[:900])
     return sorted(set(r for r in rows if not r.startswith("(as loaded)")))

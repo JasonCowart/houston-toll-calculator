@@ -1,0 +1,28 @@
+# One-off check: the links and toll road groups on HCTRA's toll rates page.
+# Saves them to data/hctra-links-probe.json. Run from Actions > Probe HCTRA rate links > Run workflow.
+name: Probe HCTRA rate links
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [tools/probe_hctra_links.py, .github/workflows/probe-hctra-links.yml]
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install page reader
+        run: pip install --quiet playwright==1.47.0
+      - name: Read the page
+        run: python3 tools/probe_hctra_links.py
+      - name: Save the result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/hctra-links-probe.json
+          git diff --cached --quiet && exit 0
+          git commit -m "HCTRA rate links probe result"
+          git pull --rebase -X theirs -q origin main
+          git push

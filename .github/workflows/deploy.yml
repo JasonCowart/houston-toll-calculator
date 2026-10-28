@@ -1,4 +1,6 @@
 # Publishes the site to GitHub Pages on every push to main.
+# A "preview" branch, when there is one, is published too at /preview/ (same site, same keys,
+# not counted, not indexed) so a change can be tried before it goes to main.
 # The ArcGIS API key comes from the repository secret ARCGIS_API_KEY
 # (Settings > Secrets and variables > Actions) and is written into
 # config.js only in the published copy, never in the code.
@@ -6,7 +8,7 @@ name: Deploy site
 
 on:
   push:
-    branches: [main]
+    branches: [main, preview]
   workflow_dispatch:
 
 permissions:
@@ -26,6 +28,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Run toll tests
         run: node tools/test_tolls.js
@@ -83,6 +87,32 @@ jobs:
           # The service worker's cache is named for this deploy, so old copies are cleared.
           sed -i "s/^var VERSION = \"dev\";/var VERSION = \"$V\";/" sw.js
           grep -q "VERSION = \"$V\"" sw.js
+
+      # Preview: the "preview" branch, tested and built the same way, published at /preview/.
+      # If the branch doesn't exist or its tests fail, the main site still publishes.
+      - name: Build preview
+        if: steps.lock.outputs.offline != 'true'
+        env:
+          ARCGIS_API_KEY: ${{ secrets.ARCGIS_API_KEY }}
+          TOMTOM_API_KEY: ${{ secrets.TOMTOM_API_KEY }}
+        run: |
+          if ! git ls-remote --exit-code --heads origin preview >/dev/null; then echo "No preview branch."; exit 0; fi
+          git fetch -q --depth 1 origin preview
+          rm -rf preview && mkdir preview && git --work-tree=preview checkout FETCH_HEAD -- . && git reset -q
+          cd preview
+          if ! (node tools/test_tolls.js && node tools/test_rates.js && node tools/test_trips.js) > ../preview-tests.log 2>&1; then
+            cat ../preview-tests.log; echo "::warning::Preview tests failed; the preview isn't published."; cd ..; rm -rf preview; exit 0
+          fi
+          # Same map keys; no usage counting or report emails from the preview.
+          KEY="$ARCGIS_API_KEY" TT="$TOMTOM_API_KEY" node -e 'const c = { arcgisApiKey: (process.env.KEY || "").trim() }; if (process.env.TT && process.env.TT.trim()) c.tomtomApiKey = process.env.TT.trim(); require("fs").writeFileSync("config.js", "window.TOLL_CONFIG = " + JSON.stringify(c) + ";\n")'
+          V="p$(git -C .. rev-parse --short FETCH_HEAD)"
+          sed -i -E "s#(src|href)=\"(config\.js|js/[a-z]+\.js|css/[a-z]+\.css)\"#\1=\"\2?v=$V\"#g" index.html
+          sed -i "s/^var VERSION = \"dev\";/var VERSION = \"$V\";/" sw.js
+          # Not for search engines, and a "Preview" tag so it's never mistaken for the real site.
+          sed -i 's#<head>#<head>\n  <meta name="robots" content="noindex">#' index.html
+          sed -i 's#</body>#<div style="position:fixed;left:8px;bottom:8px;z-index:9999;background:\#ffe512;color:\#1c1b1d;font:700 12px/1 Arial,sans-serif;padding:6px 9px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.3)">PREVIEW</div>\n</body>#' index.html
+          rm -rf .git .github tests tools
+          echo "Preview built ($V)."
 
       - uses: actions/configure-pages@v5
 

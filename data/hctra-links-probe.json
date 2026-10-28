@@ -1,0 +1,270 @@
+{
+ "url": "https://www.hctra.org/TollRates?tollRoad=Other+HCTRA-Managed+Toll+Roads",
+ "waitError": "Page.wait_for_selector: Timeout 60000ms exceeded.\nCall log:\nwaiting for locator(\"text=/\\\\$\\\\d+\\\\.\\\\d\\\\d/\") to be visible\n",
+ "links": [
+  [
+   "Skip to main content",
+   "https://www.hctra.org/#main-content"
+  ],
+  [
+   "",
+   "https://www.hctra.org/#menu"
+  ],
+  [
+   "",
+   "https://www.hctra.org/Home"
+  ],
+  [
+   "SIGN UP",
+   "https://www.hctra.org/NewAccount/PersonalAccount"
+  ],
+  [
+   "BUSINESS OPPORTUNITIES",
+   "https://www.hctra.org/BusinessOpportunities"
+  ],
+  [
+   "PAY TOLLS & INVOICES",
+   "https://www.hctra.org/Violation/Search"
+  ],
+  [
+   "CAREERS",
+   "https://www.hctra.org/Careers"
+  ],
+  [
+   "TRANSPARENCY & REPORTS",
+   "https://www.hctra.org/Transparency"
+  ],
+  [
+   "",
+   "https://translate.google.com/"
+  ],
+  [
+   "this page",
+   "https://www.hctra.org/TranslationDisclaimer"
+  ],
+  [
+   "",
+   "https://www.facebook.com/HCTRA"
+  ],
+  [
+   "",
+   "https://twitter.com/HCTRA"
+  ],
+  [
+   "",
+   "https://www.instagram.com/hctra_eztag"
+  ],
+  [
+   "",
+   "https://www.linkedin.com/company/hctra"
+  ],
+  [
+   "",
+   "https://www.youtube.com/@HCTRA_EZTAG"
+  ],
+  [
+   "",
+   "https://www.hctra.org/"
+  ],
+  [
+   "Login",
+   "https://www.hctra.org/Login"
+  ],
+  [
+   "hctra.org/TollRoadMap",
+   "https://www.hctra.org/TollRoadMap"
+  ],
+  [
+   "HCTRA Customer Service",
+   "https://www.hctra.org/HelpAndSupport"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.txdot.gov/discover/toll-roads-managed-lanes/txdot-toll-roads/central-texas-turnpike-system-toll-rates.html"
+  ],
+  [
+   "Visit Website",
+   "https://www.txtag.org/"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.mysh130.com/about/toll-rates/"
+  ],
+  [
+   "Visit Website",
+   "https://www.mysh130.com/"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.txdot.gov/discover/toll-roads-managed-lanes/txdot-toll-roads/sh99-grand-parkway-system-toll-rates.html"
+  ],
+  [
+   "Visit Website",
+   "https://www.txdot.gov/projects/projects-studies/houston/sh99-grand-parkway.html"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.txdot.gov/discover/toll-roads-managed-lanes/txdot-toll-roads/sh249-project-toll-rates.html"
+  ],
+  [
+   "Visit Website",
+   "https://www.txdot.gov/"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.txdot.gov/discover/toll-roads-managed-lanes/managed-lanes/sh288-toll/sh288-managed-lanes-project-toll-rates.html"
+  ],
+  [
+   "Visit Website",
+   "https://www.txdot.gov/discover/toll-roads-managed-lanes/managed-lanes/sh288-toll.html"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.bctra-tx.com/page/rates"
+  ],
+  [
+   "Visit Website",
+   "https://www.bctra-tx.com/"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.mctx.org/departments/departments_l_-_p/montgomery_county_toll_road_authority/2025_toll_rates.php"
+  ],
+  [
+   "Visit Website",
+   "https://www.mctx.org/departments/departments_l_-_p/montgomery_county_toll_road_authority/index.php"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.ridemetro.org/riding-metro/hov-hot-express-lanes"
+  ],
+  [
+   "Visit Website",
+   "https://www.ridemetro.org/riding-metro/hov-hot-express-lanes"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.txdot.gov/discover/toll-roads-managed-lanes/txdot-toll-roads/central-texas-turnpike-system-toll-rates.html"
+  ],
+  [
+   "Visit Website",
+   "https://www.hctra.org/www.txtag.org"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.mysh130.com/about/toll-rates/"
+  ],
+  [
+   "Visit Website",
+   "https://www.mysh130.com/"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.txdot.gov/discover/toll-roads-managed-lanes/txdot-toll-roads/sh99-grand-parkway-system-toll-rates.html"
+  ],
+  [
+   "Visit Website",
+   "https://www.txdot.gov/projects/projects-studies/houston/sh99-grand-parkway.html"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.txdot.gov/discover/toll-roads-managed-lanes/txdot-toll-roads/sh249-project-toll-rates.html"
+  ],
+  [
+   "Visit Website",
+   "https://www.txdot.gov/"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.txdot.gov/discover/toll-roads-managed-lanes/managed-lanes/sh288-toll/sh288-managed-lanes-project-toll-rates.html"
+  ],
+  [
+   "Visit Website",
+   "https://www.txdot.gov/discover/toll-roads-managed-lanes/managed-lanes/sh288-toll.html"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.bctra-tx.com/page/rates"
+  ],
+  [
+   "Visit Website",
+   "https://www.bctra-tx.com/"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.mctx.org/departments/departments_l_-_p/montgomery_county_toll_road_authority/2025_toll_rates.php"
+  ],
+  [
+   "Visit Website",
+   "https://www.mctx.org/departments/departments_l_-_p/montgomery_county_toll_road_authority/index.php"
+  ],
+  [
+   "Visit Toll Rates",
+   "https://www.ridemetro.org/riding-metro/hov-hot-express-lanes"
+  ],
+  [
+   "Visit Website",
+   "https://www.ridemetro.org/riding-metro/hov-hot-express-lanes"
+  ],
+  [
+   "ABOUT",
+   "https://www.hctra.org/AboutUs"
+  ],
+  [
+   "FAQS",
+   "https://www.hctra.org/FAQ/All"
+  ],
+  [
+   "NEWS",
+   "https://www.hctra.org/News"
+  ],
+  [
+   "CAREERS",
+   "https://www.hctra.org/Careers"
+  ],
+  [
+   "HELP & SUPPORT",
+   "https://www.hctra.org/HelpAndSupport"
+  ],
+  [
+   "",
+   "https://www.facebook.com/HCTRA"
+  ],
+  [
+   "",
+   "https://twitter.com/HCTRA"
+  ],
+  [
+   "",
+   "https://www.instagram.com/hctra_eztag"
+  ],
+  [
+   "",
+   "https://www.linkedin.com/company/hctra"
+  ],
+  [
+   "",
+   "https://www.youtube.com/@HCTRA_EZTAG"
+  ],
+  [
+   "Privacy Policy",
+   "https://www.hctra.org/PrivacyPolicy"
+  ],
+  [
+   "Internet Security Policy",
+   "https://www.hctra.org/InternetSecurityPolicy"
+  ]
+ ],
+ "selects": [
+  [
+   "Sam Houston Tollway",
+   "Hardy Toll Road",
+   "Westpark Tollway",
+   "Ft. Bend Extension",
+   "Katy Managed Lanes",
+   "Tomball Tollway",
+   "Other HCTRA-Managed Toll Roads"
+  ]
+ ],
+ "text": "Skip to main content\nSIGN UP\nBUSINESS OPPORTUNITIES\nPAY TOLLS & INVOICES\nCAREERS\nTRANSPARENCY & REPORTS\nENGLISH\nPlease read\u00a0this page\u00a0for more information on HCTRA.org's language translation.\nLogin\nToll Roads\n\nPlan your route and find EZ TAG as well as non-tag rates at hctra.org/TollRoadMap\n\nSelect Location\nSelect Toll Road\nSam Houston Tollway\nHardy Toll Road\nWestpark Tollway\nFt. Bend Extension\nKaty Managed Lanes\nTomball Tollway\nOther HCTRA-Managed Toll Roads\nHCTRA-Managed Toll Roads\n\n\n\nThe tolling agencies listed below are managed by the Harris County Toll Road Authority (HCTRA), which provides tolling and customer service support. If you experience any issues with broken links or accessing toll rate information for a listed agency, try clicking the link again or visit the official website. If you still cannot find what you're looking for, please contact HCTRA Customer Service for assistance.\n\n\n\n\nAgency\tToll Rate Link\tWebsite\nTxDOT/TxTag\t\t\nLoop 1, SH 45N, SH 45SE, SH 130\tVisit Toll Rates\tVisit Website\nSH 130 Sections 5 & 6\tVisit Toll Rates\tVisit Website\nGrand Parkway (SH 99)\tVisit Toll Rates\tVisit Website\nTxDOT/SH249\tVisit Toll Rates\tVisit Website\nTxDOT/SH288 Express\tVisit Toll Rates\tVisit Website\nBCTRA (Brazoria County Toll Road Authority)\tVisit Toll Rates\tVisit Website\nMCTRA (Montgomery County Toll Road Authority)\tVisit Toll Rates\tVisit Website\nMETRO HOT Lanes (Metropolitan Transit Authority of Harris County)\tVisit Toll Rates\tVisit Website\nABOUT\nFAQS\nNEWS\nCAREERS\nHELP & SUPPORT\nPrivacy Policy\nInternet Security Policy\nHarris County Toll Road Authority \u00a9 2026. All rights reserved"
+}

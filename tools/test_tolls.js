@@ -558,7 +558,8 @@ test("Agencies: every toll point links to its agency's rates; totals and chart s
   const gp = pts.find(p => p.owner === "TxDOT" && p.road === "Grand Parkway"), katy = pts.find(p => /Katy/.test(p.road));
   assert(/sh99-grand-parkway/.test(T.rateSource(gp).url), "TxDOT Grand Parkway links to the SH 99 page");
   assert(/Katy_Toll_Sched/.test(T.rateSource(katy).url), "Katy Managed Lanes link to the Katy schedule");
-  assert(/Other\+HCTRA-Managed/.test(T.rateSource(pts.find(p => p.owner === "MCTRA")).url), "Montgomery County links to HCTRA's 'other managed roads' rates");
+  assert(/mctx\.org/.test(T.rateSource(pts.find(p => p.owner === "MCTRA")).url), "Montgomery County links to its own rates page");
+  assert([...new Set(pts.map(p => p.owner))].every(o => /^https:\/\//.test(T.agencyInfo(o).web || "")), "every agency has a website link");
   const items = [
     { point: { owner: "HCTRA", road: "Westpark Tollway" }, rate: 1.35, along: 1000 },
     { point: { owner: "HCTRA", road: "Westpark Tollway" }, rate: 1.0, along: 3000 },

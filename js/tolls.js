@@ -980,16 +980,18 @@
   }
 
   // ---- Who charges each toll, and where to check the rate ----
-  // Each agency's full and short name, and the page that publishes the rate for a toll point
-  // (the same pages the weekly rate watch reads, tools/watch_rates.py).
+  // Each agency's full and short name, the page that publishes the rate for a toll point (the
+  // same pages the weekly rate watch reads, tools/watch_rates.py) and its website. Checked
+  // against the agency links on HCTRA's rates page (hctra.org/TollRates, "Other
+  // HCTRA-Managed Toll Roads") on Oct 28, 2026.
   var AGENCIES = {
-    HCTRA: { name: "Harris County Toll Road Authority", short: "HCTRA", rates: "https://www.hctra.org/TollRates" },
-    MCTRA: { name: "Montgomery County Toll Road Authority", short: "MCTRA", rates: "https://www.hctra.org/TollRates?tollRoad=Other+HCTRA-Managed+Toll+Roads" },
-    FBCTRA: { name: "Fort Bend County Toll Road Authority", short: "FBCTRA", rates: "https://www.fbctra.com/toll-roads/" },
-    BCTRA: { name: "Brazoria County Toll Road Authority", short: "BCTRA", rates: "https://www.bctra-tx.com/page/rates" },
-    TxDOT: { name: "Texas Department of Transportation", short: "TxDOT", rates: "https://www.txdot.gov/discover/toll-roads-managed-lanes.html" },
-    SH130CC: { name: "SH 130 Concession Company", short: "SH 130", rates: "https://mysh130.com/traveler-info/toll-rates/" },
-    NTTA: { name: "North Texas Tollway Authority", short: "NTTA", rates: "https://www.ntta.org/sites/default/files/2025-06/NTTAS_2025-2027_Toll%20Rate%20Tables.pdf" },
+    HCTRA: { name: "Harris County Toll Road Authority", short: "HCTRA", rates: "https://www.hctra.org/TollRates", web: "https://www.hctra.org/" },
+    MCTRA: { name: "Montgomery County Toll Road Authority", short: "MCTRA", rates: "https://www.mctx.org/departments/departments_l_-_p/montgomery_county_toll_road_authority/2025_toll_rates.php", web: "https://www.mctx.org/departments/departments_l_-_p/montgomery_county_toll_road_authority/index.php" },
+    FBCTRA: { name: "Fort Bend County Toll Road Authority", short: "FBCTRA", rates: "https://www.fbctra.com/toll-roads/", web: "https://www.fbctra.com/" },
+    BCTRA: { name: "Brazoria County Toll Road Authority", short: "BCTRA", rates: "https://www.bctra-tx.com/page/rates", web: "https://www.bctra-tx.com/" },
+    TxDOT: { name: "Texas Department of Transportation", short: "TxDOT", rates: "https://www.txdot.gov/discover/toll-roads-managed-lanes.html", web: "https://www.txdot.gov/discover/toll-roads-managed-lanes.html" },
+    SH130CC: { name: "SH 130 Concession Company", short: "SH 130", rates: "https://mysh130.com/traveler-info/toll-rates/", web: "https://www.mysh130.com/" },
+    NTTA: { name: "North Texas Tollway Authority", short: "NTTA", rates: "https://www.ntta.org/sites/default/files/2025-06/NTTAS_2025-2027_Toll%20Rate%20Tables.pdf", web: "https://www.ntta.org/" },
   };
   var TXDOT_PAGES = [
     [/Grand Parkway/i, "https://www.txdot.gov/discover/toll-roads-managed-lanes/txdot-toll-roads/sh99-grand-parkway-system-toll-rates.html"],
@@ -1000,7 +1002,7 @@
   var KATY_PDF = "https://www.hctra.org/Content/hctra3rdPartyPages/katymanagedlanes/media/Katy_Toll_Sched.pdf";
   function agencyInfo(owner) {
     var a = AGENCIES[owner];
-    return a ? { code: owner, name: a.name, short: a.short, rates: a.rates } : { code: owner, name: owner, short: owner, rates: null };
+    return a ? { code: owner, name: a.name, short: a.short, rates: a.rates, web: a.web } : { code: owner, name: owner, short: owner, rates: null, web: null };
   }
   // The page that publishes this toll point's rate: { url, site } (site = its domain, for the link text).
   function rateSource(pt) {

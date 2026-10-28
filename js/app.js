@@ -2539,7 +2539,7 @@ require([
         '<div class="ag-main"><div class="ag-top"><strong class="ag-name">' + esc(a.name) + '</strong><span class="ag-total">' +
         fmtMoney(a.total) + (a.missing ? "+" : "") + "</span></div>" +
         '<p class="ag-meta">' + meta + "</p>" + (a.timed ? '<p class="ag-meta">' + L("Priced by time of day") + "</p>" : "") +
-        '<div class="ag-links">' + links + "</div></div></li>";
+        '<div class="ag-links">' + links + (a.web ? '<a class="ag-link ag-web" href="' + esc(a.web) + '" target="_blank" rel="noopener">' + L("Website") + "</a>" : "") + "</div></div></li>";
     }).join("");
   }
   function showResults(tollRoute, freeRoute, priced, savings) {

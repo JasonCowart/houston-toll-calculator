@@ -257,6 +257,7 @@
     "{agency} rates on {site}": "Tarifas de {agency} en {site}",
     "{roads} rates": "Tarifas de {roads}",
     "Check their rates": "Ver sus tarifas",
+    "Website": "Sitio web",
     "1 toll point": "1 punto de peaje",
     "{n} toll points": "{n} puntos de peaje",
     "Check this rate on {site}": "Ver esta tarifa en {site}",

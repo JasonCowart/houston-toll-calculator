@@ -1,0 +1,17 @@
+# A push to the "preview" branch republishes the site from main, which builds the preview
+# branch into /preview/ (see deploy.yml). Pages only deploys from main, so this asks main's
+# Deploy site workflow to run instead of deploying from the preview branch itself.
+name: Publish preview
+on:
+  push:
+    branches: [preview]
+permissions:
+  actions: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Deploy site on main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main -R "$GITHUB_REPOSITORY"

@@ -8,7 +8,7 @@ name: Deploy site
 
 on:
   push:
-    branches: [main, preview]
+    branches: [main]
   workflow_dispatch:
 
 permissions:

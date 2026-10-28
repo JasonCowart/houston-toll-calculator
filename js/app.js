@@ -2416,24 +2416,26 @@ require([
     var hint = textOf(document.querySelector("#commute-out .hint"));
     if (hint) ry = d.para(rx0, ry + 2, hint, colW, { size: 6.5, color: FAINT });
     y = Math.max(ly, ry) + 12;
-    // Where to check each agency's rates: one line of tappable links at the bottom.
+    // Where to check each agency's rates: a short list at the bottom, one agency per line, each
+    // line a tappable link. It names the site, not the full address, which can be very long.
     var srcs = [];
     shownItems.forEach(function (it) {
       var s = window.TollCalc.rateSource(it.point), a = window.TollCalc.agencyInfo(it.point.owner);
-      if (s && !srcs.some(function (x) { return x.url === s.url; })) srcs.push({ url: s.url, label: a.short + " (" + s.site + ")" });
+      var road = srcs.filter(function (x) { return x.code === a.code; }).length ? " \u2013 " + it.point.road : "";
+      if (s && !srcs.some(function (x) { return x.url === s.url; })) srcs.push({ url: s.url, code: a.code, short: a.short, name: a.name + road, site: s.site });
     });
     if (srcs.length) {
-      y = Math.min(y, 792 - M - 34);
-      var head = L("Check the agencies' rates:") + " ", fx = M;
-      d.text(fx, y + 7, head, { size: 7, bold: true, color: GRAY }); fx += P.width(head, 7, true);
-      srcs.forEach(function (sr, k) {
-        var t = sr.label + (k < srcs.length - 1 ? "," : ""), wdt = P.width(t, 7, false);
-        if (fx + wdt > R) { fx = M; y += 9; }
-        d.text(fx, y + 7, t, { size: 7, color: PURPLE });
-        d.link(fx, y - 1, wdt, 10, sr.url);
-        fx += wdt + 5;
+      y = Math.min(y, 792 - M - 24 - srcs.length * 10);
+      d.text(M, y + 7, L("Check the agencies' rates:"), { size: 7, bold: true, color: GRAY }); y += 11;
+      srcs.forEach(function (sr) {
+        var lead = sr.short + "  ", rest = sr.name + " \u00b7 " + sr.site;
+        d.text(M + 6, y + 7, lead, { size: 7, bold: true, color: PURPLE });
+        var lx = M + 6 + P.width(lead, 7, true);
+        d.text(lx, y + 7, rest, { size: 7, color: PURPLE });
+        d.link(M + 6, y - 1, lx - M - 6 + P.width(rest, 7, false), 10, sr.url);
+        y += 10;
       });
-      y += 14;
+      y += 4;
     }
     var asof = textOf($("rates-asof"));
     if (asof) d.para(M, Math.min(y, 792 - M - 10), asof, R - M, { size: 6.5, color: FAINT });

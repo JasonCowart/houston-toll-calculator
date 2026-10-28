@@ -2696,6 +2696,8 @@ require([
     else if (fr && fr.feederFixed && fr.feederFixed.length)
       flags.push(L("Esri's fastest toll-free route left the feeder road for side streets ({via}) and came back. Drivers usually stay on the feeder road, so the toll-free route here does too.",
         { via: fr.feederFixed.map(function (d) { return d.via.join(", "); }).join("; ") }));
+    var cf = lastTrip && lastTrip.tollRoute.calmFallback;
+    if (cf) flags.push(L("With live traffic, Esri's route gets off the {road} and back on. The toll route shown stays on the tollway, with Esri's traffic time for the trip.", { road: cf.roads.map(tollwayName).join(" / ") }));
     var still = lastTrip && lastTrip.tollRoute.stillHops;
     if (still && still.length)
       flags.push(L("Esri's toll route still gets off the {road} and back on (via {via}), even after re-routing. Most drivers stay on the tollway, so the real trip may run a little differently.",
@@ -2847,8 +2849,10 @@ require([
     setStatus(L("Keeping the toll route on the tollway…"), false, true);
     var roads = [];
     hops.forEach(function (h) { if (roads.indexOf(h.road) === -1) roads.push(h.road); });
-    var original = routeStats(tollRoute).minutes, originalPath = [].concat.apply([], tollRoute.geometry.paths);
+    var original = routeStats(tollRoute).minutes, originalMiles = routeStats(tollRoute).miles, originalPath = [].concat.apply([], tollRoute.geometry.paths);
+    var calmRoute = null;
     return solve(tollRoute.mode, true, false, null, null, { noTraffic: true }).then(function (calm) {
+      calmRoute = calm;
       var anchors = window.TollCalc.tollwayAnchors(calm.steps, tollRoute.steps, hops);
       if (!anchors.length) return blockSideStreets(tollRoute, [], roads, 0, null, calm.steps);
       var via = anchors.map(function (a) { return a.lonlat; });
@@ -2864,9 +2868,26 @@ require([
       console.warn("no-traffic route failed", e);
       return blockSideStreets(tollRoute, [], roads, 0, null);
     }).then(function (g) {
+      // Sanity check: forcing Esri back onto the tollway can go wrong (a point placed on the
+      // other direction's lanes made one trip loop back and forth). If the result still hops,
+      // or is much slower or longer than the route Esri first gave, use the no-traffic route
+      // instead: it stays on the tollway, so its tolls are right, and it gets the traffic
+      // route's time, since the two cover nearly the same ground.
+      var st = routeStats(g), T = window.TollCalc;
+      var bad = (g.stillHops && g.stillHops.length) || (st.minutes != null && original != null && st.minutes > original * 1.15 + 3) ||
+        (st.miles != null && originalMiles != null && st.miles > originalMiles + 2);
+      if (bad && calmRoute && calmRoute.steps && !T.findTollwayHops(calmRoute.steps).length) {
+        var c = calmRoute;
+        c.attributes = Object.assign({}, c.attributes, { Total_TravelTime: original });
+        c.calmFallback = { roads: roads, calmMinutes: routeStats(calmRoute).minutes };
+        c.mode = tollRoute.mode; c.modeNote = (tollRoute.modeNote || "") + " · no-traffic route, traffic time";
+        c.originalMinutes = original;
+        c.stayedOn = null;
+        return c;
+      }
       // Say so only when the route really changed (not when Esri's wording looked like a hop
       // but the kept route is the same roads).
-      g.stayedOn = window.TollCalc.pathsDiffer(originalPath, [].concat.apply([], g.geometry.paths), 150) ? roads : null;
+      g.stayedOn = T.pathsDiffer(originalPath, [].concat.apply([], g.geometry.paths), 150) ? roads : null;
       if (g.originalMinutes == null) g.originalMinutes = original;
       return g;
     });
@@ -2886,17 +2907,9 @@ require([
       if (!calmLine || T.distanceToPath(calmLine, h.barrier) > 80) barriers.push(h.barrier);
       if (roads.indexOf(h.road) === -1) roads.push(h.road);
     });
-    // A side-street barrier alone often isn't enough in a street grid (Esri finds the next
-    // street over), so also route through points on the tollway's own lanes where this hop
-    // is, from the no-traffic route, in order with the points already used.
-    if (calmSteps) {
-      var more = T.tollwayAnchors(calmSteps, tollRoute.steps, hops).map(function (a) { return a.lonlat; })
-        .filter(function (p) { return !(via || []).some(function (q) { return Math.hypot((p[0] - q[0]) * 96500, (p[1] - q[1]) * 111000) < 100; }); });
-      if (more.length) via = T.orderAlong(calmLine, (via || []).concat(more));
-    }
     return solve(tollRoute.mode, true, DEBUG, via, barriers.slice()).then(function (g) {
       g.originalMinutes = tollRoute.originalMinutes;
-      g.anchors = via || tollRoute.anchors;
+      g.anchors = tollRoute.anchors;
       return blockSideStreets(g, barriers, roads, round + 1, via, calmSteps);
     }).catch(function (e) {
       console.warn("stay-on-tollway route failed", e);

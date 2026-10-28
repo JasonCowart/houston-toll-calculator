@@ -644,7 +644,7 @@
   // returns vertices of the calm route's own tollway line between where the traffic route
   // left and where it got back on, so a waypoint there sits exactly on Esri's main lanes and
   // can't snap to the frontage road beside them. [] if the calm route doesn't cover the hop.
-  var ANCHOR_SPACING_METERS = 700, ANCHOR_END_METERS = 150, ANCHOR_MATCH_METERS = 300;
+  var ANCHOR_SPACING_METERS = 1500, ANCHOR_END_METERS = 150, ANCHOR_MATCH_METERS = 300;
   function tollwayAnchors(calmSteps, trafficSteps, hops) {
     var out = [];
     if (!calmSteps || !trafficSteps || !hops || !hops.length) return out;

@@ -266,6 +266,7 @@
     "{roads} rates": "Tarifas de {roads}",
     "Check their rates": "Ver sus tarifas",
     "Website": "Sitio web",
+    "With live traffic, Esri's route gets off the {road} and back on. The toll route shown stays on the tollway, with Esri's traffic time for the trip.": "Con el tráfico en vivo, la ruta de Esri sale de la {road} y vuelve a entrar. La ruta con peaje que se muestra se queda en la autopista, con el tiempo de Esri con tráfico.",
     "Get an EZ TAG: hctra.org": "Obtenga un EZ TAG: hctra.org",
     "Check the agencies' rates:": "Tarifas de las agencias:",
     "Resize the panel": "Cambiar el ancho del panel",

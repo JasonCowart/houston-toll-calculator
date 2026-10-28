@@ -534,7 +534,7 @@
     return null;
   }
   function sameRoad(a, b) {
-    var g = function (r) { return /Sam Houston|Tapia/.test(r) ? "Sam Houston" : /Westpark/.test(r) ? "Westpark" : /Fort Bend/.test(r) ? "Fort Bend" : r; };
+    var g = function (r) { return /Sam Houston|Tapia/.test(r) ? "Sam Houston" : /Westpark/.test(r) ? "Westpark" : /Fort Bend/.test(r) ? "Fort Bend" : /Tomball/.test(r) ? "Tomball" : r; };
     return a && b && g(a) === g(b);
   }
   function midPoint(path) {
@@ -618,6 +618,12 @@
           // as on the Beltway 8 to Westpark Tollway connector.
           var drivesRoad = off.some(function (s) {
             return !/Ramp|Fork/.test(s.maneuverType || "") && s.length > 0.05 && / (on|onto) (?!the (right|left)\b)/i.test(" " + (s.text || "") + " ");
+          }) ||
+          // ...or any stretch on the tollway's own frontage road ("Continue forward on W Sam
+          // Houston Pkwy S"), however short: off at one ramp and straight back on at the next
+          // is a weave through an entrance-ramp gantry, not a connector.
+          off.some(function (s) {
+            return !/Ramp|Fork/.test(s.maneuverType || "") && / (on|onto) /i.test(" " + (s.text || "") + " ") && sameRoad(feederRoad(s.text), lastRoad);
           });
           off.forEach(function (s, k) {
             miles += s.length > 0 ? s.length : 0;

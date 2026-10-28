@@ -581,4 +581,16 @@ test("orderAlong puts waypoints in route order", () => {
   assert(o.map(p => p[1]).join() === "29.79,29.75,29.72", "north to south along a southbound path");
 });
 
+test("off at one ramp and straight back on via the tollway's own frontage road counts as getting off", () => {
+  // Oct 28, 2026: southbound at Westheimer, 0.04 mi on the frontage road, back on through the
+  // Briar Forest entrance ramp ($1.08). Drivers stay on the main lanes.
+  const st = (type, len, text) => ({ maneuverType: type, length: len, text, path: [[-95.558, 29.75 - len / 100], [-95.558, 29.749 - len / 100]] });
+  const steps = [st("esriDMTStraight", 7.54, "Continue on TX-8 Beltway S (W Sam Houston Tollway S)"),
+    st("esriDMTRampRight", 0.22, "Take the exit on the right toward Westheimer Rd / Richmond Ave"),
+    st("esriDMTStraight", 0.04, "Continue forward on W Sam Houston Pkwy S"),
+    st("esriDMTRampLeft", 27.61, "Keep left to merge onto W Beltway 8 S / W Sam Houston Tollway S")];
+  const hops = T.findTollwayHops(steps);
+  assert(hops.length === 1 && hops[0].road === "Sam Houston", "the frontage weave is a hop: " + JSON.stringify(hops));
+});
+
 console.log(passed + " tests passed");

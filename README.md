@@ -18,6 +18,8 @@ Optional settings (same page):
 
 To take the site offline, add an empty `SITE_OFFLINE` file and push; delete it to bring the site back.
 
+**Preview before going live:** push changes to the `preview` branch to try them at `https://jasoncowart.github.io/houston-toll-calculator/preview/` (yellow PREVIEW tag, same keys, not counted, not indexed). The `Publish preview` workflow asks main's Deploy site to run, which builds the preview branch into `/preview/` (Pages only deploys from `main`). If the preview's tests fail, only the main site publishes. When it's approved, fast-forward `main` to `preview` and push.
+
 The key never goes in the code. The workflow writes it into `config.js` only in the published copy.
 
 Keep pay-as-you-go **off** in Esri. The free tier then pauses at its limit instead of billing.

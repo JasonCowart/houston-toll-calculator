@@ -1302,6 +1302,50 @@ require([
     }
     $("map").scrollIntoView({ behavior: "smooth", block: "center" });
   }
+  // Desktop: drag the edge between the panel and the map to make the panel wider (up to
+  // leaving 360 px of map), or use the arrow keys on it; double-click puts it back. The
+  // width is kept in this browser. Phones stack the panel and map, so there's no edge.
+  (function () {
+    var bar = $("panel-resizer"), panel = document.querySelector(".panel"), DEF = 390, MIN = 320;
+    if (!bar || !panel) return;
+    function maxW() { return Math.max(MIN, Math.min(1000, window.innerWidth - 360)); }
+    function setW(w, save) {
+      w = Math.round(Math.max(MIN, Math.min(maxW(), w)));
+      panel.style.width = w === DEF ? "" : w + "px";
+      bar.setAttribute("aria-valuenow", String(w));
+      if (save) { try { if (w === DEF) localStorage.removeItem("htc-panelw"); else localStorage.setItem("htc-panelw", String(w)); } catch (e) { /* not kept */ } }
+    }
+    bar.setAttribute("aria-valuemin", String(MIN));
+    try { var kept = parseInt(localStorage.getItem("htc-panelw"), 10); if (kept > 0 && window.innerWidth > 760) setW(kept, false); } catch (e) { /* default */ }
+    bar.addEventListener("pointerdown", function (e) {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      bar.setPointerCapture(e.pointerId);
+      bar.classList.add("dragging"); document.body.classList.add("resizing");
+      var left = panel.getBoundingClientRect().left;
+      function move(ev) { setW(ev.clientX - left, false); }
+      function up(ev) {
+        bar.removeEventListener("pointermove", move); bar.removeEventListener("pointerup", up); bar.removeEventListener("pointercancel", up);
+        bar.classList.remove("dragging"); document.body.classList.remove("resizing");
+        setW(panel.getBoundingClientRect().width, true);
+        redrawTripChart();
+      }
+      bar.addEventListener("pointermove", move); bar.addEventListener("pointerup", up); bar.addEventListener("pointercancel", up);
+    });
+    bar.addEventListener("dblclick", function () { setW(DEF, true); redrawTripChart(); });
+    bar.addEventListener("keydown", function (e) {
+      var w = panel.getBoundingClientRect().width;
+      if (e.key === "ArrowRight") { e.preventDefault(); setW(w + 40, true); redrawTripChart(); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); setW(w - 40, true); redrawTripChart(); }
+      else if (e.key === "Home") { e.preventDefault(); setW(DEF, true); redrawTripChart(); }
+    });
+    var rt = null;
+    window.addEventListener("resize", function () {
+      if (panel.style.width && window.innerWidth > 760) setW(panel.getBoundingClientRect().width, false);
+      clearTimeout(rt); rt = setTimeout(redrawTripChart, 150);
+    });
+  })();
+
   // Toll point card: our own panel at the bottom of the map in place of Esri's popup.
   var AGENCY = { HCTRA: "Harris County Toll Road Authority", TxDOT: "TxDOT", FBCTRA: "Fort Bend County Toll Road Authority",
     MCTRA: "Montgomery County Toll Road Authority", BCTRA: "Brazoria County Toll Road Authority",
@@ -1580,10 +1624,16 @@ require([
   // and price at each toll point placed by distance along the route. Tap a dot to find it
   // on the map. Price labels take the first free row (above, below, higher up); when all are
   // taken the dot stays unlabeled and its price shows on tap.
+  // The chart is drawn as wide as its box (at least 340), so a wider panel gives longer lines
+  // instead of bigger text. It's redrawn when the panel or window changes width.
+  var chartArgs = null;
+  function redrawTripChart() { if (chartArgs && !$("results").hidden) drawTripChart.apply(null, chartArgs); }
   function drawTripChart(t, f, priced, routeMeters) {
     var box = $("trip-chart");
+    chartArgs = [t, f, priced, routeMeters];
     if (t.minutes == null || f.minutes == null) { box.innerHTML = ""; box.hidden = true; return; }
-    var W = 340, X0 = 18, X1 = W - 18, yT = 62;
+    box.hidden = false;
+    var W = Math.max(340, Math.round((box.clientWidth || 352) - 12)), X0 = 18, X1 = W - 18, yT = 62;
     // Two or more agencies: named in one line under the chart (and on each dot), so the chart
     // keeps its height and the toll-free line stays where it is.
     var ags = window.TollCalc.agencyTotals(priced.items), multi = ags.length > 1;
@@ -2620,6 +2670,7 @@ require([
     shownItems = priced.items;
     clearHighlight();
     $("results").hidden = false;
+    if ($("trip-chart").clientWidth - 12 > 352) redrawTripChart(); // drawn while hidden: redraw at the panel's real width
   }
 
   // Price a routed trip and show it. Used after routing, and again when only the payment

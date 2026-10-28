@@ -258,6 +258,8 @@
     "{roads} rates": "Tarifas de {roads}",
     "Check their rates": "Ver sus tarifas",
     "Website": "Sitio web",
+    "Resize the panel": "Cambiar el ancho del panel",
+    "Drag to resize the panel. Double-click to reset.": "Arrastre para cambiar el ancho del panel. Doble clic para restablecerlo.",
     "Rates": "Tarifas",
     "Rates {n}": "Tarifas {n}",
     "Tolls by agency:": "Peajes por agencia:",

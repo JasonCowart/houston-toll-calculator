@@ -701,6 +701,14 @@
     return out.map(function (a) { return { lonlat: a.lonlat, road: a.road }; });
   }
 
+  // Waypoints in the order a route reaches them: sorted by where each sits along the path
+  // (lon/lat points). Used when anchors from several re-route rounds are combined.
+  function orderAlong(path, points) {
+    if (!path || path.length < 2) return (points || []).slice();
+    return (points || []).map(function (p) { var a = alongPath(path, p); return { p: p, at: a ? a.along : 0 }; })
+      .sort(function (a, b) { return a.at - b.at; }).map(function (x) { return x.p; });
+  }
+
   // ---- Trip extras ----
   // Fuel defaults by vehicle class: gas for 2-3 axles, diesel for 4+. Houston-area prices,
   // Oct 2026 (regular about $3.76, diesel $5.67); users can change them.
@@ -1042,7 +1050,7 @@
     return runs;
   }
 
-  var api = { agencyInfo: agencyInfo, rateSource: rateSource, agencyTotals: agencyTotals, agencyRuns: agencyRuns, unpricedRoads: unpricedRoads, unpricedOnRoute: unpricedOnRoute, pathsDiffer: pathsDiffer, googleWaypoints: googleWaypoints, pointAt: pointAt, viaPlazas: viaPlazas, speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { orderAlong: orderAlong, agencyInfo: agencyInfo, rateSource: rateSource, agencyTotals: agencyTotals, agencyRuns: agencyRuns, unpricedRoads: unpricedRoads, unpricedOnRoute: unpricedOnRoute, pathsDiffer: pathsDiffer, googleWaypoints: googleWaypoints, pointAt: pointAt, viaPlazas: viaPlazas, speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

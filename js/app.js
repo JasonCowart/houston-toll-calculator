@@ -2846,15 +2846,15 @@ require([
     var original = routeStats(tollRoute).minutes, originalPath = [].concat.apply([], tollRoute.geometry.paths);
     return solve(tollRoute.mode, true, false, null, null, { noTraffic: true }).then(function (calm) {
       var anchors = window.TollCalc.tollwayAnchors(calm.steps, tollRoute.steps, hops);
-      if (!anchors.length) return blockSideStreets(tollRoute, [], roads, 0, null);
+      if (!anchors.length) return blockSideStreets(tollRoute, [], roads, 0, null, calm.steps);
       var via = anchors.map(function (a) { return a.lonlat; });
       return solve(tollRoute.mode, true, DEBUG, via).then(function (g) {
         g.originalMinutes = original;
         g.anchors = via;
-        return blockSideStreets(g, [], roads, 0, via);
+        return blockSideStreets(g, [], roads, 0, via, calm.steps);
       }, function (e) {
         console.warn("route through tollway points failed", e);
-        return blockSideStreets(tollRoute, [], roads, 0, null);
+        return blockSideStreets(tollRoute, [], roads, 0, null, calm.steps);
       });
     }, function (e) {
       console.warn("no-traffic route failed", e);
@@ -2867,8 +2867,8 @@ require([
       return g;
     });
   }
-  function blockSideStreets(tollRoute, barriers, roads, round, via) {
-    var hops = window.TollCalc.findTollwayHops(tollRoute.steps);
+  function blockSideStreets(tollRoute, barriers, roads, round, via, calmSteps) {
+    var T = window.TollCalc, hops = T.findTollwayHops(tollRoute.steps);
     // Each re-route can turn up a new side street, so allow a few rounds.
     if (!hops.length || round >= STAY_ON_ROUNDS) {
       if (hops.length) tollRoute.stillHops = hops.map(function (h) { return { road: h.road, via: h.via }; });
@@ -2876,10 +2876,21 @@ require([
       return Promise.resolve(tollRoute);
     }
     hops.forEach(function (h) { barriers.push(h.barrier); if (roads.indexOf(h.road) === -1) roads.push(h.road); });
+    // A side-street barrier alone often isn't enough in a street grid (Esri finds the next
+    // street over), so also route through points on the tollway's own lanes where this hop
+    // is, from the no-traffic route, in order with the points already used.
+    if (calmSteps) {
+      var more = T.tollwayAnchors(calmSteps, tollRoute.steps, hops).map(function (a) { return a.lonlat; })
+        .filter(function (p) { return !(via || []).some(function (q) { return Math.hypot((p[0] - q[0]) * 96500, (p[1] - q[1]) * 111000) < 100; }); });
+      if (more.length) {
+        var calmLine = [].concat.apply([], calmSteps.map(function (st) { return st.path || []; }));
+        via = T.orderAlong(calmLine, (via || []).concat(more));
+      }
+    }
     return solve(tollRoute.mode, true, DEBUG, via, barriers.slice()).then(function (g) {
       g.originalMinutes = tollRoute.originalMinutes;
-      g.anchors = tollRoute.anchors;
-      return blockSideStreets(g, barriers, roads, round + 1, via);
+      g.anchors = via || tollRoute.anchors;
+      return blockSideStreets(g, barriers, roads, round + 1, via, calmSteps);
     }).catch(function (e) {
       console.warn("stay-on-tollway route failed", e);
       return tollRoute;

@@ -572,4 +572,10 @@ test("Agencies: every toll point links to its agency's rates; totals and chart s
   assert(runs.length === 3 && runs[0].from === 0.1 && runs[0].to === 0.3 && runs[1].short === "FBCTRA", "three stretches: HCTRA, FBCTRA, HCTRA");
 });
 
+test("orderAlong puts waypoints in route order", () => {
+  const path = [[-95.56, 29.80], [-95.56, 29.70]];
+  const o = T.orderAlong(path, [[-95.56, 29.72], [-95.56, 29.79], [-95.56, 29.75]]);
+  assert(o.map(p => p[1]).join() === "29.79,29.75,29.72", "north to south along a southbound path");
+});
+
 console.log(passed + " tests passed");

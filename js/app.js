@@ -1031,8 +1031,53 @@ require([
     var st = $("tt-status");
     st.hidden = false;
     st.innerHTML = '<button type="button" class="btn-outline small" id="tt-load">Load TomTom traffic</button> ' +
-      '<span>Uses about 50\u2013120 of the 20,000 free speed lookups a month.</span>';
+      '<span>Uses about 50\u2013120 of the 20,000 free speed lookups a month.</span>' +
+      '<br><button type="button" class="btn-outline small" id="tt-times">TomTom second opinion: travel times</button> ' +
+      '<span>TomTom times the same two routes. 2 routing requests.</span><span id="tt-times-out"></span>';
     $("tt-load").addEventListener("click", function () { loadTomTom(tollRoute, freeRoute); });
+    $("tt-times").addEventListener("click", function () { tomTomTimes(tollRoute, freeRoute); });
+  }
+  // Debug view, only when asked: TomTom's travel time for exactly the routes Esri gave (the
+  // route line goes to TomTom as supporting points, so TomTom follows it rather than picking
+  // its own), with its live traffic, at the same departure time. A second opinion on Esri's
+  // times, e.g. whether going through downtown really is faster than the tollway.
+  function ttRouteTime(path) {
+    var step = Math.max(1, Math.ceil(path.length / 120)), pts = [];
+    for (var i = 0; i < path.length; i += step) pts.push(path[i]);
+    if (pts[pts.length - 1] !== path[path.length - 1]) pts.push(path[path.length - 1]);
+    var a = path[0], b = path[path.length - 1];
+    var soon = departure.getTime() - Date.now() < 60000;
+    var url = "https://api.tomtom.com/routing/1/calculateRoute/" + a[1] + "," + a[0] + ":" + b[1] + "," + b[0] + "/json?key=" + encodeURIComponent(TT_KEY) +
+      "&traffic=true&routeType=fastest&computeTravelTimeFor=all&routeRepresentation=summaryOnly&departAt=" + (soon ? "now" : encodeURIComponent(departure.toISOString().replace(/\.\d+Z$/, "Z")));
+    return fetch(url, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ supportingPoints: pts.map(function (p) { return { latitude: p[1], longitude: p[0] }; }) }) })
+      .then(function (r) { if (!r.ok) throw new Error("TomTom routing " + r.status); return r.json(); })
+      .then(function (j) { return j.routes[0].summary; });
+  }
+  function tomTomTimes(tollRoute, freeRoute) {
+    if (!TOMTOM) return;
+    var out = $("tt-times-out"), btn = $("tt-times");
+    btn.disabled = true;
+    out.innerHTML = " " + spinner() + " Asking TomTom\u2026";
+    var tp = [].concat.apply([], tollRoute.geometry.paths), fp = [].concat.apply([], freeRoute.geometry.paths);
+    Promise.all([ttRouteTime(tp), ttRouteTime(fp)]).then(function (r) {
+      var e = [routeStats(tollRoute), routeStats(freeRoute)];
+      function m(sec) { return sec == null ? "?" : fmtTime(Math.round(sec / 60)); }
+      function row(name, sum, es) {
+        return "<tr><td>" + name + "</td><td class='n'><b>" + m(sum.travelTimeInSeconds) + "</b></td><td class='n'>" + m(sum.historicTrafficTravelTimeInSeconds) +
+          "</td><td class='n'>" + m(sum.noTrafficTravelTimeInSeconds) + "</td><td class='n'>" + fmtTime(Math.round(es.minutes)) +
+          "</td><td class='n'>" + (sum.lengthInMeters / 1609.34).toFixed(1) + " / " + (es.miles || 0).toFixed(1) + " mi</td></tr>";
+      }
+      var saveTT = Math.round((r[1].travelTimeInSeconds - r[0].travelTimeInSeconds) / 60), saveEsri = Math.round(e[1].minutes - e[0].minutes);
+      var verdict = function (n) { return n > 0 ? "toll route saves " + fmtTime(n) : n < 0 ? "toll-free is " + fmtTime(-n) + " faster" : "about the same"; };
+      out.innerHTML = "<table class='dbg'><tr><th></th><th>TomTom now</th><th>TomTom typical</th><th>No traffic</th><th>Esri</th><th>Length TomTom / Esri</th></tr>" +
+        row("Toll route", r[0], e[0]) + row("Toll-free", r[1], e[1]) + "</table>" +
+        "<p>TomTom: " + verdict(saveTT) + ". Esri: " + verdict(saveEsri) + ". Lengths should match; if not, TomTom didn't follow the same roads.</p>";
+      btn.disabled = false;
+    }).catch(function (err) {
+      out.textContent = " TomTom routing failed: " + err.message;
+      btn.disabled = false;
+    });
   }
   function loadTomTom(tollRoute, freeRoute) {
     if (!TOMTOM) return;

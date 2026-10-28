@@ -446,6 +446,7 @@ require([
     el.textContent = L("Rates as of {date}", { date: d.toLocaleDateString(window.I18N.locale(), { month: "short", day: "numeric", year: "numeric" }) }) +
       (sh288Effective ? L(" · SH 288 time-of-day rates effective {date}", { date: sh288Effective }) : "") + ".";
     el.hidden = false;
+    $("rates-asof-print").textContent = el.textContent; // print: right under the toll breakdown
   }
 
   // Departure time: blank = now. The datetime-local value is read as the device's local time.
@@ -2432,6 +2433,9 @@ require([
       });
       ly += 10;
     }
+    // "Rates as of", right under that in the same column.
+    var asof = textOf($("rates-asof"));
+    if (asof) ly = d.para(lx0, ly + 4, asof, colW, { size: 6.5, lineHeight: 8.5, color: FAINT });
     d.text(rx0, ry + 10, L("Gas and commute cost"), { size: 10, bold: true, color: PURPLE }); ry += 18;
     // Gas for this trip: a heading, one row per route with its gas cost, the difference, and
     // the mpg and price it's based on. Then a rule, the trip back, and the commute table.
@@ -2466,8 +2470,6 @@ require([
     var hint = textOf(document.querySelector("#commute-out .hint"));
     if (hint) ry = d.para(rx0, ry + 3, hint, colW, { size: 6.5, color: FAINT });
     y = Math.max(ly, ry) + 12;
-    var asof = textOf($("rates-asof"));
-    if (asof) d.para(M, Math.min(y, 792 - M - 10), asof, R - M, { size: 6.5, color: FAINT });
     return d.bytes();
   }
   function pdfName() {

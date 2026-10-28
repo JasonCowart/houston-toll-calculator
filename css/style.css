@@ -364,7 +364,9 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
   /* Two columns: tolls on the left, gas and commute on the right. */
   #results { display: grid !important; grid-template-columns: 1fr 1fr; column-gap: 7mm; row-gap: 2.5mm; align-items: start; }
   #results > * { margin: 0 !important; order: 0 !important; }
-  #print-head, #headline, .cards, #flags, #rates-asof { grid-column: 1 / -1; }
+  #print-head, #headline, .cards, #flags { grid-column: 1 / -1; }
+  #rates-asof { display: none !important; } /* printed right under the toll breakdown instead (#rates-asof-print) */
+  #rates-asof-print { margin: 1.5mm 0 0; font-size: 8px; color: #666; }
   #breakdown-wrap { grid-column: 1; }
   #commute-wrap { grid-column: 2; }
   .print-only { display: block; }
@@ -397,7 +399,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
     color: #fff; font-size: 7px; font-weight: 700; display: flex; align-items: center; justify-content: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .ph-mark.missing { background: #f5a920; }
   .breakdown tbody { counter-reset: toll; }
-  .breakdown tbody tr { counter-increment: toll; }
+  .breakdown tbody tr.pickable { counter-increment: toll; } /* toll rows only, not agency banners */
   .breakdown tbody td.bd-name::before { content: counter(toll); display: inline-flex; align-items: center; justify-content: center; width: 11px; height: 11px;
     margin-right: 4px; border-radius: 50%; background: var(--purple); color: #fff; font-size: 7px; font-weight: 700; vertical-align: -1px;
     -webkit-print-color-adjust: exact; print-color-adjust: exact; }

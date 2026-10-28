@@ -2557,7 +2557,8 @@ require([
     return '<tr class="bd-agency" data-agency="' + esc(code) + '"><td colspan="3"><div class="ag-top">' +
       '<span class="ag-who" title="' + esc(a.name) + '"><span class="ag-short">' + esc(a.short) + "</span>" +
       (a.name !== a.short ? '<span class="ag-name">' + esc(a.name) + "</span>" : "") + "</span>" +
-      '<span class="ag-end">' + links + (its.length > 1 ? '<span class="ag-total">' + fmtMoney(total) + (missing ? "+" : "") + "</span>" : "") + "</span></div></td></tr>";
+      // The subtotal's slot is always there (empty for a single toll), so every Rates link lines up.
+      '<span class="ag-end">' + links + '<span class="ag-total">' + (its.length > 1 ? fmtMoney(total) + (missing ? "+" : "") : "") + "</span></span></div></td></tr>";
   }
   function showResults(tollRoute, freeRoute, priced, savings) {
     var t = routeStats(tollRoute), f = routeStats(freeRoute);

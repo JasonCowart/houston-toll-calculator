@@ -450,12 +450,13 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
   box-shadow: inset 4px 0 0 var(--purple); border-top: 10px solid transparent; border-bottom: 0; border-radius: 0; }
 #breakdown tr.bd-agency:first-child td, #breakdown-wrap .breakdown tr.bd-agency:first-child td[colspan] { border-top-width: 4px; }
 #breakdown tr.bd-agency, #breakdown-wrap .breakdown tr.bd-agency { border-bottom: 0; }
-.ag-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; font-size: 12px; line-height: 1.35; }
+.ag-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; font-size: 12px; line-height: 1.35;
+  width: 0; min-width: 100%; } /* fills the row without widening the table (the long name is cut with …) */
 .ag-who { min-width: 0; flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .ag-short { font-weight: 700; letter-spacing: .03em; }
 .ag-name { margin-left: 8px; font-weight: 500; color: var(--purple-deep, #4a2a76); }
 .ag-end { flex: none; display: flex; gap: 12px; align-items: baseline; }
-.ag-total { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ag-total { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 6.2ch; text-align: right; }
 .ag-link { color: var(--purple); font-weight: 600; font-size: 12px; text-decoration: underline; text-underline-offset: 2px; }
 .ag-link:focus-visible { outline: 2px solid var(--violet-screen, #8c5cff); outline-offset: 2px; }
 .map-card-rate a { color: var(--purple); font-weight: 600; font-size: 13px; text-decoration: underline; text-underline-offset: 2px; }

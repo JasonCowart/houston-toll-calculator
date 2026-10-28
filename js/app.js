@@ -1790,10 +1790,12 @@ require([
         : L(extra > 0 ? "The toll route uses about {cost} more gas" : "The toll route uses about {cost} less gas", { cost: "<b>" + fmtMoney(Math.abs(extra)) + "</b>" }) + (why ? " (" + esc(why) + ")." : ".");
       line = '<span class="fuel-h">' + L("Gas for this trip") + "</span>" +
         '<span class="fuel-both">' + L("Toll route") + " <b>" + fmtMoney(tf) + "</b> \u00b7 " + L("Toll-free route") + " <b>" + fmtMoney(ff) + "</b></span>" +
-        '<span class="fuel-diff">' + diff + "</span>";
+        '<span class="fuel-diff">' + diff + "</span>" +
+        // On paper the inputs aren't shown, so say what the gas figures are based on.
+        '<span class="fuel-basis print-only">' + esc(L("Based on {mpg} mpg and {price} a gallon ({fuel}).", { mpg: fs.mpg, price: fmtMoney(fs.price), fuel: L(fs.fuel) })) + "</span>";
     }
     $("fuel-line").innerHTML = line;
-    $("fuel-price-label").textContent = L(fs.fuel === "diesel" ? "Diesel price per gallon" : "Price per gallon");
+    $("fuel-price-label").textContent = L("Fuel price per gallon");
     var def = window.TollCalc.fuelDefaults(lastTrip ? lastTrip.trip.axles : 2);
     $("fuel-hint").textContent = L("Change these to match your vehicle. Defaults for {n} axles: {mpg} mpg, {price}/gal {fuel}.", { n: lastTrip ? lastTrip.trip.axles : 2, mpg: def.mpg, price: fmtMoney(def.price), fuel: L(def.fuel) });
     $("fuel-mpg").value = fs.mpg; $("fuel-price").value = fs.price.toFixed(2);
@@ -2410,8 +2412,8 @@ require([
     d.text(rx0, ry + 10, L("Gas and commute cost"), { size: 10, bold: true, color: PURPLE }); ry += 16;
     // Gas: a small heading, both routes' gas, then the difference, as on screen.
     Array.prototype.forEach.call($("fuel-line").children, function (el) {
-      var bold = el.classList.contains("fuel-h");
-      ry = d.para(rx0, ry, textOf(el), colW, { size: 8, lineHeight: 10, bold: bold }) + (bold ? 0 : 1);
+      var bold = el.classList.contains("fuel-h"), basis = el.classList.contains("fuel-basis");
+      ry = d.para(rx0, ry, textOf(el), colW, basis ? { size: 7, lineHeight: 9, color: FAINT } : { size: 8, lineHeight: 10, bold: bold }) + (bold ? 0 : 1);
     });
     if ($("fuel-line").children.length) ry += 3;
     var back = textOf($("back-out"));

@@ -471,3 +471,5 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .fuel-line > span { display: block; }
 .fuel-h { font-weight: 700; color: var(--ink); margin-bottom: 2px; }
 .fuel-diff { color: var(--ink-soft); margin-top: 2px; }
+.fuel-line > .fuel-basis { display: none; }
+@media print { .fuel-line > .fuel-basis { display: block; color: var(--ink-soft); font-size: 8.5px; } }

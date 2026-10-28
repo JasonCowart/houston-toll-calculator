@@ -48,7 +48,7 @@
   // Beltway 8 connector) can be 90+ degrees off the ramp's heading at the gantry.
   var RAMP_MAX_HEADING_DIFF = 135;
   var SHARED_SLACK_METERS = 3;
-  var MANAGED_LANE_METERS = 60;    // Katy canopies sit 15-45 m from Esri's I-10 main-lane line      // toll-free route "as close" = within this of the toll route's offset
+  var MANAGED_LANE_METERS = 80;    // Katy canopies sit 15-45 m from Esri's I-10 main-lane line; SH 288 Holly Hall 61-63 m      // toll-free route "as close" = within this of the toll route's offset
   var DIR_BEARING = { N: 0, E: 90, S: 180, W: 270 };
   var R = 6371008.8;
 

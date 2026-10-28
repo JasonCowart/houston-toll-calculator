@@ -1,8 +1,8 @@
 {
- "lastRun": "2026-10-26",
+ "lastRun": "2026-10-28",
  "sources": {
   "bctra": {
-   "checked": "2026-10-26",
+   "checked": "2026-10-28",
    "failures": 0,
    "fingerprint": {
     "amounts": [
@@ -21,7 +21,7 @@
    "url": "https://www.bctra-tx.com/page/rates"
   },
   "fbctra": {
-   "checked": "2026-10-26",
+   "checked": "2026-10-28",
    "failures": 0,
    "fingerprint": {
     "links": [
@@ -40,7 +40,7 @@
    "url": "https://www.fbctra.com/wp-json/wp/v2/posts?search=toll%20rate&per_page=20&_fields=id,date,link,title"
   },
   "fbctra-roads": {
-   "checked": "2026-10-26",
+   "checked": "2026-10-28",
    "failures": 0,
    "fingerprint": {
     "amounts": [
@@ -296,7 +296,7 @@
    "url": "https://www.fbctra.com/toll-roads/"
   },
   "hctra": {
-   "checked": "2026-10-26",
+   "checked": "2026-10-28",
    "failures": 0,
    "fingerprint": {
     "rows": [
@@ -426,7 +426,7 @@
    "url": "https://www.hctra.org/TollRates"
   },
   "hctra-katy": {
-   "checked": "2026-10-26",
+   "checked": "2026-10-28",
    "failures": 0,
    "fingerprint": {
     "bytes": 118102,
@@ -435,8 +435,12 @@
    "name": "HCTRA Katy Managed Lanes schedule (PDF)",
    "url": "https://www.hctra.org/Content/hctra3rdPartyPages/katymanagedlanes/media/Katy_Toll_Sched.pdf"
   },
+  "hctra-other": {
+   "failures": 1,
+   "lastError": "TimeoutError: Page.wait_for_selector: Timeout 60000ms exceeded.\nCall log:\nwaiting for locator(\"text=/\\\\$\\\\d+\\\\.\\\\d\\\\d/\") to be visible\n"
+  },
   "ntta": {
-   "checked": "2026-10-26",
+   "checked": "2026-10-28",
    "failures": 0,
    "fingerprint": {
     "bytes": 128380,
@@ -446,8 +450,8 @@
    "url": "https://www.ntta.org/sites/default/files/2025-06/NTTAS_2025-2027_Toll%20Rate%20Tables.pdf"
   },
   "sh130-south": {
-   "checked": "2026-10-25",
-   "failures": 2,
+   "checked": "2026-10-28",
+   "failures": 0,
    "fingerprint": {
     "amounts": [
      "$10.47",
@@ -610,12 +614,11 @@
     "effective": [],
     "files": []
    },
-   "lastError": "HTTPError: HTTP Error 403: Forbidden",
    "name": "SH 130 segments 5-6 rates (SH 130 Concession Co.)",
    "url": "https://mysh130.com/traveler-info/toll-rates/"
   },
   "txdot-ctts": {
-   "checked": "2026-10-26",
+   "checked": "2026-10-28",
    "failures": 0,
    "fingerprint": {
     "amounts": [
@@ -999,7 +1002,7 @@
    "url": "https://www.txdot.gov/discover/toll-roads-managed-lanes/txdot-toll-roads/central-texas-turnpike-system-toll-rates.html"
   },
   "txdot-sh249": {
-   "checked": "2026-10-26",
+   "checked": "2026-10-28",
    "failures": 0,
    "fingerprint": {
     "amounts": [
@@ -1053,7 +1056,7 @@
    "url": "https://www.txdot.gov/discover/toll-roads-managed-lanes/txdot-toll-roads/sh249-project-toll-rates.html"
   },
   "txdot-sh288": {
-   "checked": "2026-10-26",
+   "checked": "2026-10-28",
    "failures": 0,
    "fingerprint": {
     "amounts": [
@@ -6444,7 +6447,7 @@
    "url": "https://www.txdot.gov/discover/toll-roads-managed-lanes/managed-lanes/sh288-toll/sh288-managed-lanes-project-toll-rates.html"
   },
   "txdot-sh99": {
-   "checked": "2026-10-26",
+   "checked": "2026-10-28",
    "failures": 0,
    "fingerprint": {
     "amounts": [

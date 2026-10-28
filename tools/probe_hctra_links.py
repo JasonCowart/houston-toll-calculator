@@ -20,6 +20,24 @@ with sync_playwright() as pw:
         out["selects"] = [[o.strip() for o in s.locator("option").all_inner_texts()] for s in page.locator("select").all()]
         body = page.inner_text("body")
         out["text"] = body[:20000]
+        # Follow each agency link: where it lands, its title, and the dollar amounts and dates on it.
+        import re
+        checks = sorted(set(h for t, h in out.get("links", []) if t in ("Visit Toll Rates", "Visit Website")) | {
+            "https://mysh130.com/traveler-info/toll-rates/", "https://www.fbctra.com/toll-roads/"})
+        out["checks"] = []
+        for u in checks:
+            r = {"url": u}
+            try:
+                resp = page.goto(u, wait_until="load", timeout=60000)
+                page.wait_for_timeout(2500)
+                r.update(status=resp.status if resp else None, final=page.url, title=page.title())
+                txt = page.inner_text("body")
+                r["amounts"] = re.findall(r"\$\d+\.\d\d", txt)[:40]
+                r["dates"] = sorted(set(re.findall(r"(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.? \d{1,2},? 20\d\d|20\d\d", txt)))[:20]
+                r["snippet"] = re.sub(r"\s+", " ", txt)[:1500]
+            except Exception as e:
+                r["error"] = str(e)[:300]
+            out["checks"].append(r)
     finally:
         browser.close()
 json.dump(out, open("data/hctra-links-probe.json", "w"), indent=1)

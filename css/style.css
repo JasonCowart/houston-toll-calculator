@@ -40,14 +40,10 @@ html, body { margin: 0; height: 100%; background: var(--surface); color: var(--i
   border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 14px; }
 .map { flex: 1; min-height: 300px; }
 /* Desktop: drag the edge between the panel and the map to widen the panel (kept per browser).
-   A grip tab in the middle of the edge shows where to grab; the whole edge is draggable. */
+   The cursor turns into the resize arrows over the edge, and a purple line shows. */
 .panel-resizer { flex: none; width: 12px; margin: 0 -6px; position: relative; z-index: 5; cursor: col-resize; touch-action: none; }
 .panel-resizer::after { content: ""; position: absolute; top: 0; bottom: 0; left: 5px; width: 2px; background: transparent; transition: background .15s; }
-.panel-resizer::before { content: ""; position: absolute; top: 50%; left: 0; width: 12px; height: 48px; margin-top: -24px; border-radius: 6px;
-  background: var(--white) radial-gradient(circle, var(--ink-soft) 1.2px, transparent 1.6px) center / 6px 8px;
-  border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(28, 27, 29, .18); box-sizing: border-box; z-index: 1; }
 .panel-resizer:hover::after, .panel-resizer:focus-visible::after, .panel-resizer.dragging::after { background: var(--purple); }
-.panel-resizer:hover::before, .panel-resizer:focus-visible::before, .panel-resizer.dragging::before { border-color: var(--purple); }
 .panel-resizer:focus-visible { outline: none; }
 body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; }
 
@@ -178,10 +174,10 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 /* Paint the whole row, not each cell: on phones the row is a grid with a gap
    between cells, and painting cells left white stripes. Hover only on mice,
    so a tapped row doesn't stay tinted on phones. */
-/* Hover: neutral gray. Picked: violet outline and tint, matching the violet ring on the map and
+/* Hover: neutral gray. Picked: light gray with a violet outline, matching the violet ring on the map and
    the violet dot on the trip chart, and unlike the lavender agency banners. */
 @media (hover: hover) { #breakdown tr.pickable:hover { background: #f3f3f5; } }
-#breakdown tr.selected, #breakdown tr.selected:hover { background: rgba(140, 92, 255, 0.10); box-shadow: inset 0 0 0 2px var(--violet-screen); }
+#breakdown tr.selected, #breakdown tr.selected:hover { background: #ebebee; box-shadow: inset 0 0 0 2px var(--violet-screen); }
 #breakdown tr.pickable td:first-child { color: var(--purple); font-weight: 600; }
 
 /* Basemap switcher on the map */

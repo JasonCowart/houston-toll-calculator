@@ -2599,7 +2599,7 @@ require([
       var saved = Math.round(f.minutes - t.minutes);
       if (saved > 0) {
         big = L("Save {time} for {price}", { time: fmtTime(saved), price: fmtMoney(priced.total) + plus });
-        small = L("About {cost} per minute saved.", { cost: fmtPerMinute(priced.total / saved) });
+        small = L("Each minute saved costs about {cost}.", { cost: fmtPerMinute(priced.total / saved) });
       } else {
         neutral = true;
         big = L("Skip the tolls");

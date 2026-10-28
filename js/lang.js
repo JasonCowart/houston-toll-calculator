@@ -133,7 +133,7 @@
     "{price} for the managed lanes": "{price} por los carriles administrados",
     "Time saved isn't estimated: the lanes are usually faster at rush hour.": "No se estima el tiempo ahorrado: los carriles suelen ser más rápidos en hora pico.",
     "Save {time} for {price}": "Ahorre {time} por {price}",
-    "About {cost} per minute saved.": "Unos {cost} por minuto ahorrado.",
+    "Each minute saved costs about {cost}.": "Cada minuto ahorrado cuesta unos {cost}.",
     "Skip the tolls": "Evite los peajes",
     "The toll route is about {time} slower right now.": "La ruta con peaje es unos {time} más lenta ahora.",
     "The toll-free route is about as fast right now.": "La ruta sin peaje es casi igual de rápida ahora.",

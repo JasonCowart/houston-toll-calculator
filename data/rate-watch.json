@@ -439,6 +439,49 @@
    "failures": 1,
    "lastError": "TimeoutError: Page.wait_for_selector: Timeout 60000ms exceeded.\nCall log:\nwaiting for locator(\"text=/\\\\$\\\\d+\\\\.\\\\d\\\\d/\") to be visible\n"
   },
+  "mctra": {
+   "checked": "2026-10-28",
+   "emptyClues": {
+    "apiHints": [],
+    "bytes": 60070,
+    "links": [
+     "https://cms1.revize.com/revize/security/index.jsp?webspace=montgomerycountytx&filename=/departments/departments_l_-_p/montgomery_county_toll_road_authority/2025_toll_rates.php",
+     "https://www.mctx.org/departments/departments_l_-_p/montgomery_county_toll_road_authority/2025_toll_rates.php",
+     "https://www.mctx.org/departments/departments_l_-_p/montgomery_county_toll_road_authority/about.php",
+     "https://www.mctx.org/departments/departments_l_-_p/montgomery_county_toll_road_authority/apwa_project_of_the_year.php",
+     "https://www.mctx.org/departments/departments_l_-_p/montgomery_county_toll_road_authority/index.php",
+     "https://www.mctx.org/departments/departments_l_-_p/montgomery_county_toll_road_authority/toll_tags.php",
+     "https://www.mctx.org/mctra . hctra toll rates 2026.png?t=20251230184732136"
+    ],
+    "scripts": [
+     "//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5113ea471e44f9dd",
+     "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit",
+     "/revize/util/snippet_helper.js",
+     "_assets_/js/respond.js.js",
+     "https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js",
+     "https://cms1.revize.com/revize/plugins/ada/ada.js",
+     "https://www.googletagmanager.com/gtag/js?id=G-DXY1XM4HQ8",
+     "https://www.mctx.org/_assets_/js/funeral-search.js?v=1",
+     "https://www.mctx.org/_assets_/js/scripts.js",
+     "https://www.mctx.org/_assets_/plugins/bootstrap/js/bootstrap.min.js",
+     "https://www.mctx.org/_assets_/plugins/modernizr/modernizr.custom.js",
+     "https://www.mctx.org/_assets_/plugins/owl.carousel/owl-carousel/owl.carousel.css",
+     "https://www.mctx.org/_assets_/plugins/owl.carousel/owl-carousel/owl.carousel.min.js",
+     "https://www.mctx.org/_assets_/plugins/rs-plugin/rs-plugin/js/jquery.themepunch.revolution.min.js",
+     "https://www.mctx.org/_assets_/plugins/rs-plugin/rs-plugin/js/jquery.themepunch.tools.min.js"
+    ],
+    "text": "Welcome to Montgomery County, Texas Font Size Search Montgomery County Texas search Home Departments Departments A - B Adult Probation Airport Animal Control Auditor Auto Theft Bail Bond Board Budget Office Building Maintenance Departments C Civil Court Services Civil Service Collections Commissioner's Court Community Development Constables County Attorney County Clerk County Commissioners County Courts County Judge County Treasurer Custodial Services Departments D - F Dispute Resolution District Attorney District Clerk District Courts Drug Court Elections Employees Committee Engineering Envir",
+    "title": "Welcome to Montgomery County, Texas"
+   },
+   "failures": 0,
+   "fingerprint": {
+    "amounts": [],
+    "effective": [],
+    "files": []
+   },
+   "name": "Montgomery County Toll Road Authority rates",
+   "url": "https://www.mctx.org/departments/departments_l_-_p/montgomery_county_toll_road_authority/2025_toll_rates.php"
+  },
   "ntta": {
    "checked": "2026-10-28",
    "failures": 0,
@@ -451,7 +494,7 @@
   },
   "sh130-south": {
    "checked": "2026-10-28",
-   "failures": 0,
+   "failures": 1,
    "fingerprint": {
     "amounts": [
      "$10.47",
@@ -614,6 +657,7 @@
     "effective": [],
     "files": []
    },
+   "lastError": "HTTPError: HTTP Error 403: Forbidden",
    "name": "SH 130 segments 5-6 rates (SH 130 Concession Co.)",
    "url": "https://mysh130.com/traveler-info/toll-rates/"
   },

@@ -381,7 +381,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
   .breakdown { margin: 0; font-size: 9.5px; }
   .breakdown th, .breakdown td { padding: 1px 3px; }
   .breakdown tr { break-inside: avoid; }
-  .breakdown tbody tr:nth-child(even) td { background: #f3eef8; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .breakdown tbody tr.stripe td { background: #f3eef8; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .ph-mapwrap { position: relative; }
   .ph-mark { position: absolute; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: var(--purple); border: 1px solid #fff;
     color: #fff; font-size: 7px; font-weight: 700; display: flex; align-items: center; justify-content: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -432,30 +432,24 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 #map { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; } /* press and hold adds a stop, not a text menu */
 .tr-switch button[aria-pressed="false"] { color: var(--ink-soft); }
 
-/* Toll agencies on this route, and links to each agency's published rates. Neutral gray, not
-   HCTRA purple: most agencies listed aren't HCTRA. */
-.agency-list { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-.agency { display: flex; gap: 10px; align-items: flex-start; padding: 10px; background: var(--white, #fff); border: 1px solid var(--border-soft); border-radius: 8px; }
-.ag-badge { flex: none; min-width: 52px; padding: 6px 6px; border-radius: 6px; background: #ececef; color: #3d3c40; font-size: 11px; font-weight: 700; text-align: center; letter-spacing: .02em; }
-.ag-main { flex: 1; min-width: 0; }
+/* Toll breakdown, grouped by agency: a header row per agency with its subtotal and links to
+   its published rates and website. Neutral gray badge, not HCTRA purple: most agencies aren't HCTRA. */
+#breakdown tr.bd-agency td { padding: 12px 4px 6px; border-bottom: 1px solid var(--border-soft); background: var(--surface, #f7f6f8); }
+#breakdown tr.bd-agency:first-child td { padding-top: 8px; }
+#breakdown-wrap .breakdown tr.bd-agency td[colspan] { padding: 10px 8px 8px; }
 .ag-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-.ag-name { font-size: 14px; color: var(--ink); }
+.ag-who { min-width: 0; }
+.ag-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; background: #e4e3e7; color: #3d3c40; font-size: 11px; font-weight: 700; letter-spacing: .02em; }
+.ag-name { font-size: 13px; font-weight: 600; color: var(--ink); }
 .ag-total { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.ag-meta { margin: 2px 0 0; font-size: 12px; color: var(--ink-soft); }
-.ag-links { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; }
-.ag-link, .bd-rate, .map-card-rate a { color: var(--purple); font-weight: 600; font-size: 13px; text-decoration: underline; text-underline-offset: 2px; }
-.ag-link::after, .bd-rate::after, .map-card-rate a::after { content: " \2197"; text-decoration: none; display: inline-block; }
-.ag-site { color: var(--ink-soft); font-weight: 500; font-size: 12px; }
-.bd-rate { font-size: 12px; margin-left: 4px; }
+.ag-links { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 4px; }
+.ag-link, .map-card-rate a { color: var(--purple); font-weight: 600; font-size: 13px; text-decoration: underline; text-underline-offset: 2px; }
+.ag-link::after, .map-card-rate a::after { content: " \2197"; text-decoration: none; display: inline-block; }
 .map-card-rate { margin: 4px 0 0; }
 @media print {
-  #agency-wrap { grid-column: 1; }
-  #agency-wrap .hint, .bd-rate { display: none !important; }
-  .ag-link { font-size: 8.5px; text-decoration: none; }
-  .ag-link::after { content: none; }
-  .agency { padding: 1mm 0; border: 0; border-bottom: 1px solid #ddd; border-radius: 0; gap: 2mm; }
-  .agency-list { gap: 0; }
-  .ag-badge { min-width: 0; padding: 0 1mm; font-size: 8px; }
+  #breakdown tr.bd-agency td { padding: 1.2mm 0 .6mm; background: none; }
+  .ag-badge { padding: 0 1mm; font-size: 8px; }
   .ag-name, .ag-total { font-size: 9.5px; }
-  .ag-meta { font-size: 8.5px; }
+  .ag-links { display: none; }
 }
+

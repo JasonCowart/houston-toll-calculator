@@ -2221,7 +2221,7 @@ require([
     if (!lastTrip) return;
     var btn = this; btn.disabled = true;
     // Breakdown and commute cost print opened; put them back after.
-    printOpened = ["breakdown-wrap", "agency-wrap", "commute-wrap"].filter(function (id) { return !$(id).open; });
+    printOpened = ["breakdown-wrap", "commute-wrap"].filter(function (id) { return !$(id).open; });
     printOpened.forEach(function (id) { $(id).open = true; });
     mapShot().then(function (shot) {
       $("print-head").innerHTML = printHead(shot);
@@ -2319,47 +2319,43 @@ require([
     d.text(roadX, ly + 7, L("Road"), { size: 7.5, bold: true, color: GRAY });
     d.text(lx0 + colW - 3, ly + 7, L("Toll"), { size: 7.5, bold: true, color: GRAY, align: "right" });
     ly += 10; d.line(lx0, ly, lx0 + colW, ly, { color: LINE });
-    Array.prototype.forEach.call(document.querySelectorAll("#breakdown tr"), function (tr, k) {
+    // Grouped by agency, as on screen: an agency line (name, subtotal, tappable rates link),
+    // then its toll points, numbered to match the map.
+    var stripeK = 0;
+    Array.prototype.forEach.call(document.querySelectorAll("#breakdown tr"), function (tr) {
       var td = tr.querySelectorAll("td");
       if (ly > 792 - M - 20) { d.addPage(); ly = M; ry = Math.max(ry, M); }
+      if (tr.classList.contains("bd-agency")) {
+        var code = tr.getAttribute("data-agency"), a = window.TollCalc.agencyInfo(code);
+        ly += 3;
+        d.text(lx0, ly + 9, a.short + "  " + a.name, { size: 8, bold: true, color: GRAY });
+        d.text(lx0 + colW - 3, ly + 9, textOf(tr.querySelector(".ag-total")), { size: 8, bold: true, color: GRAY, align: "right" });
+        ly += 12;
+        var link = tr.querySelector(".ag-link");
+        if (link) {
+          var u = link.getAttribute("href"), txt = L("Rates:") + " " + u.replace(/^https?:\/\/(www\.)?/, "");
+          var lines = P.wrap(txt, 6.5, false, colW);
+          lines.forEach(function (ln, j) { d.text(lx0, ly + 6 + j * 8, ln, { size: 6.5, color: PURPLE }); });
+          d.link(lx0, ly, colW, lines.length * 8 + 1, u);
+          ly += lines.length * 8 + 2;
+        }
+        return;
+      }
       if (td.length < 3) { ly = d.para(lx0, ly + 2, textOf(td[0]), colW, { size: 8 }); return; }
+      var k = +tr.getAttribute("data-i");
       // Rows alternate white and light purple.
-      var road = shownItems[k] ? shownItems[k].point.road : textOf(td[1]); // the road alone, without the agency rate link
-      var n = Math.max(P.wrap(textOf(td[0]), 8, false, colW * 0.56 - 18).length, P.wrap(road, 8, false, colW * 0.3).length);
+      var n = Math.max(P.wrap(textOf(td[0]), 8, false, colW * 0.56 - 18).length, P.wrap(textOf(td[1]), 8, false, colW * 0.3).length);
       var h = n * 9.5 + 5;
-      if (k % 2 === 1) d.rect(lx0, ly, colW, h, { fill: "#f3eef8" });
+      if (stripeK++ % 2 === 1) d.rect(lx0, ly, colW, h, { fill: "#f3eef8" });
       d.circle(lx0 + 8, ly + 7.5, 5, { fill: shownItems[k] && shownItems[k].rate == null ? "#f5a920" : PURPLE });
       var nl = String(k + 1);
       d.text(lx0 + 8 - P.width(nl, 6, true) / 2, ly + 9.7, nl, { size: 6, bold: true, color: "#ffffff" });
       d.para(lx0 + 17, ly + 2, textOf(td[0]), colW * 0.56 - 18, { size: 8, lineHeight: 9.5 });
-      d.para(roadX, ly + 2, road, colW * 0.3, { size: 8, lineHeight: 9.5 });
+      d.para(roadX, ly + 2, textOf(td[1]), colW * 0.3, { size: 8, lineHeight: 9.5 });
       d.text(lx0 + colW - 3, ly + 10, textOf(td[2]), { size: 8, align: "right" });
       ly += h;
     });
     d.line(lx0, ly, lx0 + colW, ly, { color: LINE });
-    // Who charges these tolls, with a tappable link to each agency's published rates.
-    var agencies = window.TollCalc.agencyTotals(shownItems);
-    if (agencies.length) {
-      ly += 8;
-      if (ly > 792 - M - 40) { d.addPage(); ly = M; ry = Math.max(ry, M); }
-      d.text(lx0, ly + 10, L("Toll agencies on this route"), { size: 10, bold: true, color: PURPLE }); ly += 16;
-      agencies.forEach(function (a) {
-        if (ly > 792 - M - 24) { d.addPage(); ly = M; ry = Math.max(ry, M); }
-        d.text(lx0, ly + 8, a.name, { size: 8, bold: true });
-        d.text(lx0 + colW - 3, ly + 8, fmtMoney(a.total) + (a.missing ? "+" : ""), { size: 8, bold: true, align: "right" });
-        ly += 11;
-        var srcs = [];
-        shownItems.forEach(function (it) { if (it.point && it.point.owner === a.code) { var s = window.TollCalc.rateSource(it.point); if (s && srcs.indexOf(s.url) === -1) srcs.push(s.url); } });
-        srcs.forEach(function (u) {
-          var txt = L("Rates:") + " " + u.replace(/^https?:\/\/(www\.)?/, "");
-          var lines = P.wrap(txt, 7, false, colW);
-          lines.forEach(function (ln, j) { d.text(lx0, ly + 7 + j * 8.5, ln, { size: 7, color: PURPLE }); });
-          d.link(lx0, ly, colW, lines.length * 8.5 + 1, u);
-          ly += lines.length * 8.5 + 1;
-        });
-        ly += 3;
-      });
-    }
     d.text(rx0, ry + 10, L("Gas and commute cost"), { size: 10, bold: true, color: PURPLE }); ry += 16;
     var gas = textOf($("fuel-line"));
     if (gas) ry = d.para(rx0, ry, gas, colW, { size: 8, lineHeight: 10 }) + 4;
@@ -2489,41 +2485,25 @@ require([
     });
     return out;
   }
-  // Link to the agency's published rates for a toll point (opens in a new tab). The arrow is
-  // drawn by CSS so it stays out of the PDF and print text.
-  function rateLink(p, cls) {
-    var src = window.TollCalc.rateSource(p);
-    if (!src) return "";
-    var a = window.TollCalc.agencyInfo(p.owner);
-    return ' <a class="' + cls + '" href="' + esc(src.url) + '" target="_blank" rel="noopener" title="' +
-      esc(L("{agency} rates on {site}", { agency: a.short, site: src.site })) + '">' + esc(a.short) + "</a>";
-  }
-  // "Toll agencies on this route": who charges the tolls, their share of the total, and where
-  // to check their rates.
-  function renderAgencies(items) {
-    var T = window.TollCalc, list = T.agencyTotals(items);
-    $("agency-wrap").hidden = !list.length;
-    $("agency-list").innerHTML = list.map(function (a) {
-      var srcs = [];
-      items.forEach(function (it) {
-        if ((it.point && it.point.owner) !== a.code) return;
-        var s = T.rateSource(it.point);
-        if (!s) return;
-        var have = srcs.filter(function (x) { return x.url === s.url; })[0];
-        if (have) { if (have.roads.indexOf(it.point.road) === -1) have.roads.push(it.point.road); }
-        else srcs.push({ url: s.url, site: s.site, roads: [it.point.road] });
-      });
-      var links = srcs.map(function (s) {
-        var label = srcs.length > 1 ? L("{roads} rates", { roads: s.roads.join(", ") }) : L("Check their rates");
-        return '<a class="ag-link" href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(label) + ' <span class="ag-site">' + esc(s.site) + "</span></a>";
-      }).join("");
-      var meta = L(a.count === 1 ? "1 toll point" : "{n} toll points", { n: a.count }) + " · " + a.roads.map(esc).join(", ");
-      return '<li class="agency"><span class="ag-badge" aria-hidden="true">' + esc(a.short) + "</span>" +
-        '<div class="ag-main"><div class="ag-top"><strong class="ag-name">' + esc(a.name) + '</strong><span class="ag-total">' +
-        fmtMoney(a.total) + (a.missing ? "+" : "") + "</span></div>" +
-        '<p class="ag-meta">' + meta + "</p>" + (a.timed ? '<p class="ag-meta">' + L("Priced by time of day") + "</p>" : "") +
-        '<div class="ag-links">' + links + (a.web ? '<a class="ag-link ag-web" href="' + esc(a.web) + '" target="_blank" rel="noopener">' + L("Website") + "</a>" : "") + "</div></div></li>";
-    }).join("");
+  // An agency's header row in the toll breakdown: its name, its subtotal for these toll points,
+  // and links to the page(s) that publish their rates and to its website (new tab).
+  function agencyHeader(code, its) {
+    var T = window.TollCalc, a = T.agencyInfo(code), total = 0, missing = 0, srcs = [];
+    its.forEach(function (it) {
+      if (it.rate == null) missing++; else total = Math.round((total + it.rate) * 100) / 100;
+      var s = T.rateSource(it.point);
+      if (!s) return;
+      var have = srcs.filter(function (x) { return x.url === s.url; })[0];
+      if (have) { if (have.roads.indexOf(it.point.road) === -1) have.roads.push(it.point.road); }
+      else srcs.push({ url: s.url, roads: [it.point.road] });
+    });
+    var links = srcs.map(function (s) {
+      var label = srcs.length > 1 ? L("{roads} rates", { roads: s.roads.join(", ") }) : L("Check their rates");
+      return '<a class="ag-link" href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(label) + "</a>";
+    }).join("") + (a.web ? '<a class="ag-link" href="' + esc(a.web) + '" target="_blank" rel="noopener">' + L("Website") + "</a>" : "");
+    return '<tr class="bd-agency" data-agency="' + esc(code) + '"><td colspan="3"><div class="ag-top"><span class="ag-who"><span class="ag-badge">' + esc(a.short) +
+      '</span> <span class="ag-name">' + esc(a.name) + '</span></span><span class="ag-total">' + fmtMoney(total) + (missing ? "+" : "") + "</span></div>" +
+      '<div class="ag-links">' + links + "</div></td></tr>";
   }
   function showResults(tollRoute, freeRoute, priced, savings) {
     var t = routeStats(tollRoute), f = routeStats(freeRoute);
@@ -2611,14 +2591,27 @@ require([
     $("flags").innerHTML = warns.map(function (m) { return '<div class="notice warn">' + esc(m) + "</div>"; }).join("") +
       flags.map(function (m) { return '<div class="notice info">' + esc(m) + "</div>"; }).join("");
 
-    $("breakdown").innerHTML = priced.items.map(function (it) {
-      var p = it.point;
-      var when = it.when ? ' <span class="tag-unverified">(' + fmtClock(it.when) + (it.note ? ", " + esc(it.note) : "") + ")</span>" : "";
-      return '<tr class="pickable" tabindex="0" data-i="' + priced.items.indexOf(it) + '" title="' + L("Show on map") + '"><td class="bd-name">' + esc(p.name) + (p.status === "unverified" ? ' <span class="tag-unverified">' + L("(unverified)") + "</span>" : "") + when +
-        '</td><td class="bd-road">' + esc(p.road) + rateLink(p, "bd-rate") + '</td><td class="num">' + (it.rate == null ? "n/a" : fmtMoney(it.rate)) + "</td></tr>";
-    }).join("") || '<tr><td colspan="3">' + L("No toll points crossed.") + "</td></tr>";
+    // Toll breakdown, grouped by agency in driving order: a header row for each agency (its
+    // subtotal and links to its rates and website), then its toll points. A route that returns
+    // to an agency gets that agency's header again.
+    var bdRows = [], stripe = 0;
+    var groups = [];
+    priced.items.forEach(function (it) {
+      var code = it.point.owner || "?", last = groups[groups.length - 1];
+      if (last && last.code === code) last.items.push(it); else groups.push({ code: code, items: [it] });
+    });
+    groups.forEach(function (g) {
+      var mine = g.items;
+      bdRows.push(agencyHeader(g.code, mine));
+      mine.forEach(function (it) {
+        var p = it.point, i = priced.items.indexOf(it);
+        var when = it.when ? ' <span class="tag-unverified">(' + fmtClock(it.when) + (it.note ? ", " + esc(it.note) : "") + ")</span>" : "";
+        bdRows.push('<tr class="pickable' + (stripe++ % 2 ? " stripe" : "") + '" tabindex="0" data-i="' + i + '" title="' + L("Show on map") + '"><td class="bd-name">' + esc(p.name) + (p.status === "unverified" ? ' <span class="tag-unverified">' + L("(unverified)") + "</span>" : "") + when +
+          '</td><td class="bd-road">' + esc(p.road) + '</td><td class="num">' + (it.rate == null ? "n/a" : fmtMoney(it.rate)) + "</td></tr>");
+      });
+    });
+    $("breakdown").innerHTML = bdRows.join("") || '<tr><td colspan="3">' + L("No toll points crossed.") + "</td></tr>";
     $("breakdown-wrap").hidden = !priced.items.length;
-    renderAgencies(priced.items);
     drawTripChart(t, f, priced, lastTrip ? window.TollCalc.pathMeters(lastTrip.trip.tollPath) : null);
     shownItems = priced.items;
     clearHighlight();

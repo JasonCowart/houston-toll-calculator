@@ -354,7 +354,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
   html, body, .page, .app { height: auto !important; overflow: visible !important; display: block !important; background: #fff !important; font-size: 10.5px; line-height: 1.3; }
   .panel { width: auto !important; overflow: visible !important; padding: 0 !important; box-shadow: none !important; border: 0 !important; display: block !important; }
   .map, #map, .sub, #key-warning, #step-trip, #step-vehicle, #go, #status, .trip-tools, .drive, #via-road-wrap, .trip-chart, #tt-status,
-  .lang-toggle, #fuel-edit, #fuel-hint, .commute-controls, .back-trip button, .back-trip label, #best-time-wrap, #breakdown-wrap .hint, #tag-savings,
+  .lang-toggle, #fuel-edit, #fuel-hint, .commute-controls, .back-trip button, .back-trip label, #best-time-wrap, #breakdown-wrap .hint,
   .map-card, .show-free, #debug, summary::marker, .fine, #results > h2 { display: none !important; }
   .topbar { height: auto; padding: 2.5mm 4mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .topbar .logo { width: 30mm; }
@@ -476,6 +476,12 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .fuel-line > .fuel-basis { display: none; }
 @media print {
   .fuel-line > .fuel-basis { display: block; color: var(--ink-soft); font-size: 8.5px; }
+  /* EZ TAG savings for no-tag / other-tag trips: compact, colors kept. */
+  #tag-savings { grid-column: 1 / -1; padding: 1.5mm 3mm !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #tag-savings .ts-col strong { font-size: 13px; }
+  #tag-savings .ts-pill { padding: .5mm 2mm; font-size: 9.5px; }
+  #tag-savings .ts-link { margin-top: .5mm; font-size: 9px; }
+  #tag-savings .ts-link::after { content: " (hctra.org)"; font-weight: 400; }
   .cards { grid-template-columns: 1fr !important; row-gap: 1.5mm !important; } /* toll route above toll-free, easy to compare */
   .fuel-line > span + span { margin-top: 1mm; }
   .fuel-line { padding-bottom: 2.5mm; margin-bottom: 2.5mm !important; border-bottom: 1px solid #ddd; }

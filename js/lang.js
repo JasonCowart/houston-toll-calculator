@@ -266,6 +266,7 @@
     "{roads} rates": "Tarifas de {roads}",
     "Check their rates": "Ver sus tarifas",
     "Website": "Sitio web",
+    "Get an EZ TAG: hctra.org": "Obtenga un EZ TAG: hctra.org",
     "Check the agencies' rates:": "Tarifas de las agencias:",
     "Resize the panel": "Cambiar el ancho del panel",
     "Drag to resize the panel. Double-click to reset.": "Arrastre para cambiar el ancho del panel. Doble clic para restablecerlo.",

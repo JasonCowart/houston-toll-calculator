@@ -2352,6 +2352,23 @@ require([
     d.text(M + 10, y + 17, big, { size: 13, bold: true, color: neutral ? "#1c1b1d" : "#ffffff" });
     if (small) d.text(M + 10, y + 30, small, { size: 8.5, color: neutral ? GRAY : "#ffffff" });
     y += hh + 6;
+    // Without an EZ TAG: what the same trip costs with one, as on screen.
+    var sv = lastTrip && lastTrip.savings;
+    if (sv && sv.amount >= 0.01) {
+      var yours = L(lastTrip.trip.payment === "tag" ? "Other tag" : "No tag");
+      d.rect(M, y, R - M, 30, { stroke: LINE });
+      d.text(M + 10, y + 12, yours, { size: 7.5, color: GRAY });
+      d.text(M + 10, y + 24, fmtMoney(lastTrip.priced.total), { size: 11, bold: true, color: "#c0272d" });
+      var ex = M + 130;
+      d.text(ex, y + 12, L("With EZ TAG"), { size: 7.5, color: GRAY });
+      d.text(ex, y + 24, fmtMoney(sv.eztag), { size: 11, bold: true, color: "#1b7a36" });
+      var saveT = L("Save {amount}", { amount: fmtMoney(sv.amount) }), sx = M + 260;
+      d.text(sx, y + 19, saveT, { size: 9, bold: true, color: "#1b7a36" });
+      var get = L("Get an EZ TAG: hctra.org"), gw = P.width(get, 8, true);
+      d.text(R - 10 - gw, y + 19, get, { size: 8, bold: true, color: PURPLE });
+      d.link(R - 10 - gw, y + 10, gw, 12, "https://www.hctra.org/NewAccount/PersonalAccount");
+      y += 38;
+    }
     // Route cards: one box, toll route above toll-free, with the prices and times lined up in
     // columns so the two are easy to compare.
     var rowsC = [[L("Toll route"), textOf($("toll-price")), textOf($("toll-meta"))], [L("Toll-free route"), "$0.00", textOf($("free-meta"))]];

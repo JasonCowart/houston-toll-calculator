@@ -467,5 +467,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
   .ag-link { display: none; }
 }
 
-
-
+/* Gas for this trip: heading, both routes' gas, then the difference (one per line). */
+.fuel-line > span { display: block; }
+.fuel-h { font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+.fuel-diff { color: var(--ink-soft); margin-top: 2px; }

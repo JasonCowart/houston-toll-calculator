@@ -1777,12 +1777,20 @@ require([
     var fs = fuelSettings();
     var gas = gasFor(lastTrip && lastTrip.tollRoute, lastTrip && lastTrip.freeRoute);
     var tf = gas.toll, ff = gas.free, extra = gas.extra;
+    // Gas for the whole trip on each route, then the difference in plain words, with the likely
+    // reason (a shorter or longer route, or less stop-and-go traffic).
     var line = "";
     if (extra != null) {
-      line = Math.abs(extra) < 0.05 ? L("Gas, counting traffic: about the same on both routes ({cost})", { cost: fmtMoney(tf) })
-        : L(extra > 0 ? "Gas, counting traffic: the toll route uses about {cost} more ({toll} vs {free})" : "Gas, counting traffic: the toll route saves about {cost} ({toll} vs {free})",
-          { cost: fmtMoney(Math.abs(extra)), toll: fmtMoney(tf), free: fmtMoney(ff) });
-      line = esc(line);
+      var dm = t.miles != null && f.miles != null ? t.miles - f.miles : 0, why = "";
+      if (extra > 0 && dm >= 1) why = L("it's {n} mi longer", { n: Math.round(dm) });
+      else if (extra < 0 && dm <= -1) why = Math.abs(extra) > 1.5 * (-dm / fs.mpg * fs.price) // mostly traffic, not distance
+        ? L("it's {n} mi shorter, with less stop-and-go", { n: Math.round(-dm) }) : L("it's {n} mi shorter", { n: Math.round(-dm) });
+      else if (extra < 0) why = L("less stop-and-go");
+      var diff = Math.abs(extra) < 0.05 ? L("About the same gas on both routes.")
+        : L(extra > 0 ? "The toll route uses about {cost} more gas" : "The toll route uses about {cost} less gas", { cost: "<b>" + fmtMoney(Math.abs(extra)) + "</b>" }) + (why ? " (" + esc(why) + ")." : ".");
+      line = '<span class="fuel-h">' + L("Gas for this trip") + "</span>" +
+        '<span class="fuel-both">' + L("Toll route") + " <b>" + fmtMoney(tf) + "</b> \u00b7 " + L("Toll-free route") + " <b>" + fmtMoney(ff) + "</b></span>" +
+        '<span class="fuel-diff">' + diff + "</span>";
     }
     $("fuel-line").innerHTML = line;
     $("fuel-price-label").textContent = L(fs.fuel === "diesel" ? "Diesel price per gallon" : "Price per gallon");
@@ -2400,8 +2408,12 @@ require([
     });
     d.line(lx0, ly, lx0 + colW, ly, { color: LINE });
     d.text(rx0, ry + 10, L("Gas and commute cost"), { size: 10, bold: true, color: PURPLE }); ry += 16;
-    var gas = textOf($("fuel-line"));
-    if (gas) ry = d.para(rx0, ry, gas, colW, { size: 8, lineHeight: 10 }) + 4;
+    // Gas: a small heading, both routes' gas, then the difference, as on screen.
+    Array.prototype.forEach.call($("fuel-line").children, function (el) {
+      var bold = el.classList.contains("fuel-h");
+      ry = d.para(rx0, ry, textOf(el), colW, { size: 8, lineHeight: 10, bold: bold }) + (bold ? 0 : 1);
+    });
+    if ($("fuel-line").children.length) ry += 3;
     var back = textOf($("back-out"));
     if (back && !$("back-trip").hidden) ry = d.para(rx0, ry, back, colW, { size: 8, lineHeight: 10 }) + 4;
     var cells = document.querySelectorAll("#commute-out .commute-grid > span");

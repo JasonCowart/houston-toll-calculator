@@ -2328,10 +2328,12 @@ require([
       if (tr.classList.contains("bd-agency")) {
         var code = tr.getAttribute("data-agency"), a = window.TollCalc.agencyInfo(code);
         ly += 3;
-        d.text(lx0, ly + 9, a.short + " \u00b7 " + a.name, { size: 7.5, bold: true, color: GRAY });
+        // Purple banner with white text, as on screen.
+        d.rect(lx0, ly, colW, 13, { fill: PURPLE });
+        d.text(lx0 + 4, ly + 9.2, a.short + "  " + a.name, { size: 7.5, bold: true, color: "#ffffff" });
         var sub = textOf(tr.querySelector(".ag-total"));
-        if (sub) d.text(lx0 + colW - 3, ly + 9, sub, { size: 7.5, bold: true, color: GRAY, align: "right" });
-        ly += 12;
+        if (sub) d.text(lx0 + colW - 4, ly + 9.2, sub, { size: 7.5, bold: true, color: "#ffffff", align: "right" });
+        ly += 15;
         var link = tr.querySelector(".ag-link");
         if (link) {
           var u = link.getAttribute("href"), txt = L("Rates:") + " " + u.replace(/^https?:\/\/(www\.)?/, "");
@@ -2499,9 +2501,12 @@ require([
     var links = srcs.map(function (u, k) {
       return '<a class="ag-link" href="' + esc(u) + '" target="_blank" rel="noopener">' + L(srcs.length > 1 ? "Rates {n}" : "Rates", { n: k + 1 }) + "</a>";
     }).join(" ");
-    return '<tr class="bd-agency" data-agency="' + esc(code) + '"><td colspan="3"><div class="ag-top"><span class="ag-who" title="' + esc(a.name) + '"><span class="ag-short">' + esc(a.short) + "</span>" +
-      (links ? ' <span class="ag-dot" aria-hidden="true">\u00b7</span> ' + links : "") + "</span>" +
-      (its.length > 1 ? '<span class="ag-total">' + fmtMoney(total) + (missing ? "+" : "") + "</span>" : "") + "</div></td></tr>";
+    // A purple banner: short name, full name (cut short with … on narrow screens), the rates
+    // link, and the subtotal when the agency has more than one toll here.
+    return '<tr class="bd-agency" data-agency="' + esc(code) + '"><td colspan="3"><div class="ag-top">' +
+      '<span class="ag-who" title="' + esc(a.name) + '"><span class="ag-short">' + esc(a.short) + "</span>" +
+      (a.name !== a.short ? '<span class="ag-name">' + esc(a.name) + "</span>" : "") + "</span>" +
+      '<span class="ag-end">' + links + (its.length > 1 ? '<span class="ag-total">' + fmtMoney(total) + (missing ? "+" : "") + "</span>" : "") + "</span></div></td></tr>";
   }
   function showResults(tollRoute, freeRoute, priced, savings) {
     var t = routeStats(tollRoute), f = routeStats(freeRoute);

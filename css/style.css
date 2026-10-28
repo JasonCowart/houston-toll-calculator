@@ -432,24 +432,29 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 #map { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; } /* press and hold adds a stop, not a text menu */
 .tr-switch button[aria-pressed="false"] { color: var(--ink-soft); }
 
-/* Toll breakdown, grouped by agency: a small gray label line above each agency's tolls (short
-   name, link to its published rates, subtotal when it has more than one toll). Neutral gray,
-   not HCTRA purple: most agencies aren't HCTRA. */
-#breakdown tr.bd-agency td { padding: 14px 4px 2px; border-bottom: 0; }
-#breakdown-wrap .breakdown tr.bd-agency td[colspan] { padding: 14px 0 2px; }
-#breakdown tr.bd-agency:first-child td, #breakdown-wrap .breakdown tr.bd-agency:first-child td[colspan] { padding-top: 6px; }
-#breakdown tr.bd-agency { border-bottom: 0 !important; }
-.ag-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; font-size: 12px; color: var(--ink-soft); }
-.ag-short { font-weight: 700; letter-spacing: .03em; color: var(--ink-soft); }
-.ag-dot { color: var(--ink-faint, #9a96a1); }
-.ag-total { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.ag-link, .map-card-rate a { color: var(--purple); font-weight: 600; font-size: 12px; text-decoration: underline; text-underline-offset: 2px; }
+/* Toll breakdown, grouped by agency: a purple banner above each agency's tolls with white
+   text (short name, full name, link to its published rates, subtotal when it has 2+ tolls). */
+#breakdown tr.bd-agency td, #breakdown-wrap .breakdown tr.bd-agency td[colspan] {
+  padding: 7px 10px; background: var(--purple); background-clip: padding-box; color: #fff;
+  border-top: 10px solid transparent; border-bottom: 0; border-radius: 0; }
+#breakdown tr.bd-agency:first-child td, #breakdown-wrap .breakdown tr.bd-agency:first-child td[colspan] { border-top-width: 4px; }
+#breakdown tr.bd-agency, #breakdown-wrap .breakdown tr.bd-agency { border-bottom: 0; }
+.ag-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; font-size: 12px; line-height: 1.35; }
+.ag-who { min-width: 0; flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ag-short { font-weight: 700; letter-spacing: .03em; }
+.ag-name { margin-left: 8px; font-weight: 500; opacity: .85; }
+.ag-end { flex: none; display: flex; gap: 12px; align-items: baseline; }
+.ag-total { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ag-link { color: #fff; font-weight: 600; font-size: 12px; text-decoration: underline; text-underline-offset: 2px; }
+.ag-link:focus-visible { outline: 2px solid var(--yellow, #ffe512); outline-offset: 2px; }
+.map-card-rate a { color: var(--purple); font-weight: 600; font-size: 13px; text-decoration: underline; text-underline-offset: 2px; }
 .ag-link::after, .map-card-rate a::after { content: "\00a0\2197"; text-decoration: none; display: inline-block; }
 .map-card-rate { margin: 4px 0 0; }
 @media print {
-  #breakdown tr.bd-agency td { padding: 1.2mm 0 0; }
+  #breakdown tr.bd-agency td { padding: .8mm 1.5mm; border-top-width: 1.5mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .ag-top { font-size: 8.5px; }
-  .ag-link, .ag-dot { display: none; }
+  .ag-link { display: none; }
 }
+
 
 

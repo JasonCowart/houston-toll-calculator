@@ -432,21 +432,21 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 #map { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; } /* press and hold adds a stop, not a text menu */
 .tr-switch button[aria-pressed="false"] { color: var(--ink-soft); }
 
-/* Toll breakdown, grouped by agency: a purple banner above each agency's tolls with white
-   text (short name, full name, link to its published rates, subtotal when it has 2+ tolls). */
+/* Toll breakdown, grouped by agency: a slim lavender banner with a purple edge above each
+   agency's tolls, purple text (short name, full name, link to its published rates, subtotal when it has 2+ tolls). */
 #breakdown tr.bd-agency td, #breakdown-wrap .breakdown tr.bd-agency td[colspan] {
-  padding: 7px 10px; background: var(--purple); background-clip: padding-box; color: #fff;
-  border-top: 10px solid transparent; border-bottom: 0; border-radius: 0; }
+  padding: 3px 10px; background: #efe8f5; background-clip: padding-box; color: var(--purple);
+  box-shadow: inset 4px 0 0 var(--purple); border-top: 10px solid transparent; border-bottom: 0; border-radius: 0; }
 #breakdown tr.bd-agency:first-child td, #breakdown-wrap .breakdown tr.bd-agency:first-child td[colspan] { border-top-width: 4px; }
 #breakdown tr.bd-agency, #breakdown-wrap .breakdown tr.bd-agency { border-bottom: 0; }
 .ag-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; font-size: 12px; line-height: 1.35; }
 .ag-who { min-width: 0; flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .ag-short { font-weight: 700; letter-spacing: .03em; }
-.ag-name { margin-left: 8px; font-weight: 500; opacity: .85; }
+.ag-name { margin-left: 8px; font-weight: 500; color: var(--purple-deep, #4a2a76); }
 .ag-end { flex: none; display: flex; gap: 12px; align-items: baseline; }
 .ag-total { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.ag-link { color: #fff; font-weight: 600; font-size: 12px; text-decoration: underline; text-underline-offset: 2px; }
-.ag-link:focus-visible { outline: 2px solid var(--yellow, #ffe512); outline-offset: 2px; }
+.ag-link { color: var(--purple); font-weight: 600; font-size: 12px; text-decoration: underline; text-underline-offset: 2px; }
+.ag-link:focus-visible { outline: 2px solid var(--violet-screen, #8c5cff); outline-offset: 2px; }
 .map-card-rate a { color: var(--purple); font-weight: 600; font-size: 13px; text-decoration: underline; text-underline-offset: 2px; }
 .ag-link::after, .map-card-rate a::after { content: "\00a0\2197"; text-decoration: none; display: inline-block; }
 .map-card-rate { margin: 4px 0 0; }

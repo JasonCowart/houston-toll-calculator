@@ -2328,11 +2328,12 @@ require([
       if (tr.classList.contains("bd-agency")) {
         var code = tr.getAttribute("data-agency"), a = window.TollCalc.agencyInfo(code);
         ly += 3;
-        // Purple banner with white text, as on screen.
-        d.rect(lx0, ly, colW, 13, { fill: PURPLE });
-        d.text(lx0 + 4, ly + 9.2, a.short + "  " + a.name, { size: 7.5, bold: true, color: "#ffffff" });
+        // Slim lavender banner with a purple edge, as on screen.
+        d.rect(lx0, ly, colW, 12, { fill: "#efe8f5" });
+        d.rect(lx0, ly, 2.5, 12, { fill: PURPLE });
+        d.text(lx0 + 6, ly + 8.6, a.short + "  " + a.name, { size: 7.5, bold: true, color: PURPLE });
         var sub = textOf(tr.querySelector(".ag-total"));
-        if (sub) d.text(lx0 + colW - 4, ly + 9.2, sub, { size: 7.5, bold: true, color: "#ffffff", align: "right" });
+        if (sub) d.text(lx0 + colW - 4, ly + 8.6, sub, { size: 7.5, bold: true, color: PURPLE, align: "right" });
         ly += 15;
         var link = tr.querySelector(".ag-link");
         if (link) {

@@ -1584,11 +1584,10 @@ require([
     var box = $("trip-chart");
     if (t.minutes == null || f.minutes == null) { box.innerHTML = ""; box.hidden = true; return; }
     var W = 340, X0 = 18, X1 = W - 18, yT = 62;
-    // Two or more agencies: a bracket under the toll line for each one's stretch, with room for it.
-    var runs = window.TollCalc.agencyRuns(priced.items, routeMeters);
-    var multi = runs.some(function (r) { return r.code !== runs[0].code; });
-    var lanesHere = window.TollCalc.laneRanges(priced.items, routeMeters).length > 0;
-    var off = multi ? (lanesHere ? 52 : 40) : 0, yF = 128 + off, H0 = 146 + off;
+    // Two or more agencies: named in one line under the chart (and on each dot), so the chart
+    // keeps its height and the toll-free line stays where it is.
+    var ags = window.TollCalc.agencyTotals(priced.items), multi = ags.length > 1;
+    var off = 0, yF = 128 + off, H0 = 146 + off;
     function ends(y) {
       return '<circle cx="' + X0 + '" cy="' + y + '" r="7" class="tc-s"/><text x="' + X0 + '" y="' + (y + 3) + '" class="tc-l">S</text>' +
         '<circle cx="' + X1 + '" cy="' + y + '" r="7" class="tc-e"/><text x="' + X1 + '" y="' + (y + 3) + '" class="tc-l">E</text>';
@@ -1622,30 +1621,12 @@ require([
       var label = it.rate == null ? "n/a" : fmtMoney(it.rate);
       var tier = -1;
       for (var k = 0; k < tiers.length; k++) if (x - lastX[k] >= GAP) { tier = k; lastX[k] = x; break; }
-      dots += '<g class="tc-dot" tabindex="0" role="button" data-i="' + i + '" aria-label="' + esc(it.point.name + ", " + label) + '">' +
-        "<title>" + esc(it.point.name + " \u00b7 " + label) + "</title>" +
+      dots += '<g class="tc-dot" tabindex="0" role="button" data-i="' + i + '" aria-label="' + esc(it.point.name + ", " + label + ", " + window.TollCalc.agencyInfo(it.point.owner).short) + '">' +
+        "<title>" + esc(it.point.name + " \u00b7 " + label + " \u00b7 " + window.TollCalc.agencyInfo(it.point.owner).short) + "</title>" +
         '<circle cx="' + x.toFixed(1) + '" cy="' + yT + '" r="12" class="tc-hit"/>' +
         '<circle cx="' + x.toFixed(1) + '" cy="' + yT + '" r="5.5" class="' + (it.rate == null ? "tc-pt missing" : "tc-pt") + '"/>' +
         (tier >= 0 ? '<text x="' + x.toFixed(1) + '" y="' + tiers[tier] + '" class="tc-p">' + label + "</text>" : "") + "</g>";
     });
-    if (multi) {
-      // Brackets never overlap their neighbors; a label that would run into the one before
-      // drops to a second row (and a third), so every agency is named.
-      var by = yT + (lanesHere ? 44 : 32), rowsRight = [-99, -99, -99], prevB = -99;
-      runs.forEach(function (r, k) {
-        var xa = X0 + 14 + (X1 - X0 - 28) * r.from, xb = X0 + 14 + (X1 - X0 - 28) * r.to;
-        var nx = k + 1 < runs.length ? X0 + 14 + (X1 - X0 - 28) * runs[k + 1].from : 1e9;
-        var a = Math.max(xa - 7, prevB + 3, X0), b = Math.min(xb + 7, (xb + nx) / 2 - 1.5, X1);
-        if (b - a < 6) { a = (xa + xb) / 2 - 3; b = a + 6; }
-        prevB = b;
-        var mid = (a + b) / 2, half = r.short.length * 3.3;
-        svg += '<path d="M' + a.toFixed(1) + " " + (by - 5) + " V" + by + " H" + b.toFixed(1) + " V" + (by - 5) + '" class="tc-ag"><title>' + esc(window.TollCalc.agencyInfo(r.code).name) + "</title></path>";
-        var row = 0;
-        while (row < 2 && mid - half <= rowsRight[row] + 4) row++;
-        svg += '<text x="' + Math.max(X0 + half, Math.min(X1 - half, mid)).toFixed(1) + '" y="' + (by + 12 + row * 11) + '" class="tc-k tc-mid tc-agl">' + esc(r.short) + "</text>";
-        rowsRight[row] = mid + half;
-      });
-    }
     svg += ends(yT) + dots;
     svg += '<text x="' + X0 + '" y="' + (yF - 16) + '" class="tc-h">' + esc(tr("Toll-free · {time} · $0.00", { time: fmtTime(f.minutes) })) + "</text>";
     // Toll-free: traffic bands as wide as the toll line's, with the dashed line on top.
@@ -1683,6 +1664,8 @@ require([
     }
     svg = svg.replace('viewBox="0 0 ' + W + ' ' + H0 + '"', 'viewBox="0 0 ' + W + " " + legendH + '"');
     svg += "</svg>";
+    if (multi) svg += '<p class="tc-note tc-agencies">' + esc(tr("Tolls by agency:")) + " " +
+      ags.map(function (g) { return "<b>" + esc(g.short) + "</b> " + fmtMoney(g.total) + (g.missing ? "+" : ""); }).join(" \u00b7 ") + "</p>";
     // Long stretches with no turn get one average speed from Esri: say why they aren't colored.
     if (useTT) svg += '<p class="tc-note">Traffic colors: TomTom live speeds, compared with each road\'s usual speed (debug test). Traffic \u00a9 TomTom.</p>';
     var coarse = useTT ? null : tSegs.concat(fSegs).filter(function (sg) { return sg.coarse && !sg.skipped; })

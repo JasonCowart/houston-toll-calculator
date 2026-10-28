@@ -448,8 +448,6 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .ag-site { color: var(--ink-soft); font-weight: 500; font-size: 12px; }
 .bd-rate { font-size: 12px; margin-left: 4px; }
 .map-card-rate { margin: 4px 0 0; }
-.tc-ag { fill: none; stroke: #8a8790; stroke-width: 1.5; }
-.tc-agl { fill: #6f6c74; }
 @media print {
   #agency-wrap { grid-column: 1; }
   #agency-wrap .hint, .bd-rate { display: none !important; }

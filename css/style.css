@@ -105,6 +105,12 @@ select, input[type="datetime-local"] { width: 100%; padding: 8px; border: 1px so
 input[type="datetime-local"] { -webkit-appearance: none; appearance: none; min-width: 0; display: block; }
 /* Esri gives the search box a fixed 240 px; the class sits on our container itself */
 .search.esri-search, .search .esri-search { width: 100%; max-width: none; }
+@media screen {
+  /* Backup for the address search boxes in dark mode, whichever way Esri draws them. */
+  html[data-theme="dark"] .search .esri-search__input,
+  html[data-theme="dark"] .search .esri-input { background: var(--card); color: var(--ink); }
+  html[data-theme="dark"] .search .esri-search__input::placeholder { color: var(--ink-soft); }
+}
 
 /* Payment: a required choice, shown as three buttons */
 .pay { border: 0; margin: 0; padding: 0; }

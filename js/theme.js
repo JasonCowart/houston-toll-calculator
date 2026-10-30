@@ -15,6 +15,10 @@
     var t = resolved();
     document.documentElement.setAttribute("data-theme", t);
     document.documentElement.setAttribute("data-mode", mode);
+    // Esri's newer controls (the address search boxes) are Calcite components: they follow
+    // these classes, not the theme stylesheet below.
+    document.documentElement.classList.toggle("calcite-mode-dark", t === "dark");
+    document.documentElement.classList.toggle("calcite-mode-light", t !== "dark");
     var link = document.querySelector('link[href*="/esri/themes/"]');
     if (link) {
       var want = link.href.replace(/\/esri\/themes\/(light|dark)\//, "/esri/themes/" + t + "/");

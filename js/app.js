@@ -2703,6 +2703,16 @@ require([
     lines.push("", L("Open this trip:") + " " + url);
     return lines.join("\n");
   }
+  // Email: opens the email app with a subject and the message already in the body, where
+  // apps put it above the signature (the share menu hands it over as an attachment-like
+  // block that Outlook puts below the signature, with no subject).
+  $("email-trip").addEventListener("click", function () {
+    track("email");
+    if (!lastTrip) return;
+    var subject = L("Toll Calculator") + ": " + L("Trip summary");
+    var body = shareText(shareUrl()).split("\n").slice(1).join("\r\n");
+    location.href = "mailto:?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+  });
   $("share").addEventListener("click", function () {
     track("share");
     if (!lastTrip) return;

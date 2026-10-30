@@ -47,6 +47,7 @@
     "Toll-free route": "Ruta sin peaje",
     "Show on map": "Ver en el mapa",
     "Share trip": "Compartir viaje",
+    "Email": "Correo",
     "Miles per gallon": "Millas por galón",
     "Price per gallon": "Precio por galón",
     "Use defaults": "Valores predeterminados",

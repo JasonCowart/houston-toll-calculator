@@ -42,6 +42,7 @@ window.I18N && window.I18N.add("zh-Hant", {
   "Toll-free route": "免費路線",
   "Show on map": "在地圖上顯示",
   "Share trip": "分享行程",
+  "Email": "電子郵件",
   "Miles per gallon": "每加侖英里數",
   "Price per gallon": "每加侖價格",
   "Use defaults": "使用預設值",

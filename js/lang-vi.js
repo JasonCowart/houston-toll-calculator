@@ -42,6 +42,7 @@ window.I18N && window.I18N.add("vi", {
   "Toll-free route": "Tuyến không thu phí",
   "Show on map": "Hiện trên bản đồ",
   "Share trip": "Chia sẻ chuyến đi",
+  "Email": "Email",
   "Miles per gallon": "Số dặm mỗi gallon",
   "Price per gallon": "Giá mỗi gallon",
   "Use defaults": "Dùng mặc định",

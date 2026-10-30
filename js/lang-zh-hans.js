@@ -42,6 +42,7 @@ window.I18N && window.I18N.add("zh-Hans", {
   "Toll-free route": "免费路线",
   "Show on map": "在地图上显示",
   "Share trip": "分享行程",
+  "Email": "电子邮件",
   "Miles per gallon": "每加仑英里数",
   "Price per gallon": "每加仑价格",
   "Use defaults": "使用默认值",

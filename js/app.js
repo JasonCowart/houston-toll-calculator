@@ -1657,12 +1657,20 @@ require([
     pulseAt(pt, VIOLET);
     if (fromMap) return;
     if (view.extent && !view.extent.clone().expand(0.9).contains(pt)) view.goTo({ center: pt }).catch(function () {});
+    // Desktop: the map is always beside the panel, so only the panel scrolls. scrollIntoView
+    // would also try to scroll the page itself, which snaps back and makes the app shake.
+    var desk = window.innerWidth > 760;
     if (mode === "chart") {
       $("breakdown-wrap").open = true;
-      if (row) row.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (row) {
+        if (desk) {
+          var panel = document.querySelector(".panel"), pr = panel.getBoundingClientRect(), rr = row.getBoundingClientRect();
+          panel.scrollTo({ top: panel.scrollTop + rr.top - pr.top - (panel.clientHeight - rr.height) / 2, behavior: "smooth" });
+        } else row.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
       return;
     }
-    $("map").scrollIntoView({ behavior: "smooth", block: "center" });
+    if (!desk) $("map").scrollIntoView({ behavior: "smooth", block: "center" });
   }
   // Desktop: drag the edge between the panel and the map to make the panel wider (up to
   // leaving 360 px of map), or use the arrow keys on it; double-click puts it back. The
@@ -2107,7 +2115,7 @@ require([
     var inc = e.target.closest && e.target.closest(".tc-inc");
     if (inc) {
       showIncidentCard(+inc.getAttribute("data-inc"));
-      $("map").scrollIntoView({ behavior: "smooth", block: "center" });
+      if (window.innerWidth <= 760) $("map").scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
     var g = e.target.closest && e.target.closest(".tc-dot");
@@ -3375,7 +3383,11 @@ require([
   function scrollToHeadline() {
     var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     requestAnimationFrame(function () {
-      $("headline").scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+      var h = $("headline");
+      if (window.innerWidth > 760) { // desktop: scroll the panel only (not the page, which would shake)
+        var panel = document.querySelector(".panel"), bar = $("jump");
+        panel.scrollTo({ top: panel.scrollTop + h.getBoundingClientRect().top - panel.getBoundingClientRect().top - (bar ? bar.offsetHeight + 8 : 0), behavior: calm ? "auto" : "smooth" });
+      } else h.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
       try { $("headline").focus({ preventScroll: true }); } catch (e) {} // screen readers hear the result
     });
   }

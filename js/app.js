@@ -812,22 +812,45 @@ require([
       var has = !$("results").hidden;
       btns.forEach(function (b) { if (b.getAttribute("data-need")) b.hidden = !has; });
       spy();
+      edges();
     }
     var pinUntil = 0;
     function spy() {
       if (Date.now() < pinUntil) return;
-      var top = bar.getBoundingClientRect().bottom + 12, on = null;
+      var top = bar.getBoundingClientRect().bottom + 12, on = null, last = null;
       btns.forEach(function (b) {
         var id = b.getAttribute("data-to"), el = id === "results" ? $("headline") : $(id);
         if (b.hidden || !el || getComputedStyle(b).display === "none") return;
         if (el.getBoundingClientRect().top <= top || !on) on = b;
+        last = b;
       });
+      // At the very bottom the last sections can't reach the top: light the last one.
+      var phone = window.matchMedia("(max-width: 760px)").matches, panel = document.querySelector(".panel");
+      var atEnd = phone ? window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4
+                        : panel.scrollTop > 0 && panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 4;
+      if (atEnd && last && !(spacer && parseFloat(spacer.style.height) > 0)) on = last;
+      var was = bar.querySelector("button.on");
       btns.forEach(function (b) { b.classList.toggle("on", b === on); });
-      if (on && bar.scrollWidth > bar.clientWidth) {
-        var l = on.offsetLeft - bar.offsetLeft, r = l + on.offsetWidth;
-        if (l < bar.scrollLeft + 16 || r > bar.scrollLeft + bar.clientWidth - 16) bar.scrollLeft = Math.max(0, l - 24);
-      }
+      if (on && on !== was) panBar(on);
     }
+    // When the bar is wider than the screen, slide it so the lit chip sits in the middle and
+    // the chips on either side stay in view to tap.
+    function panBar(b) {
+      var max = bar.scrollWidth - bar.clientWidth;
+      if (max > 0) {
+        var br = bar.getBoundingClientRect(), r = b.getBoundingClientRect();
+        var want = bar.scrollLeft + (r.left - br.left) - (bar.clientWidth - r.width) / 2;
+        var behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+        bar.scrollTo({ left: Math.max(0, Math.min(max, want)), behavior: behavior });
+      }
+      edges();
+    }
+    function edges() {
+      var max = bar.scrollWidth - bar.clientWidth;
+      bar.classList.toggle("more-left", max > 0 && bar.scrollLeft > 4);
+      bar.classList.toggle("more-right", max > 0 && bar.scrollLeft < max - 4);
+    }
+    bar.addEventListener("scroll", edges, { passive: true });
     // Scroll the panel (the page on phones) so the section starts just under the bar. Not
     // scrollIntoView: on desktop that also scrolls the page itself, pushing the header and
     // the bar out of view, and on phones it can't scroll to the results (display: contents).
@@ -861,6 +884,7 @@ require([
       // The page may not scroll far enough to bring the last sections to the top: keep the
       // tapped chip lit until the scroll has settled.
       btns.forEach(function (x) { x.classList.toggle("on", x === b); });
+      panBar(b);
       pinUntil = Date.now() + 900;
       scrollToSection(el.id === "results" ? $("headline") : el);
       var f = el.tagName === "DETAILS" ? el.querySelector("summary") : el.id === "results" ? $("headline") : null;
@@ -870,7 +894,7 @@ require([
     function onScroll() { if (tick) return; tick = true; requestAnimationFrame(function () { tick = false; spy(); }); }
     document.querySelector(".panel").addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    window.addEventListener("resize", function () { onScroll(); edges(); });
     new MutationObserver(shown).observe($("results"), { attributes: true, attributeFilter: ["hidden"] });
     shown();
   })();

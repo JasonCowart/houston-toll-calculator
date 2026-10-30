@@ -129,6 +129,7 @@ window.I18N && window.I18N.add("zh-Hans", {
   "and": "和",
   "No tolls on this trip": "此行程无通行费",
   "The fastest route is already toll-free.": "最快的路线已经是免费路线。",
+  "The fastest route doesn’t use a toll road. To compare one, pick it here.": "最快的路线不走收费公路。如要比较，请在此选择一条。",
   "{price} for the managed lanes": "管理车道 {price}",
   "Time saved isn't estimated: the lanes are usually faster at rush hour.": "不估算节省的时间：高峰时段这些车道通常更快。",
   "Save {time} for {price}": "花 {price} 节省 {time}",

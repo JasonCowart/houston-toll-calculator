@@ -2634,6 +2634,8 @@ require([
     if (via) {
       note = used[via.road] ? L("Routed through the {name} plaza on {road}.", { name: via.name, road: tollwayName(via.road) })
         : L("Couldn’t keep the route on {road}. Try “Fastest” instead.", { road: tollwayName(via.road) });
+    } else if (!lastTrip.priced.items.length && others.length) {
+      note = L("The fastest route doesn’t use a toll road. To compare one, pick it here.");
     }
     $("via-note").textContent = note;
   }

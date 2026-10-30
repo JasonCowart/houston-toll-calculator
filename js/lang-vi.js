@@ -129,6 +129,7 @@ window.I18N && window.I18N.add("vi", {
   "and": "và",
   "No tolls on this trip": "Chuyến đi này không mất phí cầu đường",
   "The fastest route is already toll-free.": "Tuyến nhanh nhất đã không thu phí.",
+  "The fastest route doesn’t use a toll road. To compare one, pick it here.": "Tuyến nhanh nhất không đi đường thu phí. Để so sánh, hãy chọn một đường ở đây.",
   "{price} for the managed lanes": "{price} cho làn đường có quản lý",
   "Time saved isn't estimated: the lanes are usually faster at rush hour.": "Không ước tính thời gian tiết kiệm: các làn này thường nhanh hơn vào giờ cao điểm.",
   "Save {time} for {price}": "Tiết kiệm {time} với {price}",

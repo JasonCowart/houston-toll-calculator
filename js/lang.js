@@ -137,6 +137,7 @@
     "and": "y",
     "No tolls on this trip": "Este viaje no tiene peajes",
     "The fastest route is already toll-free.": "La ruta más rápida ya es sin peaje.",
+    "The fastest route doesn’t use a toll road. To compare one, pick it here.": "La ruta más rápida no usa autopistas de peaje. Para comparar una, elíjala aquí.",
     "{price} for the managed lanes": "{price} por los carriles administrados",
     "Time saved isn't estimated: the lanes are usually faster at rush hour.": "No se estima el tiempo ahorrado: los carriles suelen ser más rápidos en hora pico.",
     "Save {time} for {price}": "Ahorre {time} por {price}",

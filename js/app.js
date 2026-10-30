@@ -683,7 +683,7 @@ require([
       if (Date.now() < pinUntil) return;
       var top = bar.getBoundingClientRect().bottom + 12, on = null;
       btns.forEach(function (b) {
-        var el = $(b.getAttribute("data-to"));
+        var id = b.getAttribute("data-to"), el = id === "results" ? $("headline") : $(id);
         if (b.hidden || !el || getComputedStyle(b).display === "none") return;
         if (el.getBoundingClientRect().top <= top || !on) on = b;
       });
@@ -692,6 +692,29 @@ require([
         var l = on.offsetLeft - bar.offsetLeft, r = l + on.offsetWidth;
         if (l < bar.scrollLeft + 16 || r > bar.scrollLeft + bar.clientWidth - 16) bar.scrollLeft = Math.max(0, l - 24);
       }
+    }
+    // Scroll the panel (the page on phones) so the section starts just under the bar. Not
+    // scrollIntoView: on desktop that also scrolls the page itself, pushing the header and
+    // the bar out of view, and on phones it can't scroll to the results (display: contents).
+    // Near the end of the panel a spacer makes room so the last sections can reach the top.
+    var spacer = document.createElement("div");
+    spacer.className = "jump-spacer";
+    spacer.setAttribute("aria-hidden", "true");
+    document.querySelector(".panel").appendChild(spacer);
+    function scrollToSection(el) {
+      var phone = window.matchMedia("(max-width: 760px)").matches, panel = document.querySelector(".panel");
+      var behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+      var gap = bar.offsetHeight + 8;
+      spacer.style.height = "0px";
+      if (phone) {
+        window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - gap), behavior: behavior });
+        return;
+      }
+      if (window.scrollY || document.documentElement.scrollTop) window.scrollTo(0, 0);
+      var top = el.getBoundingClientRect().top - panel.getBoundingClientRect().top + panel.scrollTop - gap;
+      var max = panel.scrollHeight - panel.clientHeight;
+      if (top > max) spacer.style.height = Math.ceil(top - max) + "px";
+      panel.scrollTo({ top: Math.max(0, top), behavior: behavior });
     }
     bar.addEventListener("click", function (e) {
       var b = e.target.closest("button[data-to]");
@@ -704,8 +727,7 @@ require([
       // tapped chip lit until the scroll has settled.
       btns.forEach(function (x) { x.classList.toggle("on", x === b); });
       pinUntil = Date.now() + 900;
-      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+      scrollToSection(el.id === "results" ? $("headline") : el);
       var f = el.tagName === "DETAILS" ? el.querySelector("summary") : el.id === "results" ? $("headline") : null;
       if (f) setTimeout(function () { try { f.focus({ preventScroll: true }); } catch (x) { /* old browser */ } }, 400);
     });

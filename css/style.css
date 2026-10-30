@@ -509,7 +509,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .fuel-edit select { padding: 6px 8px; border: 1px solid var(--ink-soft); border-radius: 6px; font: inherit; background: var(--white); color: var(--ink); }
 
 /* Section jump bar: pinned to the top of the panel (the page on phones) */
-.jump { position: sticky; top: 0; z-index: 6; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+.jump { position: sticky; top: -18px; z-index: 6; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
   margin: -18px -18px 0; padding: 8px 18px; background: rgba(255, 255, 255, 0.97); border-bottom: 1px solid var(--border-soft); }
 .jump::-webkit-scrollbar { display: none; }
 .jump button { flex: none; border: 1px solid var(--border); background: var(--white); color: var(--gray); border-radius: 999px;
@@ -517,9 +517,10 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .jump button:hover { border-color: var(--purple); color: var(--purple); }
 .jump button.on { background: var(--purple); border-color: var(--purple); color: var(--white); }
 .jump .phone-only { display: none; }
-#step-trip, #step-vehicle, #results, #trip-chart, #breakdown-wrap, #commute-wrap, #best-time-wrap { scroll-margin-top: 54px; }
+.jump-spacer { flex: none; height: 0; }
+@media (max-width: 760px) { .jump-spacer { display: none; } }
 @media (max-width: 760px) {
-  .jump { margin: 0 !important; padding: 8px 16px; order: 0; }
+  .jump { top: 0; margin: 0 !important; padding: 8px 16px; order: 0; }
   .jump .phone-only { display: inline-block; }
   #map { scroll-margin-top: 48px; }
 }

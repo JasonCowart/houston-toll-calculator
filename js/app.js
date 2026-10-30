@@ -2689,12 +2689,28 @@ require([
     }
     return location.origin + location.pathname + "?" + q.toString();
   }
+  // The message that goes with a shared link: the trip, both routes and the link.
+  function shareText(url) {
+    var lines = [L("Toll Calculator") + ": " + L("Trip summary")];
+    summaryRows().rows.forEach(function (r) { lines.push(r[0] + ": " + r[1]); });
+    lines.push("");
+    if (chartArgs && chartArgs[0].minutes != null && chartArgs[1].minutes != null) {
+      lines.push(L("Toll route · {time} · {price}", { time: fmtTime(chartArgs[0].minutes), price: fmtMoney(chartArgs[2].total) }));
+      lines.push(L("Toll-free · {time} · $0.00", { time: fmtTime(chartArgs[1].minutes) }));
+    }
+    var head = ($("headline-big").textContent || "").trim();
+    if (head) lines.push(head);
+    lines.push("", L("Open this trip:") + " " + url);
+    return lines.join("\n");
+  }
   $("share").addEventListener("click", function () {
     track("share");
     if (!lastTrip) return;
-    var url = shareUrl(), text = $("headline-big").textContent;
+    var url = shareUrl();
     if (navigator.share) {
-      navigator.share({ title: L("Toll Calculator"), text: text, url: url }).catch(function () { /* closed */ });
+      // The link goes inside the text, not as a separate url: some apps (Outlook, for one)
+      // keep only one of the two, and a bare headline with no link was all that arrived.
+      navigator.share({ title: L("Toll Calculator"), text: shareText(url) }).catch(function () { /* closed */ });
     } else if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(function () { setStatus(L("Link copied. Paste it anywhere to share this trip.")); },
         function () { window.prompt(L("Copy this link:"), url); });

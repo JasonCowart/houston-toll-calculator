@@ -2274,23 +2274,25 @@ require([
   function showPreview(k) {
     var r = btRows[k];
     if (!r || r.error || !lastTrip) return;
-    if (r.picked || btPreview === k) { clearPreview(); return; }
+    if (r.picked || !r.differ || btPreview === k) { clearPreview(); return; }
     clearPreview();
     btPreview = k;
     track("best-time-preview");
     routesLayer.opacity = 0.3;
     if (tollLayer) tollLayer.opacity = 0.3;
     previewLayer.addMany([
-      new Graphic({ geometry: r.route.geometry, symbol: { type: "simple-line", color: [255, 255, 255, 0.95], width: 9, cap: "round", join: "round" } }),
-      new Graphic({ geometry: r.route.geometry, symbol: { type: "simple-line", color: [102, 45, 145, 1], width: 5, style: "dash", cap: "butt", join: "round" } })
+      new Graphic({ geometry: r.route.geometry, symbol: { type: "simple-line", color: [255, 255, 255, 0.9], width: 6, cap: "round", join: "round" } }),
+      // Same dashes as the toll-free line, in purple.
+      new Graphic({ geometry: r.route.geometry, symbol: { type: "cim", data: { type: "CIMSymbolReference", symbol: {
+        type: "CIMLineSymbol", symbolLayers: [{ type: "CIMSolidStroke", enable: true, width: 3, color: [102, 45, 145, 255],
+          capStyle: "Butt", joinStyle: "Round",
+          effects: [{ type: "CIMGeometricEffectDashes", dashTemplate: [3, 2.5], lineDashEnding: "NoConstraint" }] }] } } } })
     ]);
-    var tp = [].concat.apply([], r.route.geometry.paths), cur = [].concat.apply([], lastTrip.tollRoute.geometry.paths);
-    var differ = window.TollCalc.pathsDiffer(tp, cur);
     var changes = tollChanges(lastTrip.priced, r.priced);
     var when = fmtClock(r.at);
     previewChip.innerHTML = '<p class="pc-h"><span class="pc-swatch" aria-hidden="true"></span>' + esc(L("Leaving {time}: toll route", { time: when })) + "</p>" +
       '<p class="pc-m">' + esc(fmtTime(r.tollMin)) + " · " + fmtMoney(r.toll) + (r.plus ? "+" : "") + " · " +
-      esc(L(differ ? "different roads from your trip" : "same roads as your trip")) + "</p>" +
+      esc(L("different roads from your trip")) + "</p>" +
       '<div class="pc-b"><button type="button" class="go small" data-use="' + k + '">' + esc(L("Use this time")) + "</button>" +
       '<button type="button" class="btn-outline small" data-back="1">' + esc(L("Back to your trip")) + "</button></div>";
     previewChip.hidden = false;
@@ -2299,7 +2301,7 @@ require([
       row.classList.add("previewing"); row.setAttribute("aria-pressed", "true");
       var det = document.createElement("tr");
       det.className = "bt-detail";
-      det.innerHTML = '<td colspan="5"><p>' + esc(L(differ ? "The dashed line on the map is a different route from your trip's." : "Same roads as your trip; the dashed line on the map is this time's route.")) + "</p>" +
+      det.innerHTML = '<td colspan="5"><p>' + esc(L("The dashed line on the map is a different route from your trip's.")) + "</p>" +
         (changes.length ? '<ul class="bt-changes">' + changes.slice(0, 6).map(function (c) { return "<li>" + esc(c) + "</li>"; }).join("") + "</ul>"
           : "<p>" + esc(L("Same tolls as your trip.")) + "</p>") +
         '<div class="pc-b"><button type="button" class="go small" data-use="' + k + '">' + esc(L("Use this time")) + "</button>" +
@@ -2317,11 +2319,11 @@ require([
   previewChip.addEventListener("click", previewAction);
   $("best-time-out").addEventListener("click", function (e) {
     if (previewAction(e)) return;
-    var row = e.target.closest("tr.bt-row");
+    var row = e.target.closest("tr.bt-row.pickable");
     if (row) showPreview(+row.getAttribute("data-k"));
   });
   $("best-time-out").addEventListener("keydown", function (e) {
-    var row = e.target.closest("tr.bt-row");
+    var row = e.target.closest("tr.bt-row.pickable");
     if (row && e.target === row && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); showPreview(+row.getAttribute("data-k")); }
   });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && btPreview >= 0) clearPreview(); });
@@ -2370,7 +2372,7 @@ require([
             steps: r[0].steps || null, departure: d.toISOString(), routeMinutes: ts.minutes }), tollPoints).priced;
           var hop = window.TollCalc.findTollwayHops(r[0].steps).length > 0;
           rows.push({ at: d, tollMin: ts.minutes, toll: priced.total, plus: priced.pending.length || priced.missing.length, freeMin: fs.minutes, hop: hop,
-            route: r[0], priced: priced });
+            route: r[0], priced: priced, differ: window.TollCalc.pathsDiffer(tp, [].concat.apply([], tollRoute.geometry.paths)) });
         }).catch(function () { rows.push({ at: d, error: true }); }).then(function () { if (run === bestRun) tick(); });
       });
     });
@@ -2385,19 +2387,22 @@ require([
       var cheapest = ok.reduce(function (b, r) { return !b || r.toll < b.toll - 0.005 ? r : b; }, null);
       var sameToll = ok.every(function (r) { return Math.abs(r.toll - ok[0].toll) < 0.005; });
       if (fastest && !ok.some(function (r) { return r.tollMin - fastest.tollMin >= 1; })) fastest = null; // no real difference
-      var anyHop = ok.some(function (r) { return r.hop; });
+      var anyHop = ok.some(function (r) { return r.hop; }), anyDiffer = ok.some(function (r) { return r.differ && !r.picked; });
       out.innerHTML = '<table class="best-time"><thead><tr><th>' + L("Leave") + '</th><th class="n">' + L("Toll route") + '</th><th class="n">' + L("Toll") + '</th><th class="n">' + L("Toll-free") + '</th><th class="n">' + L("Saves") + "</th></tr></thead><tbody>" +
         rows.map(function (r, k) {
           if (r.error) return "<tr><td>" + esc(fmtClock(r.at)) + '</td><td colspan="4">' + L("Couldn’t check this time") + "</td></tr>";
           var save = r.freeMin - r.tollMin;
-          return '<tr class="bt-row' + (r.picked ? " chosen" : "") + '" data-k="' + k + '"' + (r.picked ? "" : ' tabindex="0" role="button" aria-pressed="false" aria-label="' +
-            esc(L("Show the {time} toll route on the map", { time: fmtClock(r.at) })) + '"') + "><td>" + esc(fmtClock(r.at)) +
+          // Only a time whose toll route takes other roads can be shown on the map.
+          var pick = r.differ && !r.picked;
+          return '<tr class="bt-row' + (r.picked ? " chosen" : "") + (pick ? " pickable" : "") + '" data-k="' + k + '"' + (!pick ? "" : ' tabindex="0" role="button" aria-pressed="false" aria-label="' +
+            esc(L("{time}: different route. Show it on the map", { time: fmtClock(r.at) })) + '"') + "><td>" + esc(fmtClock(r.at)) +
             (r.picked ? '<span class="tag picked">' + L("Your time") + "</span>" : "") +
+            (pick ? '<span class="tag route">' + L("Different route") + "</span>" : "") +
             (r === fastest ? '<span class="tag">' + L("Fastest") + "</span>" : "") + (!sameToll && r === cheapest ? '<span class="tag cheap">' + L("Cheapest") + "</span>" : "") +
             '</td><td class="n">' + esc(fmtTime(r.tollMin)) + '</td><td class="n">' + fmtMoney(r.toll) + (r.plus ? "+" : "") + (r.hop ? " *" : "") +
             '</td><td class="n">' + esc(fmtTime(r.freeMin)) + '</td><td class="n">' + (save >= 1 ? esc(fmtTime(save)) : "—") + "</td></tr>";
         }).join("") + "</tbody></table>" +
-        '<p class="hint">' + L("Tap a time to see its toll route on the map.") + " " + L("Live traffic up to about 4 hours ahead; later times use typical traffic for that day and time.") +
+        '<p class="hint">' + (anyDiffer ? L("Tap a time marked “Different route” to see it on the map.") + " " : "") + L("Live traffic up to about 4 hours ahead; later times use typical traffic for that day and time.") +
         (sameToll ? L(" Tolls on this route don’t change with the time of day.") : "") +
         (anyHop ? " " + L("* Esri’s route leaves the tollway at this time, so this toll may be low.") : "") + "</p>";
     });

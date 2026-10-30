@@ -4,6 +4,8 @@ Enter two addresses, pick your vehicle (axles) and how you pay. The page finds t
 
 It's a static site (no server), hosted on GitHub Pages. Maps, address search and routing come from the ArcGIS Location Platform free tier.
 
+Drivers can also add stops, save vehicles (with gas or diesel, mpg and price), compare gas and commute cost, check other departure times (a time on different roads previews dashed on the map), and save a one-page PDF. Saved places and vehicles stay in the driver's browser.
+
 ## Setup
 
 1. In your ArcGIS Location Platform portal, restrict the API key's **referrer** to `https://jasoncowart.github.io/`, then regenerate the key.
@@ -28,6 +30,7 @@ Keep pay-as-you-go **off** in Esri. The free tier then pauses at its limit inste
 
 - `data/toll-points.json` holds 604 toll points with rates for 2–8 axles: EZ TAG, other tag, and no tag (pay by mail). Houston and Austin TxDOT points come from HCTRA's toll location layer (`tools/build_data.py`, `tools/austin_rates.py`); DFW points come from NTTA's rate schedule and NCTCOG's gantry layer (`tools/ntta_points.py`).
 - A toll point counts when the route passes within 30 m of it while heading in that point's direction of travel (`js/tolls.js`).
+- Express and managed lanes (Katy, SH 288, the Brazoria County Expressway) have no drivable line in Esri's map, so their gantries count when the route runs within 80 m of them in the same direction (SH 288's Holly Hall gantries sit about 62 m from Esri's main-lane line).
 - Every point is checked against its agency's published schedule (`status: "verified"`): HCTRA on Oct 20, 2026; the other agencies later that month (see `meta.ratesAsOf`).
 - Katy Managed Lanes and SH 288 Express Lanes are priced by time of day (`status: "timed"`), at the estimated time the car reaches each gantry:
   - Katy: HCTRA's rate chart effective Sept 7, 2013 (still current). 3+ axles $7.00 per plaza; no tag +25%; carpools and motorcycles free weekdays 5–11 am and 2–8 pm.

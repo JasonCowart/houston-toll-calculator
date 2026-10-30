@@ -563,3 +563,16 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .pc-m { color: var(--gray); }
 @media (max-width: 760px) { .preview-chip { left: 10px; right: 10px; transform: none; width: auto; max-width: none; top: 10px; } }
 @media print { .preview-chip, .bt-window, #bt-window-hint { display: none !important; } }
+
+/* Trip inputs: the same S / E / numbered dots as the map pins */
+.pin { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; margin-right: 7px; border-radius: 50%;
+  border: 2px solid; box-sizing: border-box; color: #fff; font-size: 10px; font-weight: 700; line-height: 1; vertical-align: -4px; flex: none; }
+.pin.start { background: #1e8e3e; border-color: #125e28; }
+.pin.end { background: #d22f2f; border-color: #8c1218; }
+.pin.stop { background: #1967d2; border-color: #0d3c8c; }
+.add-stop { display: flex; align-items: center; width: fit-content; }
+.add-stop .pin { font-size: 13px; }
+@media print { .pin { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+.label-row label { display: flex; align-items: center; }
+.label-row label .pin, .add-stop .pin { vertical-align: 0; }
+.pin { padding-top: 1px; }

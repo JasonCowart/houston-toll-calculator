@@ -51,7 +51,7 @@
           <button type="button" id="reset" class="btn-outline step-action"><span aria-hidden="true">&#8634;</span> Start over</button>
         </div>
         <section class="field">
-          <div class="label-row"><label>From</label><button type="button" id="pick-from" class="pick">Pick on map</button></div>
+          <div class="label-row"><label><span class="pin start" aria-hidden="true">S</span>From</label><button type="button" id="pick-from" class="pick">Pick on map</button></div>
           <div id="search-from" class="search"></div>
           <div class="places-row">
             <select id="places-from" class="places" aria-label="Saved, recent and common places for From"><option value="">Choose a place…</option></select>
@@ -59,10 +59,10 @@
           </div>
         </section>
         <div id="mid-stops"></div>
-        <button type="button" id="add-stop" class="pick add-stop">+ Add a stop</button>
+        <button type="button" id="add-stop" class="pick add-stop"><span class="pin stop" aria-hidden="true">+</span>Add a stop</button>
         <p class="hint hold-tip" id="hold-tip" hidden>Tip: with a start and end set, press and hold the map to add a stop there.</p>
         <section class="field">
-          <div class="label-row"><label>To</label><button type="button" id="pick-to" class="pick">Pick on map</button></div>
+          <div class="label-row"><label><span class="pin end" aria-hidden="true">E</span>To</label><button type="button" id="pick-to" class="pick">Pick on map</button></div>
           <div id="search-to" class="search"></div>
           <div class="places-row">
             <select id="places-to" class="places" aria-label="Saved, recent and common places for To"><option value="">Choose a place…</option></select>

@@ -312,13 +312,13 @@ require([
   // Add a stop: a box like From and To, between them. Routes go through the stops in order.
   function labelStops() {
     midKeys.forEach(function (w, i) {
-      $("label-" + w).textContent = L("Stop {n}", { n: i + 1 });
+      $("label-" + w).innerHTML = '<span class="pin stop" aria-hidden="true">' + (i + 1) + "</span>" + esc(L("Stop {n}", { n: i + 1 }));
       $("remove-" + w).setAttribute("aria-label", L("Remove stop {n}", { n: i + 1 }));
       $("save-" + w).textContent = L("Save place");
       $("places-" + w).setAttribute("aria-label", L("Saved, recent and common places for Stop {n}", { n: i + 1 }));
     });
     $("add-stop").hidden = midKeys.length >= MAX_MID;
-    $("add-stop").textContent = "+ " + L("Add a stop");
+    $("add-stop").innerHTML = '<span class="pin stop" aria-hidden="true">+</span>' + esc(L("Add a stop"));
   }
   function addStop(at, label) {
     if (midKeys.length >= MAX_MID) return null;

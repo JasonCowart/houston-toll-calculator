@@ -85,8 +85,12 @@
         </section>
 
         <section class="field">
-          <label for="leave">Leave</label>
+          <label for="leave" id="leave-label">Leave</label>
           <input type="datetime-local" id="leave" aria-describedby="leave-hint">
+          <div class="leave-split" id="leave-split" hidden>
+            <input type="date" id="leave-date" aria-label="Leave date" aria-describedby="leave-hint">
+            <select id="leave-time" aria-label="Leave time" aria-describedby="leave-hint"></select>
+          </div>
           <div id="leave-hint" class="hint">Blank = now</div>
         </section>
 

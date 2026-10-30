@@ -592,6 +592,67 @@ require([
     var d = v ? new Date(v) : new Date();
     return isNaN(d) ? new Date() : d;
   }
+  // Leave: on desktop, Chrome's date-and-time popup has no OK button (you have to click away),
+  // so there it's a date box (closes when you pick a day) and a time list (closes when you pick
+  // a time). The hidden #leave keeps the value, so the rest of the app reads and sets it as before.
+  (function () {
+    var box = $("leave"), split = $("leave-split"), dIn = $("leave-date"), tIn = $("leave-time");
+    if (!window.matchMedia || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    var proto = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
+    var pad = function (n) { return ("0" + n).slice(-2); };
+    var ymd = function (d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
+    function clock(hm) {
+      var p = hm.split(":"), d = new Date(2000, 0, 1, +p[0], +p[1]);
+      return d.toLocaleTimeString(window.I18N.locale(), { hour: "numeric", minute: "2-digit" });
+    }
+    function fillTimes(extra) {
+      var keep = extra || tIn.value, list = [];
+      for (var m = 0; m < 1440; m += 15) list.push(pad(Math.floor(m / 60)) + ":" + pad(m % 60));
+      if (keep && list.indexOf(keep) < 0) { list.push(keep); list.sort(); }
+      tIn.innerHTML = "";
+      tIn.appendChild(new Option(L("Now"), ""));
+      list.forEach(function (hm) { tIn.appendChild(new Option(clock(hm), hm)); });
+      tIn.value = keep || "";
+    }
+    function show(v) { // #leave value → the two boxes
+      var m = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(v || "");
+      dIn.value = m ? m[1] : "";
+      fillTimes(m ? m[2] : "");
+    }
+    Object.defineProperty(box, "value", {
+      configurable: true,
+      get: function () { return proto.get.call(box); },
+      set: function (v) { proto.set.call(box, v); show(v); }
+    });
+    function store() {
+      var v = dIn.value && tIn.value ? dIn.value + "T" + tIn.value : "";
+      proto.set.call(box, v);
+      box.dispatchEvent(new Event("input", { bubbles: true }));
+      box.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    function nextSlot() { var d = new Date(Date.now() + 15 * 60000); return pad(d.getHours()) + ":" + pad(Math.floor(d.getMinutes() / 15) * 15); }
+    dIn.addEventListener("change", function () {
+      if (dIn.value && !tIn.value) fillTimes(nextSlot());
+      if (!dIn.value) tIn.value = "";
+      store();
+    });
+    tIn.addEventListener("change", function () {
+      if (!tIn.value) dIn.value = "";              // "Now"
+      else if (!dIn.value) {                       // a time with no date: today, or tomorrow if it's passed
+        var d = new Date(), p = tIn.value.split(":");
+        if (+p[0] * 60 + +p[1] <= d.getHours() * 60 + d.getMinutes()) d.setDate(d.getDate() + 1);
+        dIn.value = ymd(d);
+      }
+      store();
+    });
+    dIn.min = ymd(new Date());
+    box.style.display = "none";
+    split.hidden = false;
+    $("leave-label").htmlFor = "leave-date";
+    show(proto.get.call(box));
+    window.I18N.onChange(function () { fillTimes(); });
+  })();
+
   function fmtClock(d) {
     return d.toLocaleTimeString(window.I18N.locale(), { hour: "numeric", minute: "2-digit", timeZone: "America/Chicago" });
   }

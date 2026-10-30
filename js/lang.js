@@ -1,6 +1,9 @@
-/* English / Español for the HCTRA Toll Calculator.
-   I18N.t("English text with {name}", { name: ... }) returns the Spanish when Spanish is on.
+/* Languages for the HCTRA Toll Calculator: English, Español, Tiếng Việt, 简体中文, 繁體中文.
+   I18N.t("English text with {name}", { name: ... }) returns the text in the language that's on.
    Fixed page text is swapped in place by I18N.apply(); the app re-renders what it builds.
+   Spanish is in this file (the key list: every translatable string is a key in ES). Vietnamese and
+   Chinese load on demand from js/lang-vi.js, js/lang-zh-hans.js and js/lang-zh-hant.js, which
+   call I18N.add(code, { english: translation }); a string missing there shows in English.
    Toll point names, road names and EZ TAG stay as they are. The debug view stays in English. */
 (function (root) {
   "use strict";
@@ -325,7 +328,6 @@
       "Google Maps sigue esta ruta por algunos puntos. Apple Maps y Waze eligen sus propias vías, que pueden ser distintas.",
     "Shared start": "Salida compartida",
     "Shared destination": "Destino compartido",
-    "Español": "English",
     // ---- vehicles, jump bar, best time preview ----
     "Results": "Resultados",
     "Chart": "Gráfica",
@@ -371,16 +373,43 @@
     "Same tolls as your trip.": "Los mismos peajes que su viaje.",
     "{name}: not on this route": "{name}: no está en esta ruta",
     "{name}: {price} (not on your trip)": "{name}: {price} (no está en su viaje)",
-    "{name}: {was} → {now}": "{name}: {was} → {now}"
+    "{name}: {was} → {now}": "{name}: {was} → {now}",
+    "Default prices: {area} average for the week of {date} (U.S. Energy Information Administration).": "Precios predeterminados: promedio de {area} en la semana del {date} (Administración de Información Energética de EE. UU.).",
+    "Houston": "Houston",
+    "Tap to change.": "Toque para cambiar.",
+    "Theme: automatic ({theme} now)": "Tema: automático ({theme} ahora)",
+    "Theme: dark": "Tema: oscuro",
+    "Theme: light": "Tema: claro",
+    "dark": "oscuro",
+    "light": "claro",
+    "Language": "Idioma",
+    "{h} hr {m} min": "{h} h {m} min",
+    "{m} min": "{m} min",
+    "{h} hr": "{h} h"
   };
 
+  var LANGS = [["en", "English", "EN", "en-US"], ["es", "Español", "ES", "es-US"], ["vi", "Tiếng Việt", "VI", "vi-VN"],
+    ["zh-Hans", "简体中文", "简", "zh-CN"], ["zh-Hant", "繁體中文", "繁", "zh-TW"]];
+  var CODES = LANGS.map(function (x) { return x[0]; });
+  var DICT = { es: ES };
+  function pick(l) {
+    if (!l) return null;
+    var low = String(l).toLowerCase();
+    for (var i = 0; i < CODES.length; i++) if (CODES[i].toLowerCase() === low) return CODES[i];
+    if (low === "zh-cn" || low === "zh-sg" || low === "zh") return "zh-Hans";
+    if (low === "zh-tw" || low === "zh-hk" || low === "zh-mo") return "zh-Hant";
+    return null;
+  }
   var params = new URLSearchParams(location.search);
   var stored = null;
   try { stored = localStorage.getItem("htc-lang"); } catch (e) { /* not kept */ }
-  var lang = params.get("lang") === "es" || params.get("lang") === "en" ? params.get("lang") : stored === "es" ? "es" : "en";
+  var lang = pick(params.get("lang")) || pick(stored) || "en";
+  var tempLang = null; // withLang(): e.g. the PDF stays in English for Vietnamese and Chinese
 
+  function cur() { return tempLang || lang; }
   function t(en, vars) {
-    var s = lang === "es" && Object.prototype.hasOwnProperty.call(ES, en) ? ES[en] : en;
+    var d = DICT[cur()];
+    var s = d && Object.prototype.hasOwnProperty.call(d, en) ? d[en] : en;
     if (vars) s = s.replace(/\{(\w+)\}/g, function (m, k) { return vars[k] == null ? m : vars[k]; });
     return s;
   }
@@ -388,7 +417,8 @@
   // Fixed page text: remember each node's English and swap it in place.
   var original = new WeakMap(), ATTRS = ["aria-label", "placeholder", "title", "label"];
   function norm(s) { return s.replace(/\s+/g, " ").trim(); }
-  function skip(el) { return el.closest && el.closest("#debug, .esri-ui, .esri-view-surface, script, style, svg, #map .esri-attribution"); }
+  function skip(el) { return el.closest && el.closest("#debug, .esri-ui, .esri-view-surface, script, style, svg, #map .esri-attribution, [data-no-translate]"); }
+  function say(en) { var d = DICT[lang]; return d && Object.prototype.hasOwnProperty.call(d, en) ? d[en] : en; }
   function apply(rootEl) {
     rootEl = rootEl || document.body;
     var walker = document.createTreeWalker(rootEl, NodeFilter.SHOW_TEXT, null), node, list = [];
@@ -397,7 +427,7 @@
       if (!n.parentElement || skip(n.parentElement)) return;
       if (!original.has(n)) { var k = norm(n.nodeValue); if (!k || !ES[k]) return; original.set(n, { text: k, raw: n.nodeValue }); }
       var o = original.get(n);
-      n.nodeValue = lang === "es" ? n.nodeValue.replace(/\S[\s\S]*\S|\S/, ES[o.text]) : o.raw;
+      n.nodeValue = lang === "en" ? o.raw : o.raw.replace(/\S[\s\S]*\S|\S/, say(o.text));
     });
     Array.prototype.forEach.call(rootEl.querySelectorAll("*"), function (el) {
       if (skip(el)) return;
@@ -406,24 +436,50 @@
         if (v == null) return;
         var en = el.getAttribute(key);
         if (en == null) { if (!ES[norm(v)]) return; el.setAttribute(key, v); en = v; }
-        el.setAttribute(a, lang === "es" ? ES[norm(en)] : en);
+        el.setAttribute(a, lang === "en" ? en : say(norm(en)));
       });
     });
     document.documentElement.lang = lang;
     document.title = t("HCTRA Toll Calculator");
   }
 
+  // Vietnamese and Chinese load when first picked, from the same folder and version as this file.
+  var me = document.currentScript && document.currentScript.src || "";
+  var base = me.replace(/lang\.js(\?.*)?$/, ""), ver = (me.match(/\?.*$/) || [""])[0];
+  var loading = {};
+  function load(l) {
+    if (DICT[l] || l === "en") return Promise.resolve();
+    if (loading[l]) return loading[l];
+    loading[l] = new Promise(function (ok) {
+      var sc = document.createElement("script");
+      sc.src = base + "lang-" + l.toLowerCase() + ".js" + ver;
+      sc.onload = function () { ok(); };
+      sc.onerror = function () { delete loading[l]; ok(); };
+      document.head.appendChild(sc);
+    });
+    return loading[l];
+  }
+
   var listeners = [];
-  function setLang(l) {
-    lang = l === "es" ? "es" : "en";
-    try { localStorage.setItem("htc-lang", lang); } catch (e) { /* not kept */ }
+  function changed() {
     apply();
     listeners.forEach(function (f) { try { f(lang); } catch (e) { console.warn(e); } });
   }
+  function setLang(l) {
+    lang = pick(l) || "en";
+    try { localStorage.setItem("htc-lang", lang); } catch (e) { /* not kept */ }
+    var want = lang;
+    return load(lang).then(function () { if (lang === want) changed(); });
+  }
+  if (lang !== "en" && !DICT[lang]) load(lang).then(function () { if (DICT[lang]) changed(); });
   root.I18N = {
     t: t, apply: apply, setLang: setLang,
-    get lang() { return lang; },
-    locale: function () { return lang === "es" ? "es-US" : "en-US"; },
+    get lang() { return cur(); },
+    langs: LANGS,
+    locale: function () { var c = cur(); for (var i = 0; i < LANGS.length; i++) if (LANGS[i][0] === c) return LANGS[i][3]; return "en-US"; },
+    add: function (code, dict) { DICT[code] = dict; },
+    // Runs fn with another language for t() and locale(), without touching the page.
+    withLang: function (l, fn) { var was = tempLang; tempLang = pick(l); try { return fn(); } finally { tempLang = was; } },
     onChange: function (f) { listeners.push(f); },
     ES: ES
   };

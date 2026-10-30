@@ -10,6 +10,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Weekly, for the fuel prices (EIA updates them Monday afternoons): Tuesdays 6:23 AM Houston (CDT).
+  schedule:
+    - cron: "23 11 * * 2"
 
 permissions:
   contents: read
@@ -30,6 +33,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
+
+      # This week's Houston gas and Texas/Gulf Coast diesel prices from EIA (free, no key), for the
+      # gas estimate. A failed or odd read keeps the prices in the repo and only warns.
+      - name: Update fuel prices
+        run: python3 tools/fetch_fuel.py
 
       - name: Run toll tests
         run: node tools/test_tolls.js
@@ -82,7 +90,7 @@ jobs:
         if: steps.lock.outputs.offline != 'true'
         run: |
           V="${GITHUB_SHA::7}"
-          sed -i -E "s#(src|href)=\"(config\.js|js/[a-z]+\.js|css/[a-z]+\.css)\"#\1=\"\2?v=$V\"#g" index.html
+          sed -i -E "s#(src|href)=\"(config\.js|js/[a-z0-9-]+\.js|css/[a-z0-9-]+\.css)\"#\1=\"\2?v=$V\"#g" index.html
           grep -E "v=$V" index.html
           # The service worker's cache is named for this deploy, so old copies are cleared.
           sed -i "s/^var VERSION = \"dev\";/var VERSION = \"$V\";/" sw.js
@@ -99,6 +107,7 @@ jobs:
           if ! git ls-remote --exit-code --heads origin preview >/dev/null; then echo "No preview branch."; exit 0; fi
           git fetch -q --depth 1 origin preview
           rm -rf preview && mkdir preview && git --work-tree=preview checkout FETCH_HEAD -- . && git reset -q
+          cp data/fuel-prices.json preview/data/fuel-prices.json 2>/dev/null || true
           cd preview
           if ! (node tools/test_tolls.js && node tools/test_rates.js && node tools/test_trips.js) > ../preview-tests.log 2>&1; then
             cat ../preview-tests.log; echo "::warning::Preview tests failed; the preview isn't published."; cd ..; rm -rf preview; exit 0
@@ -106,7 +115,7 @@ jobs:
           # Same map keys; no usage counting or report emails from the preview.
           KEY="$ARCGIS_API_KEY" TT="$TOMTOM_API_KEY" node -e 'const c = { arcgisApiKey: (process.env.KEY || "").trim() }; if (process.env.TT && process.env.TT.trim()) c.tomtomApiKey = process.env.TT.trim(); require("fs").writeFileSync("config.js", "window.TOLL_CONFIG = " + JSON.stringify(c) + ";\n")'
           V="p$(git -C .. rev-parse --short FETCH_HEAD)"
-          sed -i -E "s#(src|href)=\"(config\.js|js/[a-z]+\.js|css/[a-z]+\.css)\"#\1=\"\2?v=$V\"#g" index.html
+          sed -i -E "s#(src|href)=\"(config\.js|js/[a-z0-9-]+\.js|css/[a-z0-9-]+\.css)\"#\1=\"\2?v=$V\"#g" index.html
           sed -i "s/^var VERSION = \"dev\";/var VERSION = \"$V\";/" sw.js
           # Not for search engines, and a "Preview" tag so it's never mistaken for the real site.
           sed -i 's#<head>#<head>\n  <meta name="robots" content="noindex">#' index.html

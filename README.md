@@ -4,7 +4,7 @@ Enter two addresses, pick your vehicle (axles) and how you pay. The page finds t
 
 It's a static site (no server), hosted on GitHub Pages. Maps, address search and routing come from the ArcGIS Location Platform free tier.
 
-Drivers can also add stops, save vehicles (with gas or diesel, mpg and price), compare gas and commute cost, check other departure times (a time on different roads previews dashed on the map), and save a one-page PDF. Saved places and vehicles stay in the driver's browser.
+Drivers can also pick English, Spanish, Vietnamese or Chinese (Simplified or Traditional), switch to dark mode, add stops, save vehicles (with gas or diesel, mpg and price), compare gas and commute cost, check other departure times (a time on different roads previews dashed on the map), and save a one-page PDF. Saved places and vehicles stay in the driver's browser.
 
 ## Setup
 
@@ -69,7 +69,9 @@ Partner states (Kansas, Colorado, Oklahoma, Florida) aren't covered yet.
 | `.github/workflows/deploy.yml` | Tests, inserts the key, publishes to GitHub Pages |
 | `js/app.js` | Map, address search, routing, results |
 | `js/tolls.js` | Toll matching and pricing (no map code) |
-| `js/lang.js` | English/Spanish text |
+| `js/lang.js` | Language engine and Spanish; `js/lang-vi.js`, `js/lang-zh-hans.js`, `js/lang-zh-hant.js` load when picked (draft translations, need native review). The PDF is in English for Vietnamese and Chinese (its built-in fonts lack those letters) |
+| `js/theme.js` | Light / dark theme (follows the device unless picked) |
+| `data/fuel-prices.json`, `tools/fetch_fuel.py` | Default gas and diesel prices: EIA's weekly Houston regular and Texas/Gulf Coast diesel, refreshed by Deploy site on every deploy and Tuesdays on a schedule |
 | `js/pdf.js` | Builds the one-page trip summary PDF (Save PDF) |
 | `manifest.webmanifest`, `sw.js`, `assets/icon-*.png` | Add to home screen (app icon, offline copy) |
 | `tests/trips/*.json` | Saved real trips replayed by `tools/test_trips.js` on every deploy |

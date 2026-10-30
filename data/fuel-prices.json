@@ -1,0 +1,10 @@
+{
+  "regular": 3.68,
+  "diesel": 5.95,
+  "week": "2026-10-26",
+  "regularArea": "Houston",
+  "dieselArea": "Gulf Coast",
+  "source": "U.S. Energy Information Administration, Gasoline and Diesel Fuel Update",
+  "url": "https://www.eia.gov/petroleum/gasdiesel/",
+  "fetched": "2026-10-30T04:40Z"
+}

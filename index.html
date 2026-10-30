@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="https://js.arcgis.com/4.32/esri/themes/light/main.css">
   <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
 </head>
 <body>
  <div class="page">
@@ -23,7 +24,20 @@
     <img class="logo" src="assets/hctra-lockup-reverse.png" alt="HCTRA, Harris County Toll Road Authority" width="114">
     <span class="divider" aria-hidden="true"></span>
     <h1>HCTRA Toll Calculator</h1>
-    <button type="button" id="lang-toggle" class="lang-toggle" lang="es">Español</button>
+    <div class="top-tools">
+      <button type="button" id="theme-btn" class="top-btn theme-btn" aria-label="Theme" title="Theme">
+        <svg class="ti ti-auto" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg>
+        <svg class="ti ti-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg>
+        <svg class="ti ti-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg>
+      </button>
+      <div class="lang-menu" data-no-translate>
+        <button type="button" id="lang-btn" class="top-btn lang-btn" aria-haspopup="true" aria-expanded="false" aria-controls="lang-list" aria-label="Language">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 12h18M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9S9.4 5.6 12 3z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+          <span id="lang-code">EN</span>
+        </button>
+        <ul id="lang-list" class="lang-list" role="menu" aria-label="Language" hidden></ul>
+      </div>
+    </div>
   </header>
   <div class="app">
     <aside class="panel">
@@ -125,7 +139,7 @@
         // A shared link: say so straight away, while the map code is still loading.
         if (/[?&]s=/.test(location.search)) {
           document.getElementById("status").className = "status busy";
-          document.getElementById("status").innerHTML = '<span class="spinner" aria-hidden="true"></span>' + (/[?&]lang=es/.test(location.search) ? "Abriendo el viaje compartido…" : "Opening the shared trip…");
+          document.getElementById("status").innerHTML = '<span class="spinner" aria-hidden="true"></span>' + ({ es: "Abriendo el viaje compartido…", vi: "Đang mở chuyến đi được chia sẻ…", "zh-hans": "正在打开分享的行程…", "zh-hant": "正在開啟分享的行程…" }[((/[?&]lang=([\w-]+)/.exec(location.search) || [])[1] || "").toLowerCase()] || "Opening the shared trip…");
         }
       </script>
 

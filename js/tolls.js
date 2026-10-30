@@ -742,8 +742,9 @@
   }
 
   // ---- Trip extras ----
-  // Fuel defaults by vehicle class: gas for 2-3 axles, diesel for 4+. Houston-area prices,
-  // Oct 2026 (regular about $3.76, diesel $5.67); users can change them.
+  // Fuel defaults by vehicle class: gas for 2-3 axles, diesel for 4+. The prices here are a
+  // fallback: the app replaces them with the week's EIA prices from data/fuel-prices.json
+  // (tools/fetch_fuel.py). Users can change them.
   var FUEL_DEFAULTS = { 2: { mpg: 25, fuel: "regular" }, 3: { mpg: 13, fuel: "regular" }, 4: { mpg: 9, fuel: "diesel" },
     5: { mpg: 6.5, fuel: "diesel" }, 6: { mpg: 6, fuel: "diesel" }, 7: { mpg: 5.5, fuel: "diesel" }, 8: { mpg: 5.5, fuel: "diesel" } };
   var FUEL_PRICES = { regular: 3.76, diesel: 5.67, asOf: "Oct 2026" };

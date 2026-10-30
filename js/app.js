@@ -260,13 +260,67 @@ require([
   wirePlaceField("from"); wirePlaceField("to");
   fillPlaces();
 
-  // English / Español: fixed page text swaps in place (lang.js); what the app builds is redrawn.
-  function setEsriLocale() { try { if (intl && intl.setLocale) intl.setLocale(window.I18N.lang === "es" ? "es" : "en"); } catch (e) { /* keep */ } }
+  // Languages: fixed page text swaps in place (lang.js); what the app builds is redrawn.
+  var ESRI_LOCALE = { en: "en", es: "es", vi: "vi", "zh-Hans": "zh-CN", "zh-Hant": "zh-TW" };
+  function setEsriLocale() { try { if (intl && intl.setLocale) intl.setLocale(ESRI_LOCALE[window.I18N.lang] || "en"); } catch (e) { /* keep */ } }
   setEsriLocale();
   window.I18N.apply();
-  $("lang-toggle").addEventListener("click", function () { window.I18N.setLang(window.I18N.lang === "es" ? "en" : "es"); track("language/" + window.I18N.lang); });
+  // Desktop: the page itself never scrolls (only the panel does); undo any scroll that slips
+  // through on browsers without overflow: clip.
+  window.addEventListener("scroll", function () {
+    if (window.innerWidth > 760 && (window.scrollY || window.scrollX)) window.scrollTo(0, 0);
+  }, { passive: true });
+  // Theme button: Auto (follow the device) → Dark → Light → Auto.
+  function themeLabel() {
+    var T = window.Theme, m = T.mode;
+    var txt = m === "auto" ? L("Theme: automatic ({theme} now)", { theme: L(T.theme === "dark" ? "dark" : "light") }) : L(m === "dark" ? "Theme: dark" : "Theme: light");
+    $("theme-btn").setAttribute("aria-label", txt + ". " + L("Tap to change."));
+    $("theme-btn").title = txt;
+  }
+  if (window.Theme) {
+    $("theme-btn").addEventListener("click", function () { window.Theme.next(); track("theme/" + window.Theme.mode); });
+    window.Theme.onChange(themeLabel);
+    themeLabel();
+  } else $("theme-btn").hidden = true;
+  // Language menu: a globe button with the current language's short name; the list shows each
+  // language in its own words.
+  (function () {
+    var btn = $("lang-btn"), list = $("lang-list");
+    list.innerHTML = window.I18N.langs.map(function (x) {
+      return '<li role="none"><button type="button" role="menuitemradio" data-lang="' + x[0] + '" lang="' + x[0] + '">' + x[1] + "</button></li>";
+    }).join("");
+    function sync() {
+      var l = window.I18N.lang, info = window.I18N.langs.filter(function (x) { return x[0] === l; })[0] || window.I18N.langs[0];
+      $("lang-code").textContent = info[2];
+      btn.setAttribute("aria-label", L("Language") + ": " + info[1]);
+      btn.title = L("Language");
+      Array.prototype.forEach.call(list.querySelectorAll("button"), function (b) { b.setAttribute("aria-checked", b.getAttribute("data-lang") === l ? "true" : "false"); });
+    }
+    function open(on) {
+      list.hidden = !on; btn.setAttribute("aria-expanded", on ? "true" : "false");
+      if (on) { var c = list.querySelector('[aria-checked="true"]') || list.querySelector("button"); if (c) c.focus(); }
+    }
+    btn.addEventListener("click", function () { open(list.hidden); });
+    list.addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-lang]");
+      if (!b) return;
+      open(false); btn.focus();
+      window.I18N.setLang(b.getAttribute("data-lang"));
+      track("language/" + b.getAttribute("data-lang"));
+    });
+    list.addEventListener("keydown", function (e) {
+      var items = Array.prototype.slice.call(list.querySelectorAll("button")), i = items.indexOf(document.activeElement);
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); items[(i + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length].focus(); }
+      else if (e.key === "Escape") { open(false); btn.focus(); }
+      else if (e.key === "Tab") open(false);
+    });
+    document.addEventListener("click", function (e) { if (!list.hidden && !e.target.closest(".lang-menu")) open(false); });
+    window.I18N.onChange(sync);
+    sync();
+  })();
   window.I18N.onChange(function () {
     setEsriLocale();
+    if (window.Theme) themeLabel();
     fillPlaces();
     if (typeof fillVehicles === "function") fillVehicles();
     fieldKeys().forEach(function (w) { if (searches[w]) searches[w].allPlaceholder = placeholderFor(w); });
@@ -442,6 +496,26 @@ require([
     .then(function (r) { return r.json(); })
     .then(function (d) { window.TollCalc.setSchedules({ sh288: d }); sh288Effective = d.effective; showRatesAsOf(); })
     .catch(function () { /* SH 288 tolls will show as not included */ });
+
+  // This week's fuel prices (EIA, refreshed by each deploy and weekly): they replace the
+  // built-in defaults. A saved vehicle's or typed-in price still wins.
+  var fuelWeek = null;
+  fetch("data/fuel-prices.json")
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var P = window.TollCalc.FUEL_PRICES;
+      if (d.regular >= 1.5 && d.regular <= 9) P.regular = d.regular;
+      if (d.diesel >= 1.5 && d.diesel <= 10) P.diesel = d.diesel;
+      if (d.week) { P.asOf = d.week; fuelWeek = d; }
+      if (lastTrip && !$("results").hidden) renderExtras(routeStats(lastTrip.tollRoute), routeStats(lastTrip.freeRoute), lastTrip.priced);
+    })
+    .catch(function () { /* built-in prices */ });
+  function fuelSourceNote() {
+    if (!fuelWeek) return "";
+    var d = new Date(fuelWeek.week + "T12:00:00");
+    return " " + L("Default prices: {area} average for the week of {date} (U.S. Energy Information Administration).",
+      { area: L(fuelWeek.regularArea === "Houston" ? "Houston" : fuelWeek.regularArea), date: d.toLocaleDateString(window.I18N.locale(), { month: "short", day: "numeric" }) });
+  }
 
   // "Rates as of": when the rates were last checked against the agencies' tables.
   var ratesAsOf = null, sh288Effective = null;
@@ -1042,7 +1116,7 @@ require([
   function fmtTime(min) {
     if (min == null) return "";
     var total = Math.round(min), h = Math.floor(total / 60), m = total % 60;
-    return h ? h + (window.I18N.lang === "es" ? " h " : " hr ") + m + " min" : m + " min";
+    return h ? L("{h} hr {m} min", { h: h, m: m }) : L("{m} min", { m: m });
   }
   function fmtMeta(s) { return [fmtTime(s.minutes), s.miles ? s.miles.toFixed(1) + " mi" : ""].filter(Boolean).join(" · "); }
   function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -1745,7 +1819,7 @@ require([
   }
 
   // Basemap switcher (top right of the map). The choice is remembered on this device.
-  var BASEMAPS = [["arcgis/light-gray", "Light"], ["arcgis/navigation", "Streets"], ["arcgis/imagery", "Satellite"], ["arcgis/dark-gray", "Dark"]];
+  var BASEMAPS = [["arcgis/light-gray", "Light"], ["arcgis/dark-gray", "Dark"], ["arcgis/navigation", "Streets"], ["arcgis/imagery", "Satellite"]];
   if (key) {
     var bm = document.createElement("div");
     bm.className = "basemap-switch";
@@ -1753,7 +1827,7 @@ require([
     bm.setAttribute("aria-label", L("Base map"));
     bm.innerHTML = BASEMAPS.map(function (b) { return '<button type="button" data-id="' + b[0] + '">' + L(b[1]) + "</button>"; }).join("");
     view.ui.add(bm, "top-right");
-    var setBasemap = function (id) {
+    var setBasemap = function (id, keep) {
       if (!BASEMAPS.some(function (b) { return b[0] === id; })) id = BASEMAPS[0][0];
       currentBasemap = id;
       if (id === "arcgis/imagery") {
@@ -1770,7 +1844,7 @@ require([
       } else map.basemap = id;
       if (freeGraphic) freeGraphic.symbol = freeSymbol();
       Array.prototype.forEach.call(bm.querySelectorAll("button"), function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-id") === id ? "true" : "false"); });
-      try { localStorage.setItem("htc-basemap", id); } catch (e) { /* not kept */ }
+      if (!keep) try { localStorage.setItem("htc-basemap", id); } catch (e) { /* not kept */ }
     };
     bm.addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) setBasemap(b.getAttribute("data-id")); });
     // "Toll roads" switch: every toll road line and every toll point (all agencies), for
@@ -1808,7 +1882,16 @@ require([
     }
     var savedBasemap = null;
     try { savedBasemap = localStorage.getItem("htc-basemap"); } catch (e) { /* default */ }
-    setBasemap(savedBasemap || BASEMAPS[0][0]);
+    // With no map picked, the map follows the page's theme (Light or Dark), and switching the
+    // theme switches a Light or Dark map along with it.
+    var themeMap = function (id) {
+      var dark = window.Theme && window.Theme.theme === "dark";
+      if (!id || id === "arcgis/light-gray" || id === "arcgis/dark-gray") return dark ? "arcgis/dark-gray" : "arcgis/light-gray";
+      return id;
+    };
+    setBasemap(savedBasemap || themeMap(null), true); // a map someone picked stays picked
+
+    if (window.Theme) window.Theme.onChange(function () { if (/gray$/.test(currentBasemap)) setBasemap(themeMap(currentBasemap), true); });
   }
 
   $("breakdown").addEventListener("click", function (e) {
@@ -2083,7 +2166,7 @@ require([
     var def = window.TollCalc.fuelDefaults(fs.axles);
     $("fuel-hint").textContent = fs.vehicle
       ? L("Saved with “{name}”: changes here update it.", { name: fs.vehicle.name })
-      : L("Change these to match your vehicle. Defaults for {n} axles: {mpg} mpg, {price}/gal {fuel}.", { n: fs.axles, mpg: def.mpg, price: fmtMoney(def.price), fuel: L(def.fuel) });
+      : L("Change these to match your vehicle. Defaults for {n} axles: {mpg} mpg, {price}/gal {fuel}.", { n: fs.axles, mpg: def.mpg, price: fmtMoney(def.price), fuel: L(def.fuel) }) + fuelSourceNote();
     $("fuel-type").value = fs.fuel;
     $("fuel-mpg").value = fs.mpg; $("fuel-price").value = fs.price.toFixed(2);
     extrasState = { toll: priced.total, minutesSaved: minutesSaved(t, f, priced), fuelExtra: extra };
@@ -2098,7 +2181,7 @@ require([
     renderBack(back);
     var c = window.TollCalc.commute(extrasState, days, round, back);
     function row(label, v, fmt) { return v ? '<span>' + L(label) + '</span><span class="n">' + fmt(v.week) + '</span><span class="n">' + fmt(v.month) + "</span>" : ""; }
-    var hrs = function (m) { return m >= 60 ? (m / 60).toFixed(1) + (window.I18N.lang === "es" ? " h" : " hr") : Math.round(m) + " min"; };
+    var hrs = function (m) { return m >= 60 ? L("{h} hr", { h: (m / 60).toFixed(1) }) : L("{m} min", { m: Math.round(m) }); };
     var net = extrasState.fuelExtra != null ? { week: c.tolls.week + c.fuelExtra.week, month: c.tolls.month + c.fuelExtra.month } : null;
     $("commute-out").innerHTML =
       '<div class="commute-grid"><span class="h">' + L("{n} trips a week", { n: c.trips }) + '</span><span class="h n">' + L("Week") + '</span><span class="h n">' + L("Month") + "</span>" +
@@ -2512,7 +2595,7 @@ require([
     });
     q.set("ax", t.axles); q.set("pay", t.payment); if (t.carpool) q.set("cp", "1");
     if ($("leave").value) q.set("t", $("leave").value);
-    if (window.I18N.lang === "es") q.set("lang", "es");
+    if (window.I18N.lang !== "en") q.set("lang", window.I18N.lang);
     if (chosenVia()) q.set("r", viaChoice.road);
     var ms = midKeys.filter(function (k) { return stops[k]; });
     if (ms.length) {
@@ -2928,7 +3011,10 @@ require([
     setStatus(L("Making the PDF…"), false, true);
     window.__shotError = null;
     Promise.all([mapShot(), loadLogo()]).then(function (r) {
-      var blob = new Blob([buildPdf(r[0], r[1])], { type: "application/pdf" }), name = pdfName();
+      // The PDF's built-in fonts have no Vietnamese or Chinese letters, so in those languages
+      // the PDF is in English (Print uses the page itself, in any language).
+      var pdfLang = /^(en|es)$/.test(window.I18N.lang) ? window.I18N.lang : "en";
+      var blob = new Blob([window.I18N.withLang(pdfLang, function () { return buildPdf(r[0], r[1]); })], { type: "application/pdf" }), name = pdfName();
       var a = document.createElement("a");
       a.href = URL.createObjectURL(blob); a.download = name;
       document.body.appendChild(a); a.click(); a.remove();

@@ -281,6 +281,7 @@ require([
     card.setAttribute("aria-label", L("Toll point details"));
     hideCard();
     setStatus("");
+    clearPreview();
     $("best-time-out").innerHTML = "";
     if (lastTrip) showResults(lastTrip.tollRoute, lastTrip.freeRoute, lastTrip.priced, lastTrip.savings);
   });
@@ -549,38 +550,113 @@ require([
     if (!v || v.axles !== axles || v.payment !== pay || !!v.carpool !== car) activeVehicle = -1;
     $("vehicles").value = activeVehicle >= 0 ? "v" + activeVehicle : "";
   }
-  $("vehicles").addEventListener("change", function () {
-    var v = this.value;
-    if (v === "manage") { syncVehicleSelect(); renderVehicleDialog(); var d = $("vehicles-dialog"); if (d.showModal) d.showModal(); else d.setAttribute("open", ""); return; }
-    var p = vehicles[+v.slice(1)];
+  // Puts a saved vehicle's settings into the panel and makes it the active one.
+  function applyVehicle(i) {
+    var p = vehicles[i];
     if (!p) { syncVehicleSelect(); return; }
-    activeVehicle = +v.slice(1);
+    activeVehicle = i;
     $("axles").value = String(p.axles);
     var r = $("pay-" + p.payment); if (r) r.checked = true;
     $("carpool").checked = !!p.carpool;
     updateButton();
     repriceShown();
+    if (lastTrip && !$("results").hidden) renderExtras(routeStats(lastTrip.tollRoute), routeStats(lastTrip.freeRoute), lastTrip.priced);
     if (!lastTrip || $("results").hidden) setStatus(L("Using “{name}”.", { name: p.name }) + " " + vehicleSummary(p) + ".");
+  }
+  function openDialog(d) { if (d.showModal) { if (!d.open) d.showModal(); } else d.setAttribute("open", ""); }
+  function closeDialog(d) { if (d.close) d.close(); else d.removeAttribute("open"); }
+  $("vehicles").addEventListener("change", function () {
+    var v = this.value;
+    if (v === "manage") { syncVehicleSelect(); renderVehicleDialog(); openDialog($("vehicles-dialog")); return; }
+    applyVehicle(+v.slice(1));
   });
-  $("save-vehicle").addEventListener("click", function () {
-    var payment = paymentChoice();
-    if (!payment) return;
-    var axles = parseInt($("axles").value, 10), carpool = $("carpool").checked;
-    var name = window.prompt(L("Name this vehicle (for example, My truck or Work van):"), axles > 2 ? L("{n}-axle truck", { n: axles }) : L("My car"));
-    if (!name || !name.trim()) return;
-    var v = { name: name.trim(), axles: axles, payment: payment, carpool: carpool };
-    vehicles = [v].concat(vehicles.filter(function (x) { return x.name.toLowerCase() !== v.name.toLowerCase(); }));
+
+  // Save / edit a vehicle: name, vehicle, tag, carpool and its fuel (gas or diesel, mpg and
+  // price). Blank or untouched mpg and price follow the defaults for the vehicle size.
+  var veIndex = -1, veTouched = {};
+  function veFuel() { var f = document.querySelector('input[name="ve-fuel"]:checked'); return f ? f.value : "regular"; }
+  function veDefaults() {
+    var axles = parseInt($("ve-axles").value, 10), d = window.TollCalc.fuelDefaults(axles), fuel = veFuel();
+    return { mpg: d.mpg, price: window.TollCalc.FUEL_PRICES[fuel], fuel: fuel, sizeFuel: d.fuel };
+  }
+  function veRefresh() {
+    var d = veDefaults();
+    if (!veTouched.mpg) $("ve-mpg").value = d.mpg;
+    if (!veTouched.price) $("ve-price").value = d.price.toFixed(2);
+    $("ve-price-label").textContent = L(d.fuel === "diesel" ? "Diesel price per gallon" : "Gas price per gallon");
+    $("ve-fuel-hint").textContent = L("Defaults: {mpg} mpg, {price} a gallon. Change them to match your vehicle.", { mpg: d.mpg, price: fmtMoney(d.price) });
+  }
+  function openVehicleEditor(i) {
+    veIndex = i;
+    var v = i >= 0 ? vehicles[i] : null;
+    var axles = v ? v.axles : parseInt($("axles").value, 10);
+    var pay = v ? v.payment : paymentChoice();
+    var cur = v ? v : (function () { var o = fuelStore()[axles] || {}; return { fuel: o.fuel, mpg: o.mpg, price: o.price }; })();
+    $("ve-title").textContent = L(v ? "Edit vehicle" : "Save vehicle");
+    $("ve-name").value = v ? v.name : (axles > 2 ? L("{n}-axle truck", { n: axles }) : L("My car"));
+    $("ve-name").removeAttribute("aria-invalid"); $("ve-name-error").hidden = true;
+    $("ve-axles").value = String(axles);
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="ve-pay"]'), function (r) { r.checked = r.value === pay; });
+    $("ve-carpool").checked = v ? !!v.carpool : $("carpool").checked;
+    var fuel = cur.fuel || window.TollCalc.fuelDefaults(axles).fuel;
+    $("ve-fuel-" + fuel).checked = true;
+    veTouched = { mpg: cur.mpg > 0, price: cur.price > 0 };
+    if (cur.mpg > 0) $("ve-mpg").value = cur.mpg;
+    if (cur.price > 0) $("ve-price").value = (+cur.price).toFixed(2);
+    veRefresh();
+    openDialog($("vehicle-edit"));
+    setTimeout(function () { $("ve-name").focus(); $("ve-name").select(); }, 30);
+  }
+  $("ve-axles").addEventListener("change", function () {
+    // A new size brings its usual fuel (gas for 2-3 axles, diesel for 4+) unless already set.
+    var d = window.TollCalc.fuelDefaults(parseInt(this.value, 10));
+    if (!veTouched.fuel) $("ve-fuel-" + d.fuel).checked = true;
+    veRefresh();
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="ve-fuel"]'), function (r) {
+    r.addEventListener("change", function () { veTouched.fuel = true; veTouched.price = false; veRefresh(); });
+  });
+  $("ve-mpg").addEventListener("input", function () { veTouched.mpg = this.value !== ""; });
+  $("ve-price").addEventListener("input", function () { veTouched.price = this.value !== ""; });
+  $("ve-name").addEventListener("input", function () { this.removeAttribute("aria-invalid"); $("ve-name-error").hidden = true; });
+  $("ve-cancel").addEventListener("click", function () { closeDialog($("vehicle-edit")); });
+  $("ve-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = $("ve-name").value.trim();
+    if (!name) { $("ve-name").setAttribute("aria-invalid", "true"); $("ve-name-error").hidden = false; $("ve-name").focus(); return; }
+    var pay = document.querySelector('input[name="ve-pay"]:checked');
+    var d = veDefaults(), mpg = parseFloat($("ve-mpg").value), price = parseFloat($("ve-price").value);
+    var v = { name: name, axles: parseInt($("ve-axles").value, 10), payment: pay ? pay.value : "eztag", carpool: $("ve-carpool").checked,
+      fuel: d.fuel !== d.sizeFuel ? d.fuel : null,
+      mpg: mpg > 0 && Math.abs(mpg - d.mpg) > 0.001 ? mpg : null,
+      price: price > 0 && Math.abs(price - d.price) > 0.001 ? Math.round(price * 100) / 100 : null };
+    var editing = veIndex >= 0 ? vehicles[veIndex] : null, active = vehicles[activeVehicle] || null;
+    var wasActive = editing && editing === active;
+    var others = vehicles.filter(function (x) { return x !== editing && x.name.toLowerCase() !== name.toLowerCase(); });
+    if (editing) { var at = vehicles.indexOf(editing); others.splice(Math.min(at, others.length), 0, v); vehicles = others; }
+    else vehicles = [v].concat(others);
     saveList("vehicles", vehicles);
-    activeVehicle = 0;
-    fillVehicles();
-    setStatus(L("Saved “{name}” ({summary}) to My vehicles on this device.", { name: v.name, summary: vehicleSummary(v) }));
+    closeDialog($("vehicle-edit"));
+    if (!editing || wasActive) { fillVehicles(); applyVehicle(vehicles.indexOf(v)); }
+    else { activeVehicle = active ? vehicles.indexOf(active) : -1; fillVehicles(); }
+    if ($("vehicles-dialog").open) renderVehicleDialog();
+    setStatus(L(editing ? "Updated “{name}” ({summary})." : "Saved “{name}” ({summary}) to My vehicles on this device.", { name: v.name, summary: vehicleSummary(v) }));
   });
+  $("save-vehicle").addEventListener("click", function () { openVehicleEditor(-1); });
+  function fuelSummary(v) {
+    var d = window.TollCalc.fuelDefaults(v.axles), fuel = v.fuel || d.fuel;
+    return L(fuel === "diesel" ? "Diesel" : "Gas") + " · " + L("{mpg} mpg", { mpg: v.mpg || d.mpg }) + " · " + L("{price}/gal", { price: fmtMoney(v.price || window.TollCalc.FUEL_PRICES[fuel]) });
+  }
   function renderVehicleDialog() {
     $("vehicle-list").innerHTML = vehicles.length ? vehicles.map(function (v, i) {
-      return '<li><span>' + esc(v.name) + ' <small class="hint">' + esc(vehicleSummary(v)) + '</small></span><button type="button" class="btn-outline small" data-i="' + i + '">' + L("Remove") + "</button></li>";
+      return '<li><span class="ve-info">' + esc(v.name) + ' <small class="hint">' + esc(vehicleSummary(v)) + '</small><small class="hint">' + esc(fuelSummary(v)) + "</small></span>" +
+        '<span class="ve-actions"><button type="button" class="btn-outline small" data-edit="' + i + '" aria-label="' + esc(L("Edit {name}", { name: v.name })) + '">' + L("Edit") + "</button>" +
+        '<button type="button" class="btn-outline small" data-i="' + i + '" aria-label="' + esc(L("Remove {name}", { name: v.name })) + '">' + L("Remove") + "</button></span></li>";
     }).join("") : '<li class="empty">' + L("No saved vehicles. Set the vehicle and tag, then tap “Save vehicle”.") + "</li>";
   }
   $("vehicle-list").addEventListener("click", function (e) {
+    var ed = e.target.closest("button[data-edit]");
+    if (ed) { openVehicleEditor(+ed.getAttribute("data-edit")); return; }
     var b = e.target.closest("button[data-i]");
     if (!b) return;
     var gone = +b.getAttribute("data-i");
@@ -590,8 +666,57 @@ require([
     fillVehicles();
     renderVehicleDialog();
   });
-  $("vehicles-done").addEventListener("click", function () { var d = $("vehicles-dialog"); if (d.close) d.close(); else d.removeAttribute("open"); });
+  $("vehicles-done").addEventListener("click", function () { closeDialog($("vehicles-dialog")); });
   fillVehicles();
+
+  // Section jump bar: tap a section to scroll the panel (the page on phones) to it. The
+  // results sections show once there are results; folded sections open when you jump to them.
+  (function () {
+    var bar = $("jump"), btns = Array.prototype.slice.call(bar.querySelectorAll("button"));
+    function shown() {
+      var has = !$("results").hidden;
+      btns.forEach(function (b) { if (b.getAttribute("data-need")) b.hidden = !has; });
+      spy();
+    }
+    var pinUntil = 0;
+    function spy() {
+      if (Date.now() < pinUntil) return;
+      var top = bar.getBoundingClientRect().bottom + 12, on = null;
+      btns.forEach(function (b) {
+        var el = $(b.getAttribute("data-to"));
+        if (b.hidden || !el || getComputedStyle(b).display === "none") return;
+        if (el.getBoundingClientRect().top <= top || !on) on = b;
+      });
+      btns.forEach(function (b) { b.classList.toggle("on", b === on); });
+      if (on && bar.scrollWidth > bar.clientWidth) {
+        var l = on.offsetLeft - bar.offsetLeft, r = l + on.offsetWidth;
+        if (l < bar.scrollLeft + 16 || r > bar.scrollLeft + bar.clientWidth - 16) bar.scrollLeft = Math.max(0, l - 24);
+      }
+    }
+    bar.addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-to]");
+      if (!b) return;
+      var el = $(b.getAttribute("data-to"));
+      if (!el) return;
+      track("jump-" + b.getAttribute("data-to"));
+      if (el.tagName === "DETAILS") el.open = true;
+      // The page may not scroll far enough to bring the last sections to the top: keep the
+      // tapped chip lit until the scroll has settled.
+      btns.forEach(function (x) { x.classList.toggle("on", x === b); });
+      pinUntil = Date.now() + 900;
+      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+      var f = el.tagName === "DETAILS" ? el.querySelector("summary") : el.id === "results" ? $("headline") : null;
+      if (f) setTimeout(function () { try { f.focus({ preventScroll: true }); } catch (x) { /* old browser */ } }, 400);
+    });
+    var tick = false;
+    function onScroll() { if (tick) return; tick = true; requestAnimationFrame(function () { tick = false; spy(); }); }
+    document.querySelector(".panel").addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    new MutationObserver(shown).observe($("results"), { attributes: true, attributeFilter: ["hidden"] });
+    shown();
+  })();
 
   // Step cards get a check mark once they have what they need.
   function updateSteps() {
@@ -614,7 +739,7 @@ require([
       if (searches[w]) { try { searches[w].clear(); } catch (e) { searches[w].searchTerm = ""; } }
     });
     clearHighlight();
-    routesLayer.removeAll();
+    routesLayer.removeAll(); if (cursorLayer) cursorLayer.removeAll(); if (previewLayer) clearPreview();
     freeGraphic = null;
     freeTraffic = [];
     if (tollLayer) { map.remove(tollLayer); tollLayer = null; }
@@ -1769,7 +1894,11 @@ require([
       legendH = iy + 8;
     }
     svg = svg.replace('viewBox="0 0 ' + W + ' ' + H0 + '"', 'viewBox="0 0 ' + W + " " + legendH + '"');
+    // Slide along a line: a target follows on the map (pointer-events off so dots still tap).
+    svg += '<g class="tc-cursor" visibility="hidden"><line class="tc-cur-line" x1="0" x2="0"/><circle class="tc-cur-dot" r="6"/>' +
+      '<text class="tc-cur-label" y="0"></text></g>';
     svg += "</svg>";
+    box._geo = { W: W, X0: X0, X1: X1, yT: yT, yF: yF };
     if (multi) svg += '<p class="tc-note tc-agencies">' + esc(tr("Tolls by agency:")) + " " +
       ags.map(function (g) { return "<b>" + esc(g.short) + "</b> " + fmtMoney(g.total) + (g.missing ? "+" : ""); }).join(" \u00b7 ") + "</p>";
     // Long stretches with no turn get one average speed from Esri: say why they aren't colored.
@@ -1797,21 +1926,98 @@ require([
     var row = document.querySelector('#breakdown tr[data-i="' + i + '"]');
     highlightItem(i, row, "chart");
   }
+  // Trip chart scrubbing: sliding along the toll or toll-free line moves a target to the same
+  // spot (by distance along the route) on that route on the map.
+  var cursorLayer = new GraphicsLayer({ listMode: "hide" });
+  map.add(cursorLayer);
+  var scrub = { route: null, hideTimer: null };
+  function routeLine(which) {
+    var r = lastTrip && (which === "toll" ? lastTrip.tollRoute : lastTrip.freeRoute);
+    if (!r) return null;
+    if (!r._line) { var path = [].concat.apply([], r.geometry.paths); r._line = { path: path, meters: window.TollCalc.pathMeters(path) }; }
+    return r._line;
+  }
+  function scrubAt(e) {
+    var box = $("trip-chart"), svg = box.querySelector("svg"), g = box._geo;
+    if (!svg || !g || !lastTrip) return false;
+    var rc = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+    var x = (e.clientX - rc.left) * vb.width / rc.width, y = (e.clientY - rc.top) * vb.height / rc.height;
+    var which = Math.abs(y - g.yT) <= Math.abs(y - g.yF) ? "toll" : "free", ly = which === "toll" ? g.yT : g.yF;
+    if (Math.abs(y - ly) > 30 || x < g.X0 - 10 || x > g.X1 + 10) return false;
+    // Same placement as the toll dots: the line's ends hold S and E, so 14 px in from each end.
+    var a = g.X0 + 14, b = g.X1 - 14, frac = Math.min(1, Math.max(0, (x - a) / (b - a)));
+    var cx = a + (b - a) * frac, line = routeLine(which);
+    if (!line || !(line.meters > 0)) return false;
+    var pt = window.TollCalc.pointAt(line.path, frac * line.meters);
+    if (!pt) return false;
+    var cur = svg.querySelector(".tc-cursor");
+    cur.setAttribute("visibility", "visible");
+    cur.setAttribute("class", "tc-cursor " + which);
+    var ln = cur.querySelector(".tc-cur-line"), dot = cur.querySelector(".tc-cur-dot"), lab = cur.querySelector(".tc-cur-label");
+    ln.setAttribute("x1", cx.toFixed(1)); ln.setAttribute("x2", cx.toFixed(1)); ln.setAttribute("y1", ly - 16); ln.setAttribute("y2", ly + 16);
+    dot.setAttribute("cx", cx.toFixed(1)); dot.setAttribute("cy", ly);
+    var miles = frac * line.meters / 1609.344;
+    lab.textContent = L("{miles} mi", { miles: miles < 10 ? miles.toFixed(1) : Math.round(miles) });
+    lab.setAttribute("x", Math.min(g.W - 22, Math.max(22, cx)).toFixed(1)); lab.setAttribute("y", ly - 20);
+    var color = which === "toll" ? [26, 115, 232] : [80, 77, 87];
+    var at = new Point({ longitude: pt[0], latitude: pt[1] });
+    cursorLayer.removeAll();
+    cursorLayer.addMany([
+      new Graphic({ geometry: at, symbol: { type: "simple-marker", size: 26, color: [255, 255, 255, 0.35], outline: { color: color.concat(1), width: 2.5 } } }),
+      new Graphic({ geometry: at, symbol: { type: "simple-marker", style: "cross", size: 34, outline: { color: color.concat(0.9), width: 1.5 } } }),
+      new Graphic({ geometry: at, symbol: { type: "simple-marker", size: 8, color: color.concat(1), outline: { color: [255, 255, 255, 1], width: 1.5 } } })
+    ]);
+    return true;
+  }
+  function scrubHide(delay) {
+    clearTimeout(scrub.hideTimer);
+    scrub.hideTimer = setTimeout(function () {
+      cursorLayer.removeAll();
+      var c = document.querySelector("#trip-chart .tc-cursor");
+      if (c) c.setAttribute("visibility", "hidden");
+    }, delay || 0);
+  }
+  $("trip-chart").addEventListener("pointermove", function (e) {
+    if (e.pointerType === "touch" && !scrub.touch) return;
+    clearTimeout(scrub.hideTimer);
+    if (!scrubAt(e)) scrubHide(0);
+  });
+  $("trip-chart").addEventListener("pointerdown", function (e) {
+    if (e.pointerType !== "touch") return;
+    scrub.touch = true; clearTimeout(scrub.hideTimer); scrubAt(e);
+  });
+  ["pointerup", "pointercancel"].forEach(function (t) {
+    $("trip-chart").addEventListener(t, function (e) { if (e.pointerType === "touch") { scrub.touch = false; scrubHide(2500); } });
+  });
+  $("trip-chart").addEventListener("pointerleave", function (e) { if (e.pointerType !== "touch") scrubHide(0); });
   $("trip-chart").addEventListener("click", chartPick);
   $("trip-chart").addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); chartPick(e); } });
 
   // ---- Trip extras: fuel estimate, commute cost, best time to leave, share ----
   // Fuel: miles per gallon and price per gallon start from defaults for the vehicle class and
   // can be changed (kept in this browser).
+  // The fuel settings in use: the active saved vehicle's (if it matches the trip's size),
+  // otherwise what was set for this vehicle size, otherwise the defaults.
+  function fuelVehicle(axles) { var v = vehicles[activeVehicle]; return v && v.axles === axles ? v : null; }
   function fuelSettings() {
     var axles = lastTrip ? lastTrip.trip.axles : parseInt($("axles").value, 10);
-    var d = window.TollCalc.fuelDefaults(axles), all = fuelStore(), o = all[axles] || {};
-    return { axles: axles, mpg: o.mpg > 0 ? o.mpg : d.mpg, price: o.price > 0 ? o.price : d.price, fuel: d.fuel, custom: !!(o.mpg || o.price) };
+    var d = window.TollCalc.fuelDefaults(axles), v = fuelVehicle(axles), o = v || fuelStore()[axles] || {};
+    var fuel = o.fuel === "diesel" || o.fuel === "regular" ? o.fuel : d.fuel;
+    return { axles: axles, mpg: o.mpg > 0 ? +o.mpg : d.mpg, price: o.price > 0 ? +o.price : window.TollCalc.FUEL_PRICES[fuel], fuel: fuel,
+      custom: !!(o.mpg || o.price || fuel !== d.fuel), vehicle: v };
   }
-  // Changes are kept per vehicle size (axles), so a truck's mpg doesn't change a car's.
+  // Changes are kept with the active saved vehicle, or else per vehicle size (axles), so a
+  // truck's mpg doesn't change a car's.
   function fuelStore() { try { return JSON.parse(localStorage.getItem("htc-fuel") || "{}") || {}; } catch (e) { return {}; } }
   function saveFuel(o) {
-    var all = fuelStore(), axles = fuelSettings().axles;
+    var fs = fuelSettings(), axles = fs.axles;
+    if (fs.vehicle) {
+      fs.vehicle.fuel = o && o.fuel || null; fs.vehicle.mpg = o && o.mpg || null; fs.vehicle.price = o && o.price || null;
+      saveList("vehicles", vehicles);
+      if ($("vehicles-dialog").open) renderVehicleDialog();
+      return;
+    }
+    var all = fuelStore();
     if (o) all[axles] = o; else delete all[axles];
     try { localStorage.setItem("htc-fuel", JSON.stringify(all)); } catch (e) { /* not kept */ }
   }
@@ -1851,9 +2057,12 @@ require([
         '<span class="fuel-basis print-only">' + esc(L("Based on {mpg} mpg and {price} a gallon ({fuel}).", { mpg: fs.mpg, price: fmtMoney(fs.price), fuel: L(fs.fuel) })) + "</span>";
     }
     $("fuel-line").innerHTML = line;
-    $("fuel-price-label").textContent = L("Fuel price per gallon");
-    var def = window.TollCalc.fuelDefaults(lastTrip ? lastTrip.trip.axles : 2);
-    $("fuel-hint").textContent = L("Change these to match your vehicle. Defaults for {n} axles: {mpg} mpg, {price}/gal {fuel}.", { n: lastTrip ? lastTrip.trip.axles : 2, mpg: def.mpg, price: fmtMoney(def.price), fuel: L(def.fuel) });
+    $("fuel-price-label").textContent = L(fs.fuel === "diesel" ? "Diesel price per gallon" : "Gas price per gallon");
+    var def = window.TollCalc.fuelDefaults(fs.axles);
+    $("fuel-hint").textContent = fs.vehicle
+      ? L("Saved with “{name}”: changes here update it.", { name: fs.vehicle.name })
+      : L("Change these to match your vehicle. Defaults for {n} axles: {mpg} mpg, {price}/gal {fuel}.", { n: fs.axles, mpg: def.mpg, price: fmtMoney(def.price), fuel: L(def.fuel) });
+    $("fuel-type").value = fs.fuel;
     $("fuel-mpg").value = fs.mpg; $("fuel-price").value = fs.price.toFixed(2);
     extrasState = { toll: priced.total, minutesSaved: minutesSaved(t, f, priced), fuelExtra: extra };
     if (!backTimeSet) setBackTime();
@@ -1967,11 +2176,15 @@ require([
   });
   $("commute-days").addEventListener("change", renderCommute);
   $("commute-round").addEventListener("change", renderCommute);
-  function fuelEdited() {
+  function fuelEdited(e) {
+    var d = window.TollCalc.fuelDefaults(fuelSettings().axles), fuel = $("fuel-type").value;
     var mpg = parseFloat($("fuel-mpg").value), price = parseFloat($("fuel-price").value);
-    saveFuel({ mpg: mpg > 0 ? mpg : null, price: price > 0 ? price : null });
+    if (e && e.target && e.target.id === "fuel-type") price = NaN; // new fuel: its usual price
+    saveFuel({ fuel: fuel !== d.fuel ? fuel : null, mpg: mpg > 0 && mpg !== d.mpg ? mpg : null,
+      price: price > 0 && Math.abs(price - window.TollCalc.FUEL_PRICES[fuel]) > 0.001 ? price : null });
     if (lastTrip) renderExtras(routeStats(lastTrip.tollRoute), routeStats(lastTrip.freeRoute), lastTrip.priced);
   }
+  $("fuel-type").addEventListener("change", fuelEdited);
   $("fuel-mpg").addEventListener("change", fuelEdited);
   $("fuel-price").addEventListener("change", fuelEdited);
   $("fuel-reset").addEventListener("click", function () {
@@ -1979,23 +2192,152 @@ require([
     if (lastTrip) renderExtras(routeStats(lastTrip.tollRoute), routeStats(lastTrip.freeRoute), lastTrip.priced);
   });
 
-  // Best time to leave: the same trip leaving 30 minutes earlier through an hour later, in
-  // 15-minute steps (not before now). Each time is routed with that time's traffic and priced
-  // for it (time-of-day tolls). The toll route goes through the same tollway points as the
-  // trip shown, so it doesn't hop off at rush hour.
-  var bestRun = 0;
+  // Best time to leave: the same trip at other departure times in a window you set (by
+  // default 30 minutes before to an hour after the trip's time), every 15 minutes (30 or 60 for
+  // longer windows), skipping times already past. Each time is routed with that time's traffic
+  // and priced for it (time-of-day tolls). The toll route goes through the same tollway points
+  // as the trip shown, so it doesn't hop off at rush hour. Tap a time to preview its toll route.
+  var bestRun = 0, btRows = [], btEdited = false, btPreview = -1;
+  function hhmm(d) { return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
+  function roundQuarter(d) { var x = new Date(d); x.setMinutes(Math.round(x.getMinutes() / 15) * 15, 0, 0); return x; }
+  function btDefaults(base) {
+    if (btEdited && $("bt-from").value && $("bt-to").value) return;
+    var b0 = roundQuarter(base);
+    $("bt-from").value = hhmm(new Date(b0.getTime() - 30 * 60000));
+    $("bt-to").value = hhmm(new Date(b0.getTime() + 60 * 60000));
+    btWindowHint();
+  }
+  // The times to check: on the trip's day, from "From" to "To" (past midnight if To is earlier).
+  function btTimes(base) {
+    var f = ($("bt-from").value || "").split(":"), t = ($("bt-to").value || "").split(":");
+    if (f.length < 2 || t.length < 2) return { times: [], step: 15 };
+    var from = new Date(base); from.setHours(+f[0], +f[1], 0, 0);
+    var to = new Date(base); to.setHours(+t[0], +t[1], 0, 0);
+    if (to <= from) to = new Date(to.getTime() + 864e5);
+    var span = Math.min((to - from) / 60000, 12 * 60), step = span <= 180 ? 15 : span <= 360 ? 30 : 60;
+    var out = [], now = Date.now();
+    for (var m = 0; m <= span + 0.5; m += step) {
+      var d = new Date(from.getTime() + m * 60000);
+      if (d.getTime() >= now - 60000 && Math.abs(d - base) >= 60000) out.push(d);
+    }
+    var inWindow = base >= from && base <= to;
+    return { times: out, step: step, picked: inWindow, capped: (to - from) / 60000 > 12 * 60 };
+  }
+  function btWindowHint() {
+    if (!lastTrip) { $("bt-window-hint").textContent = ""; return; }
+    var w = btTimes(new Date(lastTrip.trip.departure));
+    $("bt-window-hint").textContent = !w.times.length ? L("No times to check in that window (times already past are skipped).")
+      : L("Checks {n} times, every {step} minutes.", { n: w.times.length, step: w.step }) + (w.capped ? " " + L("Up to 12 hours.") : "");
+  }
+  ["bt-from", "bt-to"].forEach(function (id) {
+    $(id).addEventListener("change", function () { btEdited = true; btWindowHint(); });
+  });
+
+  // Preview of one time's toll route: dashed on the map over the dimmed trip, with a note on
+  // the map to use that time or go back.
+  var previewLayer = new GraphicsLayer({ listMode: "hide" });
+  map.add(previewLayer, map.layers.indexOf(cursorLayer));
+  var previewChip = document.createElement("div");
+  previewChip.className = "preview-chip";
+  previewChip.hidden = true;
+  previewChip.setAttribute("role", "status");
+  view.ui.add(previewChip, "manual");
+  function clearPreview() {
+    btPreview = -1;
+    previewLayer.removeAll();
+    previewChip.hidden = true;
+    routesLayer.opacity = 1;
+    if (tollLayer) tollLayer.opacity = 1;
+    Array.prototype.forEach.call(document.querySelectorAll("#best-time-out tr.bt-row"), function (r) { r.classList.remove("previewing"); r.setAttribute("aria-pressed", "false"); });
+    var d = document.querySelector("#best-time-out tr.bt-detail"); if (d) d.remove();
+  }
+  function useTime(d) {
+    clearPreview();
+    var pad = function (n) { return ("0" + n).slice(-2); };
+    $("leave").value = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + "T" + pad(d.getHours()) + ":" + pad(d.getMinutes());
+    track("best-time-use");
+    $("go").click();
+  }
+  // What changed from the trip shown: tolls added, dropped or priced differently.
+  function tollChanges(was, now) {
+    var A = {}, B = {}, out = [];
+    was.items.forEach(function (it) { A[it.point.id] = it; });
+    now.items.forEach(function (it) { B[it.point.id] = it; });
+    now.items.forEach(function (it) {
+      var o = A[it.point.id];
+      if (!o) out.push(L("{name}: {price} (not on your trip)", { name: it.point.name, price: it.rate == null ? "n/a" : fmtMoney(it.rate) }));
+      else if (o.rate != null && it.rate != null && Math.abs(o.rate - it.rate) > 0.005) out.push(L("{name}: {was} → {now}", { name: it.point.name, was: fmtMoney(o.rate), now: fmtMoney(it.rate) }));
+    });
+    was.items.forEach(function (it) { if (!B[it.point.id]) out.push(L("{name}: not on this route", { name: it.point.name })); });
+    return out;
+  }
+  function showPreview(k) {
+    var r = btRows[k];
+    if (!r || r.error || !lastTrip) return;
+    if (r.picked || btPreview === k) { clearPreview(); return; }
+    clearPreview();
+    btPreview = k;
+    track("best-time-preview");
+    routesLayer.opacity = 0.3;
+    if (tollLayer) tollLayer.opacity = 0.3;
+    previewLayer.addMany([
+      new Graphic({ geometry: r.route.geometry, symbol: { type: "simple-line", color: [255, 255, 255, 0.95], width: 9, cap: "round", join: "round" } }),
+      new Graphic({ geometry: r.route.geometry, symbol: { type: "simple-line", color: [102, 45, 145, 1], width: 5, style: "dash", cap: "butt", join: "round" } })
+    ]);
+    var tp = [].concat.apply([], r.route.geometry.paths), cur = [].concat.apply([], lastTrip.tollRoute.geometry.paths);
+    var differ = window.TollCalc.pathsDiffer(tp, cur);
+    var changes = tollChanges(lastTrip.priced, r.priced);
+    var when = fmtClock(r.at);
+    previewChip.innerHTML = '<p class="pc-h"><span class="pc-swatch" aria-hidden="true"></span>' + esc(L("Leaving {time}: toll route", { time: when })) + "</p>" +
+      '<p class="pc-m">' + esc(fmtTime(r.tollMin)) + " · " + fmtMoney(r.toll) + (r.plus ? "+" : "") + " · " +
+      esc(L(differ ? "different roads from your trip" : "same roads as your trip")) + "</p>" +
+      '<div class="pc-b"><button type="button" class="go small" data-use="' + k + '">' + esc(L("Use this time")) + "</button>" +
+      '<button type="button" class="btn-outline small" data-back="1">' + esc(L("Back to your trip")) + "</button></div>";
+    previewChip.hidden = false;
+    var row = document.querySelector('#best-time-out tr.bt-row[data-k="' + k + '"]');
+    if (row) {
+      row.classList.add("previewing"); row.setAttribute("aria-pressed", "true");
+      var det = document.createElement("tr");
+      det.className = "bt-detail";
+      det.innerHTML = '<td colspan="5"><p>' + esc(L(differ ? "The dashed line on the map is a different route from your trip's." : "Same roads as your trip; the dashed line on the map is this time's route.")) + "</p>" +
+        (changes.length ? '<ul class="bt-changes">' + changes.slice(0, 6).map(function (c) { return "<li>" + esc(c) + "</li>"; }).join("") + "</ul>"
+          : "<p>" + esc(L("Same tolls as your trip.")) + "</p>") +
+        '<div class="pc-b"><button type="button" class="go small" data-use="' + k + '">' + esc(L("Use this time")) + "</button>" +
+        '<button type="button" class="btn-outline small" data-back="1">' + esc(L("Back to your trip")) + "</button></div></td>";
+      row.parentNode.insertBefore(det, row.nextSibling);
+    }
+    if (window.matchMedia("(max-width: 760px)").matches) $("map").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  function previewAction(e) {
+    var u = e.target.closest("[data-use]");
+    if (u) { e.stopPropagation(); var r = btRows[+u.getAttribute("data-use")]; if (r) useTime(r.at); return true; }
+    if (e.target.closest("[data-back]")) { e.stopPropagation(); clearPreview(); return true; }
+    return false;
+  }
+  previewChip.addEventListener("click", previewAction);
+  $("best-time-out").addEventListener("click", function (e) {
+    if (previewAction(e)) return;
+    var row = e.target.closest("tr.bt-row");
+    if (row) showPreview(+row.getAttribute("data-k"));
+  });
+  $("best-time-out").addEventListener("keydown", function (e) {
+    var row = e.target.closest("tr.bt-row");
+    if (row && e.target === row && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); showPreview(+row.getAttribute("data-k")); }
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && btPreview >= 0) clearPreview(); });
+
   $("best-time").addEventListener("click", function () {
     track("best-time");
     if (!lastTrip) return;
-    var run = ++bestRun, base = new Date(lastTrip.trip.departure), now = Date.now();
-    // 30 minutes earlier to an hour later in 15-minute steps; times already past are skipped,
-    // and then later times fill in so there are still seven.
-    var times = [-30, -15, 0, 15, 30, 45, 60, 75, 90, 105].map(function (m) { return new Date(base.getTime() + m * 60000); })
-      .filter(function (d) { return d.getTime() >= now - 60000 || Math.abs(d - base) < 60000; }).slice(0, 7);
+    clearPreview();
+    var run = ++bestRun, base = new Date(lastTrip.trip.departure);
+    var w = btTimes(base), times = w.times.slice();
+    if (w.picked) times.push(base);
     var tollRoute = lastTrip.tollRoute, freeRoute = lastTrip.freeRoute, trip = lastTrip.trip;
     var via = tollRoute.anchors || null, out = $("best-time-out"), btn = $("best-time");
+    if (!w.times.length) { out.innerHTML = '<p class="hint">' + esc(L("No times to check in that window (times already past are skipped).")) + "</p>"; return; }
     btn.disabled = true; $("back-go").disabled = true;
-    var todo = times.length - 1, done = 0;
+    var todo = w.times.length, done = 0;
     out.innerHTML = '<div class="busy-line">' + spinner() + "<span>" + esc(L("Checking {n} departure times…", { n: todo })) +
       ' <span class="busy-count" id="bt-count"></span></span></div><div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="' + todo +
       '" aria-valuenow="0" aria-label="' + esc(L("Departure times checked")) + '"><span id="bt-bar"></span></div>';
@@ -2011,7 +2353,7 @@ require([
     times.forEach(function (d) {
       chain = chain.then(function () {
         if (run !== bestRun) return;
-        if (Math.abs(d - base) < 60000) {
+        if (d === base) {
           // The time you picked: the trip already shown, so the row matches it exactly.
           var ts0 = routeStats(tollRoute), fs0 = routeStats(freeRoute);
           rows.push({ at: d, picked: true, tollMin: ts0.minutes, toll: lastTrip.priced.total,
@@ -2027,7 +2369,8 @@ require([
           var priced = window.TollCalc.analyzeTrip(Object.assign({}, trip, { tollPath: tp, freePath: [].concat.apply([], r[1].geometry.paths),
             steps: r[0].steps || null, departure: d.toISOString(), routeMinutes: ts.minutes }), tollPoints).priced;
           var hop = window.TollCalc.findTollwayHops(r[0].steps).length > 0;
-          rows.push({ at: d, tollMin: ts.minutes, toll: priced.total, plus: priced.pending.length || priced.missing.length, freeMin: fs.minutes, hop: hop });
+          rows.push({ at: d, tollMin: ts.minutes, toll: priced.total, plus: priced.pending.length || priced.missing.length, freeMin: fs.minutes, hop: hop,
+            route: r[0], priced: priced });
         }).catch(function () { rows.push({ at: d, error: true }); }).then(function () { if (run === bestRun) tick(); });
       });
     });
@@ -2036,6 +2379,7 @@ require([
       btn.disabled = false; $("back-go").disabled = false;
       if (run !== bestRun) return;
       rows.sort(function (x, y) { return x.at - y.at; });
+      btRows = rows;
       var ok = rows.filter(function (r) { return !r.error; });
       var fastest = ok.reduce(function (b, r) { return !b || r.tollMin < b.tollMin ? r : b; }, null);
       var cheapest = ok.reduce(function (b, r) { return !b || r.toll < b.toll - 0.005 ? r : b; }, null);
@@ -2043,16 +2387,17 @@ require([
       if (fastest && !ok.some(function (r) { return r.tollMin - fastest.tollMin >= 1; })) fastest = null; // no real difference
       var anyHop = ok.some(function (r) { return r.hop; });
       out.innerHTML = '<table class="best-time"><thead><tr><th>' + L("Leave") + '</th><th class="n">' + L("Toll route") + '</th><th class="n">' + L("Toll") + '</th><th class="n">' + L("Toll-free") + '</th><th class="n">' + L("Saves") + "</th></tr></thead><tbody>" +
-        rows.map(function (r) {
+        rows.map(function (r, k) {
           if (r.error) return "<tr><td>" + esc(fmtClock(r.at)) + '</td><td colspan="4">' + L("Couldn’t check this time") + "</td></tr>";
           var save = r.freeMin - r.tollMin;
-          return '<tr class="' + (r.picked ? "chosen" : "") + '"><td>' + esc(fmtClock(r.at)) +
+          return '<tr class="bt-row' + (r.picked ? " chosen" : "") + '" data-k="' + k + '"' + (r.picked ? "" : ' tabindex="0" role="button" aria-pressed="false" aria-label="' +
+            esc(L("Show the {time} toll route on the map", { time: fmtClock(r.at) })) + '"') + "><td>" + esc(fmtClock(r.at)) +
             (r.picked ? '<span class="tag picked">' + L("Your time") + "</span>" : "") +
             (r === fastest ? '<span class="tag">' + L("Fastest") + "</span>" : "") + (!sameToll && r === cheapest ? '<span class="tag cheap">' + L("Cheapest") + "</span>" : "") +
             '</td><td class="n">' + esc(fmtTime(r.tollMin)) + '</td><td class="n">' + fmtMoney(r.toll) + (r.plus ? "+" : "") + (r.hop ? " *" : "") +
-            '</td><td class="n">' + esc(fmtTime(r.freeMin)) + '</td><td class="n">' + (save >= 1 ? esc(fmtTime(save)) : "\u2014") + "</td></tr>";
+            '</td><td class="n">' + esc(fmtTime(r.freeMin)) + '</td><td class="n">' + (save >= 1 ? esc(fmtTime(save)) : "—") + "</td></tr>";
         }).join("") + "</tbody></table>" +
-        '<p class="hint">' + L("Live traffic up to about 4 hours ahead; later times use typical traffic for that day and time.") +
+        '<p class="hint">' + L("Tap a time to see its toll route on the map.") + " " + L("Live traffic up to about 4 hours ahead; later times use typical traffic for that day and time.") +
         (sameToll ? L(" Tolls on this route don’t change with the time of day.") : "") +
         (anyHop ? " " + L("* Esri’s route leaves the tollway at this time, so this toll may be low.") : "") + "</p>";
     });
@@ -2812,6 +3157,7 @@ require([
     var result = window.TollCalc.analyzeTrip(trip, tollPoints);
     var priced = result.priced;
     lastTrip = { trip: trip, tollRoute: tollRoute, freeRoute: freeRoute, priced: priced };
+    btWindowHint();
     if (DEBUG) showDebug(tollRoute, trip.tollPath, result.rampZones, result.crossings, result.dropped);
     drawCrossings(priced.items);
     var savings = null;
@@ -2987,6 +3333,8 @@ require([
     lookupLog = { t0: performance.now(), list: [], pageMs: performance.now() };
     departure = readDeparture();
     bestRun++;
+    clearPreview(); btRows = [];
+    btDefaults(departure);
     $("best-time-out").innerHTML = "";
     $("best-time").disabled = false;
     $("go").disabled = true;

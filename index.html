@@ -29,6 +29,17 @@
     <aside class="panel">
       <p class="sub">See what the tolls cost on the fastest route, and how much time they save over a toll-free route.</p>
 
+      <nav class="jump" id="jump" aria-label="Jump to a section">
+        <button type="button" data-to="step-trip">Trip</button>
+        <button type="button" data-to="step-vehicle">Vehicle</button>
+        <button type="button" data-to="results" data-need="results">Results</button>
+        <button type="button" data-to="trip-chart" data-need="results">Chart</button>
+        <button type="button" data-to="breakdown-wrap" data-need="results">Tolls</button>
+        <button type="button" data-to="commute-wrap" data-need="results">Gas</button>
+        <button type="button" data-to="best-time-wrap" data-need="results">Best time</button>
+        <button type="button" data-to="map" class="phone-only">Map</button>
+      </nav>
+
       <div id="key-warning" class="notice warn" hidden>
         No ArcGIS API key yet. Add it as the ARCGIS_API_KEY secret on GitHub to turn on the map, address search and routing.
       </div>
@@ -177,6 +188,7 @@
           <div class="gas-box">
             <p class="fuel-line" id="fuel-line"></p>
             <div class="fuel-edit" id="fuel-edit">
+              <label>Fuel <select id="fuel-type"><option value="regular">Gas</option><option value="diesel">Diesel</option></select></label>
               <label>Miles per gallon <input type="number" id="fuel-mpg" min="3" max="80" step="0.5" inputmode="decimal"></label>
               <label><span id="fuel-price-label">Fuel price per gallon</span> <input type="number" id="fuel-price" min="1" max="15" step="0.01" inputmode="decimal"></label>
               <button type="button" id="fuel-reset" class="pick">Use defaults</button>
@@ -196,8 +208,13 @@
         </details>
         <details id="best-time-wrap" class="extra">
           <summary>Best time to leave</summary>
-          <p class="hint">Compare leaving earlier or later: trip time, tolls and time saved for each. Uses about a dozen route lookups.</p>
-          <button type="button" id="best-time" class="btn-outline">Compare departure times</button>
+          <p class="hint">Compare leaving at other times: trip time, tolls and time saved for each. Tap a time to see its toll route on the map.</p>
+          <div class="bt-window">
+            <label>From <input type="time" id="bt-from" step="900"></label>
+            <label>To <input type="time" id="bt-to" step="900"></label>
+            <button type="button" id="best-time" class="btn-outline">Compare departure times</button>
+          </div>
+          <p class="hint" id="bt-window-hint"></p>
           <div id="best-time-out"></div>
         </details>
         <p class="rates-asof" id="rates-asof" hidden></p>
@@ -229,6 +246,61 @@
     <p class="hint">Saved vehicles are kept in this browser only.</p>
     <ul id="vehicle-list" class="saved-list"></ul>
     <div class="dialog-actions"><button type="button" id="vehicles-done" class="go">Done</button></div>
+  </dialog>
+
+  <dialog id="vehicle-edit" class="places-dialog vehicle-edit" aria-labelledby="ve-title">
+    <form method="dialog" id="ve-form" novalidate>
+      <h2 id="ve-title">Save vehicle</h2>
+      <p class="hint" id="ve-sub">Kept in this browser only.</p>
+      <div class="ve-field">
+        <label for="ve-name">Name</label>
+        <input type="text" id="ve-name" maxlength="40" autocomplete="off" required>
+        <p class="ve-error" id="ve-name-error" hidden>Give the vehicle a name.</p>
+      </div>
+      <div class="ve-field">
+        <label for="ve-axles">Vehicle</label>
+        <select id="ve-axles">
+          <option value="2">2 axles (car, SUV)</option>
+          <option value="3">3 axles</option>
+          <option value="4">4 axles</option>
+          <option value="5">5 axles (18-wheeler)</option>
+          <option value="6">6 axles</option>
+          <option value="7">7 axles</option>
+          <option value="8">8 or more axles</option>
+        </select>
+      </div>
+      <fieldset class="pay ve-field">
+        <legend>How do you pay tolls?</legend>
+        <div class="pay-options">
+          <input type="radio" name="ve-pay" id="ve-pay-eztag" value="eztag"><label for="ve-pay-eztag">EZ TAG</label>
+          <input type="radio" name="ve-pay" id="ve-pay-tag" value="tag"><label for="ve-pay-tag">Other tag<small>TxTag, TollTag</small></label>
+          <input type="radio" name="ve-pay" id="ve-pay-notag" value="notag"><label for="ve-pay-notag">No tag<small>Pay by mail</small></label>
+        </div>
+      </fieldset>
+      <label class="ve-check"><input type="checkbox" id="ve-carpool"> Carpool (2+) or motorcycle</label>
+      <fieldset class="pay ve-field">
+        <legend>Fuel</legend>
+        <div class="pay-options two">
+          <input type="radio" name="ve-fuel" id="ve-fuel-regular" value="regular"><label for="ve-fuel-regular">Gas</label>
+          <input type="radio" name="ve-fuel" id="ve-fuel-diesel" value="diesel"><label for="ve-fuel-diesel">Diesel</label>
+        </div>
+      </fieldset>
+      <div class="ve-row">
+        <div class="ve-field">
+          <label for="ve-mpg">Miles per gallon</label>
+          <input type="number" id="ve-mpg" min="3" max="80" step="0.5" inputmode="decimal">
+        </div>
+        <div class="ve-field">
+          <label for="ve-price" id="ve-price-label">Gas price per gallon</label>
+          <input type="number" id="ve-price" min="1" max="15" step="0.01" inputmode="decimal">
+        </div>
+      </div>
+      <p class="hint" id="ve-fuel-hint"></p>
+      <div class="dialog-actions two">
+        <button type="button" id="ve-cancel" class="btn-outline">Cancel</button>
+        <button type="submit" id="ve-save" class="go">Save</button>
+      </div>
+    </form>
   </dialog>
 
   <script src="config.js"></script>

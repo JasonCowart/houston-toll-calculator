@@ -42,6 +42,9 @@
     if (mq.addEventListener) mq.addEventListener("change", onDevice); else if (mq.addListener) mq.addListener(onDevice);
   }
   apply();
+  // Open at the top every time: browsers otherwise jump back to where you were last (often the
+  // map at the bottom on phones). A shared trip still scrolls to its results.
+  try { if ("scrollRestoration" in history) history.scrollRestoration = "manual"; } catch (e) { /* old browser */ }
   root.Theme = {
     get mode() { return mode; },
     get theme() { return resolved(); },

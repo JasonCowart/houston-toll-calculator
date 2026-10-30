@@ -3387,7 +3387,10 @@ require([
       if (window.innerWidth > 760) { // desktop: scroll the panel only (not the page, which would shake)
         var panel = document.querySelector(".panel"), bar = $("jump");
         panel.scrollTo({ top: panel.scrollTop + h.getBoundingClientRect().top - panel.getBoundingClientRect().top - (bar ? bar.offsetHeight + 8 : 0), behavior: calm ? "auto" : "smooth" });
-      } else h.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+      } else { // phone: the page scrolls; stop just below the pinned section bar
+        var jb = $("jump"), gap = jb && jb.offsetHeight ? jb.offsetHeight + 8 : 8;
+        window.scrollTo({ top: Math.max(0, h.getBoundingClientRect().top + window.scrollY - gap), behavior: calm ? "auto" : "smooth" });
+      }
       try { $("headline").focus({ preventScroll: true }); } catch (e) {} // screen readers hear the result
     });
   }

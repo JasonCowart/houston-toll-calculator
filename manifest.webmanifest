@@ -1,5 +1,5 @@
 {
-  "name": "HCTRA Toll Calculator",
+  "name": "Toll Calculator",
   "short_name": "Toll Calc",
   "description": "Estimate Houston-area tolls for your trip and compare with a toll-free route.",
   "start_url": "./",

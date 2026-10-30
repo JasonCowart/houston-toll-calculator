@@ -1,8 +1,8 @@
-/* Tiếng Việt (Vietnamese) for the HCTRA Toll Calculator, loaded by js/lang.js when picked.
+/* Tiếng Việt (Vietnamese) for the Toll Calculator, loaded by js/lang.js when picked.
    Keys are the English text (the list in js/lang.js's ES). Draft translations: have a native
    speaker review them. A missing key shows in English. */
 window.I18N && window.I18N.add("vi", {
-  "HCTRA Toll Calculator": "Máy tính phí cầu đường HCTRA",
+  "Toll Calculator": "Máy tính phí cầu đường",
   "See what the tolls cost on the fastest route, and how much time they save over a toll-free route.": "Xem phí cầu đường trên tuyến nhanh nhất là bao nhiêu, và tiết kiệm được bao nhiêu thời gian so với tuyến không thu phí.",
   "No ArcGIS API key yet. Add it as the ARCGIS_API_KEY secret on GitHub to turn on the map, address search and routing.": "Chưa có khóa ArcGIS API. Thêm khóa làm secret ARCGIS_API_KEY trên GitHub để bật bản đồ, tìm địa chỉ và chỉ đường.",
   "Your trip": "Chuyến đi của bạn",

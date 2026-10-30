@@ -1,4 +1,4 @@
-/* Light / dark theme for the HCTRA Toll Calculator.
+/* Light / dark theme for the Toll Calculator.
    Mode is "auto" (follow the device), "light" or "dark", kept in this browser. The resolved
    theme is set as <html data-theme="light|dark"> before the page draws (this file loads in the
    head), so there's no white flash at night. Esri's map controls switch theme too.

@@ -1,8 +1,8 @@
-/* 简体中文 (Simplified Chinese) for the HCTRA Toll Calculator, loaded by js/lang.js when picked.
+/* 简体中文 (Simplified Chinese) for the Toll Calculator, loaded by js/lang.js when picked.
    Keys are the English text (the list in js/lang.js's ES). Draft translations: have a native
    speaker review them. A missing key shows in English. */
 window.I18N && window.I18N.add("zh-Hans", {
-  "HCTRA Toll Calculator": "HCTRA 通行费计算器",
+  "Toll Calculator": "通行费计算器",
   "See what the tolls cost on the fastest route, and how much time they save over a toll-free route.": "查看最快路线的通行费是多少，以及与免费路线相比能节省多少时间。",
   "No ArcGIS API key yet. Add it as the ARCGIS_API_KEY secret on GitHub to turn on the map, address search and routing.": "尚未设置 ArcGIS API 密钥。请在 GitHub 中将其添加为 ARCGIS_API_KEY 机密，以启用地图、地址搜索和路线规划。",
   "Your trip": "您的行程",

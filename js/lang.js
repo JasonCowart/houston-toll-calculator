@@ -1,4 +1,4 @@
-/* Languages for the HCTRA Toll Calculator: English, Español, Tiếng Việt, 简体中文, 繁體中文.
+/* Languages for the Toll Calculator: English, Español, Tiếng Việt, 简体中文, 繁體中文.
    I18N.t("English text with {name}", { name: ... }) returns the text in the language that's on.
    Fixed page text is swapped in place by I18N.apply(); the app re-renders what it builds.
    Spanish is in this file (the key list: every translatable string is a key in ES). Vietnamese and
@@ -9,7 +9,7 @@
   "use strict";
   var ES = {
     // ---- page ----
-    "HCTRA Toll Calculator": "Calculadora de peajes de HCTRA",
+    "Toll Calculator": "Calculadora de peajes",
     "See what the tolls cost on the fastest route, and how much time they save over a toll-free route.":
       "Vea cuánto cuestan los peajes en la ruta más rápida y cuánto tiempo ahorran frente a una ruta sin peaje.",
     "No ArcGIS API key yet. Add it as the ARCGIS_API_KEY secret on GitHub to turn on the map, address search and routing.":
@@ -440,7 +440,7 @@
       });
     });
     document.documentElement.lang = lang;
-    document.title = t("HCTRA Toll Calculator");
+    document.title = t("Toll Calculator");
   }
 
   // Vietnamese and Chinese load when first picked, from the same folder and version as this file.

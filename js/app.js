@@ -1,4 +1,4 @@
-/* HCTRA Toll Calculator: map, address search, routing and results. */
+/* Toll Calculator: map, address search, routing and results. */
 require([
   "esri/config",
   "esri/Map",
@@ -2609,7 +2609,7 @@ require([
     if (!lastTrip) return;
     var url = shareUrl(), text = $("headline-big").textContent;
     if (navigator.share) {
-      navigator.share({ title: L("HCTRA Toll Calculator"), text: text, url: url }).catch(function () { /* closed */ });
+      navigator.share({ title: L("Toll Calculator"), text: text, url: url }).catch(function () { /* closed */ });
     } else if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(function () { setStatus(L("Link copied. Paste it anywhere to share this trip.")); },
         function () { window.prompt(L("Copy this link:"), url); });
@@ -2816,7 +2816,7 @@ require([
       d.line(M + 22 + lw, y + 8, M + 22 + lw, y + 28, { color: "#a585c2", lineWidth: 0.75 });
       tx = M + 32 + lw;
     }
-    d.text(tx, y + 23, L("HCTRA Toll Calculator"), { size: 14, bold: true, color: "#ffffff" });
+    d.text(tx, y + 23, L("Toll Calculator"), { size: 14, bold: true, color: "#ffffff" });
     y += 48;
     // Trip details on the left, the map on the right.
     var mapW = 228, mapH = mapW * SHOT_H / SHOT_W, leftW = R - M - mapW - 14, top = y;

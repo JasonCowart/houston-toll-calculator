@@ -2544,6 +2544,8 @@ require([
           effects: [{ type: "CIMGeometricEffectDashes", dashTemplate: [3, 2.5], lineDashEnding: "NoConstraint" }] }] } } } })
     ]);
     previewLayer.addMany(previewTollMarks(lastTrip.priced, r.priced));
+    // Under the start, end and stop pins, so they stay on top of the dashed route.
+    map.reorder(previewLayer, Math.max(0, map.layers.indexOf(markersLayer)));
     var changes = tollChanges(lastTrip.priced, r.priced);
     var when = fmtClock(r.at);
     previewChip.innerHTML = '<p class="pc-h"><span class="pc-swatch" aria-hidden="true"></span>' + esc(L("Leaving {time}: toll route", { time: when })) + "</p>" +

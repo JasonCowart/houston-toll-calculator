@@ -2471,7 +2471,8 @@ require([
     previewLayer.removeAll();
     previewChip.hidden = true;
     routesLayer.opacity = 1;
-    if (tollLayer) tollLayer.opacity = 1;
+    if (tollLayer) tollLayer.visible = true;
+    tollFallback.visible = true;
     Array.prototype.forEach.call(document.querySelectorAll("#best-time-out tr.bt-row"), function (r) { r.classList.remove("previewing"); r.setAttribute("aria-pressed", "false"); });
     var d = document.querySelector("#best-time-out tr.bt-detail"); if (d) d.remove();
   }
@@ -2495,6 +2496,33 @@ require([
     was.items.forEach(function (it) { if (!B[it.point.id]) out.push(L("{name}: not on this route", { name: it.point.name })); });
     return out;
   }
+  // Toll dots for a previewed route: its tolls in purple (yellow ring and "new" when your trip
+  // doesn't pass them; "was → now" when the price differs), and your trip's tolls it skips as
+  // gray rings.
+  function previewTollMarks(was, now) {
+    var A = {}, B = {}, out = [];
+    was.items.forEach(function (it) { A[it.point.id] = it; });
+    now.items.forEach(function (it) { B[it.point.id] = it; });
+    function label(pt, text, color, xo) {
+      return new Graphic({ geometry: pt, symbol: { type: "text", text: text, color: color, haloColor: [255, 255, 255], haloSize: 1.5,
+        xoffset: xo, yoffset: -4, horizontalAlignment: "left", font: { size: 11, weight: "bold" } } });
+    }
+    was.items.forEach(function (it) {
+      if (B[it.point.id]) return;
+      var pt = new Point({ longitude: it.point.lon, latitude: it.point.lat });
+      out.push(new Graphic({ geometry: pt, symbol: { type: "simple-marker", size: 10, color: [255, 255, 255, 0.9], outline: { color: [120, 116, 128], width: 2 } } }));
+      out.push(label(pt, shortName(it.point.name) + " · " + L("skipped"), [95, 90, 102], 9));
+    });
+    now.items.forEach(function (it) {
+      var o = A[it.point.id], pt = new Point({ longitude: it.point.lon, latitude: it.point.lat });
+      var price = it.rate == null ? "n/a" : fmtMoney(it.rate);
+      if (!o) out.push(new Graphic({ geometry: pt, symbol: { type: "simple-marker", size: 17, color: [255, 229, 18], outline: { color: [102, 45, 145], width: 1.5 } } }));
+      out.push(new Graphic({ geometry: pt, symbol: { type: "simple-marker", size: 9, color: it.rate == null ? COLORS.missing : COLORS.toll, outline: { color: [255, 255, 255], width: 1.5 } } }));
+      var text = shortName(it.point.name) + " " + (o && o.rate != null && it.rate != null && Math.abs(o.rate - it.rate) > 0.005 ? fmtMoney(o.rate) + " \u2192 " + price : price) + (o ? "" : " · " + L("new"));
+      out.push(label(pt, text, [47, 26, 80], o ? 8 : 11));
+    });
+    return out;
+  }
   function showPreview(k) {
     var r = btRows[k];
     if (!r || r.error || !lastTrip) return;
@@ -2503,7 +2531,10 @@ require([
     btPreview = k;
     track("best-time-preview");
     routesLayer.opacity = 0.3;
-    if (tollLayer) tollLayer.opacity = 0.3;
+    // Your trip's toll dots are hidden while previewing; this route's own tolls are drawn on top
+    // of its dashed line instead, marked where they differ from your trip.
+    if (tollLayer) tollLayer.visible = false;
+    tollFallback.visible = false;
     previewLayer.addMany([
       new Graphic({ geometry: r.route.geometry, symbol: { type: "simple-line", color: [255, 255, 255, 0.9], width: 6, cap: "round", join: "round" } }),
       // Same dashes as the toll-free line, in purple.
@@ -2512,11 +2543,14 @@ require([
           capStyle: "Butt", joinStyle: "Round",
           effects: [{ type: "CIMGeometricEffectDashes", dashTemplate: [3, 2.5], lineDashEnding: "NoConstraint" }] }] } } } })
     ]);
+    previewLayer.addMany(previewTollMarks(lastTrip.priced, r.priced));
     var changes = tollChanges(lastTrip.priced, r.priced);
     var when = fmtClock(r.at);
     previewChip.innerHTML = '<p class="pc-h"><span class="pc-swatch" aria-hidden="true"></span>' + esc(L("Leaving {time}: toll route", { time: when })) + "</p>" +
       '<p class="pc-m">' + esc(fmtTime(r.tollMin)) + " · " + fmtMoney(r.toll) + (r.plus ? "+" : "") + " · " +
       esc(L("different roads from your trip")) + "</p>" +
+      '<p class="pc-key"><span class="pk pk-toll"></span>' + esc(L("Toll")) + '<span class="pk pk-new"></span>' + esc(L("New vs. your trip")) +
+        '<span class="pk pk-skip"></span>' + esc(L("Not on this route")) + "</p>" +
       '<div class="pc-b"><button type="button" class="go small" data-use="' + k + '">' + esc(L("Use this time")) + "</button>" +
       '<button type="button" class="btn-outline small" data-back="1">' + esc(L("Back to your trip")) + "</button></div>";
     previewChip.hidden = false;

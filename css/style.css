@@ -757,3 +757,9 @@ html:lang(zh-Hant) body, .lang-list [lang="zh-Hant"] { font-family: Montserrat, 
 .jump-flash { animation: jump-glow 1.8s ease-out; outline: 3px solid rgba(140, 92, 255, 0); outline-offset: 5px; border-radius: 8px; position: relative; z-index: 1; }
 @media (prefers-reduced-motion: reduce) { .jump-flash { animation: none; outline: 3px solid var(--violet-screen); outline-offset: 2px; } }
 @media print { .jump-flash { animation: none !important; box-shadow: none !important; outline: 0 !important; } }
+.pc-key { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 11.5px; color: var(--gray); margin: 0 0 6px !important; }
+.pk { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-left: 6px; }
+.pk:first-child { margin-left: 0; }
+.pk-toll { background: var(--purple); border: 1.5px solid #fff; box-shadow: 0 0 0 1px var(--purple); }
+.pk-new { background: var(--purple); box-shadow: 0 0 0 3px var(--yellow); }
+.pk-skip { background: #fff; border: 2px solid #78748a; }

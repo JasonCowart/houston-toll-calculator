@@ -2778,7 +2778,8 @@ require([
     ["from", "to"].forEach(function (w, i) {
       var p = stops[w]; if (!p) return;
       q.set(i ? "e" : "s", p.longitude.toFixed(5) + "," + p.latitude.toFixed(5));
-      var label = searchesTerm(w); if (label) q.set(i ? "el" : "sl", label);
+      var label = (searchesTerm(w) || "").replace(/,\s*(USA|United States)$/i, ""); // shorter link and QR code
+      if (label) q.set(i ? "el" : "sl", label);
     });
     q.set("ax", t.axles); q.set("pay", t.payment); if (t.carpool) q.set("cp", "1");
     if ($("leave").value) q.set("t", $("leave").value);
@@ -2855,6 +2856,33 @@ require([
     rows.push([L("Departure"), when], [L("Vehicle"), (vName ? vName + " \u2014 " : "") + L("{n} axles", { n: t.axles }) + (t.carpool ? ", " + L("carpool") : "") + " · " + payName]);
     if (chosenVia()) rows.push([L("Toll road"), L("Use {road}", { road: tollwayName(viaChoice.road) })]);
     return { rows: rows, places: places };
+  }
+  // A QR code for a link (js/qr.js), as a grid: n x n, dark(row, col). Null if it can't be made.
+  function qrMatrix(text) {
+    try {
+      // The smallest size that holds the link, tried one by one: the library's own size picking
+      // gets a few lengths wrong (codes that won't scan), but each fixed size checks its room.
+      var Q = window.QRCodeLib, q = null;
+      for (var t = 1; t <= 40 && !q; t++) {
+        try { q = new Q.QRCode(t, Q.ErrorCorrectLevel.M); q.addData(text); q.make(); } catch (e) { q = null; }
+      }
+      if (!q) return null;
+      return { n: q.getModuleCount(), dark: function (r, c) { return q.isDark(r, c); } };
+    } catch (e) { return null; }
+  }
+  // The same QR code as an SVG picture, for Print.
+  function qrSvg(text) {
+    var qr = qrMatrix(text);
+    if (!qr) return "";
+    var d = "";
+    for (var r = 0; r < qr.n; r++) for (var c = 0; c < qr.n;) {
+      if (!qr.dark(r, c)) { c++; continue; }
+      var e = c; while (e < qr.n && qr.dark(r, e)) e++;
+      d += "M" + (c + 1) + " " + (r + 1) + "h" + (e - c) + "v1h-" + (e - c) + "z";
+      c = e;
+    }
+    return '<svg class="ph-qr-code" viewBox="0 0 ' + (qr.n + 2) + " " + (qr.n + 2) + '" role="img" aria-label="' + esc(L("Open this trip online")) +
+      '" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="' + d + '" fill="#1c1b1d"/></svg>';
   }
   function printedLine() {
     return L("Printed {date}. Estimates only; rates and traffic change.", { date: new Date().toLocaleString(window.I18N.locale(), { dateStyle: "medium", timeStyle: "short" }) }).replace(/\.\./g, ".") /* "a.m.." in Spanish */;
@@ -3008,7 +3036,9 @@ require([
     var url = shareUrl();
     return '<div class="ph-left"><h2 class="ph-title">' + esc(L("Trip summary")) + "</h2>" +
       '<table class="ph-trip">' + rows.map(function (r) { return "<tr><th>" + r[0] + "</th><td>" + r[1] + "</td></tr>"; }).join("") + "</table>" +
-      '<p class="ph-link">' + esc(L("Open this trip:")) + " " + esc(url) + "</p>" +
+      (qrSvg(url) ? '<div class="ph-qr">' + qrSvg(url) + '<p><strong>' + esc(L("Open this trip online")) + "</strong><br>" +
+        esc(L("Scan the code with your phone's camera to open this trip in the app.")) + "</p></div>"
+        : '<p class="ph-link">' + esc(L("Open this trip:")) + " " + esc(url) + "</p>") +
       '<p class="ph-printed">' + esc(L("Printed {date}. Estimates only; rates and traffic change.", { date: new Date().toLocaleString(window.I18N.locale(), { dateStyle: "medium", timeStyle: "short" }) }).replace(/\.\./g, ".") /* "a.m.." in Spanish */) + "</p></div>" +
       (shot ? '<div class="ph-mapwrap"><img class="ph-map" alt="' + esc(L("Map of the toll route and toll-free route")) + '" src="' + shot.url + '">' +
         placeMarks(shot.marks, 100, 100 * SHOT_H / SHOT_W, 2.4).map(function (m) {
@@ -3081,12 +3111,32 @@ require([
       }
       y = d.para(vx, y, r[1], w - (vx - M), { size: 9 }) + 3;
     });
-    // The link: a tappable "Open this trip online" (copying a wrapped address breaks it), then the address.
-    var url = shareUrl(), linkTop = y + 3;
-    d.text(M, linkTop + 8, L("Open this trip online"), { size: 8, bold: true, color: PURPLE });
-    d.link(M, linkTop, P.width(L("Open this trip online"), 8, true), 11, url);
-    y = d.para(M, linkTop + 11, url, w, { size: 6, color: FAINT });
-    y = d.para(M, y + 2, printedLine(), w, { size: 6.5, color: FAINT });
+    // The link: a QR code to scan (the address is far too long to type from paper), with a
+    // tappable "Open this trip online" beside it. No QR code library: the address in small print.
+    var url = shareUrl(), linkTop = y + 6, qr = qrMatrix(url);
+    if (qr) {
+      var qs = 84, cell = qs / (qr.n + 2), qx = M, qy = linkTop;
+      for (var qrow = 0; qrow < qr.n; qrow++) { // dark runs along each row, one rectangle per run
+        for (var qc = 0; qc < qr.n;) {
+          if (!qr.dark(qrow, qc)) { qc++; continue; }
+          var run = qc; while (run < qr.n && qr.dark(qrow, run)) run++;
+          d.rect(qx + (qc + 1) * cell, qy + (qrow + 1) * cell, (run - qc) * cell + 0.05, cell + 0.05, { fill: "#1c1b1d" });
+          qc = run;
+        }
+      }
+      d.link(qx, qy, qs, qs, url);
+      var tx2 = M + qs + 10, tw2 = w - qs - 10;
+      d.text(tx2, qy + 14, L("Open this trip online"), { size: 9, bold: true, color: PURPLE });
+      d.link(tx2, qy + 5, P.width(L("Open this trip online"), 9, true), 12, url);
+      var ty = d.para(tx2, qy + 19, L("Scan the code with your phone's camera to open this trip in the app."), tw2, { size: 7.5, lineHeight: 9.5, color: GRAY });
+      ty = d.para(tx2, ty + 4, printedLine(), tw2, { size: 6.5, lineHeight: 8.5, color: FAINT });
+      y = Math.max(ty, qy + qs);
+    } else {
+      d.text(M, linkTop + 8, L("Open this trip online"), { size: 8, bold: true, color: PURPLE });
+      d.link(M, linkTop, P.width(L("Open this trip online"), 8, true), 11, url);
+      y = d.para(M, linkTop + 11, url, w, { size: 6, color: FAINT });
+      y = d.para(M, y + 2, printedLine(), w, { size: 6.5, color: FAINT });
+    }
     // Under the map: how to get a different map style.
     var mapNote = L("Want a different map? Choose Light, Dark, Streets or Satellite on the map in the app, then save the PDF again.");
     var noteEnd = mapUrl ? d.para(R - mapW, top + mapH + 3, mapNote, mapW, { size: 6.5, lineHeight: 8, color: FAINT }) : top + mapH;

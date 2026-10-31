@@ -73,6 +73,7 @@ Partner states (Kansas, Colorado, Oklahoma, Florida) aren't covered yet.
 | `js/theme.js` | Light / dark theme (follows the device unless picked) |
 | `data/fuel-prices.json`, `tools/fetch_fuel.py` | Default gas and diesel prices: EIA's weekly Houston regular and Texas/Gulf Coast diesel, refreshed by Deploy site on every deploy and Tuesdays on a schedule |
 | `js/pdf.js` | Builds the one-page trip summary PDF (Save PDF) |
+| `js/qr.js` | QR code maker for the PDF's "open this trip" link (Kazuhiko Arase's QRCode for JavaScript, MIT license) |
 | `manifest.webmanifest`, `sw.js`, `assets/icon-*.png` | Add to home screen (app icon, offline copy) |
 | `tests/trips/*.json` | Saved real trips replayed by `tools/test_trips.js` on every deploy |
 | `tools/watch_rates.py` | Weekly check of the agencies' rate pages (Watch toll rates workflow) |

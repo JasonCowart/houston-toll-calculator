@@ -449,6 +449,10 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
   .ph-trip td { padding: 1px 0; }
   .ph-map { display: block; width: 100%; height: auto; aspect-ratio: 900 / 530; border: 1px solid #ccc; }
   .ph-link { font-size: 8px; word-break: break-all; color: #555; margin: 2mm 0 0; }
+  .ph-qr { display: flex; align-items: center; gap: 3.5mm; margin: 3mm 0 0; }
+  .ph-qr-code { width: 29mm; height: 29mm; flex: none; }
+  .ph-qr p { margin: 0; font-size: 9px; color: #555; line-height: 1.35; }
+  .ph-qr strong { color: var(--purple); font-size: 10.5px; }
   .ph-printed { font-size: 8px; color: #666; margin: 1mm 0 0; }
 
   .headline { padding: 2mm 3mm; border-radius: 4px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }

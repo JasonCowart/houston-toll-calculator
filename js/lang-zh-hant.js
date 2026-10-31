@@ -16,6 +16,7 @@ window.I18N && window.I18N.add("zh-Hant", {
   "Leave": "出發時間",
   "Departure time": "出發時間",
   "Departure": "出發",
+  "Scan the code with your phone's camera to open this trip in the app.": "用手機相機掃描此碼，即可在應用程式中開啟此行程。",
   "Save about {amount}/mo": "每月約省 {amount}",
   "or press and hold the map": "或在地圖上長按",
   "Want a different map? Choose Light, Dark, Streets or Satellite on the map in the app, then save the PDF again.": "想要其他地圖？在應用程式的地圖上選擇淺色、深色、街道或衛星，然後重新儲存 PDF。",

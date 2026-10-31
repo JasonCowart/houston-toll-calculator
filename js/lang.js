@@ -25,6 +25,7 @@
     "Leave": "Salida",
     "Departure time": "Hora de salida",
     "Departure": "Hora",
+    "Scan the code with your phone's camera to open this trip in the app.": "Escanee el código con la cámara de su teléfono para abrir este viaje en la aplicación.",
     "Save about {amount}/mo": "Ahorre unos {amount}/mes",
     "or press and hold the map": "o mantenga presionado el mapa",
     "Want a different map? Choose Light, Dark, Streets or Satellite on the map in the app, then save the PDF again.": "¿Quiere otro mapa? Elija Claro, Oscuro, Calles o Satélite en el mapa de la aplicación y vuelva a guardar el PDF.",

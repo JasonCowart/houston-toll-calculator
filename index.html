@@ -65,26 +65,20 @@
           <button type="button" id="reset" class="btn-outline step-action"><span aria-hidden="true">&#8634;</span> Start over</button>
         </div>
         <section class="field">
-          <div class="label-row"><label><span class="pin start" aria-hidden="true">S</span>From</label><button type="button" id="pick-from" class="pick">Pick on map</button></div>
+          <div class="label-row"><label><span class="pin start" aria-hidden="true">S</span>From</label><span class="row-actions"><span class="menu-link"><span aria-hidden="true">☆ </span><span>My places</span><select id="places-from" class="places" aria-label="Saved, recent and common places for From"><option value="">Choose a place…</option></select></span><button type="button" id="pick-from" class="pick">Pick on map</button></span></div>
           <div id="search-from" class="search"></div>
-          <div class="places-row">
-            <select id="places-from" class="places" aria-label="Saved, recent and common places for From"><option value="">Choose a place…</option></select>
-            <button type="button" id="save-from" class="pick" disabled>Save place</button>
-          </div>
+          <button type="button" id="save-from" class="pick" hidden disabled>Save place</button>
         </section>
         <div id="mid-stops"></div>
         <button type="button" id="add-stop" class="pick add-stop"><span class="pin stop" aria-hidden="true">+</span>Add a stop</button>
         <p class="hint hold-tip" id="hold-tip" hidden>Tip: with a start and end set, press and hold the map to add a stop there.</p>
         <section class="field">
-          <div class="label-row"><label><span class="pin end" aria-hidden="true">E</span>To</label><button type="button" id="pick-to" class="pick">Pick on map</button></div>
+          <div class="label-row"><label><span class="pin end" aria-hidden="true">E</span>To</label><span class="row-actions"><span class="menu-link"><span aria-hidden="true">☆ </span><span>My places</span><select id="places-to" class="places" aria-label="Saved, recent and common places for To"><option value="">Choose a place…</option></select></span><button type="button" id="pick-to" class="pick">Pick on map</button></span></div>
           <div id="search-to" class="search"></div>
-          <div class="places-row">
-            <select id="places-to" class="places" aria-label="Saved, recent and common places for To"><option value="">Choose a place…</option></select>
-            <button type="button" id="save-to" class="pick" disabled>Save place</button>
-          </div>
+          <button type="button" id="save-to" class="pick" hidden disabled>Save place</button>
         </section>
 
-        <section class="field">
+        <section class="field leave-field">
           <label for="leave" id="leave-label">Leave</label>
           <input type="datetime-local" id="leave" aria-describedby="leave-hint">
           <div class="leave-split" id="leave-split" hidden>
@@ -100,11 +94,9 @@
         <div class="step-head">
           <span class="step-num" aria-hidden="true">2</span>
           <h2 id="step-vehicle-title">Your vehicle and tag</h2>
+          <span class="menu-link step-action btn-outline"><span id="vehicles-label">My vehicles</span><select id="vehicles" class="places" aria-label="My saved vehicles"><option value="">My vehicles…</option></select></span>
         </div>
-        <div class="places-row vehicles-row">
-          <select id="vehicles" class="places" aria-label="My saved vehicles"><option value="">My vehicles…</option></select>
-          <button type="button" id="save-vehicle" class="pick" disabled>Save vehicle</button>
-        </div>
+        <button type="button" id="save-vehicle" class="pick" hidden disabled>Save vehicle</button>
         <fieldset class="pay" id="payment">
           <legend>How do you pay tolls?</legend>
           <div class="pay-options">
@@ -115,9 +107,10 @@
           <div class="hint" id="pay-hint">Pick one: no-tag tolls can cost much more.</div>
         </fieldset>
 
+        <div class="vrow">
         <section class="field">
           <div>
-            <label for="axles">Vehicle</label>
+            <label for="axles" class="sr-only">Vehicle</label>
             <select id="axles">
               <option value="2">2 axles (car, SUV)</option>
               <option value="3">3 axles</option>
@@ -131,9 +124,11 @@
         </section>
 
         <section class="field check">
-          <label><input type="checkbox" id="carpool"> Carpool (2+) or motorcycle</label>
-          <div class="hint">Free on the Katy Managed Lanes during HOV hours</div>
+          <label><input type="checkbox" id="carpool" aria-describedby="carpool-hint"> Carpool (2+) or motorcycle</label>
+          <button type="button" class="info-btn" id="carpool-info" aria-expanded="false" aria-controls="carpool-hint" aria-label="About carpool">i</button>
+          <div class="hint" id="carpool-hint" hidden>Free on the Katy Managed Lanes during HOV hours</div>
         </section>
+        </div>
 
       </section>
 

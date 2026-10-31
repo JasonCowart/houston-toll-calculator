@@ -695,3 +695,39 @@ html:not([data-mode]) .ti-auto { display: block; }
 /* Chinese text: the brand font has no Chinese letters, so use the system's Chinese fonts */
 html:lang(zh-Hans) body, .lang-list [lang="zh-Hans"] { font-family: Montserrat, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", sans-serif; }
 html:lang(zh-Hant) body, .lang-list [lang="zh-Hant"] { font-family: Montserrat, "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", sans-serif; }
+
+/* Condensed trip and vehicle steps (Oct 31): tighter spacing, My places and My vehicles as menus
+   (a native select laid over a link-style label, so phones open their own picker), Leave on one
+   line, vehicle size and carpool on one row, and the Compare button pinned to the bottom of the
+   screen until there are results. The full layout is kept on the before-compact-form branch. */
+.step { gap: 7px; padding: 9px 12px 10px; }
+.field label, .field .label { margin-bottom: 2px; }
+.add-stop { margin: -2px 0 0 !important; }
+.hint { margin-top: 1px; }
+.step:not(.done) #hold-tip { display: none; }
+.pay legend { margin-bottom: 3px; }
+.pay-options label { min-height: 40px; padding: 5px 8px; }
+.row-actions { display: inline-flex; align-items: baseline; gap: 14px; }
+.menu-link > span[aria-hidden] { margin-right: 3px; }
+.menu-link { position: relative; display: inline-flex; align-items: center; font-size: 13px; font-weight: 700; color: var(--accent); white-space: nowrap; cursor: pointer; }
+.menu-link select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; appearance: none; -webkit-appearance: none; border: 0; padding: 0; margin: 0; min-height: 0; }
+.menu-link:hover { color: var(--purple-hover); }
+.menu-link:focus-within { outline: 2px solid var(--violet-screen); outline-offset: 2px; border-radius: 4px; }
+.step-head .menu-link.btn-outline { padding: 4px 9px; border-radius: 6px; max-width: 45%; font-size: 12px; }
+.step-head .menu-link.btn-outline > span { overflow: hidden; text-overflow: ellipsis; }
+.leave-field { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: center; }
+.leave-field > label { margin: 0 !important; }
+.leave-field > #leave-hint { grid-column: 1; grid-row: 2; margin: 0; font-size: 11px; }
+.leave-field > input, .leave-field > .leave-split { grid-column: 2; grid-row: 1 / span 2; }
+.leave-split:not([hidden]) ~ #leave-hint { display: none; }
+.vrow { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 10px; align-items: center; }
+.vrow .field.check { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+.vrow .field.check > label { flex: 1; min-width: 0; }
+.vrow .field.check > label { font-size: 13px; line-height: 1.25; }
+.vrow #carpool-hint { flex-basis: 100%; }
+.info-btn { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--accent); background: none; color: var(--accent);
+  font: italic 700 11px/1 Georgia, serif; padding: 0; cursor: pointer; }
+.info-btn[aria-expanded="true"] { background: var(--accent); color: var(--card); }
+#go { position: sticky; bottom: 10px; z-index: 5; box-shadow: 0 4px 14px rgba(28, 27, 29, 0.28); }
+.panel:has(#results:not([hidden])) #go { position: static; box-shadow: none; }
+@media print { .menu-link, .info-btn { display: none !important; } }

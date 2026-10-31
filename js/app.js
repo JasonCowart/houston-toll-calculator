@@ -189,7 +189,10 @@ require([
         if (!items.length) return;
         html += '<optgroup label="' + esc(L(a[1])) + '">' + items.map(function (c) { return '<option value="c' + c.i + '">' + esc(c.label) + "</option>"; }).join("") + "</optgroup>";
       });
-      if (saved.length || recent.length) html += '<optgroup label="' + L("Manage") + '"><option value="manage">' + L("Edit my places and recent…") + "</option></optgroup>";
+      // Manage: save the place in this box, edit the saved and recent lists.
+      var mg = (stops[w] ? '<option value="save">' + L("Save this place…") + "</option>" : "") +
+        (saved.length || recent.length ? '<option value="manage">' + L("Edit my places and recent…") + "</option>" : "");
+      if (mg) html += '<optgroup label="' + L("Manage") + '">' + mg + "</optgroup>";
       sel.innerHTML = html;
       $("save-" + w).disabled = !stops[w];
     });
@@ -234,6 +237,7 @@ require([
   function wirePlaceField(w) {
     $("places-" + w).addEventListener("change", function () {
       if (this.value === "manage") { this.value = ""; openPlacesDialog(); return; }
+      if (this.value === "save") { this.value = ""; $("save-" + w).click(); return; }
       var p = this.value && placeFromValue(this.value);
       this.value = "";
       if (!p) return;
@@ -379,12 +383,12 @@ require([
     var w = "m" + (midSeq++);
     var sec = document.createElement("section");
     sec.className = "field mid-stop"; sec.id = "field-" + w;
-    sec.innerHTML = '<div class="label-row"><label id="label-' + w + '"></label><span class="mid-actions">' +
+    sec.innerHTML = '<div class="label-row"><label id="label-' + w + '"></label><span class="mid-actions row-actions">' +
+      '<span class="menu-link"><span aria-hidden="true">☆ </span><span>' + L("My places") + '</span><select id="places-' + w + '" class="places"></select></span>' +
       '<button type="button" id="pick-' + w + '" class="pick">' + L("Pick on map") + '</button>' +
       '<button type="button" id="remove-' + w + '" class="pick remove-stop">\u2715</button></span></div>' +
       '<div id="search-' + w + '" class="search"></div>' +
-      '<div class="places-row"><select id="places-' + w + '" class="places"></select>' +
-      '<button type="button" id="save-' + w + '" class="pick" disabled></button></div>';
+      '<button type="button" id="save-' + w + '" class="pick" hidden disabled></button>';
     $("mid-stops").appendChild(sec);
     midKeys.push(w);
     stops[w] = at || null;
@@ -669,6 +673,7 @@ require([
     var html = '<option value="">' + L("My vehicles…") + "</option>" + vehicles.map(function (v, i) {
       return '<option value="v' + i + '">' + esc(v.name) + " (" + esc(vehicleSummary(v)) + ")</option>";
     }).join("");
+    if (paymentChoice()) html += '<option value="save">' + L("Save this vehicle…") + "</option>";
     if (vehicles.length) html += '<option value="manage">' + L("Edit my vehicles…") + "</option>";
     $("vehicles").innerHTML = html;
     $("save-vehicle").disabled = !paymentChoice();
@@ -684,6 +689,8 @@ require([
     var axles = parseInt($("axles").value, 10), pay = paymentChoice(), car = $("carpool").checked;
     if (!v || v.axles !== axles || v.payment !== pay || !!v.carpool !== car) activeVehicle = -1;
     $("vehicles").value = activeVehicle >= 0 ? "v" + activeVehicle : "";
+    // The button shows the saved vehicle in use, or "My vehicles".
+    $("vehicles-label").textContent = activeVehicle >= 0 ? v.name : L("My vehicles");
   }
   // Puts a saved vehicle's settings into the panel and makes it the active one.
   function applyVehicle(i) {
@@ -703,6 +710,7 @@ require([
   $("vehicles").addEventListener("change", function () {
     var v = this.value;
     if (v === "manage") { syncVehicleSelect(); renderVehicleDialog(); openDialog($("vehicles-dialog")); return; }
+    if (v === "save") { syncVehicleSelect(); if (paymentChoice()) openVehicleEditor(-1); return; }
     applyVehicle(+v.slice(1));
   });
 
@@ -778,6 +786,10 @@ require([
     setStatus(L(editing ? "Updated “{name}” ({summary})." : "Saved “{name}” ({summary}) to My vehicles on this device.", { name: v.name, summary: vehicleSummary(v) }));
   });
   $("save-vehicle").addEventListener("click", function () { openVehicleEditor(-1); });
+  // Carpool note behind a small "i" button, to keep the vehicle row short.
+  $("carpool-info").addEventListener("click", function () {
+    var h = $("carpool-hint"); h.hidden = !h.hidden; this.setAttribute("aria-expanded", String(!h.hidden));
+  });
   function fuelSummary(v) {
     var d = window.TollCalc.fuelDefaults(v.axles), fuel = v.fuel || d.fuel;
     return L(fuel === "diesel" ? "Diesel" : "Gas") + " · " + L("{mpg} mpg", { mpg: v.mpg || d.mpg }) + " · " + L("{price}/gal", { price: fmtMoney(v.price || window.TollCalc.FUEL_PRICES[fuel]) });
@@ -960,9 +972,10 @@ require([
   }
   function updateButton() {
     updateSteps();
-    $("save-vehicle").disabled = !paymentChoice();
-    if (typeof syncVehicleSelect === "function" && $("vehicles").options.length) syncVehicleSelect();
-    fieldKeys().forEach(function (w) { $("save-" + w).disabled = !stops[w]; });
+    // Refill the My places / My vehicles menus: "Save this place…" and "Save this vehicle…"
+    // show only once there's something to save.
+    if (typeof fillVehicles === "function" && $("vehicles").options.length) fillVehicles();
+    fillPlaces();
     $("pay-hint").hidden = !!paymentChoice();
     $("go").disabled = !(key && stops.from && stops.to && tollPoints.length && paymentChoice());
     maybeRecompare();

@@ -709,8 +709,8 @@ html:lang(zh-Hant) body, .lang-list [lang="zh-Hant"] { font-family: Montserrat, 
 .pay-options label { min-height: 40px; padding: 5px 8px; }
 .row-actions { display: inline-flex; align-items: baseline; gap: 14px; }
 .menu-link > span[aria-hidden] { margin-right: 3px; }
-.menu-link { position: relative; display: inline-flex; align-items: center; font-size: 13px; font-weight: 700; color: var(--accent); white-space: nowrap; cursor: pointer; }
-.menu-link select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; appearance: none; -webkit-appearance: none; border: 0; padding: 0; margin: 0; min-height: 0; }
+.menu-link { overflow: hidden; position: relative; display: inline-flex; align-items: center; font-size: 13px; font-weight: 700; color: var(--accent); white-space: nowrap; cursor: pointer; }
+.menu-link select { position: absolute; inset: 0; width: 100%; max-width: 100%; min-width: 0; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; appearance: none; -webkit-appearance: none; border: 0; padding: 0; margin: 0; min-height: 0; }
 .menu-link:hover { color: var(--purple-hover); }
 .menu-link:focus-within { outline: 2px solid var(--violet-screen); outline-offset: 2px; border-radius: 4px; }
 .step-head .menu-link.btn-outline { padding: 4px 9px; border-radius: 6px; max-width: 45%; font-size: 12px; }
@@ -731,3 +731,7 @@ html:lang(zh-Hant) body, .lang-list [lang="zh-Hant"] { font-family: Montserrat, 
 #go { position: sticky; bottom: 10px; z-index: 5; box-shadow: 0 4px 14px rgba(28, 27, 29, 0.28); }
 .panel:has(#results:not([hidden])) #go { position: static; box-shadow: none; }
 @media print { .menu-link, .info-btn { display: none !important; } }
+/* Phones: iPhone Safari sizes a hidden select by its longest option, ignoring its width, so the
+   My places menu could stretch the page sideways. Clip it (above), and never let the page scroll
+   sideways (clip, unlike hidden, keeps the pinned Compare button and section bar working). */
+@media (max-width: 760px) { html, body { overflow-x: clip; } }

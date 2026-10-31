@@ -27,7 +27,7 @@ window.I18N && window.I18N.add("zh-Hant", {
   "TxTag, TollTag": "TxTag、TollTag",
   "No tag": "無電子標籤",
   "Pay by mail": "郵寄帳單付款",
-  "Pick one: no-tag tolls can cost much more.": "請選擇一項：無電子標籤的通行費可能貴很多。",
+  "No-tag tolls can cost much more.": "無電子標籤的通行費可能貴很多。",
   "Vehicle": "車輛",
   "2 axles (car, SUV)": "2 軸（轎車、SUV）",
   "3 axles": "3 軸",

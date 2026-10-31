@@ -36,7 +36,7 @@
     "TxTag, TollTag": "TxTag, TollTag",
     "No tag": "Sin TAG",
     "Pay by mail": "Pago por correo",
-    "Pick one: no-tag tolls can cost much more.": "Elija uno: sin TAG los peajes pueden costar mucho más.",
+    "No-tag tolls can cost much more.": "Sin TAG, los peajes pueden costar mucho más.",
     "Vehicle": "Vehículo",
     "2 axles (car, SUV)": "2 ejes (auto, SUV)",
     "3 axles": "3 ejes", "4 axles": "4 ejes", "5 axles (18-wheeler)": "5 ejes (tráiler)", "6 axles": "6 ejes", "7 axles": "7 ejes",

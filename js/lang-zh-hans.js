@@ -27,7 +27,7 @@ window.I18N && window.I18N.add("zh-Hans", {
   "TxTag, TollTag": "TxTag、TollTag",
   "No tag": "无电子标签",
   "Pay by mail": "邮寄账单付款",
-  "Pick one: no-tag tolls can cost much more.": "请选择一项：无电子标签的通行费可能贵很多。",
+  "No-tag tolls can cost much more.": "无电子标签的通行费可能贵很多。",
   "Vehicle": "车辆",
   "2 axles (car, SUV)": "2 轴（轿车、SUV）",
   "3 axles": "3 轴",

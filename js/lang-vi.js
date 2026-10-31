@@ -27,7 +27,7 @@ window.I18N && window.I18N.add("vi", {
   "TxTag, TollTag": "TxTag, TollTag",
   "No tag": "Không có thẻ",
   "Pay by mail": "Trả qua thư",
-  "Pick one: no-tag tolls can cost much more.": "Chọn một: không có thẻ thì phí có thể cao hơn nhiều.",
+  "No-tag tolls can cost much more.": "Không có thẻ thì phí có thể cao hơn nhiều.",
   "Vehicle": "Xe",
   "2 axles (car, SUV)": "2 trục (xe hơi, SUV)",
   "3 axles": "3 trục",

@@ -2558,13 +2558,24 @@ require([
     if (mi >= 0 && pi > mi) map.reorder(previewLayer, mi);
     var changes = tollChanges(lastTrip.priced, r.priced);
     var when = fmtClock(r.at);
-    previewChip.innerHTML = '<p class="pc-h"><span class="pc-swatch" aria-hidden="true"></span>' + esc(L("Leaving {time}: toll route", { time: when })) + "</p>" +
-      '<p class="pc-m">' + esc(fmtTime(r.tollMin)) + " · " + fmtMoney(r.toll) + (r.plus ? "+" : "") + " · " +
-      esc(L("different roads from your trip")) + "</p>" +
-      '<p class="pc-key"><span class="pk pk-toll"></span>' + esc(L("Toll")) + '<span class="pk pk-new">+</span>' + esc(L("Added toll")) +
-        '<span class="pk pk-skip">\u2212</span>' + esc(L("Not on this route")) + "</p>" +
+    // Which kinds of toll marks this route has, so the key lists only those.
+    var ids = {}, idsNow = {};
+    lastTrip.priced.items.forEach(function (it) { ids[it.point.id] = 1; });
+    r.priced.items.forEach(function (it) { idsNow[it.point.id] = 1; });
+    var added = r.priced.items.some(function (it) { return !ids[it.point.id]; });
+    var skipped = lastTrip.priced.items.some(function (it) { return !idsNow[it.point.id]; });
+    previewChip.innerHTML = '<p class="pc-h"><span class="pc-swatch" aria-hidden="true"></span><span>' + esc(L("Leaving {time}: toll route", { time: when })) +
+        '</span><span class="pc-m">' + esc(fmtTime(r.tollMin)) + " · " + fmtMoney(r.toll) + (r.plus ? "+" : "") + "</span></p>" +
+      (added || skipped ? '<p class="pc-key">' + (added ? '<span class="pk pk-new">+</span>' + esc(L("Added toll")) : "") +
+        (skipped ? '<span class="pk pk-skip">\u2212</span>' + esc(L("Not on this route")) : "") + "</p>"
+        : '<p class="pc-key">' + esc(L("Same tolls as your trip.")) + "</p>") +
       '<div class="pc-b"><button type="button" class="go small" data-use="' + k + '">' + esc(L("Use this time")) + "</button>" +
       '<button type="button" class="btn-outline small" data-back="1">' + esc(L("Back to your trip")) + "</button></div>";
+    // Phones: the card sits just above the map instead of covering it.
+    var phone = window.matchMedia("(max-width: 760px)").matches;
+    if (phone && previewChip.parentNode !== $("map").parentNode) $("map").parentNode.insertBefore(previewChip, $("map"));
+    else if (!phone && previewChip.nextSibling === $("map")) view.ui.add(previewChip, "manual");
+    previewChip.classList.toggle("above", phone);
     previewChip.hidden = false;
     var row = document.querySelector('#best-time-out tr.bt-row[data-k="' + k + '"]');
     if (row) {
@@ -2578,7 +2589,10 @@ require([
         '<button type="button" class="btn-outline small" data-back="1">' + esc(L("Back to your trip")) + "</button></div></td>";
       row.parentNode.insertBefore(det, row.nextSibling);
     }
-    if (window.matchMedia("(max-width: 760px)").matches) $("map").scrollIntoView({ behavior: "smooth", block: "center" });
+    if (window.matchMedia("(max-width: 760px)").matches) { // the card and the map, just under the section bar
+      var jb = $("jump"), gap = (jb && jb.offsetHeight || 0) + 6;
+      window.scrollTo({ top: Math.max(0, previewChip.getBoundingClientRect().top + window.scrollY - gap), behavior: "smooth" });
+    }
   }
   function previewAction(e) {
     var u = e.target.closest("[data-use]");

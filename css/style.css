@@ -763,3 +763,13 @@ html:lang(zh-Hant) body, .lang-list [lang="zh-Hant"] { font-family: Montserrat, 
 .pk-toll { background: var(--purple); border: 1.5px solid #fff; box-shadow: 0 0 0 1px var(--purple); }
 .pk-new { width: 15px; height: 15px; background: #d9480f; color: #fff; border: 1.5px solid #fff; box-shadow: 0 0 0 1px #d9480f; }
 .pk-skip { width: 15px; height: 15px; background: #fff; color: #6b6775; border: 2px solid #6b6775; }
+/* Best time preview card: compact; on phones it sits above the map instead of over it. */
+.preview-chip .pc-h { flex-wrap: wrap; row-gap: 0; margin-bottom: 3px; }
+.preview-chip .pc-h .pc-m { font-weight: 400; }
+.preview-chip .pc-key { margin: 0 0 6px !important; }
+.preview-chip .pc-b .btn-outline.small, .preview-chip .pc-b .go.small { padding: 5px 11px; font-size: 13px; }
+@media (max-width: 760px) {
+  .preview-chip.above { position: relative; top: auto; left: auto; right: auto; transform: none; width: auto; max-width: none;
+    margin: 0; border-radius: 0; box-shadow: none; border-top: 4px solid var(--accent); border-bottom: 1px solid var(--border); padding: 8px 16px 10px; }
+  .preview-chip.above .pc-b { flex-wrap: nowrap; }
+}

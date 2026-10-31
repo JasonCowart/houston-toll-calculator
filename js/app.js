@@ -2849,7 +2849,7 @@ require([
     return { rows: rows, places: places };
   }
   function printedLine() {
-    return L("Printed {date}. Estimates only; rates and traffic change.", { date: new Date().toLocaleString(window.I18N.locale(), { dateStyle: "medium", timeStyle: "short" }) });
+    return L("Printed {date}. Estimates only; rates and traffic change.", { date: new Date().toLocaleString(window.I18N.locale(), { dateStyle: "medium", timeStyle: "short" }) }).replace(/\.\./g, ".") /* "a.m.." in Spanish */;
   }
   // A picture of the map (JPEG data URL), or null after 4 seconds or if the map can't make one.
   var SHOT_W = 900, SHOT_H = 530;
@@ -2989,7 +2989,7 @@ require([
     return '<div class="ph-left"><h2 class="ph-title">' + esc(L("Trip summary")) + "</h2>" +
       '<table class="ph-trip">' + rows.map(function (r) { return "<tr><th>" + r[0] + "</th><td>" + r[1] + "</td></tr>"; }).join("") + "</table>" +
       '<p class="ph-link">' + esc(L("Open this trip:")) + " " + esc(url) + "</p>" +
-      '<p class="ph-printed">' + esc(L("Printed {date}. Estimates only; rates and traffic change.", { date: new Date().toLocaleString(window.I18N.locale(), { dateStyle: "medium", timeStyle: "short" }) })) + "</p></div>" +
+      '<p class="ph-printed">' + esc(L("Printed {date}. Estimates only; rates and traffic change.", { date: new Date().toLocaleString(window.I18N.locale(), { dateStyle: "medium", timeStyle: "short" }) }).replace(/\.\./g, ".") /* "a.m.." in Spanish */) + "</p></div>" +
       (shot ? '<div class="ph-mapwrap"><img class="ph-map" alt="' + esc(L("Map of the toll route and toll-free route")) + '" src="' + shot.url + '">' +
         placeMarks(shot.marks, 100, 100 * SHOT_H / SHOT_W, 2.4).map(function (m) {
           return '<span class="ph-mark' + (m.missing ? " missing" : "") + '" style="left:' + m.x.toFixed(2) + "%;top:" + (m.y * SHOT_W / SHOT_H).toFixed(2) + '%">' + m.n + "</span>";
@@ -3047,9 +3047,13 @@ require([
     }
     var w = leftW;
     d.text(M, y + 12, L("Trip summary"), { size: 12, bold: true }); y += 20;
-    summaryRows().rows.forEach(function (r) {
+    // Values start past the widest label (at least 52 pt), so longer labels like "Departure
+    // time" or "Hora de salida" never run into them.
+    var sRows = summaryRows().rows;
+    var labW = Math.max(52, 10 + Math.max.apply(null, sRows.map(function (r) { return P.width(r[0], 9, true); })));
+    sRows.forEach(function (r) {
       d.text(M, y + 9, r[0], { size: 9, bold: true, color: GRAY });
-      var vx = M + 52;
+      var vx = M + labW;
       if (r[2]) { // the map's dot: green S, blue numbered stop, red E
         d.circle(vx + 5.5, y + 6, 5.5, { fill: r[2].fill, stroke: r[2].ring, lineWidth: 0.8 });
         d.text(vx + 5.5 - P.width(r[2].letter, 6.5, true) / 2, y + 8.4, r[2].letter, { size: 6.5, bold: true, color: "#ffffff" });

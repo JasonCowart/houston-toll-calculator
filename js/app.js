@@ -3110,7 +3110,7 @@ require([
       // Your price in a pale red card, the EZ TAG price in a green-edged card with the savings.
       // The offer with the monthly savings goes at the bottom of the page (when about $10 or more).
       var other = lastTrip.trip.payment === "tag", ch = 34, cw = (colW - 20) / 2;
-      d.rect(M, y, cw, ch, { fill: "#fdecec" });
+      d.rect(M, y, cw, ch, { fill: "#fdecec", stroke: "#ef9a9a", lineWidth: 1.2 });
       d.text(M + 8, y + 12, L(other ? "Your TxTag or TollTag" : "No tag · by mail"), { size: 7.5, color: GRAY });
       d.text(M + 8, y + 27, fmtMoney(lastTrip.priced.total), { size: 13, bold: true, color: "#c0272d" });
       var ax = M + cw + 5, ay = y + ch / 2; // arrow (the PDF fonts have no arrow character)

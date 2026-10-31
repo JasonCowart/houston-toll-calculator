@@ -2552,7 +2552,10 @@ require([
     ]);
     previewLayer.addMany(previewTollMarks(lastTrip.priced, r.priced));
     // Under the start, end and stop pins, so they stay on top of the dashed route.
-    map.reorder(previewLayer, Math.max(0, map.layers.indexOf(markersLayer)));
+    // (Only move it when it's above them: moving it to the pins' spot when it's already below
+    // would put it back on top.)
+    var pi = map.layers.indexOf(previewLayer), mi = map.layers.indexOf(markersLayer);
+    if (mi >= 0 && pi > mi) map.reorder(previewLayer, mi);
     var changes = tollChanges(lastTrip.priced, r.priced);
     var when = fmtClock(r.at);
     previewChip.innerHTML = '<p class="pc-h"><span class="pc-swatch" aria-hidden="true"></span>' + esc(L("Leaving {time}: toll route", { time: when })) + "</p>" +

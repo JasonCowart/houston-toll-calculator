@@ -23,6 +23,7 @@
     "Choose a place…": "Elija un lugar…",
     "Save place": "Guardar lugar",
     "Leave": "Salida",
+    "Departure time": "Hora de salida",
     "Blank = now": "En blanco = ahora",
     "Now": "Ahora",
     "Leave date": "Fecha de salida",

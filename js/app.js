@@ -2772,7 +2772,7 @@ require([
         : [L("Stop {n}", { n: i }), pl, { fill: "#1967d2", ring: "#0d3c8c", letter: String(i) }];
     });
     var vName = vehicleName();
-    rows.push([L("Leave"), when], [L("Vehicle"), (vName ? vName + " \u2014 " : "") + L("{n} axles", { n: t.axles }) + (t.carpool ? ", " + L("carpool") : "") + " · " + payName]);
+    rows.push([L("Departure time"), when], [L("Vehicle"), (vName ? vName + " \u2014 " : "") + L("{n} axles", { n: t.axles }) + (t.carpool ? ", " + L("carpool") : "") + " · " + payName]);
     if (chosenVia()) rows.push([L("Toll road"), L("Use {road}", { road: tollwayName(viaChoice.road) })]);
     return { rows: rows, places: places };
   }

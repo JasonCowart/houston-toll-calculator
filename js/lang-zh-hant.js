@@ -14,6 +14,7 @@ window.I18N && window.I18N.add("zh-Hant", {
   "Choose a place…": "選擇地點…",
   "Save place": "儲存地點",
   "Leave": "出發時間",
+  "Departure time": "出發時間",
   "Blank = now": "留空 = 現在",
   "Now": "現在",
   "Leave date": "出發日期",

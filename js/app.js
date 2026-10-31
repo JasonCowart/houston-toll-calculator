@@ -887,6 +887,18 @@ require([
       if (top > max) spacer.style.height = Math.ceil(top - max) + "px";
       panel.scrollTo({ top: Math.max(0, top), behavior: behavior });
     }
+    // A short glow around the section you jumped to, once the scroll has settled, so it's
+    // easy to tell where it starts among everything else.
+    var flashTimer = null;
+    function flashSection(el) {
+      document.querySelectorAll(".jump-flash").forEach(function (x) { x.classList.remove("jump-flash"); });
+      clearTimeout(flashTimer);
+      flashTimer = setTimeout(function () {
+        el.classList.remove("jump-flash"); void el.offsetWidth; // restart the animation
+        el.classList.add("jump-flash");
+        flashTimer = setTimeout(function () { el.classList.remove("jump-flash"); }, 1900);
+      }, 450);
+    }
     bar.addEventListener("click", function (e) {
       var b = e.target.closest("button[data-to]");
       if (!b) return;
@@ -900,6 +912,7 @@ require([
       panBar(b);
       pinUntil = Date.now() + 900;
       scrollToSection(el.id === "results" ? $("headline") : el);
+      flashSection(el.id === "results" ? $("headline") : el);
       var f = el.tagName === "DETAILS" ? el.querySelector("summary") : el.id === "results" ? $("headline") : null;
       if (f) setTimeout(function () { try { f.focus({ preventScroll: true }); } catch (x) { /* old browser */ } }, 400);
     });

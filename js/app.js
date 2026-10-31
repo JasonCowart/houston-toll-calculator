@@ -2896,13 +2896,13 @@ require([
       c = e;
     }
     return '<svg class="ph-qr-code" viewBox="0 0 ' + (qr.n + 2) + " " + (qr.n + 2) + '" role="img" aria-label="' + esc(L("Open this trip online")) +
-      '" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="' + d + '" fill="#1c1b1d"/></svg>';
+      '" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="' + d + '" fill="#662d91"/></svg>';
   }
   function printedLine() {
     return L("Printed {date}. Estimates only; rates and traffic change.", { date: new Date().toLocaleString(window.I18N.locale(), { dateStyle: "medium", timeStyle: "short" }) }).replace(/\.\./g, ".") /* "a.m.." in Spanish */;
   }
   // A picture of the map (JPEG data URL), or null after 4 seconds or if the map can't make one.
-  var SHOT_W = 900, SHOT_H = 530;
+  var SHOT_W = 900, SHOT_H = 530, shotH = SHOT_H; // shotH: this picture's height (the PDF sizes its map to the page)
   // The map is zoomed to show the whole trip (both routes and all stops) for the picture, then
   // put back where it was.
   // Wait for the map to finish drawing (up to 5 seconds; a just-opened page is still loading tiles).
@@ -2926,12 +2926,13 @@ require([
   function shotArea(pad) {
     var r = tripScreenRect();
     if (!r) return null;
-    var w = (r.x1 - r.x0) * pad + 30, h = (r.y1 - r.y0) * pad + 30, want = SHOT_W / SHOT_H;
+    var w = (r.x1 - r.x0) * pad + 30, h = (r.y1 - r.y0) * pad + 30, want = SHOT_W / shotH;
     if (w / h < want) w = h * want; else h = w / want;
     var cx = (r.x0 + r.x1) / 2, cy = (r.y0 + r.y1) / 2, vw = view.width, vh = view.height;
     return { area: { x: Math.round(cx - w / 2), y: Math.round(cy - h / 2), width: Math.round(w), height: Math.round(h) }, fit: Math.max(w / vw, h / vh) };
   }
-  function mapShot() {
+  function mapShot(height) {
+    shotH = height || SHOT_H;
     try { return frameAndShoot(); } catch (e) { console.warn("map picture failed", e); if (tollLayer) tollLayer.labelsVisible = true; return Promise.resolve(null); }
   }
   // Numbered dots placed so they don't sit on top of each other: a dot that would overlap one
@@ -2960,7 +2961,7 @@ require([
     if (lastTrip.freeRoute && $("show-free").checked) ext = ext.union(lastTrip.freeRoute.geometry.extent);
     function quiet(e) { console.warn("map picture step", e); window.__shotError = String(e && e.message || e); }
     function shoot(a) {
-      var o = { format: "jpg", quality: 88, width: SHOT_W, height: SHOT_H };
+      var o = { format: "jpg", quality: 88, width: SHOT_W, height: shotH };
       area = null;
       if (a && view.width > 0 && view.height > 0 && isFinite(a.area.width)) {
         var ar = a.area;
@@ -2973,14 +2974,14 @@ require([
       o.area = area;
       return view.takeScreenshot(o).catch(function (e) { // a cropped picture failed: try the whole map
         quiet(e); area = fitAspect({ x: 0, y: 0, width: view.width, height: view.height });
-        return view.takeScreenshot({ format: "jpg", quality: 88, width: SHOT_W, height: SHOT_H, area: area });
+        return view.takeScreenshot({ format: "jpg", quality: 88, width: SHOT_W, height: shotH, area: area });
       });
     }
     // The picture is SHOT_W x SHOT_H. A screen area of any other shape gets stretched or cropped
     // to that, and the numbered dots (placed from the screen) drift off their toll points. So the
     // area is trimmed to exactly the picture's shape, around its middle.
     function fitAspect(ar) {
-      var want = SHOT_W / SHOT_H, out = { x: ar.x, y: ar.y, width: ar.width, height: ar.height };
+      var want = SHOT_W / shotH, out = { x: ar.x, y: ar.y, width: ar.width, height: ar.height };
       if (!(out.width > 0 && out.height > 0)) return out;
       if (out.width / out.height > want) { var w2 = out.height * want; out.x += (out.width - w2) / 2; out.width = w2; }
       else { var h2 = out.width / want; out.y += (out.height - h2) / 2; out.height = h2; }
@@ -2996,7 +2997,7 @@ require([
         var fx = (sp.x - area.x) / area.width, fy = (sp.y - area.y) / area.height;
         if (fx >= 0 && fx <= 1 && fy >= 0 && fy <= 1) marks.push({ n: i + 1, fx: fx, fy: fy, missing: it.rate == null });
       });
-      return { url: r.dataUrl, marks: marks };
+      return { url: r.dataUrl, marks: marks, h: shotH };
     }
     // Each step carries on if it fails: a picture of the map as it is beats no picture.
     var work = view.goTo(ext.expand(1.15), { animate: false }).catch(quiet).then(function () { return settled(); }).then(function () {
@@ -3012,7 +3013,7 @@ require([
     var late = new Promise(function (res) { setTimeout(res, 12000); }).then(function () {
       if (finished) return null;
       area = fitAspect({ x: 0, y: 0, width: view.width, height: view.height });
-      return view.takeScreenshot({ format: "jpg", quality: 85, width: SHOT_W, height: SHOT_H, area: area }).then(withMarks, function (e) { quiet(e); return null; });
+      return view.takeScreenshot({ format: "jpg", quality: 85, width: SHOT_W, height: shotH, area: area }).then(withMarks, function (e) { quiet(e); return null; });
     });
     return Promise.race([work, late]).then(function (shot) {
       finished = true;
@@ -3076,6 +3077,20 @@ require([
   // Save PDF: the same one-page summary as a PDF file, drawn directly (js/pdf.js), so it works
   // on phones whose print screen has no "Save as PDF".
   function textOf(el) { return el ? el.textContent.replace(/\s+/g, " ").trim() : ""; }
+  // PDF top section: the map is as tall as the trip summary and QR code beside it, so the map's
+  // note lines up with the bottom of the QR code. Returns the map height in points.
+  var PDF_MAP_W = 228, PDF_QR = 64;
+  function pdfMapHeight() {
+    var P = window.MiniPDF, M = 32, R = 612 - M, w = R - M - PDF_MAP_W - 14, y = 20;
+    var rows = summaryRows().rows;
+    var labW = Math.max(52, 10 + Math.max.apply(null, rows.map(function (r) { return P.width(r[0], 9, true); })));
+    rows.forEach(function (r) {
+      var vx = labW + (r[2] ? 15 : 0), n = P.wrap(r[1], 9, false, w - vx).length;
+      y += 9 + (n - 1) * 11.7 + 2.7 + 3;
+    });
+    var bottom = y + 6 + PDF_QR;  // the QR code's bottom, from the top of the section
+    return Math.max(110, Math.min(220, bottom - 3 - 8)); // less the note under the map (one line)
+  }
   function buildPdf(shot, logo, ezPic) {
     var mapUrl = shot && shot.url;
     var P = window.MiniPDF, d = new P.Doc(612, 792), M = 32, R = 612 - M, PURPLE = "#662d91", GRAY = "#5f5a66", FAINT = "#8a8590", LINE = "#d9d5de";
@@ -3092,14 +3107,14 @@ require([
     d.text(tx, y + 23, L("Toll Calculator"), { size: 14, bold: true, color: "#ffffff" });
     y += 48;
     // Trip details on the left, the map on the right.
-    var mapW = 228, mapH = mapW * SHOT_H / SHOT_W, leftW = R - M - mapW - 14, top = y;
+    var mapW = PDF_MAP_W, mapH = pdfMapHeight(), leftW = R - M - mapW - 14, top = y;
     if (!mapUrl) { // no picture: say where to see the map instead of leaving a gap
       d.rect(R - mapW, top, mapW, mapH, { fill: "#f4f1f8", stroke: "#d9d5de", lineWidth: 0.5 });
       d.para(R - mapW + 14, top + mapH / 2 - 10, L("The map picture couldn’t be made. Tap “Open this trip online” to see the map."), mapW - 28, { size: 8, color: GRAY });
     }
     if (mapUrl) {
       var mx = R - mapW;
-      d.jpeg(mapUrl, SHOT_W, SHOT_H, mx, top, mapW, mapH);
+      d.jpeg(mapUrl, SHOT_W, shot.h || SHOT_H, mx, top, mapW, mapH);
       d.rect(mx, top, mapW, mapH, { stroke: "#bbbbbb", lineWidth: 0.5 });
       // Numbered toll points, matching the numbers in the toll list.
       placeMarks(shot.marks, mapW, mapH, 5.5).forEach(function (m) {
@@ -3129,12 +3144,12 @@ require([
     // tappable "Open this trip online" beside it. No QR code library: the address in small print.
     var url = shareUrl(), linkTop = y + 6, qr = qrMatrix(qrUrl());
     if (qr) {
-      var qs = 64, cell = qs / (qr.n + 2), qx = M, qy = linkTop;
+      var qs = PDF_QR, cell = qs / (qr.n + 2), qx = M, qy = linkTop;
       for (var qrow = 0; qrow < qr.n; qrow++) { // dark runs along each row, one rectangle per run
         for (var qc = 0; qc < qr.n;) {
           if (!qr.dark(qrow, qc)) { qc++; continue; }
           var run = qc; while (run < qr.n && qr.dark(qrow, run)) run++;
-          d.rect(qx + (qc + 1) * cell, qy + (qrow + 1) * cell, (run - qc) * cell + 0.05, cell + 0.05, { fill: "#1c1b1d" });
+          d.rect(qx + (qc + 1) * cell, qy + (qrow + 1) * cell, (run - qc) * cell + 0.05, cell + 0.05, { fill: PURPLE });
           qc = run;
         }
       }
@@ -3152,7 +3167,7 @@ require([
       y = d.para(M, y + 2, printedLine(), w, { size: 6.5, color: FAINT });
     }
     // Under the map: how to get a different map style.
-    var mapNote = L("Want a different map? Choose Light, Dark, Streets or Satellite on the map in the app, then save the PDF again.");
+    var mapNote = L("Want a different map? Change it in the app, then save again.");
     var noteEnd = mapUrl ? d.para(R - mapW, top + mapH + 3, mapNote, mapW, { size: 6.5, lineHeight: 8, color: FAINT }) : top + mapH;
     y = Math.max(y, noteEnd) + 12;
     // Headline banner.
@@ -3350,7 +3365,7 @@ require([
     if (pdfWin) try { pdfWin.document.title = L("Making the PDF…"); pdfWin.document.body.textContent = L("Making the PDF…"); } catch (e) { /* fine */ }
     setStatus(L("Making the PDF…"), false, true);
     window.__shotError = null;
-    Promise.all([mapShot(), loadLogo(), loadJpeg("assets/eztag-new.jpg")]).then(function (r) {
+    Promise.all([mapShot(Math.round(SHOT_W * pdfMapHeight() / PDF_MAP_W)), loadLogo(), loadJpeg("assets/eztag-new.jpg")]).then(function (r) {
       // The PDF's built-in fonts have no Vietnamese or Chinese letters, so in those languages
       // the PDF is in English (Print uses the page itself, in any language).
       var pdfLang = /^(en|es)$/.test(window.I18N.lang) ? window.I18N.lang : "en";

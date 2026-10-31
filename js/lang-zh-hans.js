@@ -16,6 +16,7 @@ window.I18N && window.I18N.add("zh-Hans", {
   "Leave": "出发时间",
   "Departure time": "出发时间",
   "Departure": "出发",
+  "Want a different map? Change it in the app, then save again.": "想要其他地图？在应用中更改后重新保存。",
   "Scan the code with your phone's camera to open this trip in the app.": "用手机相机扫描此码，即可在应用中打开此行程。",
   "Save about {amount}/mo": "每月约省 {amount}",
   "or press and hold the map": "或在地图上长按",

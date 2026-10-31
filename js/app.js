@@ -937,7 +937,13 @@ require([
 
   // Start over: clear both places, the routes, the results and the map. Vehicle, tag and
   // carpool stay as they are.
+  // The trip shown is kept in the page address (like a share link), so if the browser reloads
+  // the page (coming back from a PDF on a phone, or the phone dropping the tab) it comes back.
+  function keepTripInAddress() {
+    try { history.replaceState(null, "", shareUrl() + (DEBUG ? "&debug=1" : "")); } catch (e) { /* not allowed here */ }
+  }
   $("reset").addEventListener("click", function () {
+    try { history.replaceState(null, "", location.pathname + (DEBUG ? "?debug=1" : "")); } catch (e) { /* not allowed here */ }
     if (picking) setPicking(null);
     if (addingStops) { addingStops = false; addStopsLabel(); }
     midKeys.slice().forEach(removeStop);
@@ -3261,6 +3267,11 @@ require([
     track("pdf");
     if (!lastTrip || !window.MiniPDF) return;
     var btn = this; btn.disabled = true;
+    // iPhone/iPad Safari shows a downloaded PDF in place of the page, and coming back reloads the
+    // app empty. Open a new tab now (while it still counts as the tap) and show the PDF there.
+    var ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    var pdfWin = ios ? window.open("", "_blank") : null;
+    if (pdfWin) try { pdfWin.document.title = L("Making the PDF…"); pdfWin.document.body.textContent = L("Making the PDF…"); } catch (e) { /* fine */ }
     setStatus(L("Making the PDF…"), false, true);
     window.__shotError = null;
     Promise.all([mapShot(), loadLogo(), loadJpeg("assets/eztag-new.jpg")]).then(function (r) {
@@ -3268,13 +3279,18 @@ require([
       // the PDF is in English (Print uses the page itself, in any language).
       var pdfLang = /^(en|es)$/.test(window.I18N.lang) ? window.I18N.lang : "en";
       var blob = new Blob([window.I18N.withLang(pdfLang, function () { return buildPdf(r[0], r[1], r[2]); })], { type: "application/pdf" }), name = pdfName();
-      var a = document.createElement("a");
-      a.href = URL.createObjectURL(blob); a.download = name;
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(function () { URL.revokeObjectURL(a.href); }, 60000);
+      var href = URL.createObjectURL(blob);
+      if (pdfWin && !pdfWin.closed) pdfWin.location.href = href; // iPhone/iPad: in the tab opened on tap
+      else {
+        var a = document.createElement("a");
+        a.href = href; a.download = name;
+        document.body.appendChild(a); a.click(); a.remove();
+      }
+      setTimeout(function () { URL.revokeObjectURL(href); }, 60000);
       setStatus(L("Saved {name}.", { name: name }) + (DEBUG && !r[0] ? " Map picture failed: " + (window.__shotError || "timed out") : ""));
     }).catch(function (e) {
       console.error(e);
+      if (pdfWin && !pdfWin.closed) pdfWin.close();
       setStatus(L("Couldn't make the PDF. Try Print instead."), true);
     }).then(function () { btn.disabled = false; });
   });
@@ -3565,6 +3581,7 @@ require([
     }
     lastTrip.savings = savings;
     showResults(tollRoute, freeRoute, priced, savings);
+    keepTripInAddress();
   }
   function repriceShown() {
     if (!lastTrip || $("results").hidden) return;

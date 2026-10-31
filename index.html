@@ -3,6 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    // iPhone/iPad Safari zooms in on a text box with small type and doesn't zoom back out.
+    // maximum-scale stops that zoom there (Safari still lets people pinch to zoom); other
+    // browsers keep the plain setting so pinch zoom is never blocked.
+    (function () {
+      var ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      if (ios) document.querySelector('meta[name="viewport"]').setAttribute("content", "width=device-width, initial-scale=1, maximum-scale=1");
+    })();
+  </script>
   <title>Toll Calculator</title>
   <meta name="description" content="Estimate Houston-area tolls for your trip by vehicle and payment type, and compare with a toll-free route.">
   <meta name="theme-color" content="#662d91">

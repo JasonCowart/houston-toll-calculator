@@ -739,3 +739,11 @@ html:lang(zh-Hant) body, .lang-list [lang="zh-Hant"] { font-family: Montserrat, 
    My places menu could stretch the page sideways. Clip it (above), and never let the page scroll
    sideways (clip, unlike hidden, keeps the pinned Compare button and section bar working). */
 @media (max-width: 760px) { html, body { overflow-x: clip; } }
+/* Touch screens: text boxes and lists at 16px or more, so phones don't zoom in when one is
+   tapped (iPhone zooms on anything smaller). Esri's address boxes take their size from these
+   Calcite settings. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 16px !important; }
+  .search { --calcite-font-size--2: 16px; --calcite-font-size--1: 16px; --calcite-font-size-0: 16px; }
+  .search input, .search .esri-search__input, .search .esri-input { font-size: 16px !important; }
+}

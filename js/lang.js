@@ -25,6 +25,7 @@
     "Leave": "Salida",
     "Departure time": "Hora de salida",
     "Departure": "Hora",
+    "Want a different map? Choose Light, Dark, Streets or Satellite on the map in the app, then save the PDF again.": "¿Quiere otro mapa? Elija Claro, Oscuro, Calles o Satélite en el mapa de la aplicación y vuelva a guardar el PDF.",
     "Blank = now": "En blanco = ahora",
     "Now": "Ahora",
     "Leave date": "Fecha de salida",

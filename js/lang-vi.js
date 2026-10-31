@@ -16,6 +16,7 @@ window.I18N && window.I18N.add("vi", {
   "Leave": "Khởi hành",
   "Departure time": "Giờ khởi hành",
   "Departure": "Khởi hành",
+  "Want a different map? Choose Light, Dark, Streets or Satellite on the map in the app, then save the PDF again.": "Muốn bản đồ khác? Chọn Sáng, Tối, Đường phố hoặc Vệ tinh trên bản đồ trong ứng dụng, rồi lưu lại PDF.",
   "Blank = now": "Để trống = bây giờ",
   "Now": "Bây giờ",
   "Leave date": "Ngày khởi hành",

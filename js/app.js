@@ -3069,7 +3069,10 @@ require([
     d.link(M, linkTop, P.width(L("Open this trip online"), 8, true), 11, url);
     y = d.para(M, linkTop + 11, url, w, { size: 6, color: FAINT });
     y = d.para(M, y + 2, printedLine(), w, { size: 6.5, color: FAINT });
-    y = Math.max(y, top + mapH) + 12;
+    // Under the map: how to get a different map style.
+    var mapNote = L("Want a different map? Choose Light, Dark, Streets or Satellite on the map in the app, then save the PDF again.");
+    var noteEnd = mapUrl ? d.para(R - mapW, top + mapH + 3, mapNote, mapW, { size: 6.5, lineHeight: 8, color: FAINT }) : top + mapH;
+    y = Math.max(y, noteEnd) + 12;
     // Headline banner.
     var big = textOf($("headline-big")), small = textOf($("headline-small")), neutral = $("headline").classList.contains("neutral");
     var hh = small ? 38 : 26;

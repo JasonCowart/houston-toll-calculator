@@ -2922,15 +2922,27 @@ require([
       area = null;
       if (a && view.width > 0 && view.height > 0 && isFinite(a.area.width)) {
         var ar = a.area;
-        ar.x = Math.max(0, ar.x); ar.y = Math.max(0, ar.y);
-        ar.width = Math.min(ar.width, view.width - ar.x); ar.height = Math.min(ar.height, view.height - ar.y);
-        o.area = ar; area = ar;
+        // Slide the area back onto the map before trimming, so it keeps its shape where it can.
+        ar.width = Math.min(ar.width, view.width); ar.height = Math.min(ar.height, view.height);
+        ar.x = Math.min(Math.max(0, ar.x), view.width - ar.width); ar.y = Math.min(Math.max(0, ar.y), view.height - ar.height);
+        area = fitAspect(ar);
       }
-      if (!area) area = { x: 0, y: 0, width: view.width, height: view.height };
+      if (!area) area = fitAspect({ x: 0, y: 0, width: view.width, height: view.height });
+      o.area = area;
       return view.takeScreenshot(o).catch(function (e) { // a cropped picture failed: try the whole map
-        quiet(e); area = { x: 0, y: 0, width: view.width, height: view.height };
-        return view.takeScreenshot({ format: "jpg", quality: 88, width: SHOT_W, height: SHOT_H });
+        quiet(e); area = fitAspect({ x: 0, y: 0, width: view.width, height: view.height });
+        return view.takeScreenshot({ format: "jpg", quality: 88, width: SHOT_W, height: SHOT_H, area: area });
       });
+    }
+    // The picture is SHOT_W x SHOT_H. A screen area of any other shape gets stretched or cropped
+    // to that, and the numbered dots (placed from the screen) drift off their toll points. So the
+    // area is trimmed to exactly the picture's shape, around its middle.
+    function fitAspect(ar) {
+      var want = SHOT_W / SHOT_H, out = { x: ar.x, y: ar.y, width: ar.width, height: ar.height };
+      if (!(out.width > 0 && out.height > 0)) return out;
+      if (out.width / out.height > want) { var w2 = out.height * want; out.x += (out.width - w2) / 2; out.width = w2; }
+      else { var h2 = out.width / want; out.y += (out.height - h2) / 2; out.height = h2; }
+      return out;
     }
     function withMarks(r) {
       if (!r || !r.dataUrl) return null;
@@ -2957,8 +2969,8 @@ require([
     // A slow phone or map still loading: after 12 seconds, take the map as it is now.
     var late = new Promise(function (res) { setTimeout(res, 12000); }).then(function () {
       if (finished) return null;
-      area = { x: 0, y: 0, width: view.width, height: view.height };
-      return view.takeScreenshot({ format: "jpg", quality: 85, width: SHOT_W, height: SHOT_H }).then(withMarks, function (e) { quiet(e); return null; });
+      area = fitAspect({ x: 0, y: 0, width: view.width, height: view.height });
+      return view.takeScreenshot({ format: "jpg", quality: 85, width: SHOT_W, height: SHOT_H, area: area }).then(withMarks, function (e) { quiet(e); return null; });
     });
     return Promise.race([work, late]).then(function (shot) {
       finished = true;

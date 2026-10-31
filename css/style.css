@@ -293,7 +293,7 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .btn-outline { display: inline-flex; align-items: center; gap: 5px; border: 1.5px solid var(--accent); background: var(--card); color: var(--accent);
   font: inherit; font-size: 12px; font-weight: 700; line-height: 1; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
 .btn-outline span { font-size: 14px; line-height: 1; }
-.btn-outline:hover { background: var(--purple); color: var(--on-purple); }
+@media (hover: hover) { .btn-outline:hover { background: var(--purple); color: var(--on-purple); } } /* touch screens: no stuck hover after a tap */
 .btn-outline:active { background: var(--purple-hover); border-color: var(--purple-hover); color: var(--on-purple); }
 
 /* Edit my places */
@@ -711,8 +711,9 @@ html:lang(zh-Hant) body, .lang-list [lang="zh-Hant"] { font-family: Montserrat, 
 .menu-link > span[aria-hidden] { margin-right: 3px; }
 .menu-link { overflow: hidden; position: relative; display: inline-flex; align-items: center; font-size: 13px; font-weight: 700; color: var(--accent); white-space: nowrap; cursor: pointer; }
 .menu-link select { position: absolute; inset: 0; width: 100%; max-width: 100%; min-width: 0; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; appearance: none; -webkit-appearance: none; border: 0; padding: 0; margin: 0; min-height: 0; }
-.menu-link:hover { color: var(--purple-hover); }
-.menu-link:focus-within { outline: 2px solid var(--violet-screen); outline-offset: 2px; border-radius: 4px; }
+@media (hover: hover) { .menu-link:not(.btn-outline):hover { color: var(--purple-hover); } }
+.menu-link select:focus { outline: none; }
+.menu-link:has(select:focus-visible) { outline: 2px solid var(--violet-screen); outline-offset: 2px; border-radius: 4px; }
 .step-head .menu-link.btn-outline { padding: 4px 9px; border-radius: 6px; max-width: 45%; font-size: 12px; }
 .step-head .menu-link.btn-outline > span { overflow: hidden; text-overflow: ellipsis; }
 .leave-field { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: center; }
@@ -724,10 +725,13 @@ html:lang(zh-Hant) body, .lang-list [lang="zh-Hant"] { font-family: Montserrat, 
 .vrow .field.check { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
 .vrow .field.check > label { flex: 1; min-width: 0; }
 .vrow .field.check > label { font-size: 13px; line-height: 1.25; }
-.vrow #carpool-hint { flex-basis: 100%; }
+.vrow .field.check { position: relative; flex-wrap: nowrap; }
+/* The carpool note opens as a small bubble under the "i", so the row doesn't change size. */
+.vrow #carpool-hint { position: absolute; right: 0; top: calc(100% + 6px); z-index: 8; width: 230px; max-width: 80vw; margin: 0; padding: 8px 10px;
+  background: var(--card); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 14px rgba(28, 27, 29, 0.22); font-size: 12.5px; line-height: 1.35; }
+.vrow #carpool-hint[hidden] { display: none; }
 .info-btn { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--accent); background: none; color: var(--accent);
   font: italic 700 11px/1 Georgia, serif; padding: 0; cursor: pointer; }
-.info-btn[aria-expanded="true"] { background: var(--accent); color: var(--card); }
 #go { position: sticky; bottom: 10px; z-index: 5; box-shadow: 0 4px 14px rgba(28, 27, 29, 0.28); }
 .panel:has(#results:not([hidden])) #go { position: static; box-shadow: none; }
 @media print { .menu-link, .info-btn { display: none !important; } }

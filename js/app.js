@@ -787,9 +787,10 @@ require([
   });
   $("save-vehicle").addEventListener("click", function () { openVehicleEditor(-1); });
   // Carpool note behind a small "i" button, to keep the vehicle row short.
-  $("carpool-info").addEventListener("click", function () {
-    var h = $("carpool-hint"); h.hidden = !h.hidden; this.setAttribute("aria-expanded", String(!h.hidden));
-  });
+  function carpoolNote(show) { $("carpool-hint").hidden = !show; $("carpool-info").setAttribute("aria-expanded", String(show)); }
+  $("carpool-info").addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); carpoolNote($("carpool-hint").hidden); });
+  document.addEventListener("click", function (e) { if (!$("carpool-hint").hidden && !e.target.closest("#carpool-hint")) carpoolNote(false); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("carpool-hint").hidden) { carpoolNote(false); $("carpool-info").focus(); } });
   function fuelSummary(v) {
     var d = window.TollCalc.fuelDefaults(v.axles), fuel = v.fuel || d.fuel;
     return L(fuel === "diesel" ? "Diesel" : "Gas") + " · " + L("{mpg} mpg", { mpg: v.mpg || d.mpg }) + " · " + L("{price}/gal", { price: fmtMoney(v.price || window.TollCalc.FUEL_PRICES[fuel]) });

@@ -990,7 +990,6 @@ require([
     // show only once there's something to save.
     if (typeof fillVehicles === "function" && $("vehicles").options.length) fillVehicles();
     fillPlaces();
-    $("pay-hint").hidden = !!paymentChoice();
     $("go").disabled = !(key && stops.from && stops.to && tollPoints.length && paymentChoice());
     maybeRecompare();
   }

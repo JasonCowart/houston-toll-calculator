@@ -2372,8 +2372,8 @@ require([
       renderCommute();
     });
   });
-  $("commute-days").addEventListener("change", renderCommute);
-  $("commute-round").addEventListener("change", renderCommute);
+  $("commute-days").addEventListener("change", function () { renderCommute(); renderTagSavings(); });
+  $("commute-round").addEventListener("change", function () { renderCommute(); renderTagSavings(); });
   function fuelEdited(e) {
     var d = window.TollCalc.fuelDefaults(fuelSettings().axles), fuel = $("fuel-type").value;
     var mpg = parseFloat($("fuel-mpg").value), price = parseFloat($("fuel-price").value);
@@ -2986,19 +2986,34 @@ require([
     // Without an EZ TAG: what the same trip costs with one, as on screen.
     var sv = lastTrip && lastTrip.savings;
     if (sv && sv.amount >= 0.01) {
-      var yours = L(lastTrip.trip.payment === "tag" ? "Other tag" : "No tag");
-      d.rect(M, y, R - M, 30, { stroke: LINE });
-      d.text(M + 10, y + 12, yours, { size: 7.5, color: GRAY });
-      d.text(M + 10, y + 24, fmtMoney(lastTrip.priced.total), { size: 11, bold: true, color: "#c0272d" });
-      var ex = M + 130;
-      d.text(ex, y + 12, L("With EZ TAG"), { size: 7.5, color: GRAY });
-      d.text(ex, y + 24, fmtMoney(sv.eztag), { size: 11, bold: true, color: "#1b7a36" });
-      var saveT = L("Save {amount}", { amount: fmtMoney(sv.amount) }), sx = M + 260;
-      d.text(sx, y + 19, saveT, { size: 9, bold: true, color: "#1b7a36" });
-      var get = L("Get an EZ TAG: hctra.org"), gw = P.width(get, 8, true);
-      d.text(R - 10 - gw, y + 19, get, { size: 8, bold: true, color: PURPLE });
-      d.link(R - 10 - gw, y + 10, gw, 12, "https://www.hctra.org/NewAccount/PersonalAccount");
-      y += 38;
+      // As on screen: your price in a pale red card, the EZ TAG price in a green-edged card with
+      // the savings, then the monthly savings (when about $10 or more) and the sign-up link.
+      var other = lastTrip.trip.payment === "tag", ch = 34, cw = 128;
+      d.rect(M, y, cw, ch, { fill: "#fdecec" });
+      d.text(M + 8, y + 12, L(other ? "Your TxTag or TollTag" : "No tag · by mail"), { size: 7.5, color: GRAY });
+      d.text(M + 8, y + 27, fmtMoney(lastTrip.priced.total), { size: 13, bold: true, color: "#c0272d" });
+      var ax = M + cw + 5, ay = y + ch / 2; // arrow (the PDF fonts have no arrow character)
+      d.line(ax, ay, ax + 10, ay, { color: FAINT });
+      d.line(ax + 7, ay - 3, ax + 10, ay, { color: FAINT });
+      d.line(ax + 7, ay + 3, ax + 10, ay, { color: FAINT });
+      var ex = M + cw + 20;
+      d.rect(ex, y, cw, ch, { fill: "#e6f4ea", stroke: "#7cc694", lineWidth: 1.2 });
+      d.text(ex + 8, y + 12, L("With EZ TAG"), { size: 7.5, color: GRAY });
+      d.text(ex + 8, y + 27, fmtMoney(sv.eztag), { size: 13, bold: true, color: "#1b7a36" });
+      var saveT = L("Save {amount}", { amount: fmtMoney(sv.amount) }), sw = P.width(saveT, 7.5, true) + 10;
+      d.rect(ex + cw - sw - 5, y + 18, sw, 11, { fill: "#1b7a36" });
+      d.text(ex + cw - sw, y + 26, saveT, { size: 7.5, bold: true, color: "#ffffff" });
+      var days = parseInt($("commute-days").value, 10) || 5, round = $("commute-round").checked;
+      var month = Math.round(sv.amount * days * (round ? 2 : 1) * 4.3), tx = ex + cw + 14;
+      if (month >= 10) {
+        d.text(tx, y + 11, L("Save about {amount} a month", { amount: "$" + month }), { size: 9.5, bold: true, color: PURPLE });
+        d.text(tx, y + 20, L(days === 1 ? (round ? "if you drive this once a week, both ways." : "if you drive this once a week, one way.")
+          : (round ? "if you drive this {n} days a week, both ways." : "if you drive this {n} days a week, one way."), { n: days }), { size: 7, color: GRAY });
+      }
+      var get = L("Get an EZ TAG: hctra.org"), gw = P.width(get, 8, true), gy = month >= 10 ? y + 31 : y + 21;
+      d.text(tx, gy, get, { size: 8, bold: true, color: PURPLE });
+      d.link(tx, gy - 9, gw, 12, "https://www.hctra.org/NewAccount/PersonalAccount");
+      y += ch + 8;
     }
     // Route cards: one box, toll route above toll-free, with the prices and times lined up in
     // columns so the two are easy to compare.
@@ -3252,6 +3267,35 @@ require([
       // The subtotal's slot is always there (empty for a single toll), so every Rates link lines up.
       '<span class="ag-end">' + links + '<span class="ag-total">' + (its.length > 1 ? fmtMoney(total) + (missing ? "+" : "") : "") + "</span></span></div></td></tr>";
   }
+  // EZ TAG offer for no-tag and other-tag trips: the two prices as cards (yours in red, the
+  // EZ TAG price in green with a "Save" sticker), then, when the savings come to about $10 a
+  // month or more at the commute settings, a purple box with the EZ TAG picture, the monthly
+  // savings and a sign-up button. Smaller savings get just a link. Hidden for EZ TAG trips,
+  // trips where every tag pays the same, and trips with rates that can't be checked yet.
+  var EZTAG_URL = "https://www.hctra.org/NewAccount/PersonalAccount";
+  function renderTagSavings() {
+    var ts = $("tag-savings"), sv = lastTrip && lastTrip.savings;
+    ts.hidden = true;
+    if (!sv || sv.amount < 0.01) return;
+    var other = lastTrip.trip.payment === "tag";
+    var days = parseInt($("commute-days").value, 10) || 5, round = $("commute-round").checked;
+    var month = Math.round(sv.amount * days * (round ? 2 : 1) * 4.3);
+    var how = L(days === 1 ? (round ? "if you drive this once a week, both ways." : "if you drive this once a week, one way.")
+      : (round ? "if you drive this {n} days a week, both ways." : "if you drive this {n} days a week, one way."), { n: days });
+    var link = '<a class="ts-link' + (month >= 10 ? " print-only" : "") + '" href="' + EZTAG_URL + '" target="_blank" rel="noopener">' + L("Get an EZ TAG →") + "</a>";
+    ts.innerHTML =
+      '<div class="ts-cards">' +
+        '<div class="ts-card ts-yours"><span>' + L(other ? "Your TxTag or TollTag" : "No tag · by mail") + '</span><strong class="ts-bad">' + fmtMoney(lastTrip.priced.total) + "</strong></div>" +
+        '<span class="ts-arrow" aria-hidden="true">→</span>' +
+        '<div class="ts-card ts-ez"><span class="ts-rib">' + L("Save {amount}", { amount: fmtMoney(sv.amount) }) + "</span><span>" + L("With EZ TAG") + '</span><strong class="ts-good">' + fmtMoney(sv.eztag) + "</strong></div>" +
+      "</div>" +
+      (month >= 10 ?
+        '<div class="ts-ad"><img src="assets/eztag-new.jpg" alt="EZ TAG" width="447" height="170">' +
+          '<div class="ts-ad-text"><strong>' + L("Save about {amount} a month", { amount: "$" + month }) + "</strong><p>" + how + "</p>" +
+          '<a class="ts-cta" href="' + EZTAG_URL + '" target="_blank" rel="noopener">' + L("Get an EZ TAG →") + "</a></div></div>" : "") +
+      link;
+    ts.hidden = false;
+  }
   function showResults(tollRoute, freeRoute, priced, savings) {
     var t = routeStats(tollRoute), f = routeStats(freeRoute);
     var unpriced = unpricedOnTrip();
@@ -3286,21 +3330,7 @@ require([
     renderViaRoads();
 
     // Without an EZ TAG: what the same trip would cost with one.
-    var ts = $("tag-savings");
-    ts.hidden = true;
-    if (savings && savings.amount >= 0.01) {
-      // Side by side: what you pay (red) vs. with an EZ TAG (green), the savings, and a
-      // link to sign up. Labels carry the meaning too, not just the colors.
-      var yours = L(lastTrip && lastTrip.trip.payment === "tag" ? "Other tag" : "No tag");
-      ts.innerHTML =
-        '<div class="ts-grid">' +
-          '<div class="ts-col"><span>' + yours + '</span><strong class="ts-bad">' + fmtMoney(priced.total) + "</strong></div>" +
-          '<div class="ts-col"><span>' + L("With EZ TAG") + '</span><strong class="ts-good">' + fmtMoney(savings.eztag) + "</strong></div>" +
-          '<div class="ts-pill">' + L("Save {amount}", { amount: fmtMoney(savings.amount) }) + "</div>" +
-        "</div>" +
-        '<a class="ts-link" href="https://www.hctra.org/NewAccount/PersonalAccount" target="_blank" rel="noopener">' + L("Get an EZ TAG →") + "</a>";
-      ts.hidden = false;
-    }
+    renderTagSavings();
 
     var flags = [], warns = [];
     if (unpriced.toll.length)

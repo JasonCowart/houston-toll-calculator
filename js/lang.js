@@ -148,6 +148,13 @@
     "With EZ TAG": "Con EZ TAG",
     "Save {amount}": "Ahorre {amount}",
     "Get an EZ TAG →": "Obtenga un EZ TAG →",
+    "No tag · by mail": "Sin TAG · por correo",
+    "Your TxTag or TollTag": "Su TxTag o TollTag",
+    "Save about {amount} a month": "Ahorre unos {amount} al mes",
+    "if you drive this {n} days a week, both ways.": "si hace este viaje {n} días a la semana, ida y vuelta.",
+    "if you drive this {n} days a week, one way.": "si hace este viaje {n} días a la semana, solo ida.",
+    "if you drive this once a week, both ways.": "si hace este viaje una vez a la semana, ida y vuelta.",
+    "if you drive this once a week, one way.": "si hace este viaje una vez a la semana, solo ida.",
     "No toll points crossed.": "No se cruza ningún punto de peaje.",
     "(unverified)": "(sin verificar)",
     "Some time-of-day tolls (Katy Managed Lanes or SH 288 Express Lanes) couldn't be priced, so the total is low.":

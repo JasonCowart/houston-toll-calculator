@@ -24,6 +24,7 @@
     "Save place": "Guardar lugar",
     "Leave": "Salida",
     "Departure time": "Hora de salida",
+    "Departure": "Hora",
     "Blank = now": "En blanco = ahora",
     "Now": "Ahora",
     "Leave date": "Fecha de salida",

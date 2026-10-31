@@ -15,6 +15,7 @@ window.I18N && window.I18N.add("zh-Hans", {
   "Save place": "保存地点",
   "Leave": "出发时间",
   "Departure time": "出发时间",
+  "Departure": "出发",
   "Blank = now": "留空 = 现在",
   "Now": "现在",
   "Leave date": "出发日期",

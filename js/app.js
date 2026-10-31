@@ -2835,6 +2835,8 @@ require([
     var payName = L({ eztag: "EZ TAG", tag: "Other tag", notag: "No tag" }[t.payment] || t.payment);
     var places = [searchesTerm("from") || L("Start")].concat(midKeys.filter(function (k) { return stops[k]; }).map(function (k, i) {
       return searchesTerm(k) || L("Stop {n}", { n: i + 1 }); }), [searchesTerm("to") || L("Destination")]);
+    // Every address here is in the US: drop the ", USA" so fewer lines wrap.
+    places = places.map(function (pl) { return String(pl).replace(/,\s*(USA|United States)$/i, ""); });
     var when = new Date(t.departure).toLocaleString(window.I18N.locale(), { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
     // Start, stops and end each get a row with the same dot as on the map.
     var rows = places.map(function (pl, i) {
@@ -2844,7 +2846,7 @@ require([
         : [L("Stop {n}", { n: i }), pl, { fill: "#1967d2", ring: "#0d3c8c", letter: String(i) }];
     });
     var vName = vehicleName();
-    rows.push([L("Departure time"), when], [L("Vehicle"), (vName ? vName + " \u2014 " : "") + L("{n} axles", { n: t.axles }) + (t.carpool ? ", " + L("carpool") : "") + " · " + payName]);
+    rows.push([L("Departure"), when], [L("Vehicle"), (vName ? vName + " \u2014 " : "") + L("{n} axles", { n: t.axles }) + (t.carpool ? ", " + L("carpool") : "") + " · " + payName]);
     if (chosenVia()) rows.push([L("Toll road"), L("Use {road}", { road: tollwayName(viaChoice.road) })]);
     return { rows: rows, places: places };
   }

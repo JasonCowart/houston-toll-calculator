@@ -15,6 +15,7 @@ window.I18N && window.I18N.add("vi", {
   "Save place": "Lưu địa điểm",
   "Leave": "Khởi hành",
   "Departure time": "Giờ khởi hành",
+  "Departure": "Khởi hành",
   "Blank = now": "Để trống = bây giờ",
   "Now": "Bây giờ",
   "Leave date": "Ngày khởi hành",

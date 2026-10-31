@@ -3298,13 +3298,20 @@ require([
   function renderTagSavings() {
     var ts = $("tag-savings"), sv = lastTrip && lastTrip.savings;
     ts.hidden = true;
+    $("ez-print").innerHTML = "";
     if (!sv || sv.amount < 0.01) return;
     var other = lastTrip.trip.payment === "tag";
     var days = parseInt($("commute-days").value, 10) || 5, round = $("commute-round").checked;
     var month = Math.round(sv.amount * days * (round ? 2 : 1) * 4.3);
     var how = L(days === 1 ? (round ? "Once a week, both ways" : "Once a week, one way")
       : (round ? "{n} days a week, both ways" : "{n} days a week, one way"), { n: days });
-    var link = '<a class="ts-link' + (month >= 10 ? " print-only" : "") + '" href="' + EZTAG_URL + '" target="_blank" rel="noopener">' + L("Get an EZ TAG →") + "</a>";
+    var link = month >= 10 ? "" : '<a class="ts-link" href="' + EZTAG_URL + '" target="_blank" rel="noopener">' + L("Get an EZ TAG →") + "</a>";
+    // Print: the same offer as the PDF, a purple strip at the bottom of the page.
+    var long = L(days === 1 ? (round ? "if you drive this once a week, both ways." : "if you drive this once a week, one way.")
+      : (round ? "if you drive this {n} days a week, both ways." : "if you drive this {n} days a week, one way."), { n: days });
+    $("ez-print").innerHTML = month >= 10 ? '<div class="ezp"><img src="assets/eztag-new.jpg" alt="EZ TAG" width="447" height="170"><div>' +
+      "<strong>" + L("Save about {amount} a month with an EZ TAG", { amount: "$" + month }) + "</strong><span>" +
+      esc(long.charAt(0).toUpperCase() + long.slice(1) + " " + L("Tolls only; gas costs the same with any tag.")) + "</span><b>" + L("Get an EZ TAG at hctra.org") + "</b></div></div>" : "";
     ts.innerHTML =
       '<div class="ts-cards">' +
         '<div class="ts-card ts-yours"><span>' + L(other ? "Your TxTag or TollTag" : "No tag · by mail") + '</span><strong class="ts-bad">' + fmtMoney(lastTrip.priced.total) + "</strong></div>" +

@@ -3302,8 +3302,8 @@ require([
     var other = lastTrip.trip.payment === "tag";
     var days = parseInt($("commute-days").value, 10) || 5, round = $("commute-round").checked;
     var month = Math.round(sv.amount * days * (round ? 2 : 1) * 4.3);
-    var how = L(days === 1 ? (round ? "if you drive this once a week, both ways." : "if you drive this once a week, one way.")
-      : (round ? "if you drive this {n} days a week, both ways." : "if you drive this {n} days a week, one way."), { n: days });
+    var how = L(days === 1 ? (round ? "Once a week, both ways" : "Once a week, one way")
+      : (round ? "{n} days a week, both ways" : "{n} days a week, one way"), { n: days });
     var link = '<a class="ts-link' + (month >= 10 ? " print-only" : "") + '" href="' + EZTAG_URL + '" target="_blank" rel="noopener">' + L("Get an EZ TAG →") + "</a>";
     ts.innerHTML =
       '<div class="ts-cards">' +
@@ -3312,9 +3312,12 @@ require([
         '<div class="ts-card ts-ez"><span class="ts-rib">' + L("Save {amount}", { amount: fmtMoney(sv.amount) }) + "</span><span>" + L("With EZ TAG") + '</span><strong class="ts-good">' + fmtMoney(sv.eztag) + "</strong></div>" +
       "</div>" +
       (month >= 10 ?
-        '<div class="ts-ad"><img src="assets/eztag-tag.jpg" alt="EZ TAG" width="337" height="138">' +
-          '<div class="ts-ad-text"><strong>' + L("About {amount} a month", { amount: "$" + month }) + "</strong><span>" + how + "</span>" +
-          '<a class="ts-cta" href="' + EZTAG_URL + '" target="_blank" rel="noopener">' + L("Get an EZ TAG →") + "</a></div></div>" : "") +
+        // The whole strip is the link (a big target on phones); the chevron shows it's tappable.
+        '<a class="ts-ad" href="' + EZTAG_URL + '" target="_blank" rel="noopener" aria-label="' +
+          esc(L("Get an EZ TAG →") + " " + L("About {amount} a month", { amount: "$" + month }) + ", " + how + ". hctra.org") + '">' +
+          '<img src="assets/eztag-tag.jpg" alt="" width="337" height="138">' +
+          '<span class="ts-ad-text"><strong>' + L("About {amount} a month", { amount: "$" + month }) + "</strong><span>" + how + "</span></span>" +
+          '<span class="ts-chev" aria-hidden="true">›</span></a>' : "") +
       link;
     ts.hidden = false;
   }

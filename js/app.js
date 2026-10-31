@@ -2985,18 +2985,22 @@ require([
     d.text(M + 10, y + 17, big, { size: 13, bold: true, color: neutral ? "#1c1b1d" : "#ffffff" });
     if (small) d.text(M + 10, y + 30, small, { size: 8.5, color: neutral ? GRAY : "#ffffff" });
     y += hh;
+    // Below the banner, two columns: the left one holds the route box, the EZ TAG price cards,
+    // the notes and the toll breakdown; gas and commute start at the top of the right one, so
+    // the page has no empty band.
+    var colW = (R - M - 20) / 2, lx0 = M, rx0 = M + colW + 20, colTop = y;
     // Route cards, attached under the banner (they show where its answer comes from): one box,
     // toll route above toll-free, with the prices and times lined up in columns.
     var rowsC = [[L("Toll route"), textOf($("toll-price")), textOf($("toll-meta"))], [L("Toll-free route"), "$0.00", textOf($("free-meta"))]];
     var labW = Math.max.apply(null, rowsC.map(function (c) { return P.width(c[0], 8.5, true); }));
     var priW = Math.max.apply(null, rowsC.map(function (c) { return P.width(c[1], 12, true); }));
-    d.rect(M, y, R - M, 44, { stroke: LINE });
-    d.line(M + 8, y + 22, R - 8, y + 22, { color: LINE });
+    d.rect(M, y, colW, 44, { stroke: LINE });
+    d.line(M + 8, y + 22, M + colW - 8, y + 22, { color: LINE });
     rowsC.forEach(function (c, i) {
       var ry0 = y + i * 22;
       d.text(M + 10, ry0 + 14.5, c[0], { size: 8.5, bold: true, color: GRAY });
       d.text(M + 22 + labW + priW, ry0 + 15, c[1], { size: 12, bold: true, color: i ? FAINT : PURPLE, align: "right" });
-      d.text(M + 34 + labW + priW, ry0 + 14.5, c[2], { size: 8.5, color: GRAY });
+      d.text(M + 30 + labW + priW, ry0 + 14.5, c[2], { size: 8.5, color: GRAY });
     });
     y += 52;
     // Without an EZ TAG: what the same trip costs with one, as on screen.
@@ -3004,7 +3008,7 @@ require([
     if (sv && sv.amount >= 0.01) {
       // Your price in a pale red card, the EZ TAG price in a green-edged card with the savings.
       // The offer with the monthly savings goes at the bottom of the page (when about $10 or more).
-      var other = lastTrip.trip.payment === "tag", ch = 34, cw = 128;
+      var other = lastTrip.trip.payment === "tag", ch = 34, cw = (colW - 20) / 2;
       d.rect(M, y, cw, ch, { fill: "#fdecec" });
       d.text(M + 8, y + 12, L(other ? "Your TxTag or TollTag" : "No tag · by mail"), { size: 7.5, color: GRAY });
       d.text(M + 8, y + 27, fmtMoney(lastTrip.priced.total), { size: 13, bold: true, color: "#c0272d" });
@@ -3022,24 +3026,25 @@ require([
       var days = parseInt($("commute-days").value, 10) || 5, round = $("commute-round").checked;
       var month = Math.round(sv.amount * days * (round ? 2 : 1) * 4.3);
       if (month >= 10) ezOffer = { month: month, days: days, round: round };
-      else { // small savings: no offer at the bottom, just the link beside the cards
-        var get = L("Get an EZ TAG: hctra.org"), gw = P.width(get, 8, true), gx = ex + cw + 14;
-        d.text(gx, y + 20, get, { size: 8, bold: true, color: PURPLE });
-        d.link(gx, y + 11, gw, 12, EZTAG_URL);
-      }
       y += ch + 8;
+      if (month < 10) { // small savings: no offer at the bottom, just the link under the cards
+        var get = L("Get an EZ TAG: hctra.org"), gw = P.width(get, 8, true);
+        d.text(M, y + 6, get, { size: 8, bold: true, color: PURPLE });
+        d.link(M, y - 3, gw, 12, EZTAG_URL);
+        y += 14;
+      }
     }
     // Notes (managed lanes, time-of-day pricing, etc.).
     Array.prototype.forEach.call(document.querySelectorAll("#flags .notice"), function (n) {
-      var lines = P.wrap(textOf(n), 7.5, false, R - M - 14);
+      var lines = P.wrap(textOf(n), 7.5, false, colW - 14);
       var h = lines.length * 9.5 + 6;
-      d.rect(M, y, R - M, h, { fill: "#f4f1f8" });
-      d.para(M + 7, y + 3, textOf(n), R - M - 14, { size: 7.5, lineHeight: 9.5, color: "#333333" });
+      d.rect(M, y, colW, h, { fill: "#f4f1f8" });
+      d.para(M + 7, y + 3, textOf(n), colW - 14, { size: 7.5, lineHeight: 9.5, color: "#333333" });
       y += h + 4;
     });
     y += 6;
-    // Two columns: tolls on the left, gas and commute on the right.
-    var colW = (R - M - 20) / 2, lx0 = M, rx0 = M + colW + 20, ly = y, ry = y;
+    // Toll breakdown continues the left column; gas and commute start at the top of the right.
+    var ly = y, ry = colTop + 6;
     d.text(lx0, ly + 10, L("Toll breakdown"), { size: 10, bold: true, color: PURPLE }); ly += 16;
     var roadX = lx0 + colW * 0.58;
     d.text(lx0 + 17, ly + 7, L("Toll point"), { size: 7.5, bold: true, color: GRAY });

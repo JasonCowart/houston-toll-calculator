@@ -16,6 +16,7 @@ window.I18N && window.I18N.add("zh-Hans", {
   "Leave": "出发时间",
   "Departure time": "出发时间",
   "Departure": "出发",
+  "or press and hold the map": "或在地图上长按",
   "Want a different map? Choose Light, Dark, Streets or Satellite on the map in the app, then save the PDF again.": "想要其他地图？在应用的地图上选择浅色、深色、街道或卫星，然后重新保存 PDF。",
   "Blank = now": "留空 = 现在",
   "Now": "现在",

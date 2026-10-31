@@ -2778,8 +2778,8 @@ require([
     ["from", "to"].forEach(function (w, i) {
       var p = stops[w]; if (!p) return;
       q.set(i ? "e" : "s", p.longitude.toFixed(5) + "," + p.latitude.toFixed(5));
-      var label = (searchesTerm(w) || "").replace(/,\s*(USA|United States)$/i, ""); // shorter link and QR code
-      if (label) q.set(i ? "el" : "sl", label);
+      var label = (searchesTerm(w) || "").replace(/,\s*(USA|United States)$/i, ""); // shorter link
+      if (label && label !== L("Shared start") && label !== L("Shared destination")) q.set(i ? "el" : "sl", label);
     });
     q.set("ax", t.axles); q.set("pay", t.payment); if (t.carpool) q.set("cp", "1");
     if ($("leave").value) q.set("t", $("leave").value);
@@ -2816,6 +2816,20 @@ require([
     var body = shareText(shareUrl()).split("\n").slice(1).join("\r\n");
     location.href = "mailto:?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
   });
+  // A shorter link for the QR code on the PDF and printout: places to 4 decimals (about 10 m)
+  // and no place names (the app looks the addresses up when it opens), so the code has far
+  // fewer squares and is easier to scan.
+  function qrUrl() {
+    var t = lastTrip.trip, q = [], f = function (p) { return p.longitude.toFixed(4) + "," + p.latitude.toFixed(4); };
+    q.push("s=" + f(stops.from), "e=" + f(stops.to), "ax=" + t.axles, "pay=" + t.payment);
+    var ms = midKeys.filter(function (k) { return stops[k]; });
+    if (ms.length) q.push("m=" + ms.map(function (k) { return f(stops[k]); }).join(";"));
+    if (t.carpool) q.push("cp=1");
+    if ($("leave").value) q.push("t=" + $("leave").value);
+    if (chosenVia()) q.push("r=" + encodeURIComponent(viaChoice.road));
+    if (window.I18N.lang !== "en") q.push("lang=" + window.I18N.lang);
+    return location.origin + location.pathname + "?" + q.join("&");
+  }
   $("share").addEventListener("click", function () {
     track("share");
     if (!lastTrip) return;
@@ -2864,7 +2878,7 @@ require([
       // gets a few lengths wrong (codes that won't scan), but each fixed size checks its room.
       var Q = window.QRCodeLib, q = null;
       for (var t = 1; t <= 40 && !q; t++) {
-        try { q = new Q.QRCode(t, Q.ErrorCorrectLevel.M); q.addData(text); q.make(); } catch (e) { q = null; }
+        try { q = new Q.QRCode(t, Q.ErrorCorrectLevel.L); q.addData(text); q.make(); } catch (e) { q = null; }
       }
       if (!q) return null;
       return { n: q.getModuleCount(), dark: function (r, c) { return q.isDark(r, c); } };
@@ -3036,7 +3050,7 @@ require([
     var url = shareUrl();
     return '<div class="ph-left"><h2 class="ph-title">' + esc(L("Trip summary")) + "</h2>" +
       '<table class="ph-trip">' + rows.map(function (r) { return "<tr><th>" + r[0] + "</th><td>" + r[1] + "</td></tr>"; }).join("") + "</table>" +
-      (qrSvg(url) ? '<div class="ph-qr">' + qrSvg(url) + '<p><strong>' + esc(L("Open this trip online")) + "</strong><br>" +
+      (qrSvg(qrUrl()) ? '<div class="ph-qr">' + qrSvg(qrUrl()) + '<p><strong>' + esc(L("Open this trip online")) + "</strong><br>" +
         esc(L("Scan the code with your phone's camera to open this trip in the app.")) + "</p></div>"
         : '<p class="ph-link">' + esc(L("Open this trip:")) + " " + esc(url) + "</p>") +
       '<p class="ph-printed">' + esc(L("Printed {date}. Estimates only; rates and traffic change.", { date: new Date().toLocaleString(window.I18N.locale(), { dateStyle: "medium", timeStyle: "short" }) }).replace(/\.\./g, ".") /* "a.m.." in Spanish */) + "</p></div>" +
@@ -3113,9 +3127,9 @@ require([
     });
     // The link: a QR code to scan (the address is far too long to type from paper), with a
     // tappable "Open this trip online" beside it. No QR code library: the address in small print.
-    var url = shareUrl(), linkTop = y + 6, qr = qrMatrix(url);
+    var url = shareUrl(), linkTop = y + 6, qr = qrMatrix(qrUrl());
     if (qr) {
-      var qs = 84, cell = qs / (qr.n + 2), qx = M, qy = linkTop;
+      var qs = 64, cell = qs / (qr.n + 2), qx = M, qy = linkTop;
       for (var qrow = 0; qrow < qr.n; qrow++) { // dark runs along each row, one rectangle per run
         for (var qc = 0; qc < qr.n;) {
           if (!qr.dark(qrow, qc)) { qc++; continue; }
@@ -3126,9 +3140,9 @@ require([
       }
       d.link(qx, qy, qs, qs, url);
       var tx2 = M + qs + 10, tw2 = w - qs - 10;
-      d.text(tx2, qy + 14, L("Open this trip online"), { size: 9, bold: true, color: PURPLE });
-      d.link(tx2, qy + 5, P.width(L("Open this trip online"), 9, true), 12, url);
-      var ty = d.para(tx2, qy + 19, L("Scan the code with your phone's camera to open this trip in the app."), tw2, { size: 7.5, lineHeight: 9.5, color: GRAY });
+      d.text(tx2, qy + 12, L("Open this trip online"), { size: 9, bold: true, color: PURPLE });
+      d.link(tx2, qy + 3, P.width(L("Open this trip online"), 9, true), 12, url);
+      var ty = d.para(tx2, qy + 17, L("Scan the code with your phone's camera to open this trip in the app."), tw2, { size: 7.5, lineHeight: 9.5, color: GRAY });
       ty = d.para(tx2, ty + 4, printedLine(), tw2, { size: 6.5, lineHeight: 8.5, color: FAINT });
       y = Math.max(ty, qy + qs);
     } else {
@@ -3409,6 +3423,14 @@ require([
     stops.to = new Point({ longitude: sh.e[0], latitude: sh.e[1] });
     searches.from.searchTerm = sh.sl || L("Shared start");
     searches.to.searchTerm = sh.el || L("Shared destination");
+    // A link without place names (the QR code on a PDF): look the addresses up.
+    [["from", sh.sl], ["to", sh.el]].forEach(function (x) {
+      if (x[1]) return;
+      var pt = stops[x[0]];
+      locator.locationToAddress(GEOCODE_URL, { location: pt }).then(function (c) {
+        if (stops[x[0]] === pt && c && c.address && searches[x[0]]) searches[x[0]].searchTerm = c.address.replace(/,\s*(USA|United States)$/i, "");
+      }).catch(function () { /* keep "Shared start" */ });
+    });
     sh.m.forEach(function (m, i) { addStop(new Point({ longitude: m[0], latitude: m[1] }), sh.ml[i] || L("Stop {n}", { n: i + 1 })); });
     if (sh.ax >= 2 && sh.ax <= 8) $("axles").value = String(sh.ax);
     var r = document.querySelector('input[name="payment"][value="' + sh.pay + '"]'); if (r) r.checked = true;

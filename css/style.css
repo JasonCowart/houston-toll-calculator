@@ -758,8 +758,8 @@ html:lang(zh-Hant) body, .lang-list [lang="zh-Hant"] { font-family: Montserrat, 
 @media (prefers-reduced-motion: reduce) { .jump-flash { animation: none; outline: 3px solid var(--violet-screen); outline-offset: 2px; } }
 @media print { .jump-flash { animation: none !important; box-shadow: none !important; outline: 0 !important; } }
 .pc-key { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 11.5px; color: var(--gray); margin: 0 0 6px !important; }
-.pk { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-left: 6px; }
+.pk { display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; border-radius: 50%; margin-left: 6px; font-size: 11px; font-weight: 800; line-height: 1; box-sizing: border-box; }
 .pk:first-child { margin-left: 0; }
 .pk-toll { background: var(--purple); border: 1.5px solid #fff; box-shadow: 0 0 0 1px var(--purple); }
-.pk-new { background: var(--purple); box-shadow: 0 0 0 3px var(--yellow); }
-.pk-skip { background: #fff; border: 2px solid #78748a; }
+.pk-new { width: 15px; height: 15px; background: #d9480f; color: #fff; border: 1.5px solid #fff; box-shadow: 0 0 0 1px #d9480f; }
+.pk-skip { width: 15px; height: 15px; background: #fff; color: #6b6775; border: 2px solid #6b6775; }

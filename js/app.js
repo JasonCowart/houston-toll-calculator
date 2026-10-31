@@ -2496,9 +2496,9 @@ require([
     was.items.forEach(function (it) { if (!B[it.point.id]) out.push(L("{name}: not on this route", { name: it.point.name })); });
     return out;
   }
-  // Toll dots for a previewed route: its tolls in purple (yellow ring and "new" when your trip
-  // doesn't pass them; "was → now" when the price differs), and your trip's tolls it skips as
-  // gray rings.
+  // Toll dots for a previewed route: its tolls in purple ("was → now" when the price differs),
+  // an orange + badge for tolls your trip doesn't pass, a gray − badge for your trip's tolls it
+  // skips. The + and − carry the meaning without color too.
   function previewTollMarks(was, now) {
     var A = {}, B = {}, out = [];
     was.items.forEach(function (it) { A[it.point.id] = it; });
@@ -2507,19 +2507,26 @@ require([
       return new Graphic({ geometry: pt, symbol: { type: "text", text: text, color: color, haloColor: [255, 255, 255], haloSize: 1.5,
         xoffset: xo, yoffset: -4, horizontalAlignment: "left", font: { size: 11, weight: "bold" } } });
     }
+    function badge(pt, fill, ring, sign, signColor) { // a round badge with + or − in it
+      return [new Graphic({ geometry: pt, symbol: { type: "simple-marker", size: 16, color: fill, outline: { color: ring, width: 2 } } }),
+        new Graphic({ geometry: pt, symbol: { type: "text", text: sign, color: signColor, horizontalAlignment: "center", verticalAlignment: "middle",
+          font: { size: 14, weight: "bold" } } })];
+    }
+    // Tolls on your trip this route skips: a white badge with a gray minus.
     was.items.forEach(function (it) {
       if (B[it.point.id]) return;
       var pt = new Point({ longitude: it.point.lon, latitude: it.point.lat });
-      out.push(new Graphic({ geometry: pt, symbol: { type: "simple-marker", size: 10, color: [255, 255, 255, 0.9], outline: { color: [120, 116, 128], width: 2 } } }));
-      out.push(label(pt, shortName(it.point.name) + " · " + L("skipped"), [95, 90, 102], 9));
+      out.push.apply(out, badge(pt, [255, 255, 255], [107, 103, 117], "\u2212", [107, 103, 117]));
+      out.push(label(pt, shortName(it.point.name) + " · " + L("not on this route"), [95, 90, 102], 12));
     });
+    // This route's tolls: purple dots; an orange plus badge where your trip doesn't pass it.
     now.items.forEach(function (it) {
       var o = A[it.point.id], pt = new Point({ longitude: it.point.lon, latitude: it.point.lat });
       var price = it.rate == null ? "n/a" : fmtMoney(it.rate);
-      if (!o) out.push(new Graphic({ geometry: pt, symbol: { type: "simple-marker", size: 17, color: [255, 229, 18], outline: { color: [102, 45, 145], width: 1.5 } } }));
-      out.push(new Graphic({ geometry: pt, symbol: { type: "simple-marker", size: 9, color: it.rate == null ? COLORS.missing : COLORS.toll, outline: { color: [255, 255, 255], width: 1.5 } } }));
-      var text = shortName(it.point.name) + " " + (o && o.rate != null && it.rate != null && Math.abs(o.rate - it.rate) > 0.005 ? fmtMoney(o.rate) + " \u2192 " + price : price) + (o ? "" : " · " + L("new"));
-      out.push(label(pt, text, [47, 26, 80], o ? 8 : 11));
+      if (o) out.push(new Graphic({ geometry: pt, symbol: { type: "simple-marker", size: 9, color: it.rate == null ? COLORS.missing : COLORS.toll, outline: { color: [255, 255, 255], width: 1.5 } } }));
+      else out.push.apply(out, badge(pt, [217, 72, 15], [255, 255, 255], "+", [255, 255, 255]));
+      var text = shortName(it.point.name) + " " + (o && o.rate != null && it.rate != null && Math.abs(o.rate - it.rate) > 0.005 ? fmtMoney(o.rate) + " \u2192 " + price : price) + (o ? "" : " · " + L("added"));
+      out.push(label(pt, text, [47, 26, 80], o ? 8 : 12));
     });
     return out;
   }
@@ -2551,8 +2558,8 @@ require([
     previewChip.innerHTML = '<p class="pc-h"><span class="pc-swatch" aria-hidden="true"></span>' + esc(L("Leaving {time}: toll route", { time: when })) + "</p>" +
       '<p class="pc-m">' + esc(fmtTime(r.tollMin)) + " · " + fmtMoney(r.toll) + (r.plus ? "+" : "") + " · " +
       esc(L("different roads from your trip")) + "</p>" +
-      '<p class="pc-key"><span class="pk pk-toll"></span>' + esc(L("Toll")) + '<span class="pk pk-new"></span>' + esc(L("New vs. your trip")) +
-        '<span class="pk pk-skip"></span>' + esc(L("Not on this route")) + "</p>" +
+      '<p class="pc-key"><span class="pk pk-toll"></span>' + esc(L("Toll")) + '<span class="pk pk-new">+</span>' + esc(L("Added toll")) +
+        '<span class="pk pk-skip">\u2212</span>' + esc(L("Not on this route")) + "</p>" +
       '<div class="pc-b"><button type="button" class="go small" data-use="' + k + '">' + esc(L("Use this time")) + "</button>" +
       '<button type="button" class="btn-outline small" data-back="1">' + esc(L("Back to your trip")) + "</button></div>";
     previewChip.hidden = false;

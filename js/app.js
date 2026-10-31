@@ -3432,9 +3432,9 @@ require([
       (month >= 10 ?
         // The whole strip is the link (a big target on phones); the chevron shows it's tappable.
         '<a class="ts-ad" href="' + EZTAG_URL + '" target="_blank" rel="noopener" aria-label="' +
-          esc(L("Get an EZ TAG →") + " " + L("About {amount} a month", { amount: "$" + month }) + ", " + how + ". hctra.org") + '">' +
+          esc(L("Get an EZ TAG →") + " " + L("Save about {amount}/mo", { amount: "$" + month }) + ", " + how + ". hctra.org") + '">' +
           '<img src="assets/eztag-tag.jpg" alt="" width="337" height="138">' +
-          '<span class="ts-ad-text"><strong>' + L("About {amount} a month", { amount: "$" + month }) + "</strong><span>" + how + "</span></span>" +
+          '<span class="ts-ad-text"><strong>' + L("Save about {amount}/mo", { amount: "$" + month }) + "</strong><span>" + how + "</span></span>" +
           '<span class="ts-chev" aria-hidden="true">›</span></a>' : "") +
       link;
     ts.hidden = false;

@@ -161,13 +161,13 @@ input[type="datetime-local"] { -webkit-appearance: none; appearance: none; min-w
 .ts-arrow { align-self: center; color: var(--ink-faint); font-size: 20px; }
 .ts-bad { color: var(--error); }
 .ts-good { color: var(--good); }
-.ts-ad { margin-top: 12px; background: #652d90; border-radius: 8px; overflow: hidden; color: #fff; text-align: center; }
-.ts-ad img { display: block; width: 100%; height: auto; }
-.ts-ad-text { padding: 4px 14px 14px; }
-.ts-ad strong { display: block; font-size: 20px; font-weight: 800; color: var(--yellow); }
-.ts-ad p { margin: 2px 0 10px; font-size: 13px; }
-.ts-cta { display: inline-block; background: var(--yellow); color: #3b1a5a; font-weight: 800; font-size: 14px; padding: 8px 18px; border-radius: 999px; text-decoration: none; }
-.ts-cta:hover { background: #fff07a; }
+.ts-ad { margin-top: 12px; display: flex; align-items: center; background: #652d90; border-radius: 8px; overflow: hidden; color: #fff; }
+.ts-ad img { display: block; flex: none; width: 128px; height: auto; margin-left: 4px; }
+.ts-ad-text { padding: 8px 12px; font-size: 12px; line-height: 1.35; min-width: 0; }
+.ts-ad strong { display: block; font-size: 16px; font-weight: 800; color: var(--yellow); }
+.ts-ad span { display: block; }
+.ts-cta { display: inline-block; margin-top: 3px; color: #fff; font-weight: 800; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
+.ts-cta:hover { color: var(--yellow); }
 .ts-cta:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .ts-link { display: inline-block; margin-top: 8px; font-size: 13px; font-weight: 700; color: var(--accent); }
 .ts-link:hover { color: var(--purple-hover); }

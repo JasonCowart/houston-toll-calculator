@@ -140,6 +140,7 @@ window.I18N && window.I18N.add("vi", {
   "With EZ TAG": "Với EZ TAG",
   "Save {amount}": "Tiết kiệm {amount}",
   "Get an EZ TAG →": "Đăng ký EZ TAG →",
+  "About {amount} a month": "Khoảng {amount} mỗi tháng",
   "Save about {amount} a month with an EZ TAG": "Tiết kiệm khoảng {amount} mỗi tháng với EZ TAG",
   "Tolls only; gas costs the same with any tag.": "Chỉ tính phí cầu đường; xăng như nhau với mọi loại thẻ.",
   "Get an EZ TAG at hctra.org": "Đăng ký EZ TAG tại hctra.org",

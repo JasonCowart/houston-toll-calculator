@@ -3286,8 +3286,8 @@ require([
   }
   // EZ TAG offer for no-tag and other-tag trips: the two prices as cards (yours in red, the
   // EZ TAG price in green with a "Save" sticker), then, when the savings come to about $10 a
-  // month or more at the commute settings, a purple box with the EZ TAG picture, the monthly
-  // savings and a sign-up button. Smaller savings get just a link. Hidden for EZ TAG trips,
+  // month or more at the commute settings, a slim purple strip with the EZ TAG picture, the
+  // monthly savings and a sign-up link. Smaller savings get just a link. Hidden for EZ TAG trips,
   // trips where every tag pays the same, and trips with rates that can't be checked yet.
   var EZTAG_URL = "https://www.hctra.org/NewAccount/PersonalAccount";
   function renderTagSavings() {
@@ -3307,8 +3307,8 @@ require([
         '<div class="ts-card ts-ez"><span class="ts-rib">' + L("Save {amount}", { amount: fmtMoney(sv.amount) }) + "</span><span>" + L("With EZ TAG") + '</span><strong class="ts-good">' + fmtMoney(sv.eztag) + "</strong></div>" +
       "</div>" +
       (month >= 10 ?
-        '<div class="ts-ad"><img src="assets/eztag-new.jpg" alt="EZ TAG" width="447" height="170">' +
-          '<div class="ts-ad-text"><strong>' + L("Save about {amount} a month", { amount: "$" + month }) + "</strong><p>" + how + "</p>" +
+        '<div class="ts-ad"><img src="assets/eztag-tag.jpg" alt="EZ TAG" width="337" height="138">' +
+          '<div class="ts-ad-text"><strong>' + L("About {amount} a month", { amount: "$" + month }) + "</strong><span>" + how + "</span>" +
           '<a class="ts-cta" href="' + EZTAG_URL + '" target="_blank" rel="noopener">' + L("Get an EZ TAG →") + "</a></div></div>" : "") +
       link;
     ts.hidden = false;

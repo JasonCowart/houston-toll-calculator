@@ -148,6 +148,7 @@
     "With EZ TAG": "Con EZ TAG",
     "Save {amount}": "Ahorre {amount}",
     "Get an EZ TAG →": "Obtenga un EZ TAG →",
+    "About {amount} a month": "Unos {amount} al mes",
     "Save about {amount} a month with an EZ TAG": "Ahorre unos {amount} al mes con un EZ TAG",
     "Tolls only; gas costs the same with any tag.": "Solo peajes; la gasolina cuesta lo mismo con cualquier TAG.",
     "Get an EZ TAG at hctra.org": "Obtenga un EZ TAG en hctra.org",

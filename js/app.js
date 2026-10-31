@@ -2874,24 +2874,26 @@ require([
       return shot;
     });
   }
-  // The HCTRA logo on the purple title bar, as a JPEG (PDF pictures here are JPEG).
-  var logoJpeg = null;
-  function loadLogo() {
-    if (logoJpeg) return Promise.resolve(logoJpeg);
+  // Pictures for the PDF, as JPEGs (PDF pictures here are JPEG): the HCTRA logo on the purple
+  // title bar, and the EZ TAG picture for the offer at the bottom.
+  var jpegs = {};
+  function loadJpeg(src) {
+    if (jpegs[src]) return Promise.resolve(jpegs[src]);
     return new Promise(function (res) {
       var img = new Image();
       img.onload = function () {
         try {
           var c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight;
           var g = c.getContext("2d"); g.fillStyle = "#662d91"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0);
-          logoJpeg = { url: c.toDataURL("image/jpeg", 0.92), w: c.width, h: c.height };
-        } catch (e) { logoJpeg = null; }
-        res(logoJpeg);
+          jpegs[src] = { url: c.toDataURL("image/jpeg", 0.92), w: c.width, h: c.height };
+        } catch (e) { jpegs[src] = null; }
+        res(jpegs[src]);
       };
       img.onerror = function () { res(null); };
-      img.src = "assets/hctra-lockup-reverse.png";
+      img.src = src;
     });
   }
+  function loadLogo() { return loadJpeg("assets/hctra-lockup-reverse.png"); }
   function printHead(shot) {
     var rows = summaryRows().rows.map(function (r) {
       var dot = r[2] ? '<span class="ph-dot" style="background:' + r[2].fill + ";border-color:" + r[2].ring + '">' + r[2].letter + "</span>" : "";
@@ -2924,10 +2926,10 @@ require([
   // Save PDF: the same one-page summary as a PDF file, drawn directly (js/pdf.js), so it works
   // on phones whose print screen has no "Save as PDF".
   function textOf(el) { return el ? el.textContent.replace(/\s+/g, " ").trim() : ""; }
-  function buildPdf(shot, logo) {
+  function buildPdf(shot, logo, ezPic) {
     var mapUrl = shot && shot.url;
     var P = window.MiniPDF, d = new P.Doc(612, 792), M = 32, R = 612 - M, PURPLE = "#662d91", GRAY = "#5f5a66", FAINT = "#8a8590", LINE = "#d9d5de";
-    var y = M;
+    var y = M, ezOffer = null;
     // Title bar like the site's: the HCTRA logo, a thin divider, the title.
     d.rect(M, y, R - M, 36, { fill: PURPLE });
     var tx = M + 12;
@@ -2982,12 +2984,26 @@ require([
     d.rect(M, y, R - M, hh, { fill: neutral ? "#ebe4f2" : PURPLE });
     d.text(M + 10, y + 17, big, { size: 13, bold: true, color: neutral ? "#1c1b1d" : "#ffffff" });
     if (small) d.text(M + 10, y + 30, small, { size: 8.5, color: neutral ? GRAY : "#ffffff" });
-    y += hh + 6;
+    y += hh;
+    // Route cards, attached under the banner (they show where its answer comes from): one box,
+    // toll route above toll-free, with the prices and times lined up in columns.
+    var rowsC = [[L("Toll route"), textOf($("toll-price")), textOf($("toll-meta"))], [L("Toll-free route"), "$0.00", textOf($("free-meta"))]];
+    var labW = Math.max.apply(null, rowsC.map(function (c) { return P.width(c[0], 8.5, true); }));
+    var priW = Math.max.apply(null, rowsC.map(function (c) { return P.width(c[1], 12, true); }));
+    d.rect(M, y, R - M, 44, { stroke: LINE });
+    d.line(M + 8, y + 22, R - 8, y + 22, { color: LINE });
+    rowsC.forEach(function (c, i) {
+      var ry0 = y + i * 22;
+      d.text(M + 10, ry0 + 14.5, c[0], { size: 8.5, bold: true, color: GRAY });
+      d.text(M + 22 + labW + priW, ry0 + 15, c[1], { size: 12, bold: true, color: i ? FAINT : PURPLE, align: "right" });
+      d.text(M + 34 + labW + priW, ry0 + 14.5, c[2], { size: 8.5, color: GRAY });
+    });
+    y += 52;
     // Without an EZ TAG: what the same trip costs with one, as on screen.
     var sv = lastTrip && lastTrip.savings;
     if (sv && sv.amount >= 0.01) {
-      // As on screen: your price in a pale red card, the EZ TAG price in a green-edged card with
-      // the savings, then the monthly savings (when about $10 or more) and the sign-up link.
+      // Your price in a pale red card, the EZ TAG price in a green-edged card with the savings.
+      // The offer with the monthly savings goes at the bottom of the page (when about $10 or more).
       var other = lastTrip.trip.payment === "tag", ch = 34, cw = 128;
       d.rect(M, y, cw, ch, { fill: "#fdecec" });
       d.text(M + 8, y + 12, L(other ? "Your TxTag or TollTag" : "No tag · by mail"), { size: 7.5, color: GRAY });
@@ -3004,31 +3020,15 @@ require([
       d.rect(ex + cw - sw - 5, y + 18, sw, 11, { fill: "#1b7a36" });
       d.text(ex + cw - sw, y + 26, saveT, { size: 7.5, bold: true, color: "#ffffff" });
       var days = parseInt($("commute-days").value, 10) || 5, round = $("commute-round").checked;
-      var month = Math.round(sv.amount * days * (round ? 2 : 1) * 4.3), tx = ex + cw + 14;
-      if (month >= 10) {
-        d.text(tx, y + 11, L("Save about {amount} a month", { amount: "$" + month }), { size: 9.5, bold: true, color: PURPLE });
-        d.text(tx, y + 20, L(days === 1 ? (round ? "if you drive this once a week, both ways." : "if you drive this once a week, one way.")
-          : (round ? "if you drive this {n} days a week, both ways." : "if you drive this {n} days a week, one way."), { n: days }), { size: 7, color: GRAY });
+      var month = Math.round(sv.amount * days * (round ? 2 : 1) * 4.3);
+      if (month >= 10) ezOffer = { month: month, days: days, round: round };
+      else { // small savings: no offer at the bottom, just the link beside the cards
+        var get = L("Get an EZ TAG: hctra.org"), gw = P.width(get, 8, true), gx = ex + cw + 14;
+        d.text(gx, y + 20, get, { size: 8, bold: true, color: PURPLE });
+        d.link(gx, y + 11, gw, 12, EZTAG_URL);
       }
-      var get = L("Get an EZ TAG: hctra.org"), gw = P.width(get, 8, true), gy = month >= 10 ? y + 31 : y + 21;
-      d.text(tx, gy, get, { size: 8, bold: true, color: PURPLE });
-      d.link(tx, gy - 9, gw, 12, "https://www.hctra.org/NewAccount/PersonalAccount");
       y += ch + 8;
     }
-    // Route cards: one box, toll route above toll-free, with the prices and times lined up in
-    // columns so the two are easy to compare.
-    var rowsC = [[L("Toll route"), textOf($("toll-price")), textOf($("toll-meta"))], [L("Toll-free route"), "$0.00", textOf($("free-meta"))]];
-    var labW = Math.max.apply(null, rowsC.map(function (c) { return P.width(c[0], 8.5, true); }));
-    var priW = Math.max.apply(null, rowsC.map(function (c) { return P.width(c[1], 12, true); }));
-    d.rect(M, y, R - M, 44, { stroke: LINE });
-    d.line(M + 8, y + 22, R - 8, y + 22, { color: LINE });
-    rowsC.forEach(function (c, i) {
-      var ry0 = y + i * 22;
-      d.text(M + 10, ry0 + 14.5, c[0], { size: 8.5, bold: true, color: GRAY });
-      d.text(M + 22 + labW + priW, ry0 + 15, c[1], { size: 12, bold: true, color: i ? FAINT : PURPLE, align: "right" });
-      d.text(M + 34 + labW + priW, ry0 + 14.5, c[2], { size: 8.5, color: GRAY });
-    });
-    y += 52;
     // Notes (managed lanes, time-of-day pricing, etc.).
     Array.prototype.forEach.call(document.querySelectorAll("#flags .notice"), function (n) {
       var lines = P.wrap(textOf(n), 7.5, false, R - M - 14);
@@ -3133,6 +3133,23 @@ require([
     var hint = textOf(document.querySelector("#commute-out .hint"));
     if (hint) ry = d.para(rx0, ry + 3, hint, colW, { size: 6.5, color: FAINT });
     y = Math.max(ly, ry) + 12;
+    // EZ TAG offer: a purple strip across the bottom of the page (or right after the content if
+    // there's no room there; a new page if there's none at all), like a flyer's footer.
+    if (ezOffer) {
+      var adH = 62, bottom = 792 - M - adH;
+      if (y > bottom) { d.addPage(); bottom = M; }
+      d.rect(M, bottom, R - M, adH, { fill: "#652d90" });
+      var picW = ezPic ? adH * ezPic.w / ezPic.h : 0;
+      if (ezPic) d.jpeg(ezPic.url, ezPic.w, ezPic.h, M, bottom, picW, adH);
+      var ax0 = M + picW + 14, how = L(ezOffer.days === 1 ? (ezOffer.round ? "if you drive this once a week, both ways." : "if you drive this once a week, one way.")
+        : (ezOffer.round ? "if you drive this {n} days a week, both ways." : "if you drive this {n} days a week, one way."), { n: ezOffer.days });
+      d.text(ax0, bottom + 18, L("Save about {amount} a month with an EZ TAG", { amount: "$" + ezOffer.month }), { size: 12, bold: true, color: "#ffe512" });
+      var after = d.para(ax0, bottom + 21, how.charAt(0).toUpperCase() + how.slice(1) + " " + L("Tolls only; gas costs the same with any tag."), R - ax0 - 10, { size: 7.5, lineHeight: 9, color: "#ffffff" });
+      var cta = L("Get an EZ TAG at hctra.org"), cw2 = P.width(cta, 8, true) + 16, by = Math.max(bottom + 37, Math.min(after + 3, bottom + adH - 19));
+      d.rect(ax0, by, cw2, 15, { fill: "#ffe512" });
+      d.text(ax0 + 8, by + 10.5, cta, { size: 8, bold: true, color: "#3b1a5a" });
+      d.link(ax0, by, cw2, 15, EZTAG_URL);
+    }
     return d.bytes();
   }
   function pdfName() {
@@ -3146,11 +3163,11 @@ require([
     var btn = this; btn.disabled = true;
     setStatus(L("Making the PDF…"), false, true);
     window.__shotError = null;
-    Promise.all([mapShot(), loadLogo()]).then(function (r) {
+    Promise.all([mapShot(), loadLogo(), loadJpeg("assets/eztag-new.jpg")]).then(function (r) {
       // The PDF's built-in fonts have no Vietnamese or Chinese letters, so in those languages
       // the PDF is in English (Print uses the page itself, in any language).
       var pdfLang = /^(en|es)$/.test(window.I18N.lang) ? window.I18N.lang : "en";
-      var blob = new Blob([window.I18N.withLang(pdfLang, function () { return buildPdf(r[0], r[1]); })], { type: "application/pdf" }), name = pdfName();
+      var blob = new Blob([window.I18N.withLang(pdfLang, function () { return buildPdf(r[0], r[1], r[2]); })], { type: "application/pdf" }), name = pdfName();
       var a = document.createElement("a");
       a.href = URL.createObjectURL(blob); a.download = name;
       document.body.appendChild(a); a.click(); a.remove();

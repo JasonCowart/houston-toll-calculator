@@ -568,7 +568,10 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
   /* Like the PDF: under the banner, the route box, EZ TAG prices, notes and toll breakdown on the
      left; gas and commute from the top on the right; the EZ TAG offer across the bottom of the
      page (the empty last row takes up the slack; a long trip pushes it down). */
-  #results { grid-template-rows: auto auto auto auto auto auto 1fr auto; min-height: 225mm; } /* room for phones' print header and footer */
+  #results { grid-template-rows: auto auto auto auto auto auto 1fr auto; }
+  /* Only with the EZ TAG strip: make the page tall enough to put it at the bottom (less than a
+     full page, leaving room for the header and footer phones add, so there's no blank page 2). */
+  #results:has(#ez-print .ezp) { min-height: 212mm; }
   .cards, #flags, #breakdown-wrap { grid-column: 1 !important; }
   .cards { margin-top: -2.5mm !important; }
   .cards { row-gap: 0 !important; }
@@ -785,4 +788,4 @@ html:lang(zh-Hant) body, .lang-list [lang="zh-Hant"] { font-family: Montserrat, 
 .add-row .hold-tip { margin: 0; font-size: 12.5px; }
 .add-row .hold-tip[hidden] { display: none; }
 .add-stop[hidden] { display: none !important; }
-@media print { .preview-badge { display: none !important; } }
+@media print { .preview-badge, body > div[style*="position:fixed"][style*="ffe512"] { display: none !important; } } /* the PREVIEW tag */

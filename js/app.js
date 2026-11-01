@@ -949,7 +949,7 @@ require([
   window.addEventListener("pageshow", function () { unloading = false; });
   document.addEventListener("visibilitychange", function () {
     try {
-      if (document.visibilityState === "hidden") { if (!unloading) sessionStorage.setItem("tc-away", "1"); }
+      if (document.visibilityState === "hidden") { if (!unloading) sessionStorage.setItem("tc-away", String(Date.now())); }
       else sessionStorage.removeItem("tc-away");
     } catch (e) { /* storage blocked */ }
   });
@@ -3484,7 +3484,9 @@ require([
     var q = new URLSearchParams(location.search);
     if (q.get("kept") === "1") { // our own kept trip, not a link someone shared
       var away = false, nav = "";
-      try { away = sessionStorage.getItem("tc-away") === "1"; sessionStorage.removeItem("tc-away"); } catch (e) { /* storage blocked */ }
+      // Away = hidden for a while before this load (a tab dropped while the PDF was open). Some
+      // phones hide the page for a moment as it reloads, so a hide just before doesn't count.
+      try { var at = +sessionStorage.getItem("tc-away"); away = at > 0 && Date.now() - at > 3000; sessionStorage.removeItem("tc-away"); } catch (e) { /* storage blocked */ }
       try { nav = (performance.getEntriesByType("navigation")[0] || {}).type || ""; } catch (e) { /* old browser */ }
       if (!away && nav === "reload") { // reloaded on purpose: start fresh
         try { history.replaceState(null, "", location.pathname + (DEBUG ? "?debug=1" : "")); } catch (e) { /* not allowed here */ }
@@ -3498,8 +3500,15 @@ require([
       m: (q.get("m") || "").split(";").map(pt).filter(Boolean).slice(0, MAX_MID), ml: (q.get("ml") || "").split("|") };
   })();
   if (shared) setStatus(L("Opening the shared trip…"), false, true);
+  else if ($("status").classList.contains("busy")) setStatus(""); // the page's early "Opening…" note (index.html), when a reload starts fresh
+  var sharedTries = 0;
   function applyShared() {
-    if (!shared || !searches.from || !searches.to) return false;
+    if (!shared) return false;
+    if (!searches.from || !searches.to) { // the address boxes aren't ready yet: try again shortly
+      if (++sharedTries < 80) setTimeout(applyShared, 250);
+      else { shared = null; setStatus(""); }
+      return false;
+    }
     var sh = shared; shared = null;
     stops.from = new Point({ longitude: sh.s[0], latitude: sh.s[1] });
     stops.to = new Point({ longitude: sh.e[0], latitude: sh.e[1] });
@@ -3526,6 +3535,7 @@ require([
     (function go() {
       if (!$("go").disabled) { $("go").click(); return; }
       if (++tries < 40) setTimeout(go, 250);
+      else setStatus(""); // never got going: don't leave the spinner up
     })();
     return true;
   }

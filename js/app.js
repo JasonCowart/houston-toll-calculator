@@ -944,9 +944,12 @@ require([
           : pkItem(placeIcon(p.label), p.label, sub, 'data-a="pick" data-v="s' + i + '"');
       });
     } else if (!pk.edit && !cur) body += '<p class="pkr-note">' + esc(L("Type or pick a place in the box, then save it here to reuse it.")) + "</p>";
-    if (recent.length) {
+    // Recent places that are already saved show once, up in My places.
+    var fresh = recent.filter(function (p) { return !saved.some(function (sv) { return samePlace(sv, p); }); });
+    if (fresh.length) {
       body += '<p class="pkr-sec">' + esc(L("Recent")) + (pk.edit ? pkBtn("clear-recent", L("Clear all")) : "") + "</p>";
       recent.forEach(function (p, i) {
+        if (fresh.indexOf(p) < 0) return;
         var a = splitAddr(p.label);
         body += pk.edit ? pkEditRow("clock", a[0], a[1], "r" + i, pkAct("ren", "r" + i, "star", L("Save {name}", { name: a[0] })) + pkAct("del", "r" + i, "trash", L("Remove {name}", { name: a[0] }), "del"), true)
           : pkItem("clock", a[0], a[1], 'data-a="pick" data-v="r' + i + '"', "", true);

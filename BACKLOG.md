@@ -54,6 +54,7 @@ Last updated: Nov 1, 2026
 
 | Date | Item |
 | --- | --- |
+| Nov 1, 2026 | Picker: recent places that are already saved no longer repeat under Recent |
 | Nov 1, 2026 | Custom place and vehicle picker on the preview (sheet on phones, dropdown on desktop; save, rename and remove inside it). Jason to try it and ask for tweaks. The old Edit my places / Edit my vehicles windows are no longer opened by the menus and can be removed once the picker settles. |
 | Nov 1, 2026 | My places gets a Save/Edit dialog like My vehicles (rename, remove, save a recent place); Save and Edit moved to the top of both menus |
 | Nov 1, 2026 | Reloading the page starts fresh (it used to reopen the last trip like a shared link); the trip still comes back if the phone drops the tab while the PDF is open |

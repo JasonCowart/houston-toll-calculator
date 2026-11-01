@@ -18,6 +18,7 @@ window.I18N && window.I18N.add("zh-Hans", {
   "Departure": "出发",
   "Drawing your map and tolls": "正在绘制地图和通行费",
   "Want a different map? Change it in the app, then save again.": "想要其他地图？在应用中更改后重新保存。",
+  "Want a different map? Change it in the app, then print again.": "想要其他地图？在应用中更改后重新打印。",
   "Scan the code with your phone's camera to open this trip in the app.": "用手机相机扫描此码，即可在应用中打开此行程。",
   "Save about {amount}/mo": "每月约省 {amount}",
   "or press and hold the map": "或在地图上长按",

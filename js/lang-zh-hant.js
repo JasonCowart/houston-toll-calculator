@@ -18,6 +18,7 @@ window.I18N && window.I18N.add("zh-Hant", {
   "Departure": "出發",
   "Drawing your map and tolls": "正在繪製地圖和通行費",
   "Want a different map? Change it in the app, then save again.": "想要其他地圖？在應用程式中變更後重新儲存。",
+  "Want a different map? Change it in the app, then print again.": "想要其他地圖？在應用程式中變更後重新列印。",
   "Scan the code with your phone's camera to open this trip in the app.": "用手機相機掃描此碼，即可在應用程式中開啟此行程。",
   "Save about {amount}/mo": "每月約省 {amount}",
   "or press and hold the map": "或在地圖上長按",

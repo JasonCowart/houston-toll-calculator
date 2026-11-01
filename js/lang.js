@@ -27,6 +27,7 @@
     "Departure": "Hora",
     "Drawing your map and tolls": "Dibujando su mapa y peajes",
     "Want a different map? Change it in the app, then save again.": "¿Otro mapa? Cámbielo en la aplicación y vuelva a guardar.",
+    "Want a different map? Change it in the app, then print again.": "¿Otro mapa? Cámbielo en la aplicación y vuelva a imprimir.",
     "Scan the code with your phone's camera to open this trip in the app.": "Escanee el código con la cámara de su teléfono para abrir este viaje en la aplicación.",
     "Save about {amount}/mo": "Ahorre unos {amount}/mes",
     "or press and hold the map": "o mantenga presionado el mapa",

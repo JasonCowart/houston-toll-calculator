@@ -18,6 +18,7 @@ window.I18N && window.I18N.add("vi", {
   "Departure": "Khởi hành",
   "Drawing your map and tolls": "Đang vẽ bản đồ và phí cầu đường",
   "Want a different map? Change it in the app, then save again.": "Muốn bản đồ khác? Đổi trong ứng dụng rồi lưu lại.",
+  "Want a different map? Change it in the app, then print again.": "Muốn bản đồ khác? Đổi trong ứng dụng rồi in lại.",
   "Scan the code with your phone's camera to open this trip in the app.": "Quét mã bằng camera điện thoại để mở chuyến đi này trong ứng dụng.",
   "Save about {amount}/mo": "Tiết kiệm ~{amount}/tháng",
   "or press and hold the map": "hoặc nhấn giữ trên bản đồ",

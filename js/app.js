@@ -3058,6 +3058,16 @@ require([
     });
   }
   function loadLogo() { return loadJpeg("assets/hctra-lockup-reverse.png"); }
+  // Print: the map runs from the top of the trip summary to the bottom of the QR code (CSS
+  // stretches it to that row); this estimates that height so the picture is made in about that
+  // shape and isn't stretched. Mirrors the print styles: 78 mm map, 5 mm gap, 10.5 px rows.
+  function printMapAspect() {
+    var P = window.MiniPDF, PX = 0.2646, leftPt = (215.9 - 20 - 78 - 5) * 2.835, rows = summaryRows().rows;
+    var labPt = 6 + Math.max.apply(null, rows.map(function (r) { return P.width(r[0], 7.9, true); }));
+    var mm = 13 * 1.3 * PX + 2 + 3 + 22;
+    rows.forEach(function (r) { mm += (P.wrap(r[1], 7.9, false, leftPt - labPt - (r[2] ? 12 : 0)).length * 10.5 * 1.3 + 2) * PX; });
+    return Math.max(0.5, Math.min(1.1, mm / 78));
+  }
   function printHead(shot) {
     var rows = summaryRows().rows.map(function (r) {
       var dot = r[2] ? '<span class="ph-dot" style="background:' + r[2].fill + ";border-color:" + r[2].ring + '">' + r[2].letter + "</span>" : "";
@@ -3068,13 +3078,14 @@ require([
       '<table class="ph-trip">' + rows.map(function (r) { return "<tr><th>" + r[0] + "</th><td>" + r[1] + "</td></tr>"; }).join("") + "</table>" +
       (qrSvg(qrUrl()) ? '<div class="ph-qr">' + qrSvg(qrUrl()) + '<p><strong>' + esc(L("Open this trip online")) + "</strong><br>" +
         esc(L("Scan the code with your phone's camera to open this trip in the app.")) + "</p></div>"
-        : '<p class="ph-link">' + esc(L("Open this trip:")) + " " + esc(url) + "</p>") +
-      '<p class="ph-printed">' + esc(L("Printed {date}. Estimates only; rates and traffic change.", { date: new Date().toLocaleString(window.I18N.locale(), { dateStyle: "medium", timeStyle: "short" }) }).replace(/\.\./g, ".") /* "a.m.." in Spanish */) + "</p></div>" +
-      (shot ? '<div class="ph-mapwrap" style="aspect-ratio:' + SHOT_W + " / " + (shot.h || SHOT_H) + '"><img class="ph-map" alt="' + esc(L("Map of the toll route and toll-free route")) + '" src="' + shot.url + '">' +
-        // Marks placed in the picture's own shape (its height can differ: the PDF's map is taller).
+        : '<p class="ph-link">' + esc(L("Open this trip:")) + " " + esc(url) + "</p>") + "</div>" +
+      (shot ? '<div class="ph-mapwrap"><img class="ph-map" alt="' + esc(L("Map of the toll route and toll-free route")) + '" src="' + shot.url + '">' +
+        // Marks placed in the picture's own shape; the picture fills the box, so they stay put.
         placeMarks(shot.marks, 100, 100 * (shot.h || SHOT_H) / SHOT_W, 2.4).map(function (m) {
           return '<span class="ph-mark' + (m.missing ? " missing" : "") + '" style="left:' + m.x.toFixed(2) + "%;top:" + (m.y * SHOT_W / (shot.h || SHOT_H)).toFixed(2) + '%">' + m.n + "</span>";
-        }).join("") + "</div>" : "");
+        }).join("") + "</div>" : "<div></div>") +
+      '<p class="ph-printed">' + esc(L("Printed {date}. Estimates only; rates and traffic change.", { date: new Date().toLocaleString(window.I18N.locale(), { dateStyle: "medium", timeStyle: "short" }) }).replace(/\.\./g, ".") /* "a.m.." in Spanish */) + "</p>" +
+      (shot ? '<p class="ph-mapnote">' + esc(L("Want a different map? Change it in the app, then print again.")) + "</p>" : "");
   }
   var printOpened = [];
   $("print").addEventListener("click", function () {
@@ -3084,7 +3095,7 @@ require([
     // Breakdown and commute cost print opened; put them back after.
     printOpened = ["breakdown-wrap", "commute-wrap"].filter(function (id) { return !$(id).open; });
     printOpened.forEach(function (id) { $(id).open = true; });
-    mapShot().then(function (shot) {
+    mapShot(Math.round(SHOT_W * printMapAspect())).then(function (shot) {
       $("print-head").innerHTML = printHead(shot);
       btn.disabled = false;
       setTimeout(function () { window.print(); }, 50);
@@ -3094,7 +3105,8 @@ require([
   // on phones whose print screen has no "Save as PDF".
   function textOf(el) { return el ? el.textContent.replace(/\s+/g, " ").trim() : ""; }
   // PDF top section: the map is as tall as the trip summary and QR code beside it, so the map's
-  // note lines up with the bottom of the QR code. Returns the map height in points.
+  // bottom lines up with the bottom of the QR code (its note goes under, above the banner).
+  // Returns the map height in points.
   var PDF_MAP_W = 228, PDF_QR = 64;
   function pdfMapHeight() {
     var P = window.MiniPDF, M = 32, R = 612 - M, w = R - M - PDF_MAP_W - 14, y = 20;
@@ -3105,7 +3117,7 @@ require([
       y += 9 + (n - 1) * 11.7 + 2.7 + 3;
     });
     var bottom = y + 6 + PDF_QR;  // the QR code's bottom, from the top of the section
-    return Math.max(110, Math.min(220, bottom - 3 - 8)); // less the note under the map (one line)
+    return Math.max(110, Math.min(230, bottom));
   }
   function buildPdf(shot, logo, ezPic) {
     var mapUrl = shot && shot.url;
@@ -3185,7 +3197,7 @@ require([
     // Under the map: how to get a different map style.
     var mapNote = L("Want a different map? Change it in the app, then save again.");
     var noteEnd = mapUrl ? d.para(R - mapW, top + mapH + 3, mapNote, mapW, { size: 6.5, lineHeight: 8, color: FAINT }) : top + mapH;
-    y = Math.max(y, noteEnd) + 12;
+    y = Math.max(y + 12, noteEnd + 5);
     // Headline banner.
     var big = textOf($("headline-big")), small = textOf($("headline-small")), neutral = $("headline").classList.contains("neutral");
     var hh = small ? 38 : 26;

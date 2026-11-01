@@ -119,7 +119,7 @@ jobs:
           sed -i "s/^var VERSION = \"dev\";/var VERSION = \"$V\";/" sw.js
           # Not for search engines, and a "Preview" tag so it's never mistaken for the real site.
           sed -i 's#<head>#<head>\n  <meta name="robots" content="noindex">#' index.html
-          sed -i 's#</body>#<div style="position:fixed;left:8px;bottom:8px;z-index:9999;background:\#ffe512;color:\#1c1b1d;font:700 12px/1 Arial,sans-serif;padding:6px 9px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.3)">PREVIEW</div>\n</body>#' index.html
+          sed -i 's#</body>#<div class="preview-badge" style="position:fixed;left:8px;bottom:8px;z-index:9999;background:\#ffe512;color:\#1c1b1d;font:700 12px/1 Arial,sans-serif;padding:6px 9px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.3)">PREVIEW</div>\n</body>#' index.html
           rm -rf .git .github tests tools
           echo "Preview built ($V)."
 

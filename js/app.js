@@ -3070,9 +3070,10 @@ require([
         esc(L("Scan the code with your phone's camera to open this trip in the app.")) + "</p></div>"
         : '<p class="ph-link">' + esc(L("Open this trip:")) + " " + esc(url) + "</p>") +
       '<p class="ph-printed">' + esc(L("Printed {date}. Estimates only; rates and traffic change.", { date: new Date().toLocaleString(window.I18N.locale(), { dateStyle: "medium", timeStyle: "short" }) }).replace(/\.\./g, ".") /* "a.m.." in Spanish */) + "</p></div>" +
-      (shot ? '<div class="ph-mapwrap"><img class="ph-map" alt="' + esc(L("Map of the toll route and toll-free route")) + '" src="' + shot.url + '">' +
-        placeMarks(shot.marks, 100, 100 * SHOT_H / SHOT_W, 2.4).map(function (m) {
-          return '<span class="ph-mark' + (m.missing ? " missing" : "") + '" style="left:' + m.x.toFixed(2) + "%;top:" + (m.y * SHOT_W / SHOT_H).toFixed(2) + '%">' + m.n + "</span>";
+      (shot ? '<div class="ph-mapwrap" style="aspect-ratio:' + SHOT_W + " / " + (shot.h || SHOT_H) + '"><img class="ph-map" alt="' + esc(L("Map of the toll route and toll-free route")) + '" src="' + shot.url + '">' +
+        // Marks placed in the picture's own shape (its height can differ: the PDF's map is taller).
+        placeMarks(shot.marks, 100, 100 * (shot.h || SHOT_H) / SHOT_W, 2.4).map(function (m) {
+          return '<span class="ph-mark' + (m.missing ? " missing" : "") + '" style="left:' + m.x.toFixed(2) + "%;top:" + (m.y * SHOT_W / (shot.h || SHOT_H)).toFixed(2) + '%">' + m.n + "</span>";
         }).join("") + "</div>" : "");
   }
   var printOpened = [];

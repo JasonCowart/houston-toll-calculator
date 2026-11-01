@@ -199,7 +199,7 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 
 .fine { margin-top: auto; color: var(--ink-soft); font-size: 12px; }
 
-@media (max-width: 760px) {
+@media screen and (max-width: 760px) {
   .page { height: auto; min-height: 100%; }
   .topbar { padding: 0 16px; gap: 10px; }
   .topbar .logo { width: 100px; }
@@ -383,7 +383,7 @@ details.extra > summary { cursor: pointer; font-weight: 700; color: var(--accent
 .lang-toggle { flex: none; border: 1px solid rgba(255, 255, 255, 0.6); background: transparent; color: var(--on-purple);
   font: inherit; font-size: 13px; font-weight: 600; padding: 5px 10px; border-radius: 6px; cursor: pointer; }
 .lang-toggle:hover { background: rgba(255, 255, 255, 0.12); }
-@media (max-width: 760px) { .lang-toggle { font-size: 12px; padding: 4px 8px; } }
+@media screen and (max-width: 760px) { .lang-toggle { font-size: 12px; padding: 4px 8px; } }
 /* Drive it: hand the route to a navigation app */
 .drive { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 13px; }
 .drive-label { font-weight: 700; color: var(--gray); }
@@ -447,7 +447,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
   .ph-trip { border-collapse: collapse; font-size: 10.5px; }
   .ph-trip th { text-align: left; padding: 1px 8px 1px 0; color: var(--gray); font-weight: 600; vertical-align: top; white-space: nowrap; }
   .ph-trip td { padding: 1px 0; }
-  .ph-map { display: block; width: 100%; height: auto; aspect-ratio: 900 / 530; border: 1px solid #ccc; }
+  .ph-map { display: block; width: 100%; height: 100%; object-fit: fill; border: 1px solid #ccc; box-sizing: border-box; }
   .ph-link { font-size: 8px; word-break: break-all; color: #555; margin: 2mm 0 0; }
   .ph-qr { display: flex; align-items: center; gap: 3.5mm; margin: 3mm 0 0; }
   .ph-qr-code { width: 22mm; height: 22mm; flex: none; }
@@ -469,7 +469,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
   .breakdown { margin: 0; font-size: 9.5px; }
   .breakdown th, .breakdown td { padding: 1px 3px; }
   .breakdown tr { break-inside: avoid; }
-  .ph-mapwrap { position: relative; }
+  .ph-mapwrap { position: relative; overflow: hidden; }
   .ph-mark { position: absolute; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: var(--purple); border: 1px solid #fff;
     color: #fff; font-size: 7px; font-weight: 700; display: flex; align-items: center; justify-content: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .ph-mark.missing { background: #f5a920; }
@@ -568,7 +568,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
   /* Like the PDF: under the banner, the route box, EZ TAG prices, notes and toll breakdown on the
      left; gas and commute from the top on the right; the EZ TAG offer across the bottom of the
      page (the empty last row takes up the slack; a long trip pushes it down). */
-  #results { grid-template-rows: auto auto auto auto auto auto 1fr auto; min-height: 243mm; }
+  #results { grid-template-rows: auto auto auto auto auto auto 1fr auto; min-height: 225mm; } /* room for phones' print header and footer */
   .cards, #flags, #breakdown-wrap { grid-column: 1 !important; }
   .cards { margin-top: -2.5mm !important; }
   .cards { row-gap: 0 !important; }
@@ -615,8 +615,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .jump button.on { background: var(--purple); border-color: var(--purple); color: var(--on-purple); }
 .jump .phone-only { display: none; }
 .jump-spacer { flex: none; height: 0; }
-@media (max-width: 760px) { .jump-spacer { display: none; } }
-@media (max-width: 760px) {
+@media screen and (max-width: 760px) { .jump-spacer { display: none; } }
+@media screen and (max-width: 760px) {
   .jump { top: 0; margin: 0 !important; padding: 8px 16px; order: 0; }
   .jump .phone-only { display: inline-block; }
   #map { scroll-margin-top: 48px; }
@@ -658,7 +658,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .pc-h { font-weight: 700; display: flex; align-items: center; gap: 8px; }
 .pc-swatch { width: 22px; height: 3px; flex: none; background: repeating-linear-gradient(90deg, var(--purple) 0 4px, transparent 4px 7.5px); }
 .pc-m { color: var(--gray); }
-@media (max-width: 760px) { .preview-chip { left: 10px; right: 10px; transform: none; width: auto; max-width: none; top: 10px; } }
+@media screen and (max-width: 760px) { .preview-chip { left: 10px; right: 10px; transform: none; width: auto; max-width: none; top: 10px; } }
 @media print { .preview-chip, .bt-window, #bt-window-hint { display: none !important; } }
 
 /* Trip inputs: the same S / E / numbered dots as the map pins */
@@ -681,7 +681,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .top-btn .ti { width: 18px; height: 18px; display: none; }
 html[data-mode="auto"] .ti-auto, html[data-mode="light"] .ti-light, html[data-mode="dark"] .ti-dark { display: block; }
 html:not([data-mode]) .ti-auto { display: block; }
-@media (max-width: 760px) { .top-btn { width: 30px; height: 30px; } }
+@media screen and (max-width: 760px) { .top-btn { width: 30px; height: 30px; } }
 @media print { .top-tools { display: none !important; } }
 /* Desktop: only the panel scrolls. scrollIntoView on a panel item would otherwise also scroll
    the page and push the header off screen; clip stops that. */
@@ -744,7 +744,7 @@ html:lang(zh-Hant) body, .lang-list [lang="zh-Hant"] { font-family: Montserrat, 
 /* Phones: iPhone Safari sizes a hidden select by its longest option, ignoring its width, so the
    My places menu could stretch the page sideways. Clip it (above), and never let the page scroll
    sideways (clip, unlike hidden, keeps the pinned Compare button and section bar working). */
-@media (max-width: 760px) { html, body { overflow-x: clip; } }
+@media screen and (max-width: 760px) { html, body { overflow-x: clip; } }
 /* Touch screens: text boxes and lists at 16px or more, so phones don't zoom in when one is
    tapped (iPhone zooms on anything smaller). Esri's address boxes take their size from these
    Calcite settings. */
@@ -774,7 +774,7 @@ html:lang(zh-Hant) body, .lang-list [lang="zh-Hant"] { font-family: Montserrat, 
 .preview-chip .pc-h .pc-m { font-weight: 400; }
 .preview-chip .pc-key { margin: 0 0 6px !important; }
 .preview-chip .pc-b .btn-outline.small, .preview-chip .pc-b .go.small { padding: 5px 11px; font-size: 13px; }
-@media (max-width: 760px) {
+@media screen and (max-width: 760px) {
   .preview-chip.above { position: relative; top: auto; left: auto; right: auto; transform: none; width: auto; max-width: none;
     margin: 0; border-radius: 0; box-shadow: none; border-top: 4px solid var(--accent); border-bottom: 1px solid var(--border); padding: 8px 16px 10px; }
   .preview-chip.above .pc-b { flex-wrap: nowrap; }
@@ -785,3 +785,4 @@ html:lang(zh-Hant) body, .lang-list [lang="zh-Hant"] { font-family: Montserrat, 
 .add-row .hold-tip { margin: 0; font-size: 12.5px; }
 .add-row .hold-tip[hidden] { display: none; }
 .add-stop[hidden] { display: none !important; }
+@media print { .preview-badge { display: none !important; } }

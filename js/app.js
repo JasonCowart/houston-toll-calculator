@@ -889,6 +889,7 @@ require([
     pin: '<path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/>',
     pen: '<path d="M4 20h4L19 9l-4-4L4 16z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
     trash: '<path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+    grip: '<path d="M5 8h14M5 12h14M5 16h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
     check: '<path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
     car: '<path d="M5 11l1.6-4.3A2 2 0 0 1 8.5 5.4h7a2 2 0 0 1 1.9 1.3L19 11a2 2 0 0 1 2 2v4h-2v1.5a1 1 0 0 1-2 0V17H7v1.5a1 1 0 0 1-2 0V17H3v-4a2 2 0 0 1 2-2zm1.6 0h10.8l-1.2-3.4a.5.5 0 0 0-.5-.3H8.3a.5.5 0 0 0-.5.3zM6.5 15a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6zm11 0a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6z"/>',
     truck: '<path d="M2 6h12v9h1V9h4l3 4v4h-2a2 2 0 0 1-4 0H9a2 2 0 0 1-4 0H2zm14 5v2h4.5L19 11z"/>'
@@ -913,7 +914,52 @@ require([
       ? '<input class="pkr-input" id="pkr-ren" maxlength="40" autocomplete="off" aria-label="' + esc(L("Name")) + '" value="' + esc(title) + '">' +
         '<button type="button" class="pkr-act ok" data-a="ren-ok" data-id="' + id + '" aria-label="' + esc(L("Save")) + '">' + pkIcon("check") + "</button>"
       : '<span class="pkr-it"><b>' + esc(title) + "</b>" + (sub ? "<span>" + esc(sub) + "</span>" : "") + "</span>" + acts;
-    return '<div class="pkr-row pkr-edit"><span class="pkr-ic' + (gray ? " gray" : "") + '">' + pkIcon(icon) + "</span>" + main + "</div>";
+    var g = id[0], list = g === "s" ? saved : g === "v" ? vehicles : null;
+    var grip = list && list.length > 1 && !ren
+      ? '<button type="button" class="pkr-grip" data-grip="' + id + '" aria-label="' + esc(L("Move {name}", { name: title })) + '" title="' + esc(L("Drag to reorder")) + '">' + pkIcon("grip") + "</button>" : "";
+    return '<div class="pkr-row pkr-edit' + (grip ? " has-grip" : "") + '"' + (list ? ' data-group="' + g + '" data-id="' + id + '"' : "") + ">" + grip +
+      '<span class="pkr-ic' + (gray ? " gray" : "") + '">' + pkIcon(icon) + "</span>" + main + "</div>";
+  }
+  // Reorder saved places (s) or vehicles (v): move one from position a to b.
+  function pkMove(g, a, b) {
+    var list = g === "s" ? saved : vehicles;
+    if (b < 0 || b >= list.length || a === b) return false;
+    var active = g === "v" ? vehicles[activeVehicle] : null;
+    list.splice(b, 0, list.splice(a, 1)[0]);
+    if (g === "s") { saveList("saved", saved); fillPlaces(); }
+    else { activeVehicle = active ? vehicles.indexOf(active) : -1; saveList("vehicles", vehicles); fillVehicles(); }
+    return true;
+  }
+  // Dragging a row by its handle: the row follows the finger and the others slide out of the
+  // way; letting go saves the new order.
+  function pkDragStart(e) {
+    var grip = e.target.closest(".pkr-grip");
+    if (!grip || (e.button && e.button !== 0)) return;
+    e.preventDefault();
+    var row = grip.closest(".pkr-row"), g = row.getAttribute("data-group");
+    var rows = Array.prototype.slice.call(pk.el.querySelectorAll('.pkr-row[data-group="' + g + '"]'));
+    var from = rows.indexOf(row), to = from, y0 = e.clientY, h = row.offsetHeight || 52;
+    row.classList.add("dragging");
+    rows.forEach(function (r) { if (r !== row) r.classList.add("shifting"); });
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* old browser */ }
+    function move(ev) {
+      var dy = ev.clientY - y0;
+      dy = Math.max(-from * h, Math.min((rows.length - 1 - from) * h, dy));
+      row.style.transform = "translateY(" + dy + "px)";
+      to = Math.max(0, Math.min(rows.length - 1, from + Math.round(dy / h)));
+      rows.forEach(function (r, k) {
+        if (r === row) return;
+        r.style.transform = k > from && k <= to ? "translateY(" + -h + "px)" : k < from && k >= to ? "translateY(" + h + "px)" : "";
+      });
+    }
+    function up() {
+      grip.removeEventListener("pointermove", move); grip.removeEventListener("pointerup", up); grip.removeEventListener("pointercancel", up);
+      rows.forEach(function (r) { r.style.transform = ""; r.classList.remove("dragging", "shifting"); });
+      pkMove(g, from, to);
+      pkRender();
+      var again = pk.el.querySelector('.pkr-grip[data-grip="' + g + to + '"]'); if (again) again.focus({ preventScroll: true });
+    }
+    grip.addEventListener("pointermove", move); grip.addEventListener("pointerup", up); grip.addEventListener("pointercancel", up);
   }
   function pkAct(a, id, icon, label, cls) {
     return '<button type="button" class="pkr-act' + (cls ? " " + cls : "") + '" data-a="' + a + '" data-id="' + id + '" aria-label="' + esc(label) + '">' + pkIcon(icon) + "</button>";
@@ -933,7 +979,7 @@ require([
   function pkRenderPlaces() {
     var w = pk.w, cur = curPlace(w), curSaved = cur && saved.some(function (s) { return samePlace(s, cur); });
     var head, body = "";
-    if (pk.edit) head = pkHead(L("Edit my places"), L("Changes save on this device"), pkBtn("done", L("Done"), null, true));
+    if (pk.edit) head = pkHead(L("Edit my places"), L(saved.length > 1 ? "Drag ≡ to change the order. Changes save on this device." : "Changes save on this device"), pkBtn("done", L("Done"), null, true));
     else head = pkHead(fieldTitle(w), L(cur && !curSaved ? "Pick a place, or save this one" : "Pick a place"),
       (saved.length || recent.length ? pkBtn("edit", L("Edit"), "pen") : "") + PK_CLOSE());
     if (!pk.edit && cur && !curSaved) {
@@ -979,7 +1025,7 @@ require([
   }
   function pkRenderVehicles() {
     var head, body = "", pay = paymentChoice();
-    if (pk.edit) head = pkHead(L("Edit my vehicles"), L("Changes save on this device"), pkBtn("done", L("Done"), null, true));
+    if (pk.edit) head = pkHead(L("Edit my vehicles"), L(vehicles.length > 1 ? "Drag ≡ to change the order. Changes save on this device." : "Changes save on this device"), pkBtn("done", L("Done"), null, true));
     else head = pkHead(L("My vehicles"), L("Pick one to fill in axles, tag and gas"), (vehicles.length ? pkBtn("edit", L("Edit"), "pen") : "") + PK_CLOSE());
     if (!pk.edit && pay && activeVehicle < 0) {
       var now = { axles: parseInt($("axles").value, 10), payment: pay, carpool: $("carpool").checked };
@@ -1030,8 +1076,9 @@ require([
       document.body.appendChild(pk.scrim); document.body.appendChild(pk.el);
       pk.scrim.addEventListener("click", pkClose);
       pk.el.addEventListener("click", pkClick);
-      document.addEventListener("keydown", function (e) { if (!pk.el.hidden && !pk.el.contains(e.target)) pkKey(e); });
+      document.addEventListener("keydown", function (e) { if (!pk.el.hidden && !e.defaultPrevented && !pk.el.contains(e.target)) pkKey(e); }); // (not a key the panel already handled: its row may have been redrawn)
       pk.el.addEventListener("keydown", pkKey);
+      pk.el.addEventListener("pointerdown", pkDragStart);
       window.addEventListener("resize", function () { if (!pk.el.hidden) pkPlace(); });
     }
     pk.kind = kind; pk.w = w; pk.edit = false; pk.renaming = null; pk.anchor = anchor;
@@ -1121,6 +1168,12 @@ require([
       return;
     }
     if (e.key === "Enter" && e.target.id === "pkr-ren") { e.preventDefault(); var ok = pk.el.querySelector('[data-a="ren-ok"]'); if (ok) pkRenameDone(ok.getAttribute("data-id")); return; }
+    if ((e.key === "ArrowUp" || e.key === "ArrowDown") && e.target.classList.contains("pkr-grip")) {
+      e.preventDefault();
+      var gid = e.target.getAttribute("data-grip"), gg = gid[0], gi = +gid.slice(1), gt = gi + (e.key === "ArrowUp" ? -1 : 1);
+      if (pkMove(gg, gi, gt)) { pkRender(); var gb = pk.el.querySelector('.pkr-grip[data-grip="' + gg + gt + '"]'); if (gb) gb.focus({ preventScroll: true }); }
+      return;
+    }
     var all = Array.prototype.filter.call(pk.el.querySelectorAll("button, summary, input"), function (x) { return x.offsetParent !== null; });
     var i = all.indexOf(document.activeElement);
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {

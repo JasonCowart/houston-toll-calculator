@@ -789,6 +789,14 @@ html[data-theme="dark"] .pkr-tbtn.fill { background: var(--accent); border-color
 .pkr-item:focus-visible { outline: 2px solid var(--violet-screen); outline-offset: -2px; background: var(--purple-tint); }
 .pkr-item[aria-current="true"] { background: var(--purple-tint); }
 .pkr-edit { padding: 6px 10px; min-height: 52px; }
+.pkr-edit.has-grip { padding-left: 0; }
+.pkr-grip { width: 30px; height: 40px; flex: none; margin-right: -4px; border: 0; padding: 0; background: transparent; color: var(--ink-faint);
+  display: flex; align-items: center; justify-content: center; cursor: grab; touch-action: none; border-radius: 8px; }
+.pkr-grip svg { width: 20px; height: 20px; }
+.pkr-grip:active { cursor: grabbing; color: var(--accent); }
+.pkr-grip:focus-visible { outline: 2px solid var(--violet-screen); outline-offset: -2px; color: var(--accent); }
+.pkr-row.dragging { position: relative; z-index: 2; background: var(--card); border-radius: 12px; box-shadow: 0 6px 18px rgba(30, 20, 50, 0.22); }
+.pkr-row.shifting { transition: transform .15s ease; }
 .pkr-ic { width: 34px; height: 34px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--banner); color: var(--accent); }
 .pkr-ic.gray { background: var(--border-soft); color: var(--ink-soft); }
 .pkr-ic svg { width: 18px; height: 18px; }

@@ -54,6 +54,7 @@ Last updated: Nov 1, 2026
 
 | Date | Item |
 | --- | --- |
+| Nov 1, 2026 | Picker: reorder saved places and vehicles in Edit mode by dragging the ≡ handle (or arrow keys on it); the vehicle in use keeps its check |
 | Nov 1, 2026 | Picker: Recent and Common places on a light purple band that wraps the list when open; Toll breakdown heading now as bold as the other two |
 | Nov 1, 2026 | Picker: Recent keeps the last 6 places that aren't saved; fold rows read "Recent (4)" with a larger arrow in a circle |
 | Nov 1, 2026 | Picker: Recent and Common places start folded (with counts); areas are small headings inside Common places |

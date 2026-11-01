@@ -2909,7 +2909,7 @@ require([
   function settled() {
     return new Promise(function (res) {
       var t0 = Date.now();
-      (function check() { if (!view.updating || Date.now() - t0 > 5000) setTimeout(res, 200); else setTimeout(check, 100); })();
+      (function check() { if (!view.updating || Date.now() - t0 > 2500) setTimeout(res, 150); else setTimeout(check, 100); })();
     });
   }
   function tripScreenRect() {
@@ -2931,9 +2931,17 @@ require([
     var cx = (r.x0 + r.x1) / 2, cy = (r.y0 + r.y1) / 2, vw = view.width, vh = view.height;
     return { area: { x: Math.round(cx - w / 2), y: Math.round(cy - h / 2), width: Math.round(w), height: Math.round(h) }, fit: Math.max(w / vw, h / vh) };
   }
+  // The last picture, kept while nothing that shows in it has changed, so a second PDF or
+  // printout is instant.
+  var lastShot = null;
   function mapShot(height) {
     shotH = height || SHOT_H;
-    try { return frameAndShoot(); } catch (e) { console.warn("map picture failed", e); if (tollLayer) tollLayer.labelsVisible = true; return Promise.resolve(null); }
+    var k = [currentBasemap, shotH, $("show-free").checked, document.documentElement.getAttribute("data-theme"),
+      shownItems.map(function (it) { return it.point.id; }).join(",")].join("|");
+    if (lastShot && lastShot.trip === lastTrip && lastShot.key === k) return Promise.resolve(lastShot.shot);
+    try {
+      return frameAndShoot().then(function (shot) { if (shot) lastShot = { trip: lastTrip, key: k, shot: shot }; return shot; });
+    } catch (e) { console.warn("map picture failed", e); if (tollLayer) tollLayer.labelsVisible = true; return Promise.resolve(null); }
   }
   // Numbered dots placed so they don't sit on top of each other: a dot that would overlap one
   // already placed moves aside, with a short line back to its toll point. Sizes in the same units as w/h.
@@ -3000,6 +3008,13 @@ require([
       return { url: r.dataUrl, marks: marks, h: shotH };
     }
     // Each step carries on if it fails: a picture of the map as it is beats no picture.
+    // Frame the trip in the picture's own shape (widen or heighten it first), so one zoom fits
+    // it and there's no second zoom and wait for the map to redraw.
+    var sA = SHOT_W / shotH, eA = ext.width / ext.height;
+    if (isFinite(eA) && eA > 0) {
+      if (eA < sA) { var gw = (ext.height * sA - ext.width) / 2; ext.xmin -= gw; ext.xmax += gw; }
+      else { var gh = (ext.width / sA - ext.height) / 2; ext.ymin -= gh; ext.ymax += gh; }
+    }
     var work = view.goTo(ext.expand(1.15), { animate: false }).catch(quiet).then(function () { return settled(); }).then(function () {
       var a = null;
       try { a = shotArea(1.1); } catch (e) { quiet(e); }
@@ -3362,7 +3377,11 @@ require([
     // app empty. Open a new tab now (while it still counts as the tap) and show the PDF there.
     var ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     var pdfWin = ios ? window.open("", "_blank") : null;
-    if (pdfWin) try { pdfWin.document.title = L("Making the PDF…"); pdfWin.document.body.textContent = L("Making the PDF…"); } catch (e) { /* fine */ }
+    if (pdfWin) try {
+      pdfWin.document.title = L("Making the PDF…");
+      pdfWin.document.body.innerHTML = '<div style="font:600 18px -apple-system,system-ui,sans-serif;color:#662d91;display:flex;align-items:center;justify-content:center;' +
+        'height:90vh;text-align:center;padding:20px">' + esc(L("Making the PDF…")) + "</div>";
+    } catch (e) { /* fine */ }
     setStatus(L("Making the PDF…"), false, true);
     window.__shotError = null;
     Promise.all([mapShot(Math.round(SHOT_W * pdfMapHeight() / PDF_MAP_W)), loadLogo(), loadJpeg("assets/eztag-new.jpg")]).then(function (r) {

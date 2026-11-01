@@ -54,6 +54,7 @@ Last updated: Nov 1, 2026
 
 | Date | Item |
 | --- | --- |
+| Nov 1, 2026 | Picker: Recent keeps the last 6 places that aren't saved; fold rows read "Recent (4)" with a larger arrow in a circle |
 | Nov 1, 2026 | Picker: Recent and Common places start folded (with counts); areas are small headings inside Common places |
 | Nov 1, 2026 | Picker: recent places that are already saved no longer repeat under Recent |
 | Nov 1, 2026 | Custom place and vehicle picker on the preview (sheet on phones, dropdown on desktop; save, rename and remove inside it). Jason to try it and ask for tweaks. The old Edit my places / Edit my vehicles windows are no longer opened by the menus and can be removed once the picker settles. |

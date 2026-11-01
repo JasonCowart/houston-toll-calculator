@@ -807,9 +807,10 @@ html[data-theme="dark"] .pkr-tbtn.fill { background: var(--accent); border-color
 .pkr-fold { border-top: 1px solid var(--border-soft); }
 .pkr-fold summary { color: var(--ink); margin: 0; display: flex; align-items: center; justify-content: space-between; padding: 12px 10px; font-size: 15px; font-weight: 600; cursor: pointer; list-style: none; border-radius: 10px; }
 .pkr-fold summary::-webkit-details-marker { display: none; }
-.pkr-fold summary i { font-style: normal; font-size: 13px; color: var(--ink-soft); }
-.pkr-fold summary i::after { content: " ›"; display: inline-block; transition: transform .15s; }
-.pkr-fold[open] summary i::after { transform: rotate(90deg); }
+.pkr-fold summary i { font-style: normal; font-weight: 600; color: var(--ink-soft); }
+.pkr-chev { width: 28px; height: 28px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--purple-tint); color: var(--accent); transition: transform .15s; }
+.pkr-chev svg { width: 18px; height: 18px; }
+.pkr-fold[open] .pkr-chev { transform: rotate(90deg); }
 .pkr-fold .pkr-item { min-height: 44px; }
 .pkr-fold { margin-top: 6px; }
 .pkr-fold + .pkr-fold { margin-top: 0; }

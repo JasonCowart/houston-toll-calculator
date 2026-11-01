@@ -167,7 +167,14 @@ require([
   function remember(label, g) {
     if (!label || !g) return;
     var p = { label: String(label), lon: +g.longitude.toFixed(6), lat: +g.latitude.toFixed(6) };
-    recent = [p].concat(recent.filter(function (r) { return !samePlace(r, p); })).slice(0, 6);
+    // Keep the last 6 places that aren't saved (saved ones show up in My places instead); a
+    // saved one stays in the list too, so it comes back under Recent if it's unsaved later.
+    var list = [p].concat(recent.filter(function (r) { return !samePlace(r, p); })), keep = [], fresh = 0;
+    list.forEach(function (r) {
+      var isSaved = saved.some(function (sv) { return samePlace(sv, r); });
+      if (isSaved ? keep.length < 12 : fresh < 6) { keep.push(r); if (!isSaved) fresh++; }
+    });
+    recent = keep;
     saveList("recent", recent);
     fillPlaces();
   }
@@ -956,7 +963,7 @@ require([
           : pkItem("clock", a[0], a[1], 'data-a="pick" data-v="r' + i + '"', "", true);
       }).join("");
       body += pk.edit ? '<p class="pkr-sec">' + esc(L("Recent")) + pkBtn("clear-recent", L("Clear all")) + "</p>" + rows
-        : '<details class="pkr-fold" data-fold="recent"><summary><span>' + esc(L("Recent")) + "</span><i>" + fresh.length + "</i></summary>" + rows + "</details>";
+        : '<details class="pkr-fold" data-fold="recent"><summary><span>' + esc(L("Recent")) + " <i>(" + fresh.length + ")</i></span>" + '<span class="pkr-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' + "</summary>" + rows + "</details>";
     }
     if (!pk.edit) {
       var common = "";
@@ -966,7 +973,7 @@ require([
         common += '<p class="pkr-sub">' + esc(L(ar[1])) + "</p>" +
           items.map(function (x) { return pkItem("pin", x.c[0], "", 'data-a="pick" data-v="c' + x.i + '"', "", true); }).join("");
       });
-      body += '<details class="pkr-fold" data-fold="common"><summary><span>' + esc(L("Common places")) + "</span><i>" + COMMON.length + "</i></summary>" + common + "</details>";
+      body += '<details class="pkr-fold" data-fold="common"><summary><span>' + esc(L("Common places")) + " <i>(" + COMMON.length + ")</i></span>" + '<span class="pkr-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' + "</summary>" + common + "</details>";
     }
     return head + '<div class="pkr-body">' + body + "</div>";
   }

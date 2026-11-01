@@ -40,7 +40,9 @@
   function mentionsRoad(text, road) {
     var a = ROAD_ALIASES[road];
     if (!a || !text) return false;
-    var t = text.replace(FREE_ROAD_NAMES, " ");
+    // "Merge onto Tomball Pkwy (TX-249 N)" is a ramp onto the tolled main lanes (Esri names the
+    // tollway that way north of the frontage roads), not the free frontage road "Tomball Pkwy".
+    var t = text.replace(/\bmerge onto tomball (pkwy|parkway)\b/g, "merge onto tomball tollway").replace(FREE_ROAD_NAMES, " ");
     return a.some(function (n) { return t.indexOf(n) !== -1; });
   }
   var RAMP_FALLBACK_METERS = 8;    // ramp gantries without directions: must be right on the route

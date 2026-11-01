@@ -263,8 +263,29 @@
     <h3>My places</h3>
     <ul id="saved-list" class="saved-list"></ul>
     <h3>Recent</h3>
+    <ul id="recent-list" class="saved-list"></ul>
     <div class="recent-row"><span id="recent-count"></span><button type="button" id="clear-recent" class="btn-outline small">Clear recent</button></div>
     <div class="dialog-actions"><button type="button" id="places-done" class="go">Done</button></div>
+  </dialog>
+
+  <dialog id="place-edit" class="places-dialog vehicle-edit" aria-labelledby="pe-title">
+    <form method="dialog" id="pe-form" novalidate>
+      <h2 id="pe-title">Save place</h2>
+      <p class="hint">Kept in this browser only.</p>
+      <div class="ve-field">
+        <label for="pe-name">Name</label>
+        <input type="text" id="pe-name" maxlength="40" autocomplete="off" required>
+        <p class="ve-error" id="pe-name-error" hidden>Give the place a name.</p>
+      </div>
+      <div class="ve-field">
+        <span class="pe-label">Address</span>
+        <p class="pe-addr" id="pe-addr"></p>
+      </div>
+      <div class="dialog-actions two">
+        <button type="button" id="pe-cancel" class="btn-outline">Cancel</button>
+        <button type="submit" id="pe-save" class="go">Save</button>
+      </div>
+    </form>
   </dialog>
 
   <dialog id="vehicles-dialog" class="places-dialog" aria-labelledby="vehicles-dialog-title">

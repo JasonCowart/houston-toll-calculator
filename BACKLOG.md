@@ -54,6 +54,7 @@ Last updated: Nov 1, 2026
 
 | Date | Item |
 | --- | --- |
+| Nov 1, 2026 | My places gets a Save/Edit dialog like My vehicles (rename, remove, save a recent place); Save and Edit moved to the top of both menus |
 | Nov 1, 2026 | Reloading the page starts fresh (it used to reopen the last trip like a shared link); the trip still comes back if the phone drops the tab while the PDF is open |
 | Nov 1, 2026 | PDF and print: map runs to the bottom of the QR code, map note under it above the banner (print gets the note too, in all languages) |
 | Oct 31, 2026 | QR code on the PDF; Hardin Store exit missed after adding a stop; faster PDF and waiting screen; iPhone print fixes |

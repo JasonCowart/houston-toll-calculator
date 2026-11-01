@@ -175,6 +175,10 @@ require([
     fieldKeys().forEach(function (w) {
       var sel = $("places-" + w);
       var html = '<option value="">' + L("Choose a place…") + "</option>";
+      // Manage first, so it's at the top of a long list: save the place in this box, edit the lists.
+      var mg = (stops[w] ? '<option value="save">' + L("Save this place…") + "</option>" : "") +
+        (saved.length || recent.length ? '<option value="manage">' + L("Edit my places and recent…") + "</option>" : "");
+      if (mg) html += '<optgroup label="' + L("Manage") + '">' + mg + "</optgroup>";
       function group(title, list, prefix) {
         if (!list.length) return;
         html += '<optgroup label="' + esc(title) + '">' + list.map(function (p, i) {
@@ -189,20 +193,24 @@ require([
         if (!items.length) return;
         html += '<optgroup label="' + esc(L(a[1])) + '">' + items.map(function (c) { return '<option value="c' + c.i + '">' + esc(c.label) + "</option>"; }).join("") + "</optgroup>";
       });
-      // Manage: save the place in this box, edit the saved and recent lists.
-      var mg = (stops[w] ? '<option value="save">' + L("Save this place…") + "</option>" : "") +
-        (saved.length || recent.length ? '<option value="manage">' + L("Edit my places and recent…") + "</option>" : "");
-      if (mg) html += '<optgroup label="' + L("Manage") + '">' + mg + "</optgroup>";
       sel.innerHTML = html;
       $("save-" + w).disabled = !stops[w];
     });
   }
-  // Edit my places: remove saved places one at a time, or clear the recent list.
+  // Edit my places: rename or remove saved places, remove recent ones or clear them all.
   function renderPlacesDialog() {
     var list = $("saved-list");
     list.innerHTML = saved.length ? saved.map(function (p, i) {
-      return '<li><span>' + esc(p.label) + '</span><button type="button" class="btn-outline small" data-i="' + i + '">' + L("Remove") + "</button></li>";
-    }).join("") : '<li class="empty">' + L("No saved places. Use “Save place” under From or To to add one.") + "</li>";
+      return '<li><span class="ve-info">' + esc(p.label) + (p.addr && p.addr !== p.label ? ' <small class="hint">' + esc(p.addr) + "</small>" : "") + "</span>" +
+        '<span class="ve-actions"><button type="button" class="btn-outline small" data-edit="' + i + '" aria-label="' + esc(L("Edit {name}", { name: p.label })) + '">' + L("Edit") + "</button>" +
+        '<button type="button" class="btn-outline small" data-i="' + i + '" aria-label="' + esc(L("Remove {name}", { name: p.label })) + '">' + L("Remove") + "</button></span></li>";
+    }).join("") : '<li class="empty">' + L("No saved places. Pick a place in From or To, then choose “Save this place…” in My places.") + "</li>";
+    $("recent-list").innerHTML = recent.map(function (p, i) {
+      return '<li><span class="ve-info">' + esc(p.label) + "</span>" +
+        '<span class="ve-actions"><button type="button" class="btn-outline small" data-save="' + i + '" aria-label="' + esc(L("Save {name}", { name: p.label })) + '">' + L("Save") + "</button>" +
+        '<button type="button" class="btn-outline small" data-i="' + i + '" aria-label="' + esc(L("Remove {name}", { name: p.label })) + '">' + L("Remove") + "</button></span></li>";
+    }).join("");
+    $("recent-list").hidden = !recent.length;
     $("recent-count").textContent = recent.length ? L(recent.length === 1 ? "{n} recent place" : "{n} recent places", { n: recent.length }) : L("No recent places");
     $("clear-recent").disabled = !recent.length;
   }
@@ -212,12 +220,62 @@ require([
     if (d.showModal) d.showModal(); else d.setAttribute("open", "");
   }
   $("saved-list").addEventListener("click", function (e) {
+    var ed = e.target.closest("button[data-edit]");
+    if (ed) { var p = saved[+ed.getAttribute("data-edit")]; if (p) openPlaceEditor({ place: p }); return; }
     var b = e.target.closest("button[data-i]");
     if (!b) return;
     saved.splice(+b.getAttribute("data-i"), 1);
     saveList("saved", saved);
     fillPlaces();
     renderPlacesDialog();
+  });
+  $("recent-list").addEventListener("click", function (e) {
+    var sv = e.target.closest("button[data-save]");
+    if (sv) { var r = recent[+sv.getAttribute("data-save")]; if (r) openPlaceEditor({ lon: r.lon, lat: r.lat, addr: r.label, name: r.label }); return; }
+    var b = e.target.closest("button[data-i]");
+    if (!b) return;
+    recent.splice(+b.getAttribute("data-i"), 1);
+    saveList("recent", recent);
+    fillPlaces();
+    renderPlacesDialog();
+  });
+  // Save / edit a place: its name (Home, Work…); the address it was saved from is shown.
+  var peTarget = null;
+  function openPlaceEditor(t) {
+    peTarget = t;
+    var p = t.place;
+    $("pe-title").textContent = L(p ? "Edit place" : "Save place");
+    $("pe-name").value = p ? p.label : (/^Dropped pin/.test(t.name || "") ? "" : (t.name || ""));
+    $("pe-name").removeAttribute("aria-invalid"); $("pe-name-error").hidden = true;
+    var addr = p ? (p.addr || "") : (t.addr || "");
+    $("pe-addr").textContent = addr || (p ? p.lat.toFixed(5) + ", " + p.lon.toFixed(5) : t.lat.toFixed(5) + ", " + t.lon.toFixed(5));
+    openDialog($("place-edit"));
+    setTimeout(function () { $("pe-name").focus(); $("pe-name").select(); }, 30);
+  }
+  $("pe-cancel").addEventListener("click", function () { closeDialog($("place-edit")); });
+  $("pe-name").addEventListener("input", function () { this.removeAttribute("aria-invalid"); $("pe-name-error").hidden = true; });
+  $("pe-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = $("pe-name").value.trim();
+    if (!name) { $("pe-name").setAttribute("aria-invalid", "true"); $("pe-name-error").hidden = false; $("pe-name").focus(); return; }
+    var t = peTarget || {}, editing = t.place;
+    if (editing) {
+      var at = saved.indexOf(editing);
+      var np = { label: name, lon: editing.lon, lat: editing.lat }; if (editing.addr) np.addr = editing.addr;
+      saved = saved.filter(function (s) { return s === editing || s.label.toLowerCase() !== name.toLowerCase(); });
+      saved[saved.indexOf(editing)] = np;
+      if (at < 0) saved.unshift(np);
+    } else {
+      var p = { label: name, lon: +t.lon.toFixed(6), lat: +t.lat.toFixed(6) };
+      if (t.addr && t.addr !== name) p.addr = t.addr;
+      saved = saved.filter(function (s) { return s.label.toLowerCase() !== p.label.toLowerCase() && !samePlace(s, p); });
+      saved.unshift(p);
+    }
+    saveList("saved", saved);
+    closeDialog($("place-edit"));
+    fillPlaces();
+    if ($("places-dialog").open) renderPlacesDialog();
+    setStatus(L(editing ? "Updated “{name}”." : "Saved “{name}” to My places on this device.", { name: name }));
   });
   $("clear-recent").addEventListener("click", function () {
     recent = [];
@@ -251,14 +309,7 @@ require([
     $("save-" + w).addEventListener("click", function () {
       if (!stops[w]) return;
       var current = searchesTerm(w) || "";
-      var name = window.prompt(L("Name this place (for example, Home or Work):"), /^Dropped pin/.test(current) ? "" : current);
-      if (!name || !name.trim()) return;
-      var p = { label: name.trim(), lon: +stops[w].longitude.toFixed(6), lat: +stops[w].latitude.toFixed(6) };
-      saved = saved.filter(function (s) { return s.label.toLowerCase() !== p.label.toLowerCase() && !samePlace(s, p); });
-      saved.unshift(p);
-      saveList("saved", saved);
-      fillPlaces();
-      setStatus(L("Saved “{name}” to My places on this device.", { name: p.label }));
+      openPlaceEditor({ lon: stops[w].longitude, lat: stops[w].latitude, addr: /^Dropped pin/.test(current) ? "" : current, name: current });
     });
   }
   wirePlaceField("from"); wirePlaceField("to");
@@ -670,11 +721,13 @@ require([
     return L("{n} axles", { n: v.axles }) + " · " + L(PAY_NAMES[v.payment]) + (v.carpool ? " · " + L("carpool") : "");
   }
   function fillVehicles() {
-    var html = '<option value="">' + L("My vehicles…") + "</option>" + vehicles.map(function (v, i) {
-      return '<option value="v' + i + '">' + esc(v.name) + " (" + esc(vehicleSummary(v)) + ")</option>";
-    }).join("");
-    if (paymentChoice()) html += '<option value="save">' + L("Save this vehicle…") + "</option>";
-    if (vehicles.length) html += '<option value="manage">' + L("Edit my vehicles…") + "</option>";
+    // Save and Edit first, so they're at the top however many vehicles there are.
+    var mg = (paymentChoice() ? '<option value="save">' + L("Save this vehicle…") + "</option>" : "") +
+      (vehicles.length ? '<option value="manage">' + L("Edit my vehicles…") + "</option>" : "");
+    var html = '<option value="">' + L("My vehicles…") + "</option>" + (mg ? '<optgroup label="' + L("Manage") + '">' + mg + "</optgroup>" : "") +
+      (vehicles.length ? '<optgroup label="' + esc(L("My vehicles")) + '">' + vehicles.map(function (v, i) {
+        return '<option value="v' + i + '">' + esc(v.name) + " (" + esc(vehicleSummary(v)) + ")</option>";
+      }).join("") + "</optgroup>" : "");
     $("vehicles").innerHTML = html;
     $("save-vehicle").disabled = !paymentChoice();
     syncVehicleSelect();

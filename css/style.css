@@ -811,6 +811,10 @@ html[data-theme="dark"] .pkr-tbtn.fill { background: var(--accent); border-color
 .pkr-fold summary i::after { content: " ›"; display: inline-block; transition: transform .15s; }
 .pkr-fold[open] summary i::after { transform: rotate(90deg); }
 .pkr-fold .pkr-item { min-height: 44px; }
+.pkr-fold { margin-top: 6px; }
+.pkr-fold + .pkr-fold { margin-top: 0; }
+.pkr-fold[open] { padding-bottom: 6px; }
+.pkr-sub { margin: 0; padding: 10px 10px 2px; font-size: 12px; font-weight: 700; color: var(--ink-soft); }
 .pkr-fold .pkr-ic { width: 28px; height: 28px; } .pkr-fold .pkr-ic svg { width: 15px; height: 15px; }
 /* Phones: iPhone Safari sizes a hidden select by its longest option, ignoring its width, so the
    My places menu could stretch the page sideways. Clip it (above), and never let the page scroll

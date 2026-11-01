@@ -946,23 +946,27 @@ require([
     } else if (!pk.edit && !cur) body += '<p class="pkr-note">' + esc(L("Type or pick a place in the box, then save it here to reuse it.")) + "</p>";
     // Recent places that are already saved show once, up in My places.
     var fresh = recent.filter(function (p) { return !saved.some(function (sv) { return samePlace(sv, p); }); });
+    // Recent and Common places start folded (a count shows how many), so the panel opens on
+    // My places. Edit mode shows Recent open: that's where they're removed or saved.
     if (fresh.length) {
-      body += '<p class="pkr-sec">' + esc(L("Recent")) + (pk.edit ? pkBtn("clear-recent", L("Clear all")) : "") + "</p>";
-      recent.forEach(function (p, i) {
-        if (fresh.indexOf(p) < 0) return;
+      var rows = recent.map(function (p, i) {
+        if (fresh.indexOf(p) < 0) return "";
         var a = splitAddr(p.label);
-        body += pk.edit ? pkEditRow("clock", a[0], a[1], "r" + i, pkAct("ren", "r" + i, "star", L("Save {name}", { name: a[0] })) + pkAct("del", "r" + i, "trash", L("Remove {name}", { name: a[0] }), "del"), true)
+        return pk.edit ? pkEditRow("clock", a[0], a[1], "r" + i, pkAct("ren", "r" + i, "star", L("Save {name}", { name: a[0] })) + pkAct("del", "r" + i, "trash", L("Remove {name}", { name: a[0] }), "del"), true)
           : pkItem("clock", a[0], a[1], 'data-a="pick" data-v="r' + i + '"', "", true);
-      });
+      }).join("");
+      body += pk.edit ? '<p class="pkr-sec">' + esc(L("Recent")) + pkBtn("clear-recent", L("Clear all")) + "</p>" + rows
+        : '<details class="pkr-fold" data-fold="recent"><summary><span>' + esc(L("Recent")) + "</span><i>" + fresh.length + "</i></summary>" + rows + "</details>";
     }
     if (!pk.edit) {
-      body += '<p class="pkr-sec">' + esc(L("Common places")) + "</p>";
+      var common = "";
       [["houston", "Houston area"], ["austin", "Austin area"], ["dfw", "Dallas-Fort Worth area"]].forEach(function (ar) {
         var items = COMMON.map(function (c, i) { return { c: c, i: i }; }).filter(function (x) { return (x.c[3] || "houston") === ar[0]; });
         if (!items.length) return;
-        body += '<details class="pkr-fold"><summary><span>' + esc(L(ar[1])) + "</span><i>" + items.length + "</i></summary>" +
-          items.map(function (x) { return pkItem("pin", x.c[0], "", 'data-a="pick" data-v="c' + x.i + '"', "", true); }).join("") + "</details>";
+        common += '<p class="pkr-sub">' + esc(L(ar[1])) + "</p>" +
+          items.map(function (x) { return pkItem("pin", x.c[0], "", 'data-a="pick" data-v="c' + x.i + '"', "", true); }).join("");
       });
+      body += '<details class="pkr-fold" data-fold="common"><summary><span>' + esc(L("Common places")) + "</span><i>" + COMMON.length + "</i></summary>" + common + "</details>";
     }
     return head + '<div class="pkr-body">' + body + "</div>";
   }
@@ -988,9 +992,9 @@ require([
   function pkRender() {
     if (!pk.el) return;
     var scroll = pk.el.querySelector(".pkr-body"), st = scroll ? scroll.scrollTop : 0;
-    var open = Array.prototype.map.call(pk.el.querySelectorAll("details[open] summary span"), function (s) { return s.textContent; });
+    var open = Array.prototype.map.call(pk.el.querySelectorAll("details[open]"), function (d) { return d.getAttribute("data-fold"); });
     pk.el.innerHTML = pk.kind === "places" ? pkRenderPlaces() : pkRenderVehicles();
-    Array.prototype.forEach.call(pk.el.querySelectorAll("details"), function (d) { if (open.indexOf(d.querySelector("summary span").textContent) >= 0) d.open = true; });
+    Array.prototype.forEach.call(pk.el.querySelectorAll("details"), function (d) { if (open.indexOf(d.getAttribute("data-fold")) >= 0) d.open = true; });
     scroll = pk.el.querySelector(".pkr-body"); if (scroll) scroll.scrollTop = st;
     var ren = $("pkr-ren");
     if (ren) { ren.focus(); ren.select(); }

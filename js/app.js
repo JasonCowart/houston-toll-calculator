@@ -937,11 +937,22 @@ require([
 
   // Start over: clear both places, the routes, the results and the map. Vehicle, tag and
   // carpool stay as they are.
-  // The trip shown is kept in the page address (like a share link), so if the browser reloads
-  // the page (coming back from a PDF on a phone, or the phone dropping the tab) it comes back.
+  // The trip shown is kept in the page address (like a share link, marked kept=1), so if the
+  // phone drops the tab while it's in the background (the PDF open in another tab) it comes
+  // back. A reload the driver does on purpose starts fresh instead: the "away" note below is
+  // only set while the page is hidden, not while it's being reloaded.
   function keepTripInAddress() {
-    try { history.replaceState(null, "", shareUrl() + (DEBUG ? "&debug=1" : "")); } catch (e) { /* not allowed here */ }
+    try { history.replaceState(null, "", shareUrl() + "&kept=1" + (DEBUG ? "&debug=1" : "")); } catch (e) { /* not allowed here */ }
   }
+  var unloading = false;
+  window.addEventListener("pagehide", function () { unloading = true; });
+  window.addEventListener("pageshow", function () { unloading = false; });
+  document.addEventListener("visibilitychange", function () {
+    try {
+      if (document.visibilityState === "hidden") { if (!unloading) sessionStorage.setItem("tc-away", "1"); }
+      else sessionStorage.removeItem("tc-away");
+    } catch (e) { /* storage blocked */ }
+  });
   $("reset").addEventListener("click", function () {
     try { history.replaceState(null, "", location.pathname + (DEBUG ? "?debug=1" : "")); } catch (e) { /* not allowed here */ }
     if (picking) setPicking(null);
@@ -3471,6 +3482,15 @@ require([
   // Opening a shared link: fill in the trip and compare once everything has loaded.
   var shared = (function () {
     var q = new URLSearchParams(location.search);
+    if (q.get("kept") === "1") { // our own kept trip, not a link someone shared
+      var away = false, nav = "";
+      try { away = sessionStorage.getItem("tc-away") === "1"; sessionStorage.removeItem("tc-away"); } catch (e) { /* storage blocked */ }
+      try { nav = (performance.getEntriesByType("navigation")[0] || {}).type || ""; } catch (e) { /* old browser */ }
+      if (!away && nav === "reload") { // reloaded on purpose: start fresh
+        try { history.replaceState(null, "", location.pathname + (DEBUG ? "?debug=1" : "")); } catch (e) { /* not allowed here */ }
+        return null;
+      }
+    }
     function pt(v) { var a = (v || "").split(",").map(Number); return a.length === 2 && a.every(isFinite) ? a : null; }
     var s = pt(q.get("s")), e = pt(q.get("e"));
     if (!s || !e) return null;

@@ -3378,9 +3378,24 @@ require([
     var ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     var pdfWin = ios ? window.open("", "_blank") : null;
     if (pdfWin) try {
-      pdfWin.document.title = L("Making the PDF…");
-      pdfWin.document.body.innerHTML = '<div style="font:600 18px -apple-system,system-ui,sans-serif;color:#662d91;display:flex;align-items:center;justify-content:center;' +
-        'height:90vh;text-align:center;padding:20px">' + esc(L("Making the PDF…")) + "</div>";
+      // A waiting page in the new tab: a page icon inside a turning purple ring, large text.
+      var dk = document.documentElement.getAttribute("data-theme") === "dark";
+      pdfWin.document.open();
+      pdfWin.document.write('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>' +
+        esc(L("Making the PDF…")) + "</title><style>" +
+        "body{margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;" +
+        "font-family:-apple-system,system-ui,sans-serif;background:" + (dk ? "#141317" : "#fff") + ";color:" + (dk ? "#c8a4f3" : "#662d91") + "}" +
+        ".w{position:relative;width:96px;height:96px}" +
+        ".r{position:absolute;inset:0;border-radius:50%;border:6px solid " + (dk ? "#3c2e52" : "#eadff4") + ";border-top-color:currentColor;animation:s 0.9s linear infinite}" +
+        ".p{position:absolute;left:30px;top:24px;width:36px;height:46px;border:3px solid currentColor;border-radius:4px;box-sizing:border-box;overflow:hidden}" +
+        ".p i{display:block;height:3px;margin:7px 5px 0;background:currentColor;border-radius:2px;transform-origin:left;animation:l 1.6s ease-in-out infinite}" +
+        ".p i:nth-child(2){animation-delay:.2s;width:70%}.p i:nth-child(3){animation-delay:.4s}.p i:nth-child(4){animation-delay:.6s;width:55%}" +
+        "h1{margin:0;font-size:26px;font-weight:700}p{margin:-10px 0 0;font-size:17px;opacity:.75}" +
+        "@keyframes s{to{transform:rotate(360deg)}}@keyframes l{0%{transform:scaleX(0)}50%,100%{transform:scaleX(1)}}" +
+        "@media (prefers-reduced-motion:reduce){.r,.p i{animation:none}}" +
+        '</style></head><body><div class="w"><div class="r"></div><div class="p"><i></i><i></i><i></i><i></i></div></div>' +
+        "<h1>" + esc(L("Making the PDF…")) + "</h1><p>" + esc(L("Drawing your map and tolls")) + "</p></body></html>");
+      pdfWin.document.close();
     } catch (e) { /* fine */ }
     setStatus(L("Making the PDF…"), false, true);
     window.__shotError = null;

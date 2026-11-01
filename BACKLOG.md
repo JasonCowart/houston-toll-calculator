@@ -8,7 +8,6 @@ Last updated: Nov 1, 2026
 
 | Item | What | Why | Waiting on |
 | --- | --- | --- | --- |
-| Custom place and vehicle picker | Replace the phone's built-in pick list for My places and My vehicles with our own panel: a bottom sheet on phones, a dropdown on desktop. Saved places on top with a small Save button in its header, Edit mode inside the panel itself (rename/remove in place, no second window), recent and common places in folding sections. | The built-in list looks plain next to the rest of the app. Putting Save and Edit first pushed the places down. Going from the list into a separate Edit window is two steps where one would do. | Jason's OK on a mockup |
 | EZ TAG savings using the real trip back | The monthly "Save about $X/mo" figure in the EZ TAG offer assumes the trip back costs the same as the trip there. The commute section can already price the real trip back; use that figure in the offer when it's available. | One-way tolls and time-of-day lanes (SH 288, Katy Managed Lanes) can make the trip home cost quite differently, so the monthly savings can be off. | Nothing |
 
 ## Waiting on HCTRA or others
@@ -55,6 +54,7 @@ Last updated: Nov 1, 2026
 
 | Date | Item |
 | --- | --- |
+| Nov 1, 2026 | Custom place and vehicle picker on the preview (sheet on phones, dropdown on desktop; save, rename and remove inside it). Jason to try it and ask for tweaks. The old Edit my places / Edit my vehicles windows are no longer opened by the menus and can be removed once the picker settles. |
 | Nov 1, 2026 | My places gets a Save/Edit dialog like My vehicles (rename, remove, save a recent place); Save and Edit moved to the top of both menus |
 | Nov 1, 2026 | Reloading the page starts fresh (it used to reopen the last trip like a shared link); the trip still comes back if the phone drops the tab while the PDF is open |
 | Nov 1, 2026 | PDF and print: map runs to the bottom of the QR code, map note under it above the banner (print gets the note too, in all languages) |

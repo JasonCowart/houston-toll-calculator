@@ -293,6 +293,7 @@ require([
     return c && { label: c[0], lon: c[1], lat: c[2] };
   }
   function wirePlaceField(w) {
+    pkWireLink($("places-" + w).parentNode, "places", w);
     $("places-" + w).addEventListener("change", function () {
       if (this.value === "manage") { this.value = ""; openPlacesDialog(); return; }
       if (this.value === "save") { this.value = ""; $("save-" + w).click(); return; }
@@ -868,6 +869,269 @@ require([
     renderVehicleDialog();
   });
   $("vehicles-done").addEventListener("click", function () { closeDialog($("vehicles-dialog")); });
+
+  // ---- The picker: our own panel for My places and My vehicles. On phones it slides up from
+  // the bottom; on desktop it drops down under the link. Pick, save and edit all happen in it
+  // (no second window). The hidden <select>s behind the links stay as the lists' data.
+  var pk = { el: null, scrim: null, kind: null, w: null, edit: false, renaming: null, anchor: null };
+  var PK_ICONS = {
+    home: '<path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+    work: '<path d="M9 6V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V6h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zm1.5 0h3V4.5h-3z"/>',
+    star: '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
+    clock: '<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+    pin: '<path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/>',
+    pen: '<path d="M4 20h4L19 9l-4-4L4 16z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+    trash: '<path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+    check: '<path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    car: '<path d="M5 11l1.6-4.3A2 2 0 0 1 8.5 5.4h7a2 2 0 0 1 1.9 1.3L19 11a2 2 0 0 1 2 2v4h-2v1.5a1 1 0 0 1-2 0V17H7v1.5a1 1 0 0 1-2 0V17H3v-4a2 2 0 0 1 2-2zm1.6 0h10.8l-1.2-3.4a.5.5 0 0 0-.5-.3H8.3a.5.5 0 0 0-.5.3zM6.5 15a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6zm11 0a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6z"/>',
+    truck: '<path d="M2 6h12v9h1V9h4l3 4v4h-2a2 2 0 0 1-4 0H9a2 2 0 0 1-4 0H2zm14 5v2h4.5L19 11z"/>'
+  };
+  function pkIcon(n) { return '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' + PK_ICONS[n] + "</svg>"; }
+  function placeIcon(label) {
+    return /home|casa|hogar|nhà|家/i.test(label) ? "home" : /work|office|trabajo|oficina|công ty|cơ quan|公司|工作|办公|辦公/i.test(label) ? "work" : "star";
+  }
+  function noUSA(s) { return String(s || "").replace(/,\s*(USA|United States)$/i, ""); }
+  function splitAddr(label) { // "7701 Wilshire Place Dr, Houston, TX" → name line + the rest
+    var s = noUSA(label), i = s.indexOf(",");
+    return i > 0 ? [s.slice(0, i), s.slice(i + 1).trim()] : [s, ""];
+  }
+  function fieldTitle(w) { return w === "from" ? L("From") : w === "to" ? L("To") : L("Stop {n}", { n: midKeys.indexOf(w) + 1 }); }
+  function pkItem(icon, title, sub, attrs, extra, gray) {
+    return '<div class="pkr-row"><button type="button" class="pkr-item" ' + attrs + '><span class="pkr-ic' + (gray ? " gray" : "") + '">' + pkIcon(icon) + "</span>" +
+      '<span class="pkr-it"><b>' + esc(title) + "</b>" + (sub ? "<span>" + esc(sub) + "</span>" : "") + "</span>" + (extra || "") + "</button></div>";
+  }
+  function pkEditRow(icon, title, sub, id, acts, gray) {
+    var ren = pk.renaming === id;
+    var main = ren
+      ? '<input class="pkr-input" id="pkr-ren" maxlength="40" autocomplete="off" aria-label="' + esc(L("Name")) + '" value="' + esc(title) + '">' +
+        '<button type="button" class="pkr-act ok" data-a="ren-ok" data-id="' + id + '" aria-label="' + esc(L("Save")) + '">' + pkIcon("check") + "</button>"
+      : '<span class="pkr-it"><b>' + esc(title) + "</b>" + (sub ? "<span>" + esc(sub) + "</span>" : "") + "</span>" + acts;
+    return '<div class="pkr-row pkr-edit"><span class="pkr-ic' + (gray ? " gray" : "") + '">' + pkIcon(icon) + "</span>" + main + "</div>";
+  }
+  function pkAct(a, id, icon, label, cls) {
+    return '<button type="button" class="pkr-act' + (cls ? " " + cls : "") + '" data-a="' + a + '" data-id="' + id + '" aria-label="' + esc(label) + '">' + pkIcon(icon) + "</button>";
+  }
+  function pkHead(title, sub, buttons) {
+    return '<div class="pkr-grab" aria-hidden="true"></div><div class="pkr-head"><div class="pkr-title"><span id="pkr-title">' + esc(title) + "</span>" +
+      (sub ? "<small>" + esc(sub) + "</small>" : "") + "</div>" + buttons + "</div>";
+  }
+  var PK_CLOSE = function () { return '<button type="button" class="pkr-x" data-a="close" aria-label="' + esc(L("Close")) + '">×</button>'; };
+  function pkBtn(a, label, icon, fill) {
+    return '<button type="button" class="pkr-tbtn' + (fill ? " fill" : "") + '" data-a="' + a + '">' + (icon ? pkIcon(icon) : "") + esc(label) + "</button>";
+  }
+  function curPlace(w) {
+    if (!stops[w]) return null;
+    return { lon: stops[w].longitude, lat: stops[w].latitude, label: noUSA(searchesTerm(w) || "") };
+  }
+  function pkRenderPlaces() {
+    var w = pk.w, cur = curPlace(w), curSaved = cur && saved.some(function (s) { return samePlace(s, cur); });
+    var head, body = "";
+    if (pk.edit) head = pkHead(L("Edit my places"), L("Changes save on this device"), pkBtn("done", L("Done"), null, true));
+    else head = pkHead(fieldTitle(w), L(cur && !curSaved ? "Pick a place, or save this one" : "Pick a place"),
+      (saved.length || recent.length ? pkBtn("edit", L("Edit"), "pen") : "") + PK_CLOSE());
+    if (!pk.edit && cur && !curSaved) {
+      body += pk.renaming === "cur"
+        ? '<div class="pkr-cur"><span class="pkr-ic">' + pkIcon("pin") + '</span><input class="pkr-input" id="pkr-ren" maxlength="40" autocomplete="off" placeholder="' + esc(L("Name this place, like Home or Work")) + '" aria-label="' + esc(L("Name")) + '" value="' + esc(/^Dropped pin/.test(cur.label) ? "" : splitAddr(cur.label)[0]) + '">' +
+          '<button type="button" class="pkr-act ok" data-a="ren-ok" data-id="cur" aria-label="' + esc(L("Save")) + '">' + pkIcon("check") + "</button></div>"
+        : '<div class="pkr-cur"><span class="pkr-ic">' + pkIcon("pin") + '</span><span class="pkr-it"><b>' + esc(L("In the box now")) + "</b><span>" + esc(cur.label || lonLat(stops[w]).join(", ")) + "</span></span>" +
+          pkBtn("save-cur", L("Save"), "star", true) + "</div>";
+    }
+    if (saved.length) {
+      body += '<p class="pkr-sec">' + esc(L("My places")) + "</p>";
+      saved.forEach(function (p, i) {
+        var sub = noUSA(p.addr && p.addr !== p.label ? p.addr : "");
+        body += pk.edit ? pkEditRow(placeIcon(p.label), p.label, sub, "s" + i, pkAct("ren", "s" + i, "pen", L("Rename {name}", { name: p.label })) + pkAct("del", "s" + i, "trash", L("Remove {name}", { name: p.label }), "del"))
+          : pkItem(placeIcon(p.label), p.label, sub, 'data-a="pick" data-v="s' + i + '"');
+      });
+    } else if (!pk.edit && !cur) body += '<p class="pkr-note">' + esc(L("Type or pick a place in the box, then save it here to reuse it.")) + "</p>";
+    if (recent.length) {
+      body += '<p class="pkr-sec">' + esc(L("Recent")) + (pk.edit ? pkBtn("clear-recent", L("Clear all")) : "") + "</p>";
+      recent.forEach(function (p, i) {
+        var a = splitAddr(p.label);
+        body += pk.edit ? pkEditRow("clock", a[0], a[1], "r" + i, pkAct("ren", "r" + i, "star", L("Save {name}", { name: a[0] })) + pkAct("del", "r" + i, "trash", L("Remove {name}", { name: a[0] }), "del"), true)
+          : pkItem("clock", a[0], a[1], 'data-a="pick" data-v="r' + i + '"', "", true);
+      });
+    }
+    if (!pk.edit) {
+      body += '<p class="pkr-sec">' + esc(L("Common places")) + "</p>";
+      [["houston", "Houston area"], ["austin", "Austin area"], ["dfw", "Dallas-Fort Worth area"]].forEach(function (ar) {
+        var items = COMMON.map(function (c, i) { return { c: c, i: i }; }).filter(function (x) { return (x.c[3] || "houston") === ar[0]; });
+        if (!items.length) return;
+        body += '<details class="pkr-fold"><summary><span>' + esc(L(ar[1])) + "</span><i>" + items.length + "</i></summary>" +
+          items.map(function (x) { return pkItem("pin", x.c[0], "", 'data-a="pick" data-v="c' + x.i + '"', "", true); }).join("") + "</details>";
+      });
+    }
+    return head + '<div class="pkr-body">' + body + "</div>";
+  }
+  function pkRenderVehicles() {
+    var head, body = "", pay = paymentChoice();
+    if (pk.edit) head = pkHead(L("Edit my vehicles"), L("Changes save on this device"), pkBtn("done", L("Done"), null, true));
+    else head = pkHead(L("My vehicles"), L("Pick one to fill in axles, tag and gas"), (vehicles.length ? pkBtn("edit", L("Edit"), "pen") : "") + PK_CLOSE());
+    if (!pk.edit && pay && activeVehicle < 0) {
+      var now = { axles: parseInt($("axles").value, 10), payment: pay, carpool: $("carpool").checked };
+      body += '<div class="pkr-cur"><span class="pkr-ic">' + pkIcon(now.axles > 3 ? "truck" : "car") + '</span><span class="pkr-it"><b>' + esc(L("Settings now")) + "</b><span>" + esc(vehicleSummary(now)) + "</span></span>" +
+        pkBtn("save-veh", L("Save"), "star", true) + "</div>";
+    }
+    if (vehicles.length) {
+      body += '<p class="pkr-sec">' + esc(L("Saved")) + "</p>";
+      vehicles.forEach(function (v, i) {
+        var ic = v.axles > 3 ? "truck" : "car";
+        body += pk.edit ? pkEditRow(ic, v.name, vehicleSummary(v), "v" + i, pkAct("ven", "v" + i, "pen", L("Edit {name}", { name: v.name })) + pkAct("vdel", "v" + i, "trash", L("Remove {name}", { name: v.name }), "del"))
+          : pkItem(ic, v.name, vehicleSummary(v) + " · " + fuelSummary(v), 'data-a="veh" data-v="' + i + '"' + (i === activeVehicle ? ' aria-current="true"' : ""), i === activeVehicle ? '<span class="pkr-check">' + pkIcon("check") + "</span>" : "");
+      });
+    } else body += '<p class="pkr-note">' + esc(L("No saved vehicles yet. Set the axles and tag, then tap Save to keep them.")) + "</p>";
+    return head + '<div class="pkr-body">' + body + "</div>";
+  }
+  function pkRender() {
+    if (!pk.el) return;
+    var scroll = pk.el.querySelector(".pkr-body"), st = scroll ? scroll.scrollTop : 0;
+    var open = Array.prototype.map.call(pk.el.querySelectorAll("details[open] summary span"), function (s) { return s.textContent; });
+    pk.el.innerHTML = pk.kind === "places" ? pkRenderPlaces() : pkRenderVehicles();
+    Array.prototype.forEach.call(pk.el.querySelectorAll("details"), function (d) { if (open.indexOf(d.querySelector("summary span").textContent) >= 0) d.open = true; });
+    scroll = pk.el.querySelector(".pkr-body"); if (scroll) scroll.scrollTop = st;
+    var ren = $("pkr-ren");
+    if (ren) { ren.focus(); ren.select(); }
+    else if (!pk.el.contains(document.activeElement)) { // the button tapped was redrawn: keep focus in the panel
+      var f = pk.el.querySelector(".pkr-item, .pkr-act, .pkr-tbtn, .pkr-x"); if (f) f.focus({ preventScroll: true });
+    }
+    pkPlace();
+  }
+  // Phones: a sheet from the bottom. Desktop: under the link (above it if there's no room).
+  function pkPlace() {
+    var el = pk.el, phone = window.innerWidth <= 760;
+    el.classList.toggle("sheet", phone);
+    if (phone) { el.style.left = el.style.top = el.style.maxHeight = ""; return; }
+    var r = pk.anchor.getBoundingClientRect(), W = Math.min(360, window.innerWidth - 16);
+    el.style.width = W + "px";
+    el.style.left = Math.max(8, Math.min(r.right - W, window.innerWidth - W - 8)) + "px";
+    var below = window.innerHeight - r.bottom - 14, above = r.top - 14;
+    if (below >= 300 || below >= above) { el.style.top = (r.bottom + 6) + "px"; el.style.maxHeight = below + "px"; }
+    else { el.style.maxHeight = above + "px"; el.style.top = Math.max(8, r.top - 6 - Math.min(el.scrollHeight, above)) + "px"; }
+  }
+  function pkOpen(kind, w, anchor) {
+    if (!pk.el) {
+      pk.scrim = document.createElement("div"); pk.scrim.className = "pkr-scrim"; pk.scrim.hidden = true;
+      pk.el = document.createElement("div"); pk.el.className = "pkr"; pk.el.hidden = true;
+      pk.el.setAttribute("role", "dialog"); pk.el.setAttribute("aria-modal", "true"); pk.el.setAttribute("aria-labelledby", "pkr-title");
+      document.body.appendChild(pk.scrim); document.body.appendChild(pk.el);
+      pk.scrim.addEventListener("click", pkClose);
+      pk.el.addEventListener("click", pkClick);
+      document.addEventListener("keydown", function (e) { if (!pk.el.hidden && !pk.el.contains(e.target)) pkKey(e); });
+      pk.el.addEventListener("keydown", pkKey);
+      window.addEventListener("resize", function () { if (!pk.el.hidden) pkPlace(); });
+    }
+    pk.kind = kind; pk.w = w; pk.edit = false; pk.renaming = null; pk.anchor = anchor;
+    if (kind === "vehicles") syncVehicleSelect();
+    pk.scrim.hidden = false; pk.el.hidden = false;
+    pk.scrim.classList.toggle("dim", window.innerWidth <= 760);
+    document.documentElement.classList.add("pkr-open");
+    pkRender();
+    anchor.setAttribute("aria-expanded", "true");
+    var first = pk.el.querySelector(".pkr-item, .pkr-cur .pkr-tbtn, .pkr-x");
+    if (first) first.focus({ preventScroll: true });
+  }
+  function pkClose() {
+    if (!pk.el || pk.el.hidden) return;
+    pk.el.hidden = true; pk.scrim.hidden = true;
+    document.documentElement.classList.remove("pkr-open");
+    if (pk.anchor) { pk.anchor.setAttribute("aria-expanded", "false"); pk.anchor.focus({ preventScroll: true }); }
+  }
+  function usePlace(w, p) {
+    stops[w] = new Point({ longitude: p.lon, latitude: p.lat });
+    if (searches[w]) searches[w].searchTerm = p.label;
+    remember(p.label, stops[w]);
+    drawStops();
+    updateButton();
+    if (!(stops.from && stops.to)) view.goTo({ target: stops[w], zoom: 13 }).catch(function () {});
+  }
+  // Save a place under a name (a new one replaces any saved place with that name or spot).
+  function savePlaceAs(name, src) {
+    var p = { label: name, lon: +(+src.lon).toFixed(6), lat: +(+src.lat).toFixed(6) };
+    var addr = noUSA(src.addr || src.label || "");
+    if (addr && addr !== name && !/^Dropped pin/.test(addr)) p.addr = addr;
+    saved = saved.filter(function (s) { return s.label.toLowerCase() !== name.toLowerCase() && !samePlace(s, p); });
+    saved.unshift(p);
+    saveList("saved", saved); fillPlaces();
+    setStatus(L("Saved “{name}” to My places on this device.", { name: name }));
+  }
+  function pkRenameDone(id) {
+    var inp = $("pkr-ren"), name = inp ? inp.value.trim() : "";
+    if (!name) { if (inp) { inp.setAttribute("aria-invalid", "true"); inp.focus(); } return; }
+    if (id === "cur") { var c = curPlace(pk.w); if (c) savePlaceAs(name, c); }
+    else if (id[0] === "r") { var r = recent[+id.slice(1)]; if (r) savePlaceAs(name, r); }
+    else {
+      var old = saved[+id.slice(1)];
+      if (old) {
+        var np = { label: name, lon: old.lon, lat: old.lat }; if (old.addr) np.addr = old.addr;
+        saved = saved.map(function (s) { return s === old ? np : s; }).filter(function (s) { return s === np || s.label.toLowerCase() !== name.toLowerCase(); });
+        saveList("saved", saved); fillPlaces();
+      }
+    }
+    pk.renaming = null; pkRender();
+  }
+  function pkClick(e) {
+    var b = e.target.closest("[data-a]");
+    if (!b || !pk.el.contains(b)) return;
+    var a = b.getAttribute("data-a"), id = b.getAttribute("data-id"), v = b.getAttribute("data-v");
+    if (a === "close") return pkClose();
+    if (a === "edit") { pk.edit = true; pk.renaming = null; return pkRender(); }
+    if (a === "done") { pk.edit = false; pk.renaming = null; return pkRender(); }
+    if (a === "pick") { var p = placeFromValue(v), w = pk.w; pkClose(); if (p) usePlace(w, p); return; }
+    if (a === "save-cur") { pk.renaming = "cur"; return pkRender(); }
+    if (a === "ren") { pk.renaming = id; return pkRender(); }
+    if (a === "ren-ok") return pkRenameDone(id);
+    if (a === "del") {
+      var list = id[0] === "s" ? saved : recent;
+      list.splice(+id.slice(1), 1);
+      saveList(id[0] === "s" ? "saved" : "recent", list); fillPlaces();
+      if (!saved.length && !recent.length) pk.edit = false;
+      return pkRender();
+    }
+    if (a === "clear-recent") { recent = []; saveList("recent", recent); fillPlaces(); if (!saved.length) pk.edit = false; return pkRender(); }
+    if (a === "veh") { pkClose(); applyVehicle(+v); fillVehicles(); return; }
+    if (a === "save-veh") { pkClose(); if (paymentChoice()) openVehicleEditor(-1); return; }
+    if (a === "ven") { pkClose(); openVehicleEditor(+id.slice(1)); return; }
+    if (a === "vdel") {
+      var gone = +id.slice(1);
+      vehicles.splice(gone, 1);
+      activeVehicle = activeVehicle === gone ? -1 : activeVehicle > gone ? activeVehicle - 1 : activeVehicle;
+      saveList("vehicles", vehicles); fillVehicles();
+      if (!vehicles.length) pk.edit = false;
+      return pkRender();
+    }
+  }
+  function pkKey(e) {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      if (pk.renaming) { pk.renaming = null; pkRender(); } else if (pk.edit) { pk.edit = false; pkRender(); } else pkClose();
+      return;
+    }
+    if (e.key === "Enter" && e.target.id === "pkr-ren") { e.preventDefault(); var ok = pk.el.querySelector('[data-a="ren-ok"]'); if (ok) pkRenameDone(ok.getAttribute("data-id")); return; }
+    var all = Array.prototype.filter.call(pk.el.querySelectorAll("button, summary, input"), function (x) { return x.offsetParent !== null; });
+    var i = all.indexOf(document.activeElement);
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      if (e.target.id === "pkr-ren") return;
+      e.preventDefault();
+      var n = all[(i + (e.key === "ArrowDown" ? 1 : all.length - 1)) % all.length]; if (n) n.focus();
+    }
+    if (e.key === "Tab" && all.length) { // keep focus in the panel
+      if (e.shiftKey && i <= 0) { e.preventDefault(); all[all.length - 1].focus(); }
+      else if (!e.shiftKey && i === all.length - 1) { e.preventDefault(); all[0].focus(); }
+    }
+  }
+  // The links: a tap opens the panel; the <select> under each link no longer opens.
+  function pkWireLink(link, kind, w) {
+    if (!link || link.getAttribute("data-pk")) return;
+    link.setAttribute("data-pk", "1");
+    link.setAttribute("role", "button"); link.setAttribute("tabindex", "0"); link.setAttribute("aria-haspopup", "dialog"); link.setAttribute("aria-expanded", "false");
+    var sel = link.querySelector("select");
+    if (sel) { sel.setAttribute("tabindex", "-1"); sel.setAttribute("aria-hidden", "true"); link.setAttribute("aria-label", sel.getAttribute("aria-label") || ""); }
+    link.addEventListener("click", function (e) { e.preventDefault(); pkOpen(kind, typeof w === "function" ? w() : w, link); });
+    link.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") { e.preventDefault(); pkOpen(kind, typeof w === "function" ? w() : w, link); }
+    });
+  }
+  pkWireLink($("vehicles").parentNode, "vehicles", null);
   fillVehicles();
 
   // Section jump bar: tap a section to scroll the panel (the page on phones) to it. The

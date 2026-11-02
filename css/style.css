@@ -103,6 +103,14 @@ body.resizing, body.resizing * { cursor: col-resize !important; user-select: non
 .field.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 select, input[type="datetime-local"] { width: 100%; padding: 8px; border: 1px solid var(--ink-soft); border-radius: 6px;
   background: var(--card); color: var(--ink); font: inherit; font-size: 14px; min-height: 38px; }
+/* Drop-down boxes (axles, toll road, commute days…): the app's purple chevron instead of the
+   phone's gray arrows. Tapping still opens the phone's own list. */
+select:not(.places) { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6' fill='none' stroke='%23662d91' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center; background-size: 15px 15px; padding-right: 28px !important; cursor: pointer; }
+@media (hover: hover) { select:not(.places):hover { border-color: var(--accent); } }
+select:not(.places):focus-visible { border-color: var(--accent); }
+@media screen { html[data-theme="dark"] select:not(.places) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6' fill='none' stroke='%23c8a4f3' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); } }
+@media print { select:not(.places) { background-image: none; padding-right: 8px !important; } }
 .hint { color: var(--ink-soft); font-size: 12px; margin-top: 3px; }
 .check label { font-weight: 600; font-size: 13px; display: flex; gap: 6px; align-items: center; margin: 0; color: var(--gray); }
 .check input { margin: 0; width: 18px; height: 18px; flex: none; accent-color: var(--purple); }
@@ -734,7 +742,7 @@ html:lang(zh-Hant) body, .lang-list [lang="zh-Hant"] { font-family: Montserrat, 
 .leave-field > #leave-hint { grid-column: 1; grid-row: 2; margin: 0; font-size: 11px; }
 .leave-field > input, .leave-field > .leave-split { grid-column: 2; grid-row: 1 / span 2; }
 .leave-split:not([hidden]) ~ #leave-hint { display: none; }
-.vrow { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 10px; align-items: center; }
+.vrow { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 10px; align-items: center; }
 .vrow .field.check { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
 .vrow .field.check > label { flex: 1; min-width: 0; }
 .vrow .field.check > label { font-size: 13px; line-height: 1.25; }

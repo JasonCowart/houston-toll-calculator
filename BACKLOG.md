@@ -54,6 +54,7 @@ Last updated: Nov 1, 2026
 
 | Date | Item |
 | --- | --- |
+| Nov 1, 2026 | Drop-down boxes (axles, toll road, commute days) get the app's purple chevron; the phone's own list still opens; axle box a little wider so "2 axles (car, SUV)" fits |
 | Nov 1, 2026 | Section bar: the Results glow wraps the whole results block (banner through Save PDF), not just the banner |
 | Nov 1, 2026 | Picker: reorder saved places and vehicles in Edit mode by dragging the ≡ handle (or arrow keys on it); the vehicle in use keeps its check |
 | Nov 1, 2026 | Picker: Recent and Common places on a light purple band that wraps the list when open; Toll breakdown heading now as bold as the other two |

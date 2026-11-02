@@ -55,6 +55,7 @@ Last updated: Nov 1, 2026
 
 | Date | Item |
 | --- | --- |
+| Nov 1, 2026 | Axles, Toll road, Days a week and Fuel lists open in the app's own panel (sheet on phones, dropdown on desktop) instead of the phone's list; current choice checked; keyboard works |
 | Nov 1, 2026 | Drop-down boxes (axles, toll road, commute days) get the app's purple chevron; the phone's own list still opens; axle box a little wider so "2 axles (car, SUV)" fits |
 | Nov 1, 2026 | Section bar: the Results glow wraps the whole results block (banner through Save PDF), not just the banner |
 | Nov 1, 2026 | Picker: reorder saved places and vehicles in Edit mode by dragging the ≡ handle (or arrow keys on it); the vehicle in use keeps its check |

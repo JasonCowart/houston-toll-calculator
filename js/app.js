@@ -1042,11 +1042,26 @@ require([
     } else body += '<p class="pkr-note">' + esc(L("No saved vehicles yet. Set the axles and tag, then tap Save to keep them.")) + "</p>";
     return head + '<div class="pkr-body">' + body + "</div>";
   }
+  // A plain drop-down (axles, toll road, fuel, days a week) shown in the same panel: its
+  // options as rows, a check on the one chosen, groups as small headings.
+  function pkRenderSelect() {
+    var sel = pk.w, body = "", n = 0;
+    function opt(o) {
+      var i = n++, on = o.selected;
+      return '<div class="pkr-row"><button type="button" class="pkr-item pkr-opt" data-a="opt" data-v="' + i + '"' + (on ? ' aria-current="true"' : "") + (o.disabled ? " disabled" : "") + ">" +
+        '<span class="pkr-it"><b>' + esc(o.textContent) + "</b></span>" + (on ? '<span class="pkr-check">' + pkIcon("check") + "</span>" : "") + "</button></div>";
+    }
+    Array.prototype.forEach.call(sel.children, function (c) {
+      if (c.tagName === "OPTGROUP") body += '<p class="pkr-sec">' + esc(c.label) + "</p>" + Array.prototype.map.call(c.children, opt).join("");
+      else body += opt(c);
+    });
+    return pkHead(sel.getAttribute("data-pk-title") || "", "", PK_CLOSE()) + '<div class="pkr-body pkr-opts">' + body + "</div>";
+  }
   function pkRender() {
     if (!pk.el) return;
     var scroll = pk.el.querySelector(".pkr-body"), st = scroll ? scroll.scrollTop : 0;
     var open = Array.prototype.map.call(pk.el.querySelectorAll("details[open]"), function (d) { return d.getAttribute("data-fold"); });
-    pk.el.innerHTML = pk.kind === "places" ? pkRenderPlaces() : pkRenderVehicles();
+    pk.el.innerHTML = pk.kind === "places" ? pkRenderPlaces() : pk.kind === "select" ? pkRenderSelect() : pkRenderVehicles();
     Array.prototype.forEach.call(pk.el.querySelectorAll("details"), function (d) { if (open.indexOf(d.getAttribute("data-fold")) >= 0) d.open = true; });
     scroll = pk.el.querySelector(".pkr-body"); if (scroll) scroll.scrollTop = st;
     var ren = $("pkr-ren");
@@ -1061,9 +1076,9 @@ require([
     var el = pk.el, phone = window.innerWidth <= 760;
     el.classList.toggle("sheet", phone);
     if (phone) { el.style.left = el.style.top = el.style.maxHeight = ""; return; }
-    var r = pk.anchor.getBoundingClientRect(), W = Math.min(360, window.innerWidth - 16);
+    var r = pk.anchor.getBoundingClientRect(), W = Math.min(pk.kind === "select" ? Math.max(240, Math.min(r.width, 420)) : 360, window.innerWidth - 16);
     el.style.width = W + "px";
-    el.style.left = Math.max(8, Math.min(r.right - W, window.innerWidth - W - 8)) + "px";
+    el.style.left = Math.max(8, Math.min(pk.kind === "select" ? r.left : r.right - W, window.innerWidth - W - 8)) + "px";
     var below = window.innerHeight - r.bottom - 14, above = r.top - 14;
     if (below >= 300 || below >= above) { el.style.top = (r.bottom + 6) + "px"; el.style.maxHeight = below + "px"; }
     else { el.style.maxHeight = above + "px"; el.style.top = Math.max(8, r.top - 6 - Math.min(el.scrollHeight, above)) + "px"; }
@@ -1083,12 +1098,13 @@ require([
     }
     pk.kind = kind; pk.w = w; pk.edit = false; pk.renaming = null; pk.anchor = anchor;
     if (kind === "vehicles") syncVehicleSelect();
+    if (kind === "select") anchor = w;
     pk.scrim.hidden = false; pk.el.hidden = false;
     pk.scrim.classList.toggle("dim", window.innerWidth <= 760);
     document.documentElement.classList.add("pkr-open");
     pkRender();
     anchor.setAttribute("aria-expanded", "true");
-    var first = pk.el.querySelector(".pkr-item, .pkr-cur .pkr-tbtn, .pkr-x");
+    var first = pk.el.querySelector('.pkr-opt[aria-current="true"]') || pk.el.querySelector(".pkr-item, .pkr-cur .pkr-tbtn, .pkr-x");
     if (first) first.focus({ preventScroll: true });
   }
   function pkClose() {
@@ -1135,6 +1151,16 @@ require([
     if (!b || !pk.el.contains(b)) return;
     var a = b.getAttribute("data-a"), id = b.getAttribute("data-id"), v = b.getAttribute("data-v");
     if (a === "close") return pkClose();
+    if (a === "opt") {
+      var sel = pk.w, i = +v, opts = sel.querySelectorAll("option");
+      pkClose();
+      if (opts[i] && sel.selectedIndex !== Array.prototype.indexOf.call(sel.options, opts[i])) {
+        opts[i].selected = true;
+        sel.dispatchEvent(new Event("input", { bubbles: true }));
+        sel.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      return;
+    }
     if (a === "edit") { pk.edit = true; pk.renaming = null; return pkRender(); }
     if (a === "done") { pk.edit = false; pk.renaming = null; return pkRender(); }
     if (a === "pick") { var p = placeFromValue(v), w = pk.w; pkClose(); if (p) usePlace(w, p); return; }
@@ -1199,6 +1225,30 @@ require([
     });
   }
   pkWireLink($("vehicles").parentNode, "vehicles", null);
+  function pkWireSelect(id, title) {
+    var sel = $(id);
+    if (!sel) return;
+    sel.classList.add("pkr-native");
+    sel.setAttribute("data-pk-title", title);
+    sel.setAttribute("aria-haspopup", "dialog");
+    function go(e) { e.preventDefault(); sel.focus({ preventScroll: true }); pkOpen("select", sel, sel); }
+    sel.addEventListener("mousedown", go);   // desktop: instead of the browser's list
+    var t0 = null;
+    sel.addEventListener("touchstart", function (e) { var t = e.touches[0]; t0 = t ? [t.clientX, t.clientY] : null; }, { passive: true });
+    sel.addEventListener("touchend", function (e) { // phones: a tap (not a scroll) opens ours, before the phone's own list
+      var t = e.changedTouches[0];
+      if (t0 && t && Math.hypot(t.clientX - t0[0], t.clientY - t0[1]) > 10) { e.preventDefault(); return; }
+      go(e);
+    });
+    sel.addEventListener("click", function (e) { e.preventDefault(); });
+    sel.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown" || e.key === "ArrowUp" || (e.altKey && e.key === "ArrowDown")) go(e);
+    });
+  }
+  pkWireSelect("axles", L("Vehicle"));
+  pkWireSelect("via-road", L("Toll road"));
+  pkWireSelect("commute-days", L("Days a week"));
+  pkWireSelect("fuel-type", L("Fuel"));
   fillVehicles();
 
   // Section jump bar: tap a section to scroll the panel (the page on phones) to it. The

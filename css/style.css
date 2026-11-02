@@ -828,6 +828,11 @@ html[data-theme="dark"] .pkr-tbtn.fill { background: var(--accent); border-color
 .pkr-chev svg { width: 18px; height: 18px; }
 .pkr-fold[open] .pkr-chev { transform: rotate(90deg); }
 .pkr-fold .pkr-item { min-height: 44px; }
+.pkr-opts { padding-top: 2px; }
+.pkr-opt { min-height: 48px; }
+.pkr-opt .pkr-it b { font-weight: 600; white-space: normal; }
+.pkr-opt[aria-current="true"] .pkr-it b { font-weight: 800; color: var(--accent); }
+select.pkr-native { -webkit-touch-callout: none; }
 .pkr-fold { margin-top: 8px; border-top: 0; border-radius: 12px; background: var(--purple-tint); }
 .pkr-fold summary { background: var(--purple-tint-strong); border-radius: 12px; }
 .pkr-fold[open] summary { border-radius: 12px 12px 0 0; }

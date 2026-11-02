@@ -2842,9 +2842,7 @@ require([
     var at = backDeparture();
     if (!at) return;
     var run = ++backRun, t = lastTrip.trip, saveDeparture = departure, out = $("back-out");
-    var bv = chosenVia() && window.TollCalc.viaPlazas(tollPoints, [stops.to.longitude, stops.to.latitude], [stops.from.longitude, stops.from.latitude])
-      .filter(function (o) { return o.road === viaChoice.road; })[0];
-    var bvia = bv ? [[bv.point.lon, bv.point.lat]] : null; // the chosen toll road, going the other way
+    var bvia = chosenViaPoints([stops.to.longitude, stops.to.latitude], [stops.from.longitude, stops.from.latitude]); // the chosen toll road, going the other way
     backTrip = null; backFailed = false;
     $("back-go").disabled = true; $("best-time").disabled = true;
     out.dataset.busy = "1";
@@ -3103,7 +3101,9 @@ require([
     var w = btTimes(base), times = w.times.slice();
     if (w.picked) times.push(base);
     var tollRoute = lastTrip.tollRoute, freeRoute = lastTrip.freeRoute, trip = lastTrip.trip;
-    var via = tollRoute.anchors || null, out = $("best-time-out"), btn = $("best-time");
+    // A chosen toll road: every time goes through the same plazas on it. No road chosen: each
+    // time is free to find its own fastest route.
+    var via = chosenVia() ? tollRoute.anchors || null : null, out = $("best-time-out"), btn = $("best-time");
     if (!w.times.length) { out.innerHTML = '<p class="hint">' + esc(L("No times to check in that window (times already past are skipped).")) + "</p>"; return; }
     btn.disabled = true; $("back-go").disabled = true;
     var todo = w.times.length, done = 0;
@@ -3130,8 +3130,8 @@ require([
           return;
         }
         departure = d;
-        // Same routing rules as the trip shown: through its tollway points, with the same side
-        // streets blocked, so Esri doesn't hop off the tollway (or the feeder road) at this time.
+        // Same side streets blocked as the trip shown, so Esri doesn't hop off the tollway (or
+        // the feeder road) at this time; through the chosen road's plazas when one is chosen.
         return Promise.all([solve(tollRoute.mode, true, false, via, tollRoute.barriers || null),
           solve(freeRoute.mode, false, false, null, freeRoute.barriers || null)]).then(function (r) {
           var tp = [].concat.apply([], r[0].geometry.paths), ts = routeStats(r[0]), fs = routeStats(r[1]);
@@ -3189,6 +3189,12 @@ require([
   // (from roads near the trip, going its way). "" = the route Esri picks.
   var viaChoice = { road: "", ends: null };
   function endsKey() { return stops.from && stops.to ? [stops.from.longitude, stops.from.latitude, stops.to.longitude, stops.to.latitude].map(function (v) { return v.toFixed(5); }).join(",") : ""; }
+  // The chosen road's plazas the route goes through (one or two, in order), as [lon, lat]s.
+  function chosenViaPoints(from, to) {
+    if (!chosenVia()) return null;
+    var pts = window.TollCalc.viaPair(tollPoints, from, to, viaChoice.road);
+    return pts.length ? pts.map(function (p) { return [p.lon, p.lat]; }) : null;
+  }
   function chosenVia() {
     if (!viaChoice.road || viaChoice.ends !== endsKey()) return null;
     var o = window.TollCalc.viaPlazas(tollPoints, [stops.from.longitude, stops.from.latitude], [stops.to.longitude, stops.to.latitude])
@@ -4412,11 +4418,12 @@ require([
     loadTravelModes().then(function (modes) {
       var mode = pickMode(modes, axles);
       window.__baseMode = mode;
-      return Promise.all([via ? solveFirstVia(tollVariants(mode, axles, "prefer"), [[via.lon, via.lat]]) : solveFirst(tollVariants(mode, axles, "prefer"), true),
+      var viaPts = via ? (chosenViaPoints([stops.from.longitude, stops.from.latitude], [stops.to.longitude, stops.to.latitude]) || [[via.lon, via.lat]]) : null;
+      return Promise.all([via ? solveFirstVia(tollVariants(mode, axles, "prefer"), viaPts) : solveFirst(tollVariants(mode, axles, "prefer"), true),
         solveFirst(tollVariants(mode, axles, "prohibit"), true)]);
     }).then(function (routes) {
       if (midKeys.length) orderPath = [].concat.apply([], routes[0].geometry.paths);
-      return Promise.all([via ? stayOnChosen(routes[0], [[via.lon, via.lat]]) : stayOnTollway(routes[0], axles), stayOnFeeder(routes[1])]);
+      return Promise.all([via ? stayOnChosen(routes[0], viaPts) : stayOnTollway(routes[0], axles), stayOnFeeder(routes[1])]);
     }).then(function (routes) {
       var tollRoute = routes[0], freeRoute = routes[1];
       var path = [].concat.apply([], tollRoute.geometry.paths);

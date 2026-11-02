@@ -885,6 +885,33 @@
     return Object.keys(best).map(function (k) { return best[k]; }).sort(function (x, y) { return x.extra - y.extra; }).slice(0, 6);
   }
 
+  // The chosen road's plazas a route is sent through, in order: one near where the trip would
+  // get on (closest to the start) and one near where it gets off (closest to the end), so the
+  // route drives most of the road instead of touching it at one spot. One plaza when the road
+  // only has one that fits, or when two would add too much. Returns [point, ...].
+  function viaPair(points, from, to, road, maxExtra) {
+    maxExtra = maxExtra == null ? 0.3 : maxExtra;
+    var proj = projector((from[1] + to[1]) / 2), a = proj(from[0], from[1]), b = proj(to[0], to[1]);
+    var direct = Math.hypot(b[0] - a[0], b[1] - a[1]), go = [b[0] - a[0], b[1] - a[1]], limit = direct * maxExtra + 3000;
+    var c = [];
+    points.forEach(function (p) {
+      if (p.road !== road || p.kind !== "main" || p.lon == null) return;
+      var v = DIR_VEC[p.dir];
+      if (v && v[0] * go[0] + v[1] * go[1] <= 0) return;
+      var q = proj(p.lon, p.lat), da = Math.hypot(q[0] - a[0], q[1] - a[1]), db = Math.hypot(b[0] - q[0], b[1] - q[1]);
+      if (Math.min(da, db) < Math.max(3000, direct * 0.12)) return;
+      if (da + db - direct > limit) return;
+      c.push({ p: p, q: q, da: da, db: db });
+    });
+    if (!c.length) return [];
+    var first = c.slice().sort(function (x, y) { return x.da - y.da; })[0];
+    var last = c.slice().sort(function (x, y) { return x.db - y.db; })[0];
+    var best = c.slice().sort(function (x, y) { return (x.da + x.db) - (y.da + y.db); })[0];
+    if (first === last || first.da >= last.da) return [best.p];
+    var two = first.da + Math.hypot(last.q[0] - first.q[0], last.q[1] - first.q[1]) + last.db - direct;
+    return two <= limit ? [first.p, last.p] : [best.p];
+  }
+
   // ---- TomTom traffic (debug test) ----
   // Points every `every` meters along a route path, with their distance along it.
   function sampleAlong(path, every) {
@@ -1089,7 +1116,7 @@
     return runs;
   }
 
-  var api = { tollRoadAt: tollRoadAt, orderAlong: orderAlong, agencyInfo: agencyInfo, rateSource: rateSource, agencyTotals: agencyTotals, agencyRuns: agencyRuns, unpricedRoads: unpricedRoads, unpricedOnRoute: unpricedOnRoute, pathsDiffer: pathsDiffer, googleWaypoints: googleWaypoints, pointAt: pointAt, viaPlazas: viaPlazas, speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
+  var api = { tollRoadAt: tollRoadAt, orderAlong: orderAlong, agencyInfo: agencyInfo, rateSource: rateSource, agencyTotals: agencyTotals, agencyRuns: agencyRuns, unpricedRoads: unpricedRoads, unpricedOnRoute: unpricedOnRoute, pathsDiffer: pathsDiffer, googleWaypoints: googleWaypoints, pointAt: pointAt, viaPlazas: viaPlazas, viaPair: viaPair, speedFactor: speedFactor, fuelGallons: fuelGallons, fuelDefaults: fuelDefaults, fuelCost: fuelCost, commute: commute, FUEL_PRICES: FUEL_PRICES, alongPath: alongPath, feederRoad: feederRoad, findFeederDetours: findFeederDetours, distanceToPath: distanceToPath, sampleAlong: sampleAlong, segmentAlong: segmentAlong, relativeLevel: relativeLevel, findTollwayHops: findTollwayHops, tollwayAnchors: tollwayAnchors, bypassedPlazas: bypassedPlazas, laneRanges: laneRanges, trafficSegments: trafficSegments, trafficLevel: trafficLevel, stepKind: stepKind, analyzeTrip: analyzeTrip, findCrossings: findCrossings, managedLaneCrossings: managedLaneCrossings, dropSharedWithFree: dropSharedWithFree, rampZonesFromSteps: rampZonesFromSteps, rampZoneInfoFromSteps: rampZoneInfoFromSteps, mentionsRoad: mentionsRoad, zoneDistance: zoneDistance, rateFor: rateFor, price: price, timedRate: timedRate, setSchedules: setSchedules, pathMeters: pathMeters, houstonParts: houstonParts, MATCH_METERS: MATCH_METERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TollCalc = api;
 })(this);

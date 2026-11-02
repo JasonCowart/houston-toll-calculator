@@ -56,6 +56,7 @@ Last updated: Nov 1, 2026
 
 | Date | Item |
 | --- | --- |
+| Nov 2, 2026 | Chosen toll road: the route goes through two plazas on it (near where it gets on and gets off) so it drives the road; the trip back too. Compare departure times follows the chosen road; with no road chosen each time finds its own fastest route |
 | Nov 2, 2026 | Toll road choice: a plaza within 3 km (or 12% of the trip) of the start or end isn't used, so the route doesn't loop past the end (Work → SE Plaza via Sam Houston) |
 | Nov 1, 2026 | Everything above pushed live (main 61ca945) |
 | Nov 1, 2026 | Axles, Toll road, Days a week and Fuel lists open in the app's own panel (sheet on phones, dropdown on desktop) instead of the phone's list; current choice checked; keyboard works |

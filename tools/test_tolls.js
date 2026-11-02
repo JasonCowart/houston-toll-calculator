@@ -483,6 +483,17 @@ test("choose a toll road: not a plaza right at the start or end (the route would
   assert(!/Southeast/.test(sh.point.name), "not the Southeast Plaza next to the end, got " + sh.point.name);
 });
 
+test("choose a toll road: through a plaza near where the trip gets on and one near where it gets off", () => {
+  const pts = require("../data/toll-points.json").points;
+  // Work -> SE Plaza on Sam Houston: down the Beltway's west side (Central, then Southwest),
+  // so every departure time drives the road instead of joining it at the last plaza.
+  const two = T.viaPair(pts, [-95.508625, 29.856987], [-95.326664, 29.600151], "Sam Houston");
+  assert(two.length === 2 && /Central/.test(two[0].name) && /Southwest/.test(two[1].name), "Central then Southwest, got " + two.map(p => p.name).join(" -> "));
+  // A road with only one plaza that fits: just that one.
+  const one = T.viaPair(pts, [-95.3414, 29.9902], [-95.2789, 29.6454], "Hardy Toll Rd");
+  assert(one.length === 1 && one[0].dir === "S", "one southbound Hardy plaza");
+});
+
 test("a stop on the trip isn't a tollway hop", () => {
   const step = (text, len, type) => ({ text, length: len, maneuverType: type || "esriDMTStraight", path: [[-95.5, 29.7], [-95.49, 29.7]] });
   const hop = [step("Go east on Westpark Tollway", 2), step("Take the exit toward Fondren Rd", 0.3, "esriDMTRampRight"),

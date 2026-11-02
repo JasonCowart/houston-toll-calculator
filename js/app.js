@@ -4390,7 +4390,7 @@ require([
     var payment = paymentChoice();
     clearBack();
     backTimeSet = false;
-    var via = chosenVia();
+    var via = chosenVia(), viaPts = null; // the chosen road's plazas (set when routing starts)
     comparedKey = placesKey(); clearTimeout(recompareTimer);
     orderPath = null;
     lookupLog = { t0: performance.now(), list: [], pageMs: performance.now() };
@@ -4418,7 +4418,7 @@ require([
     loadTravelModes().then(function (modes) {
       var mode = pickMode(modes, axles);
       window.__baseMode = mode;
-      var viaPts = via ? (chosenViaPoints([stops.from.longitude, stops.from.latitude], [stops.to.longitude, stops.to.latitude]) || [[via.lon, via.lat]]) : null;
+      viaPts = via ? (chosenViaPoints([stops.from.longitude, stops.from.latitude], [stops.to.longitude, stops.to.latitude]) || [[via.lon, via.lat]]) : null;
       return Promise.all([via ? solveFirstVia(tollVariants(mode, axles, "prefer"), viaPts) : solveFirst(tollVariants(mode, axles, "prefer"), true),
         solveFirst(tollVariants(mode, axles, "prohibit"), true)]);
     }).then(function (routes) {

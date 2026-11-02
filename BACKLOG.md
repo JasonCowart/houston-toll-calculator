@@ -8,6 +8,7 @@ Last updated: Nov 1, 2026
 
 | Item | What | Why | Waiting on |
 | --- | --- | --- | --- |
+| Managed / express lanes as a choice | Esri's map has no drivable Katy Managed Lanes or SH 288 Express Lanes, so the app adds their tolls when a toll route runs alongside (an assumption). Options: (1) price the regular lanes and show the toll lanes as a separate opt-in line (cost at that time, miles covered, time saved unknown) — recommended; (2) draw and price the lane stretch ourselves from TxDOT lines; (3) a routing service that knows the lanes (Google/HERE: costs money, breaks the free rule); (4) ask HCTRA for lane geometry and travel times. | Jason saw "+ Almeda added" on a 288 route (Nov 2, 2026) and doesn't like charging lanes the route doesn't show; more trips will hit these corridors as use grows. | Jason's pick; a mockup of option 1 offered |
 | Update admin guide and staff deck | Add the Nov 1 changes: the custom place, vehicle and drop-down panel (save, rename, reorder, folded Recent and Common places), reload starting fresh, the PDF/print map layout, the Results glow. | They describe the old pick lists and Edit windows. | Nothing |
 | EZ TAG savings using the real trip back | The monthly "Save about $X/mo" figure in the EZ TAG offer assumes the trip back costs the same as the trip there. The commute section can already price the real trip back; use that figure in the offer when it's available. | One-way tolls and time-of-day lanes (SH 288, Katy Managed Lanes) can make the trip home cost quite differently, so the monthly savings can be off. | Nothing |
 

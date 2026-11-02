@@ -1274,10 +1274,30 @@ require([
     // A short glow around the section you jumped to, once the scroll has settled, so it's
     // easy to tell where it starts among everything else.
     var flashTimer = null;
+    // Results has no box of its own: a glow box is laid over everything from the headline
+    // down to the Share / Print buttons (up to the trip chart).
+    function resultsGlowBox() {
+      var res = $("results"), box = $("results-glow");
+      if (!box) { box = document.createElement("div"); box.id = "results-glow"; box.setAttribute("aria-hidden", "true"); res.appendChild(box); }
+      // Where top/left 0 lands (phones unwrap #results, so the box's frame differs by layout).
+      box.style.top = box.style.left = "0px";
+      var top = Infinity, bottom = -Infinity, left = Infinity, right = -Infinity, r0 = box.getBoundingClientRect();
+      for (var k = $("headline"); k && k.id !== "trip-chart"; k = k.nextElementSibling) {
+        if (k === box || !k.offsetParent) continue;
+        var r = k.getBoundingClientRect();
+        if (!r.height) continue;
+        top = Math.min(top, r.top); bottom = Math.max(bottom, r.bottom); left = Math.min(left, r.left); right = Math.max(right, r.right);
+      }
+      if (top === Infinity) return $("headline");
+      box.style.top = (top - r0.top) + "px"; box.style.left = (left - r0.left) + "px";
+      box.style.width = (right - left) + "px"; box.style.height = (bottom - top) + "px";
+      return box;
+    }
     function flashSection(el) {
       document.querySelectorAll(".jump-flash").forEach(function (x) { x.classList.remove("jump-flash"); });
       clearTimeout(flashTimer);
       flashTimer = setTimeout(function () {
+        if (el.id === "results") el = resultsGlowBox(); // measured after the scroll has moved things
         el.classList.remove("jump-flash"); void el.offsetWidth; // restart the animation
         el.classList.add("jump-flash");
         flashTimer = setTimeout(function () { el.classList.remove("jump-flash"); }, 1900);
@@ -1296,7 +1316,7 @@ require([
       panBar(b);
       pinUntil = Date.now() + 900;
       scrollToSection(el.id === "results" ? $("headline") : el);
-      flashSection(el.id === "results" ? $("headline") : el);
+      flashSection(el);
       var f = el.tagName === "DETAILS" ? el.querySelector("summary") : el.id === "results" ? $("headline") : null;
       if (f) setTimeout(function () { try { f.focus({ preventScroll: true }); } catch (x) { /* old browser */ } }, 400);
     });

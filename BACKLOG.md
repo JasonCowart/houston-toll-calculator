@@ -8,6 +8,7 @@ Last updated: Nov 1, 2026
 
 | Item | What | Why | Waiting on |
 | --- | --- | --- | --- |
+| Update admin guide and staff deck | Add the Nov 1 changes: the custom place, vehicle and drop-down panel (save, rename, reorder, folded Recent and Common places), reload starting fresh, the PDF/print map layout, the Results glow. | They describe the old pick lists and Edit windows. | Nothing |
 | EZ TAG savings using the real trip back | The monthly "Save about $X/mo" figure in the EZ TAG offer assumes the trip back costs the same as the trip there. The commute section can already price the real trip back; use that figure in the offer when it's available. | One-way tolls and time-of-day lanes (SH 288, Katy Managed Lanes) can make the trip home cost quite differently, so the monthly savings can be off. | Nothing |
 
 ## Waiting on HCTRA or others
@@ -55,6 +56,7 @@ Last updated: Nov 1, 2026
 
 | Date | Item |
 | --- | --- |
+| Nov 1, 2026 | Everything above pushed live (main 61ca945) |
 | Nov 1, 2026 | Axles, Toll road, Days a week and Fuel lists open in the app's own panel (sheet on phones, dropdown on desktop) instead of the phone's list; current choice checked; keyboard works |
 | Nov 1, 2026 | Drop-down boxes (axles, toll road, commute days) get the app's purple chevron; the phone's own list still opens; axle box a little wider so "2 axles (car, SUV)" fits |
 | Nov 1, 2026 | Section bar: the Results glow wraps the whole results block (banner through Save PDF), not just the banner |

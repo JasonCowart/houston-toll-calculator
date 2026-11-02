@@ -1096,7 +1096,7 @@ require([
       pk.el.addEventListener("pointerdown", pkDragStart);
       window.addEventListener("resize", function () { if (!pk.el.hidden) pkPlace(); });
     }
-    pk.kind = kind; pk.w = w; pk.edit = false; pk.renaming = null; pk.anchor = anchor;
+    pk.kind = kind; pk.w = w; pk.edit = false; pk.renaming = null; pk.anchor = anchor; pk.touch = false;
     if (kind === "vehicles") syncVehicleSelect();
     if (kind === "select") anchor = w;
     pk.scrim.hidden = false; pk.el.hidden = false;
@@ -1111,7 +1111,12 @@ require([
     if (!pk.el || pk.el.hidden) return;
     pk.el.hidden = true; pk.scrim.hidden = true;
     document.documentElement.classList.remove("pkr-open");
-    if (pk.anchor) { pk.anchor.setAttribute("aria-expanded", "false"); pk.anchor.focus({ preventScroll: true }); }
+    if (pk.anchor) {
+      pk.anchor.setAttribute("aria-expanded", "false");
+      // Back to the box for keyboard users. Not on touch screens: focusing a drop-down there
+      // makes the phone open its own list on top.
+      if (!(pk.kind === "select" && pk.touch)) pk.anchor.focus({ preventScroll: true });
+    }
   }
   function usePlace(w, p) {
     stops[w] = new Point({ longitude: p.lon, latitude: p.lat });
@@ -1231,7 +1236,14 @@ require([
     sel.classList.add("pkr-native");
     sel.setAttribute("data-pk-title", title);
     sel.setAttribute("aria-haspopup", "dialog");
-    function go(e) { e.preventDefault(); sel.focus({ preventScroll: true }); pkOpen("select", sel, sel); }
+    function go(e) {
+      e.preventDefault();
+      var touch = e.type === "touchend";
+      if (!touch) sel.focus({ preventScroll: true });
+      else if (document.activeElement === sel) sel.blur();
+      pkOpen("select", sel, sel);
+      pk.touch = touch;
+    }
     sel.addEventListener("mousedown", go);   // desktop: instead of the browser's list
     var t0 = null;
     sel.addEventListener("touchstart", function (e) { var t = e.touches[0]; t0 = t ? [t.clientX, t.clientY] : null; }, { passive: true });

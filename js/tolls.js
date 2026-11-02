@@ -861,6 +861,7 @@
   // Managed and express lanes are left out (Esri can't route on them; they're priced alongside
   // I-10 and SH 288). A road is offered when going through its plaza adds at most `maxExtra`
   // (as a share of the straight-line distance, 30% by default) plus 3 km. Closest first, at most 6.
+  // Plazas within 3 km (or 12% of the trip) of either end aren't used.
   var VIA_SKIP = /managed lanes|express lanes/i;
   var DIR_VEC = { N: [0, 1], S: [0, -1], E: [1, 0], W: [-1, 0] };
   function viaPlazas(points, from, to, maxExtra) {
@@ -872,8 +873,11 @@
       if (p.kind !== "main" || VIA_SKIP.test(p.road) || p.lon == null) return;
       var v = DIR_VEC[p.dir];
       if (v && v[0] * go[0] + v[1] * go[1] <= 0) return; // the other direction's lanes
-      var q = proj(p.lon, p.lat);
-      var via = Math.hypot(q[0] - a[0], q[1] - a[1]) + Math.hypot(b[0] - q[0], b[1] - q[1]);
+      var q = proj(p.lon, p.lat), da = Math.hypot(q[0] - a[0], q[1] - a[1]), db = Math.hypot(b[0] - q[0], b[1] - q[1]);
+      // A plaza right at the start or end makes the route loop: to pass it in the right lanes
+      // it goes past the end and comes back (Southeast Plaza, Nov 2, 2026). Use one along the way.
+      if (Math.min(da, db) < Math.max(3000, direct * 0.12)) return;
+      var via = da + db;
       var extra = via - direct;
       if (extra > direct * maxExtra + 3000) return;
       if (!best[p.road] || extra < best[p.road].extra) best[p.road] = { road: p.road, point: p, extra: extra };

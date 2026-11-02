@@ -474,6 +474,15 @@ test("choose a toll road: plazas going the trip's way, near enough to the trip",
   assert(h && h.point.dir === "S", "southbound Hardy plaza");
 });
 
+test("choose a toll road: not a plaza right at the start or end (the route would loop past it)", () => {
+  const pts = require("../data/toll-points.json").points;
+  // Wilshire Place (NW Houston) to HCTRA's SE Plaza, Sam Houston picked (Nov 2, 2026): the
+  // Southeast Plaza is 250 m from the end; going through its eastbound lanes looped the route.
+  const sh = T.viaPlazas(pts, [-95.508625, 29.856987], [-95.326664, 29.600151]).find(o => o.road === "Sam Houston");
+  assert(sh, "Sam Houston is still offered");
+  assert(!/Southeast/.test(sh.point.name), "not the Southeast Plaza next to the end, got " + sh.point.name);
+});
+
 test("a stop on the trip isn't a tollway hop", () => {
   const step = (text, len, type) => ({ text, length: len, maneuverType: type || "esriDMTStraight", path: [[-95.5, 29.7], [-95.49, 29.7]] });
   const hop = [step("Go east on Westpark Tollway", 2), step("Take the exit toward Fondren Rd", 0.3, "esriDMTRampRight"),

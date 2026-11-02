@@ -56,6 +56,7 @@ Last updated: Nov 1, 2026
 
 | Date | Item |
 | --- | --- |
+| Nov 2, 2026 | Toll road choice: a plaza within 3 km (or 12% of the trip) of the start or end isn't used, so the route doesn't loop past the end (Work → SE Plaza via Sam Houston) |
 | Nov 1, 2026 | Everything above pushed live (main 61ca945) |
 | Nov 1, 2026 | Axles, Toll road, Days a week and Fuel lists open in the app's own panel (sheet on phones, dropdown on desktop) instead of the phone's list; current choice checked; keyboard works |
 | Nov 1, 2026 | Drop-down boxes (axles, toll road, commute days) get the app's purple chevron; the phone's own list still opens; axle box a little wider so "2 axles (car, SUV)" fits |

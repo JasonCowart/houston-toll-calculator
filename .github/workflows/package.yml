@@ -1,0 +1,39 @@
+# Builds the zip for HCTRA's own web servers (see packaging/INSTALL.md). Run it from
+# Actions > "Package for servers" > Run workflow; the zip is attached to the run under
+# "Artifacts". No keys go into the package: config.js ships blank.
+name: Package for servers
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "What to package: main (the live site), preview, or a commit"
+        default: main
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build the package
+        id: build
+        run: |
+          git fetch -q origin "${{ inputs.ref }}" || true
+          REF="origin/${{ inputs.ref }}"
+          git rev-parse -q --verify "$REF" >/dev/null || REF="${{ inputs.ref }}"
+          ZIP="$(packaging/package.sh "$REF")"
+          echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
+          echo "name=$(basename "$ZIP" .zip)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.build.outputs.name }}
+          path: ${{ steps.build.outputs.zip }}
+          retention-days: 90

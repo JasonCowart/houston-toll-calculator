@@ -4,7 +4,7 @@
 window.I18N && window.I18N.add("vi", {
   "Toll Calculator": "Máy tính phí cầu đường",
   "See what the tolls cost on the fastest route, and how much time they save over a toll-free route.": "Xem phí cầu đường trên tuyến nhanh nhất là bao nhiêu, và tiết kiệm được bao nhiêu thời gian so với tuyến không thu phí.",
-  "No ArcGIS API key yet. Add it as the ARCGIS_API_KEY secret on GitHub to turn on the map, address search and routing.": "Chưa có khóa ArcGIS API. Thêm khóa làm secret ARCGIS_API_KEY trên GitHub để bật bản đồ, tìm địa chỉ và chỉ đường.",
+  "No ArcGIS API key yet. Add it in config.js (or as the ARCGIS_API_KEY secret on GitHub) to turn on the map, address search and routing.": "Chưa có khóa ArcGIS API. Thêm khóa vào config.js (hoặc làm secret ARCGIS_API_KEY trên GitHub) để bật bản đồ, tìm địa chỉ và chỉ đường.",
   "Your trip": "Chuyến đi của bạn",
   "Start over": "Làm lại từ đầu",
   "From": "Từ",

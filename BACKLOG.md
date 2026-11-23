@@ -58,6 +58,7 @@ Last updated: Nov 1, 2026
 
 | Date | Item |
 | --- | --- |
+| Nov 23, 2026 | Package for HCTRA's servers: packaging/package.sh and the "Package for servers" GitHub action build a zip (site + IIS web.config + gas price updater + INSTALL.md), no keys inside; missing-key notice now mentions config.js |
 | Nov 2, 2026 | Chosen toll road: the route goes through two plazas on it (near where it gets on and gets off) so it drives the road; the trip back too. Compare departure times follows the chosen road; with no road chosen each time finds its own fastest route |
 | Nov 2, 2026 | Toll road choice: a plaza within 3 km (or 12% of the trip) of the start or end isn't used, so the route doesn't loop past the end (Work → SE Plaza via Sam Houston) |
 | Nov 1, 2026 | Everything above pushed live (main 61ca945) |

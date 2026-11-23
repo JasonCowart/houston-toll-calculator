@@ -26,6 +26,15 @@ The key never goes in the code. The workflow writes it into `config.js` only in 
 
 Keep pay-as-you-go **off** in Esri. The free tier then pauses at its limit instead of billing.
 
+## Installing on HCTRA's own servers
+
+The site is static (HTML, JavaScript, CSS, data files), so any web server that serves files over
+HTTPS can host it. To get a package: on GitHub, open **Actions > Package for servers > Run
+workflow** (choose `main` for the live version) and download the zip from the run's
+**Artifacts**, or run `packaging/package.sh main` locally. The zip has the `site` folder to copy
+to the server, an IIS `web.config`, the weekly gas price updater, and `INSTALL.md` with the steps
+(keys go in `config.js` on the server; none are in the package).
+
 ## How tolls are counted
 
 - `data/toll-points.json` holds 604 toll points with rates for 2–8 axles: EZ TAG, other tag, and no tag (pay by mail). Houston and Austin TxDOT points come from HCTRA's toll location layer (`tools/build_data.py`, `tools/austin_rates.py`); DFW points come from NTTA's rate schedule and NCTCOG's gantry layer (`tools/ntta_points.py`).

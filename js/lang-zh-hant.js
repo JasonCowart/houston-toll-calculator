@@ -4,7 +4,7 @@
 window.I18N && window.I18N.add("zh-Hant", {
   "Toll Calculator": "通行費計算器",
   "See what the tolls cost on the fastest route, and how much time they save over a toll-free route.": "查看最快路線的通行費是多少，以及與免費路線相比能節省多少時間。",
-  "No ArcGIS API key yet. Add it as the ARCGIS_API_KEY secret on GitHub to turn on the map, address search and routing.": "尚未設定 ArcGIS API 金鑰。請在 GitHub 中將其新增為 ARCGIS_API_KEY 機密，以啟用地圖、地址搜尋和路線規劃。",
+  "No ArcGIS API key yet. Add it in config.js (or as the ARCGIS_API_KEY secret on GitHub) to turn on the map, address search and routing.": "尚未設定 ArcGIS API 金鑰。請在 config.js 中新增（或在 GitHub 中新增為 ARCGIS_API_KEY 機密），以啟用地圖、地址搜尋和路線規劃。",
   "Your trip": "您的行程",
   "Start over": "重新開始",
   "From": "出發地",

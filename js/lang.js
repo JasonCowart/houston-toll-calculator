@@ -12,8 +12,8 @@
     "Toll Calculator": "Calculadora de peajes",
     "See what the tolls cost on the fastest route, and how much time they save over a toll-free route.":
       "Vea cuánto cuestan los peajes en la ruta más rápida y cuánto tiempo ahorran frente a una ruta sin peaje.",
-    "No ArcGIS API key yet. Add it as the ARCGIS_API_KEY secret on GitHub to turn on the map, address search and routing.":
-      "Aún no hay clave de ArcGIS. Agréguela como el secreto ARCGIS_API_KEY en GitHub para activar el mapa, la búsqueda y las rutas.",
+    "No ArcGIS API key yet. Add it in config.js (or as the ARCGIS_API_KEY secret on GitHub) to turn on the map, address search and routing.":
+      "Aún no hay clave de ArcGIS. Agréguela en config.js (o como el secreto ARCGIS_API_KEY en GitHub) para activar el mapa, la búsqueda y las rutas.",
     "Your trip": "Su viaje",
     "Start over": "Empezar de nuevo",
     "From": "Desde",

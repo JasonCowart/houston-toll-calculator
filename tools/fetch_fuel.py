@@ -12,6 +12,7 @@ so a bad week never breaks the site: the app then uses the last good prices.
 
   python3 tools/fetch_fuel.py            # update data/fuel-prices.json
   python3 tools/fetch_fuel.py --check    # print what it would write
+  python3 fetch_fuel.py --out site/data/fuel-prices.json   # write somewhere else (server installs)
 """
 import datetime
 import html.parser
@@ -115,6 +116,9 @@ def parse(page):
 
 def main():
     check = "--check" in sys.argv
+    out_path = OUT
+    if "--out" in sys.argv and sys.argv.index("--out") + 1 < len(sys.argv):
+        out_path = sys.argv[sys.argv.index("--out") + 1]
     try:
         req = urllib.request.Request(URL, headers={"User-Agent": UA, "Accept": "text/html"})
         with urllib.request.urlopen(req, timeout=45) as r:
@@ -135,7 +139,7 @@ def main():
     if check:
         print(json.dumps(out, indent=2))
         return 0
-    with open(OUT, "w") as f:
+    with open(out_path, "w") as f:
         json.dump(out, f, indent=2)
         f.write("\n")
     print(f"Fuel prices: regular ${out['regular']:.2f} ({gas[2]}), diesel ${out['diesel']:.2f} ({dsl[2]}), week of {out['week']}.")
